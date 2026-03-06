@@ -8,7 +8,7 @@ const CONFIG = {
   // Tu GAS Web App URL (termina en /exec)
   GAS_URL: 'https://script.google.com/macros/s/AKfycbx0qvLL0Ip9g54Lpg_NpP7CsKhiVWAas6SOIwQ8c5aqCx7duJd0jLsVoIvFghu0h2f6/exec',
   // Tu Google OAuth Client ID (de Google Cloud Console)
-  GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
+  GOOGLE_CLIENT_ID: '1030464424780-7iequodlpd3kf2p17h2n11m337jm6sgj.apps.googleusercontent.com',
 };
 // ─────────────────────────────────────────────────────────────
 
