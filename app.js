@@ -6,9 +6,9 @@
 // ── CONFIGURACIÓN ── reemplazá estos valores ──────────────────
 const CONFIG = {
   // Tu GAS Web App URL (termina en /exec)
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbwmSTwDBye4shE17YQZ1q1WyFT54wFJXBmvkjYXakSNbh_tWjjXV27ow-GtJ2w9jJoB/exec',
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbwr8wttXc58SEoQYdUnefBVEe6rVTp69W03iBfwweugQnn_sCLpDoFlNLaVkfmKTD3I/exec',
   // Tu Google OAuth Client ID (de Google Cloud Console)
-  GOOGLE_CLIENT_ID: '1030464424780-7iequodlpd3kf2p17h2n11m337jm6sgj.apps.googleusercontent.com',
+  GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
 };
 // ─────────────────────────────────────────────────────────────
 
@@ -52,14 +52,21 @@ function mostrarLoginScreen() {
 
 // ── API CALLS A GAS ───────────────────────────────────────────
 async function gasCall(action, data = {}) {
-  const body = { action, token: accessToken, ...data };
-  // GAS requiere text/plain para evitar el preflight CORS
-  const res = await fetch(CONFIG.GAS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(body),
-    redirect: 'follow',
-  });
+  const params = new URLSearchParams({ action, token: accessToken });
+
+  // Para updateMyProfile los datos van JSON-encoded
+  if (action === 'updateMyProfile') {
+    params.set('rowNumber', data.rowNumber);
+    params.set('data', encodeURIComponent(JSON.stringify(data.data)));
+  } else if (action === 'subirArchivo') {
+    params.set('tipoArchivo', data.tipoArchivo);
+    params.set('base64Data', encodeURIComponent(data.base64Data));
+  } else {
+    Object.entries(data).forEach(([k, v]) => params.set(k, v));
+  }
+
+  const url = CONFIG.GAS_URL + '?' + params.toString();
+  const res = await fetch(url, { redirect: 'follow' });
   const text = await res.text();
   let json;
   try { json = JSON.parse(text); }
