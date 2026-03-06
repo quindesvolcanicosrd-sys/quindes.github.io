@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ef4444">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quindes">
+  <title>Quindes App</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <link rel="icon" href="icons/icon-192x192.png">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="loading-logo"><span class="material-icons">roller_skating</span></div>
+  <h2>Cargando...</h2>
+</div>
+
+<div id="loginScreen" style="display:none;">
+  <div class="login-card">
+    <img src="icons/icon-192x192.png" alt="Quindes" class="login-logo">
+    <h1 class="login-title">Quindes Volcánicos</h1>
+    <p class="login-sub">Roller Derby Quito</p>
+    <div id="google-signin-btn"></div>
+  </div>
+</div>
+
+<div id="unauthorized" style="display:none;">
+  <div class="login-card">
+    <span class="material-icons" style="font-size:48px;color:#ef4444;">block</span>
+    <h2>Sin acceso</h2>
+    <p>Este correo no está registrado en el equipo.</p>
+  </div>
+</div>
+
+<div id="appContent" style="display:none; width:100%;">
+  <header class="pf-header">
+    <span class="pf-header-title">Mi Perfil</span>
+    <span id="user-email" class="pf-header-email"></span>
+  </header>
+
+  <div class="pf-scroll">
+    <div id="perfil-error" class="error-box" style="display:none;"></div>
+
+    <div class="pf-card" id="my-profile">
+
+      <div class="pf-banner"></div>
+
+      <div class="pf-avatar-wrap">
+        <div id="avatar-container" class="disabled">
+          <img id="img-preview-foto" src="" alt="Foto de perfil">
+          <div class="pf-avatar-edit"><span class="material-icons">edit</span></div>
+          <div id="avatar-loader" class="hidden"><span class="material-icons">hourglass_empty</span></div>
+          <div id="avatar-overlay" class="hidden"></div>
+        </div>
+      </div>
+      <input type="file" id="p-fotoPerfil" accept="image/*" disabled style="display:none;">
+
+      <div class="pf-hero-text">
+        <p class="pf-hero-name" id="hero-nombre-derby">—</p>
+        <p class="pf-hero-sub"  id="hero-sub">— · —</p>
+        <div class="pf-hero-badges">
+          <span class="pf-badge pf-badge-red"  id="hero-rol">—</span>
+          <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
+        </div>
+      </div>
+
+      <div class="pf-stats">
+        <div class="pf-stat">
+          <span class="material-icons">calendar_today</span>
+          <span class="pf-stat-lbl" id="label-puntosMes">Estado mes</span>
+          <span class="pf-stat-val" id="p-puntosMes">—</span>
+        </div>
+        <div class="pf-stat">
+          <span class="material-icons">date_range</span>
+          <span class="pf-stat-lbl" id="label-puntosTrim">Trimestre</span>
+          <span class="pf-stat-val" id="p-puntosTrim">—</span>
+        </div>
+        <div class="pf-stat">
+          <span class="material-icons">emoji_events</span>
+          <span class="pf-stat-lbl" id="label-puntosAnio">Año</span>
+          <span class="pf-stat-val" id="p-puntosAnio">—</span>
+        </div>
+      </div>
+
+      <div class="pf-btn-wrap">
+        <button id="btnEditar"   class="btn-primary" onclick="activarEdicion()">Editar Perfil</button>
+        <button id="btnGuardar"  class="btn-primary" onclick="guardarPerfil()"  style="display:none;">Guardar Cambios</button>
+        <button id="btnCancelar" class="btn-ghost"   onclick="cancelarEdicion()" style="display:none;">Cancelar</button>
+      </div>
+
+      <!-- DATOS GENERALES -->
+      <div class="pf-section">
+        <div class="pf-section-head">
+          <div class="pf-section-ico ico-blue"><span class="material-icons">person</span></div>
+          <span class="pf-section-title">Datos Generales</span>
+        </div>
+        <div class="profile-field">
+          <label class="accent">Nombre Derby</label>
+          <input id="p-nombreDerby" class="editable" disabled>
+        </div>
+        <div class="pf-row-2">
+          <div class="profile-field">
+            <label>Número derby</label>
+            <input id="p-numero" class="editable" disabled>
+          </div>
+          <div class="profile-field">
+            <label>Posición / Rol</label>
+            <input id="p-rolJugadorx" class="editable" disabled>
+          </div>
+        </div>
+        <div class="profile-field" data-role="Admin SemiAdmin">
+          <label>Nombre en la app</label>
+          <span class="field-help">Nombre con el que se te identifica</span>
+          <input id="p-nombre" class="editable normal" disabled>
+        </div>
+        <div class="profile-field">
+          <label>Pronombres</label>
+          <input id="p-pronombres" class="editable hidden-input" disabled>
+        </div>
+      </div>
+      <div class="pf-divider"></div>
+
+      <!-- DATOS PERSONALES -->
+      <div class="pf-section">
+        <div class="pf-section-head">
+          <div class="pf-section-ico ico-purple"><span class="material-icons">badge</span></div>
+          <span class="pf-section-title">Datos Personales</span>
+        </div>
+        <div class="profile-field" data-role="Admin">
+          <label>Nombre civil</label>
+          <input id="p-nombreCivil" class="editable normal" disabled>
+        </div>
+        <div class="profile-field">
+          <label>Número de documento</label>
+          <input id="p-cedulaPasaporte" class="editable normal" disabled>
+        </div>
+        <div class="pf-file-row">
+          <div class="pf-file-ico" style="background:rgba(168,85,247,0.12);">
+            <span class="material-icons" style="color:#c084fc;">contact_page</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <p class="pf-file-lbl">Documento de identidad</p>
+            <div id="estado-adjCedula"></div>
+            <input type="file" id="p-adjCedula" accept=".pdf,image/*" disabled style="display:none;">
+            <div class="pf-file-actions">
+              <button type="button" class="btn-file" id="btn-subir-adjCedula">Subir archivo</button>
+              <span id="upload-status-adjCedula"></span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-field">
+          <label>Nacionalidad</label>
+          <input id="p-pais" class="editable" disabled>
+        </div>
+        <div class="profile-field">
+          <label>Fecha de nacimiento</label>
+          <input id="p-fechaNacimiento" class="editable normal" disabled>
+        </div>
+        <div class="pf-row-2">
+          <div class="profile-field">
+            <label>¿Mostrar cumpleaños?</label>
+            <input id="p-mostrarCumple" class="editable hidden-input" disabled>
+          </div>
+          <div class="profile-field">
+            <label>¿Mostrar edad?</label>
+            <input id="p-mostrarEdad" class="editable hidden-input" disabled>
+          </div>
+        </div>
+        <div class="pf-row-2">
+          <div class="profile-field">
+            <label>Cumpleaños</label>
+            <input id="p-cumple" class="editable normal" disabled>
+          </div>
+          <div class="profile-field">
+            <label>Edad</label>
+            <input id="p-edad" class="editable normal" disabled>
+          </div>
+        </div>
+        <div class="profile-field">
+          <label>Mayor de 18 y acepto términos</label>
+          <input id="p-mayor18" class="editable hidden-input" disabled>
+        </div>
+      </div>
+      <div class="pf-divider"></div>
+
+      <!-- CONTACTO -->
+      <div class="pf-section">
+        <div class="pf-section-head">
+          <div class="pf-section-ico ico-teal"><span class="material-icons">contacts</span></div>
+          <span class="pf-section-title">Contacto</span>
+        </div>
+        <div class="profile-field" data-role="Admin">
+          <label>Email (Cuenta de Google)</label>
+          <span class="field-help">Solo la parte antes de @gmail.com</span>
+          <div class="pf-email-wrap">
+            <input id="p-email" class="editable normal" placeholder="tu-email" disabled>
+            <span class="pf-email-suffix">@gmail.com</span>
+          </div>
+        </div>
+        <div class="pf-row-2">
+          <div class="profile-field">
+            <label>Código país</label>
+            <input id="p-codigoPais" class="editable" disabled>
+          </div>
+          <div class="profile-field">
+            <label>Teléfono</label>
+            <input id="p-telefono" class="editable normal" disabled>
+          </div>
+        </div>
+      </div>
+      <div class="pf-divider"></div>
+
+      <!-- SALUD Y EMERGENCIA -->
+      <div class="pf-section">
+        <div class="pf-section-head">
+          <div class="pf-section-ico ico-red"><span class="material-icons">favorite</span></div>
+          <span class="pf-section-title rojo">Salud y Emergencia</span>
+        </div>
+        <div class="profile-field">
+          <label>Contacto de emergencia</label>
+          <input id="p-contactoEmergencia" class="editable normal" disabled>
+        </div>
+        <div class="pf-row-2">
+          <div class="profile-field">
+            <label>Grupo sanguíneo</label>
+            <input id="p-grupoSanguineo" class="editable" disabled>
+          </div>
+          <div class="profile-field" data-role="Admin">
+            <label>Apto para el deporte</label>
+            <input id="p-aptoDeporte" class="editable hidden-input" disabled>
+          </div>
+        </div>
+        <div class="pf-row-2">
+          <div class="profile-field">
+            <label>Alergias</label>
+            <input id="p-alergias" class="editable normal" disabled>
+          </div>
+          <div class="profile-field">
+            <label>Dieta</label>
+            <input id="p-dieta" class="editable normal" disabled>
+          </div>
+        </div>
+        <div class="pf-file-row">
+          <div class="pf-file-ico" style="background:rgba(239,68,68,0.12);">
+            <span class="material-icons" style="color:#f87171;">fitness_center</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <p class="pf-file-lbl">Prueba física</p>
+            <div id="estado-adjPruebaFisica"></div>
+            <input type="file" id="p-adjPruebaFisica" accept=".pdf,image/*" disabled style="display:none;">
+            <div class="pf-file-actions">
+              <button type="button" class="btn-file" id="btn-subir-adjPruebaFisica">Subir archivo</button>
+              <span id="upload-status-adjPruebaFisica"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pf-divider"></div>
+
+      <!-- ESTADO Y RENDIMIENTO (solo Admin/SemiAdmin) -->
+      <div class="pf-section" data-role="Admin SemiAdmin">
+        <div class="pf-section-head">
+          <div class="pf-section-ico ico-orange"><span class="material-icons">bar_chart</span></div>
+          <span class="pf-section-title">Estado y Rendimiento</span>
+        </div>
+        <div class="pf-row-2">
+          <div class="profile-field" data-role="Admin">
+            <label>Estado</label>
+            <input id="p-estado" class="editable hidden-input" disabled>
+          </div>
+          <div class="profile-field">
+            <label>Paga cuota</label>
+            <input id="p-pagaCuota" class="editable hidden-input" disabled>
+          </div>
+        </div>
+        <div class="pf-row-2">
+          <div class="profile-field" data-role="Admin">
+            <label>Asiste por semana</label>
+            <input id="p-asisteSemana" class="editable hidden-input" disabled>
+          </div>
+          <div class="profile-field" data-role="Admin">
+            <label>Prueba física (estado)</label>
+            <input id="p-pruebaFisica" class="editable hidden-input" disabled>
+          </div>
+        </div>
+        <div class="profile-field" data-role="Admin">
+          <label>Tipo de usuario</label>
+          <input id="p-tipoUsuario" class="editable hidden-input" disabled>
+        </div>
+      </div>
+
+    </div><!-- /pf-card -->
+  </div><!-- /pf-scroll -->
+</div><!-- /appContent -->
+
+<!-- Modal crop -->
+<div id="modal-crop" style="display:none;">
+  <div class="modal-box">
+    <h3>Ajustar foto de perfil</h3>
+    <div style="background:#000;border-radius:10px;overflow:hidden;max-height:60vh;">
+      <img id="crop-image" style="display:block;max-width:100%;">
+    </div>
+    <div class="modal-actions">
+      <button onclick="cancelarCrop()"  class="modal-btn modal-btn-cancel">Cancelar</button>
+      <button onclick="rotarImagen()"   class="modal-btn modal-btn-rotate">Girar 90°</button>
+      <button onclick="confirmarCrop()" class="modal-btn modal-btn-confirm" id="btn-aplicar-crop">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
