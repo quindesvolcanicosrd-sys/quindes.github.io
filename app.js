@@ -21,7 +21,7 @@ let cropper;
 
 // ── SERVICE WORKER (PWA) ──────────────────────────────────────
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
 // ── GOOGLE IDENTITY SERVICES ─────────────────────────────────
@@ -53,12 +53,17 @@ function mostrarLoginScreen() {
 // ── API CALLS A GAS ───────────────────────────────────────────
 async function gasCall(action, data = {}) {
   const body = { action, token: accessToken, ...data };
+  // GAS requiere text/plain para evitar el preflight CORS
   const res = await fetch(CONFIG.GAS_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(body),
+    redirect: 'follow',
   });
-  const json = await res.json();
+  const text = await res.text();
+  let json;
+  try { json = JSON.parse(text); }
+  catch { throw new Error('Respuesta inválida del servidor: ' + text.substring(0, 100)); }
   if (json.error) throw new Error(json.error);
   return json;
 }
