@@ -1,16 +1,14 @@
-const CACHE = 'quindes-v1';
+const CACHE = 'quindes-v3';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  'https://fonts.googleapis.com/icon?family=Material+Icons',
-  'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js'
+  './index.html',
+  './style.css',
+  './manifest.json',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png',
 ];
+
+// Archivos que NUNCA se cachean (siempre van a la red)
+const NO_CACHE = ['app.js', 'workers.dev', 'script.google.com'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -27,8 +25,12 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // No cachear requests a GAS API
-  if (e.request.url.includes('script.google.com')) return;
+  const url = e.request.url;
+  // Nunca cachear app.js ni llamadas a APIs
+  if (NO_CACHE.some(s => url.includes(s))) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
