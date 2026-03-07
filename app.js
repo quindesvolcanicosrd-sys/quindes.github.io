@@ -5,7 +5,7 @@
 
 // ── CONFIGURACIÓN ── reemplazá estos valores ──────────────────
 const CONFIG = {
-GAS_URL: 'https://script.google.com/macros/s/AKfycbwCJxoFmY3_Kfu7LDmQALlgdrthGahbH_0Z5aqYMaVxIjbGH7E2k-seU4T4ByTDjsmv/exec',
+GAS_URL: 'https://black-snow-eff8.quindesvolcanicosrd.workers.dev',
 GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
 };
 // ─────────────────────────────────────────────────────────────
