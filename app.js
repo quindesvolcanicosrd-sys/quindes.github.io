@@ -5,8 +5,10 @@
 
 // ── CONFIGURACIÓN ── reemplazá estos valores ──────────────────
 const CONFIG = {
-GAS_URL: 'https://black-snow-eff8.quindesvolcanicosrd.workers.dev',
-GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
+  // Tu GAS Web App URL (termina en /exec)
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbwr8wttXc58SEoQYdUnefBVEe6rVTp69W03iBfwweugQnn_sCLpDoFlNLaVkfmKTD3I/exec',
+  // Tu Google OAuth Client ID (de Google Cloud Console)
+  GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
 };
 // ─────────────────────────────────────────────────────────────
 
@@ -495,9 +497,10 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
   const nuevoSearch = searchEl.cloneNode(true);
   searchEl.parentNode.replaceChild(nuevoSearch, searchEl);
   nuevoSearch.addEventListener('input', () => renderOpciones(nuevoSearch.value));
-requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
     const sel = optsEl.querySelector('.selected');
     if (sel) sel.scrollIntoView({ block: 'center' });
+    if (options.length > 6) nuevoSearch.focus();
   });
   overlay.classList.add('active');
   panel.classList.add('active');
@@ -522,6 +525,8 @@ function habilitarSelect(id, valorInicial = '') {
   const labelEl  = fieldEl ? fieldEl.querySelector('label') : null;
   const labelText = labelEl ? labelEl.textContent : key;
   input.style.display = 'none';
+  input.style.position = 'absolute';
+  input.style.visibility = 'hidden';
   let trigger = input.nextElementSibling;
   if (trigger && trigger.classList.contains('custom-select-trigger')) trigger.remove();
   trigger = document.createElement('button');
