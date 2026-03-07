@@ -208,7 +208,11 @@ html, body {
 }
 
 /* ── BOTONES ── */
-.pf-btn-wrap { padding: 14px 20px 4px; display: flex; flex-direction: column; gap: 8px; }
+.pf-btn-wrap { padding: 14px 20px 20px; display: flex; flex-direction: column; gap: 8px; }
+/* Spacer al final de la tarjeta */
+.pf-card > .pf-section:last-child,
+.pf-card > div:last-child { padding-bottom: 0; }
+.pf-card-spacer { height: 28px; }
 #btnEditar, #btnGuardar, #btnCancelar {
   display: flex; align-items: center; justify-content: center;
   width: 100%; padding: 16px; border-radius: 9999px;
@@ -250,10 +254,11 @@ html, body {
 .ico-red    { background: rgba(239,68,68,0.14);   } .ico-red    .material-icons { color: #f87171 !important; -webkit-text-fill-color: #f87171 !important; }
 .ico-orange { background: rgba(249,115,22,0.14);  } .ico-orange .material-icons { color: #fb923c !important; -webkit-text-fill-color: #fb923c !important; }
 .pf-section-title {
-  font-size: 10px !important; font-weight: 900 !important;
-  text-transform: uppercase !important; letter-spacing: 0.9px !important;
-  color: rgba(255,255,255,0.52) !important; -webkit-text-fill-color: rgba(255,255,255,0.52) !important;
+  font-size: 13px !important; font-weight: 900 !important;
+  text-transform: uppercase !important; letter-spacing: 0.6px !important;
+  color: rgba(255,255,255,0.82) !important; -webkit-text-fill-color: rgba(255,255,255,0.82) !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-style: italic !important;
 }
 .pf-section-title.rojo { color: #f87171 !important; -webkit-text-fill-color: #f87171 !important; }
 
