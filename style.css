@@ -337,22 +337,26 @@ label.accent { color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !impo
   display: flex !important; align-items: center !important; justify-content: space-between !important;
   width: 100% !important; background: transparent !important; border: none !important;
   outline: none !important; padding: 0 !important; margin: 0 !important;
-  font-size: 15px !important; font-weight: 500 !important;
+  font-size: 15px !important; font-weight: 700 !important;
+  font-style: italic !important; text-transform: uppercase !important;
+  letter-spacing: -0.2px !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   color: rgba(255,255,255,0.85) !important; -webkit-text-fill-color: rgba(255,255,255,0.85) !important;
-  text-align: left !important; cursor: pointer !important;
+  text-align: left !important; cursor: default !important;
   -webkit-appearance: none !important; border-radius: 0 !important;
 }
-.custom-select-trigger::after {
-  content: '›' !important; font-size: 20px !important; line-height: 1 !important;
-  color: rgba(255,255,255,0.22) !important; -webkit-text-fill-color: rgba(255,255,255,0.22) !important;
-  flex-shrink: 0 !important; margin-left: 8px !important;
-}
+.custom-select-trigger::after { display: none !important; }
 .custom-select-trigger:disabled { cursor: default !important; }
-.custom-select-trigger:disabled::after { display: none !important; }
 .is-editing .custom-select-trigger:not(:disabled) {
   border-bottom: 1.5px solid rgba(239,68,68,0.5) !important; padding-bottom: 3px !important;
   color: #fff !important; -webkit-text-fill-color: #fff !important;
+  cursor: pointer !important;
+}
+.is-editing .custom-select-trigger:not(:disabled)::after {
+  display: block !important;
+  content: '›' !important; font-size: 20px !important; line-height: 1 !important;
+  color: rgba(255,255,255,0.22) !important; -webkit-text-fill-color: rgba(255,255,255,0.22) !important;
+  flex-shrink: 0 !important; margin-left: 8px !important;
 }
 
 /* ── CHIPS ── */
