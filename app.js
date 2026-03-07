@@ -6,7 +6,7 @@
 // ── CONFIGURACIÓN ── reemplazá estos valores ──────────────────
 const CONFIG = {
   // Tu GAS Web App URL (termina en /exec)
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbwr8wttXc58SEoQYdUnefBVEe6rVTp69W03iBfwweugQnn_sCLpDoFlNLaVkfmKTD3I/exec',
+  GAS_URL: 'https://black-snow-eff8.quindesvolcanicosrd.workers.dev',
   // Tu Google OAuth Client ID (de Google Cloud Console)
   GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
 };
