@@ -495,10 +495,9 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
   const nuevoSearch = searchEl.cloneNode(true);
   searchEl.parentNode.replaceChild(nuevoSearch, searchEl);
   nuevoSearch.addEventListener('input', () => renderOpciones(nuevoSearch.value));
-  requestAnimationFrame(() => {
+requestAnimationFrame(() => {
     const sel = optsEl.querySelector('.selected');
     if (sel) sel.scrollIntoView({ block: 'center' });
-    if (options.length > 6) nuevoSearch.focus();
   });
   overlay.classList.add('active');
   panel.classList.add('active');
