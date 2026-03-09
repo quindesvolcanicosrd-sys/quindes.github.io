@@ -317,9 +317,12 @@ function activarEdicionSeccion(seccion) {
   // Mostrar flechas de select
   mostrarFlechasSelect(seccion, true);
 
-  // Show header action row (CSS also handles pencil hide via .is-editing)
+  // Animate header action row in
   const actionsRow = document.getElementById('header-actions-' + seccion);
-  if (actionsRow) actionsRow.style.display = 'flex';
+  if (actionsRow) {
+    actionsRow.style.display = 'flex';
+    requestAnimationFrame(() => actionsRow.classList.add('visible'));
+  }
 }
 
 function cancelarEdicionSeccion(seccion) {
@@ -344,9 +347,12 @@ function cancelarEdicionSeccion(seccion) {
   if (seccion === 'generales') setSecAvatarEditable(false);
   mostrarFlechasSelect(seccion, false);
 
-  // Hide header action row
+  // Animate header action row out
   const actionsRow = document.getElementById('header-actions-' + seccion);
-  if (actionsRow) actionsRow.style.display = 'none';
+  if (actionsRow) {
+    actionsRow.classList.remove('visible');
+    setTimeout(() => { actionsRow.style.display = 'none'; }, 280);
+  }
 }
 
 async function guardarSeccion(seccion) {
@@ -1005,8 +1011,9 @@ function renderDatePicker() {
     lbl.textContent = 'Sin seleccionar';
   }
 
-  document.getElementById('dp-month-label').textContent = MESES[viewMonth];
-  document.getElementById('dp-year-label').textContent  = viewYear;
+  const safeMonth = (typeof viewMonth === 'number' && viewMonth >= 0 && viewMonth <= 11) ? viewMonth : 0;
+  document.getElementById('dp-month-label').textContent = MESES[safeMonth] || 'Enero';
+  document.getElementById('dp-year-label').textContent  = viewYear || new Date().getFullYear();
 
   const gridWrap  = document.getElementById('dp-grid-wrap');
   const yearGrid  = document.getElementById('dp-year-grid');
@@ -1123,13 +1130,14 @@ function initFechaTrigger() {
     container.appendChild(trigger);
   }
   trigger.textContent = input.value || '—';
-  trigger.disabled = true; // always disabled until editing
+  trigger.disabled = false; // always clickable
 
   trigger.addEventListener('click', () => {
     if (!isEditing('p-fechaNacimiento')) return;
-    abrirDatePicker(input.value, val => {
+    const currentVal = input.value || '';
+    abrirDatePicker(currentVal, val => {
       input.value = val;
-      trigger.textContent = val;
+      trigger.textContent = val || '—';
     });
   });
 }
