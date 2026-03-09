@@ -10,40 +10,16 @@
   "scope": "https://quindes.github.io/",
   "icons": [
     {
-      "src": "icons/LogoDarkMode.png",
+      "src": "icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "icons/LogoDarkMode.png",
+      "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/Modo-Claro.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any light"
-    },
-    {
-      "src": "icons/Modo-Claro.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any light"
-    },
-    {
-      "src": "icons/LogoDarkMode.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icons/LogoDarkMode.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
