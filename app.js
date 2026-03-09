@@ -1282,13 +1282,13 @@ function initFechaTrigger() {
     trigger = document.createElement('button');
     trigger.type = 'button';
     trigger.className = 'date-picker-trigger';
-    // Build: [icon LEFT] [date text RIGHT]
+    // Build: [date text LEFT] [icon RIGHT]
+    const txtNode = document.createTextNode('—');
     const icoSpan = document.createElement('span');
     icoSpan.className = 'material-icons dp-trig-ico';
     icoSpan.textContent = 'edit_calendar';
-    const txtNode = document.createTextNode('—');
-    trigger.appendChild(icoSpan);  // first = left
-    trigger.appendChild(txtNode);  // second = right
+    trigger.appendChild(txtNode);  // first = left
+    trigger.appendChild(icoSpan);  // second = right
     container.appendChild(trigger);
   }
   // Refresh the text node (second child), icon span stays untouched
@@ -1297,7 +1297,8 @@ function initFechaTrigger() {
     const txt = p
       ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}`
       : (input.value || '—');
-    const textNode = Array.from(trigger.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+    // Text node is first child, icon span is last
+    const textNode = trigger.childNodes[0]?.nodeType === Node.TEXT_NODE ? trigger.childNodes[0] : Array.from(trigger.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
     if (textNode) {
       textNode.nodeValue = txt;
     } else {
