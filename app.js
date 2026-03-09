@@ -262,9 +262,9 @@ function volverHome() {
 // Campos por sección
 const CAMPOS_SECCION = {
   generales:   ['p-nombreDerby','p-numero','p-rolJugadorx','p-nombre','p-pronombres'],
-  personales:  ['p-nombreCivil','p-cedulaPasaporte','p-pais','p-fechaNacimiento','p-mostrarCumple','p-mostrarEdad','p-mayor18'],
+  personales:  ['p-nombreCivil','p-cedulaPasaporte','p-pais','p-fechaNacimiento','p-mostrarCumple','p-mostrarEdad','p-mayor18','p-adjCedula'],
   contacto:    ['p-email','p-codigoPais','p-telefono'],
-  salud:       ['p-contactoEmergencia','p-grupoSanguineo','p-alergias','p-dieta','p-aptoDeporte'],
+  salud:       ['p-contactoEmergencia','p-grupoSanguineo','p-alergias','p-dieta','p-aptoDeporte','p-adjPruebaFisica'],
   rendimiento: ['p-estado','p-asisteSemana','p-pruebaFisica','p-tipoUsuario','p-pagaCuota'],
 };
 
@@ -785,16 +785,20 @@ function configurarTodasLasSubidas() {
 function configurarUpload(inputId, tipoArchivo, campoDestino) {
   const input = document.getElementById(inputId);
   if (!input) return;
+
+  // For non-foto: clone to remove stale listeners
   let inputReal = input;
-
-  const btnSubir = document.getElementById('btn-subir-' + campoDestino);
-  if (btnSubir) btnSubir.onclick = () => { if (isEditing('p-' + campoDestino) || campoDestino === 'fotoPerfil') inputReal.click(); };
-
   if (campoDestino !== 'fotoPerfil') {
     const nuevoInput = input.cloneNode(true);
     input.parentNode.replaceChild(nuevoInput, input);
     inputReal = nuevoInput;
   }
+
+  const btnSubir = document.getElementById('btn-subir-' + campoDestino);
+  if (btnSubir) btnSubir.onclick = () => {
+    const pId = inputId; // e.g. 'p-adjPruebaFisica'
+    if (isEditing(pId) || campoDestino === 'fotoPerfil') inputReal.click();
+  };
 
   inputReal.addEventListener('change', e => {
     const file = e.target.files[0];
@@ -881,7 +885,7 @@ function normalizarDriveUrl(url) {
 function abrirCropper(base64) {
   const modal = document.getElementById('modal-crop');
   const image = document.getElementById('crop-image');
-  modal.classList.remove('hidden'); modal.classList.add('flex');
+  modal.style.display = 'flex';
   image.src = base64;
   if (cropper) cropper.destroy();
   cropper = new Cropper(image, {
@@ -900,8 +904,7 @@ function confirmarCrop() {
   if (btnAplicar) { btnAplicar.disabled = true; btnAplicar.textContent = 'Procesando...'; }
   const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
   const base64 = canvas.toDataURL('image/jpeg', 0.9);
-  document.getElementById('modal-crop').classList.add('hidden');
-  document.getElementById('modal-crop').classList.remove('flex');
+  document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
   subirImagenRecortada(base64);
 }
@@ -924,8 +927,7 @@ async function subirImagenRecortada(base64) {
 
 function cancelarCrop() {
   if (cropper) { cropper.destroy(); cropper = null; }
-  document.getElementById('modal-crop').classList.add('hidden');
-  document.getElementById('modal-crop').classList.remove('flex');
+  document.getElementById('modal-crop').style.display = 'none';
 }
 function rotarImagen() { if (cropper) cropper.rotate(90); }
 
