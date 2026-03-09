@@ -176,6 +176,7 @@ function renderMyProfile(profile) {
     const valor  = profile[key] || '';
     if (config.ui === 'chips')  habilitarChips(id, valor);
     if (config.ui === 'select') habilitarSelect(id, valor);
+    if (config.ui === 'toggle') habilitarToggle(id, valor);
   });
 
   renderEstadoArchivo('adjPruebaFisica', profile.adjPruebaFisica);
@@ -237,6 +238,7 @@ function activarEdicion() {
     const config = CHIPS_OPTIONS[key];
     if (config.ui === 'chips')  habilitarChips(id, valor);
     if (config.ui === 'select') habilitarSelect(id, valor);
+    if (config.ui === 'toggle') habilitarToggle(id, valor);
   });
 }
 
@@ -416,19 +418,19 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── CHIPS Y SELECTS ───────────────────────────────────────────
 const CHIPS_OPTIONS = {
   pronombres:     { multi: true,  ui: 'chips',  options: ['Él','Ella','Elle','No definido'] },
-  estado:         { multi: false, ui: 'chips',  options: ['Activx','No Activx','Satélite','Ausente','Técnico'] },
-  asisteSemana:   { multi: false, ui: 'chips',  options: ['1 vez','2 veces','3 o más veces','No aplica'] },
+  estado:         { multi: false, ui: 'select', options: ['Activx','No Activx','Satélite','Ausente','Técnico'] },
+  asisteSemana:   { multi: false, ui: 'select', options: ['1 vez','2 veces','3 o más veces','No aplica'] },
   rolJugadorx:    { multi: false, ui: 'select', options: ['Jammer','Bloquer','Blammer','Ref','Coach','Coach/ref','Bench','No definido'] },
-  pagaCuota:      { multi: false, ui: 'chips',  options: ['Sí','No'] },
-  pruebaFisica:   { multi: false, ui: 'chips',  options: ['Realizada','No realizada'] },
-  aptoDeporte:    { multi: false, ui: 'chips',  options: ['Sí','No'] },
+  pagaCuota:      { multi: false, ui: 'toggle', options: ['Sí','No'] },
+  pruebaFisica:   { multi: false, ui: 'select', options: ['Realizada','No realizada'] },
+  aptoDeporte:    { multi: false, ui: 'toggle', options: ['Sí','No'] },
   pais:           { multi: false, ui: 'select', options: ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'] },
   codigoPais:     { multi: false, ui: 'select', options: ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'] },
   grupoSanguineo: { multi: false, ui: 'select', options: ['A+','A-','AB+','AB-','B+','B-','O+','O-'] },
-  mostrarCumple:  { multi: false, ui: 'chips',  options: ['Sí','No'] },
-  mostrarEdad:    { multi: false, ui: 'chips',  options: ['Sí','No'] },
-  mayor18:        { multi: false, ui: 'chips',  options: ['Sí','No'] },
-  tipoUsuario:    { multi: false, ui: 'chips',  options: ['Admin','SemiAdmin','Invitado'] },
+  mostrarCumple:  { multi: false, ui: 'toggle', options: ['Sí','No'] },
+  mostrarEdad:    { multi: false, ui: 'toggle', options: ['Sí','No'] },
+  mayor18:        { multi: false, ui: 'toggle', options: ['Sí','No'] },
+  tipoUsuario:    { multi: false, ui: 'select', options: ['Admin','SemiAdmin','Invitado'] },
 };
 
 function habilitarChips(id, valorInicial = '') {
@@ -467,10 +469,47 @@ function habilitarChips(id, valorInicial = '') {
   });
 }
 
+
+function habilitarToggle(id, valorInicial = '') {
+  const input = document.getElementById(id);
+  if (!input) return;
+  input.style.display = 'none';
+  // Remove existing toggle if any
+  let tog = input.nextElementSibling;
+  if (tog && tog.classList.contains('toggle-wrap')) tog.remove();
+  const isOn = (valorInicial === 'Sí');
+  const wrap = document.createElement('div');
+  wrap.className = 'toggle-wrap';
+  wrap.innerHTML = `
+    <span class="toggle-label-off">No</span>
+    <button type="button" class="toggle-btn ${isOn ? 'toggle-on' : 'toggle-off'}" aria-pressed="${isOn}">
+      <span class="toggle-thumb"></span>
+      <span class="toggle-text">${isOn ? 'Sí' : 'No'}</span>
+    </button>
+    <span class="toggle-label-on">Sí</span>
+  `;
+  input.value = valorInicial;
+  input.parentNode.insertBefore(wrap, input.nextSibling);
+  const btn = wrap.querySelector('.toggle-btn');
+  btn.addEventListener('click', () => {
+    if (!modoEdicion) return;
+    const on = btn.classList.contains('toggle-off');
+    btn.classList.toggle('toggle-on', on);
+    btn.classList.toggle('toggle-off', !on);
+    btn.setAttribute('aria-pressed', on);
+    btn.querySelector('.toggle-text').textContent = on ? 'Sí' : 'No';
+    input.value = on ? 'Sí' : 'No';
+  });
+  btn.disabled = !modoEdicion;
+}
+
 function actualizarEstadoChips() {
   document.querySelectorAll('.chip').forEach(chip => {
     if (modoEdicion) { chip.classList.remove('opacity-50','cursor-not-allowed'); }
     else             { chip.classList.add('opacity-50','cursor-not-allowed'); }
+  });
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.disabled = !modoEdicion;
   });
 }
 
