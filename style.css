@@ -457,21 +457,16 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
 
 /* Pill "Ver archivo" */
 .file-link {
-  display: inline-flex !important; align-items: center !important; gap: 5px !important;
-  padding: 5px 12px !important; border-radius: 9999px !important;
-  background: rgba(66,133,244,0.1) !important;
-  border: 1px solid rgba(66,133,244,0.25) !important;
+  display: inline-flex !important; align-items: center !important;
+  padding: 5px 14px !important; border-radius: 9999px !important;
+  background: rgba(66,133,244,0.12) !important;
   color: #60a5fa !important; -webkit-text-fill-color: #60a5fa !important;
-  font-size: 11px !important; font-weight: 700 !important;
-  text-decoration: none !important; letter-spacing: 0.3px !important;
+  font-size: 11px !important; font-weight: 800 !important;
+  text-decoration: none !important; letter-spacing: 0.4px !important;
   text-transform: uppercase !important;
 }
-.file-link::before {
-  content: 'open_in_new'; font-family: 'Material Icons';
-  font-size: 13px !important; color: #60a5fa !important;
-  -webkit-text-fill-color: #60a5fa !important;
-  line-height: 1;
-}
+/* In edit mode, hide the "VER ARCHIVO" pill — only show upload button */
+.is-editing .file-status-ok { display: none !important; }
 .file-preview { margin-top: 8px !important; max-height: 90px !important; border-radius: 8px !important; border: 1px solid var(--border) !important; display: block !important; max-width: 100% !important; }
 .pf-file-actions { display: none; margin-top: 6px; gap: 8px; flex-wrap: wrap; align-items: center; }
 .is-editing .pf-file-actions { display: flex; }
@@ -841,8 +836,15 @@ input[type="file"] { display: none !important; }
 ══════════════════════════════════════════════════ */
 .sec-group {
   background: var(--card); border-radius: 18px;
-  overflow: hidden;
+  overflow: visible;
 }
+/* But clip inner items to rounded corners */
+.sec-group > .sec-row:first-child { border-radius: 18px 18px 0 0; }
+.sec-group > .sec-row:last-child  { border-radius: 0 0 18px 18px; }
+.sec-group > .sec-row:only-child  { border-radius: 18px; }
+.sec-group > .sec-row-toggle:first-child { border-radius: 18px 18px 0 0; }
+.sec-group > .sec-row-toggle:last-child  { border-radius: 0 0 18px 18px; }
+.sec-group > .sec-row-toggle:only-child  { border-radius: 18px; }
 
 /* Regular row */
 .sec-row {
@@ -860,8 +862,20 @@ input[type="file"] { display: none !important; }
   line-height: 1 !important;
   transition: color 0.2s;
 }
-/* Label rojo en edición */
-.is-editing .sec-row-label, .is-editing .sec-toggle-label {
+/* Labels: default = muted, red ONLY when that specific view is being edited */
+.sec-row-label {
+  color: var(--text3) !important;
+  -webkit-text-fill-color: var(--text3) !important;
+}
+.sec-toggle-label {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+/* Red labels only inside the view that has is-editing */
+.app-view.is-editing .sec-row-label {
+  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
+}
+.app-view.is-editing .sec-toggle-label {
   color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
 }
 .sec-input {
@@ -1033,9 +1047,6 @@ input[type="file"] { display: none !important; }
   flex-shrink: 0; margin-left: 4px;
 }
 
-/* Hide verbose upload text, only show pill */
-.file-status-ok > span:first-child { display: none !important; }
-
 /* Extra breathing room for rows with file upload or multi-line content */
 .sec-row.sec-row-tall { min-height: 80px; align-items: flex-start; padding-top: 18px; padding-bottom: 18px; }
 .sec-row-body.has-file { gap: 8px; }
@@ -1186,17 +1197,14 @@ input[type="file"] { display: none !important; }
 /* Chips hidden when not editing - show only trigger */
 .chip-wrapper { display: none; }
 
-/* Override file-link - clean red pill, no icon */
-.file-link {
-  display: inline-flex !important; align-items: center !important;
-  padding: 6px 14px !important; border-radius: 9999px !important;
-  font-size: 11px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.08em !important;
-  text-decoration: none !important; cursor: pointer !important;
-  background: var(--accent-dim) !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-.file-link .material-icons { display: none !important; }
 
 /* Sec groups and rows: height always wraps content */
 .sec-group, .sec-row, .sec-row-toggle { height: auto !important; }
+
+/* sec-file-actions: hidden by default, shown in edit mode */
+.sec-file-actions { display: none !important; }
+.app-view.is-editing .sec-file-actions { display: flex !important; }
+
+/* "VER ARCHIVO" pill: visible by default, hidden in edit mode */
+.file-status-ok { display: flex !important; }
+.app-view.is-editing .file-status-ok { display: none !important; }
