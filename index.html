@@ -56,27 +56,25 @@
     </header>
 
     <div class="app-scroll">
-      <!-- Hero card -->
+      <!-- Hero card — Android Settings style -->
       <div class="hero-card">
-        <div class="hero-banner"></div>
-        <div class="hero-avatar-wrap">
-          <div id="avatar-container" class="disabled">
+        <div class="hero-flat-row">
+          <div id="avatar-container" class="disabled hero-avatar-flat" onclick="abrirFotoSinEdicion()">
             <img id="img-preview-foto" src="" alt="Foto de perfil">
-            <div class="pf-avatar-edit"><span class="material-icons">edit</span></div>
+            <div class="pf-avatar-edit"><span class="material-icons">photo_camera</span></div>
             <div id="avatar-loader" class="hidden"><span class="material-icons">hourglass_empty</span></div>
             <div id="avatar-overlay" class="hidden"></div>
           </div>
-          <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
-        </div>
-        <div class="hero-text">
-          <p class="hero-name" id="hero-nombre-derby">—</p>
-          <p class="hero-sub" id="hero-sub">— · —</p>
-          <div class="hero-badges">
-            <span class="pf-badge pf-badge-red" id="hero-rol">—</span>
-            <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
+          <div class="hero-flat-info">
+            <p class="hero-name" id="hero-nombre-derby">—</p>
+            <p class="hero-sub" id="hero-sub">— · —</p>
           </div>
         </div>
-
+        <div class="hero-flat-badges">
+          <span class="pf-badge pf-badge-red" id="hero-rol">—</span>
+          <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
+        </div>
+        <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
       </div>
 
       <!-- Settings list -->
@@ -167,6 +165,27 @@
         </div>
       </div>
 
+      <!-- Stats section — right after foto -->
+      <div class="sec-group sec-stats-group">
+        <div class="sec-stat-row">
+          <div class="sec-stat">
+            <span class="material-icons sec-stat-ico">calendar_today</span>
+            <span class="sec-stat-lbl" id="label-puntosMes">Mes</span>
+            <span class="sec-stat-val" id="p-puntosMes">—</span>
+          </div>
+          <div class="sec-stat">
+            <span class="material-icons sec-stat-ico">date_range</span>
+            <span class="sec-stat-lbl" id="label-puntosTrim">Trimestre</span>
+            <span class="sec-stat-val" id="p-puntosTrim">—</span>
+          </div>
+          <div class="sec-stat">
+            <span class="material-icons sec-stat-ico">emoji_events</span>
+            <span class="sec-stat-lbl" id="label-puntosAnio">Año</span>
+            <span class="sec-stat-val" id="p-puntosAnio">—</span>
+          </div>
+        </div>
+      </div>
+
       <div class="sec-group">
         <div class="sec-row">
           <div class="sec-row-body">
@@ -197,27 +216,6 @@
           <div class="sec-row-body">
             <span class="sec-row-label">Pronombres</span>
             <input id="p-pronombres" class="sec-input" disabled style="display:none;">
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats section -->
-      <div class="sec-group sec-stats-group">
-        <div class="sec-stat-row">
-          <div class="sec-stat">
-            <span class="material-icons sec-stat-ico">calendar_today</span>
-            <span class="sec-stat-lbl" id="label-puntosMes">Mes</span>
-            <span class="sec-stat-val" id="p-puntosMes">—</span>
-          </div>
-          <div class="sec-stat">
-            <span class="material-icons sec-stat-ico">date_range</span>
-            <span class="sec-stat-lbl" id="label-puntosTrim">Trimestre</span>
-            <span class="sec-stat-val" id="p-puntosTrim">—</span>
-          </div>
-          <div class="sec-stat">
-            <span class="material-icons sec-stat-ico">emoji_events</span>
-            <span class="sec-stat-lbl" id="label-puntosAnio">Año</span>
-            <span class="sec-stat-val" id="p-puntosAnio">—</span>
           </div>
         </div>
       </div>
