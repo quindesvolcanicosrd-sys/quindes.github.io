@@ -90,6 +90,7 @@ html, body {
 }
 .loading-logo-img {
   width: 100%; height: 100%; object-fit: contain; display: block;
+  content: url('../icons/LogoDarkMode.png');
 }
 @keyframes lpulse {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -2059,4 +2060,10 @@ input, button, select, textarea {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
   font-weight: 700 !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .loading-logo-img {
+    content: url('../icons/Modo-Claro.png');
+  }
 }
