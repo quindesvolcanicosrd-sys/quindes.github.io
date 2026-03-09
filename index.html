@@ -61,7 +61,7 @@
 
     <div class="app-scroll">
       <!-- Hero card — click → Datos Generales -->
-      <div class="hero-card" onclick="navegarSeccion('generales')" style="cursor:pointer;">
+      <div class="hero-card hero-card-clickable" onclick="navegarSeccion('generales')">
         <div class="hero-flat-row">
           <div id="avatar-container" class="disabled hero-avatar-flat" onclick="event.stopPropagation(); abrirFotoSinEdicion()">
             <img id="img-preview-foto" src="" alt="Foto de perfil">
@@ -81,52 +81,43 @@
         <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
       </div>
 
-      <!-- Settings list -->
-      <div class="settings-list">
+      <!-- Settings list — grouped like Android Settings -->
+      <div class="settings-group">
 
-        <div class="settings-row" onclick="navegarSeccion('generales')">
-          <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Datos Generales</span>
-            <span class="settings-row-sub" id="sub-generales">Nombre Derby, Número, Rol</span>
-          </div>
-          <span class="material-icons settings-row-arrow">chevron_right</span>
-        </div>
-
-        <div class="settings-row" onclick="navegarSeccion('personales')">
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
           <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Datos Personales</span>
             <span class="settings-row-sub" id="sub-personales">Documento, Nacionalidad, Fecha de nacimiento</span>
           </div>
-          <span class="material-icons settings-row-arrow">chevron_right</span>
+          <span class="settings-row-arrow"></span>
         </div>
 
-        <div class="settings-row" onclick="navegarSeccion('contacto')">
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('contacto')">
           <div class="settings-row-ico ico-teal"><span class="material-icons">contacts</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Contacto</span>
             <span class="settings-row-sub" id="sub-contacto">Email, Teléfono</span>
           </div>
-          <span class="material-icons settings-row-arrow">chevron_right</span>
+          <span class="settings-row-arrow"></span>
         </div>
 
-        <div class="settings-row" onclick="navegarSeccion('salud')">
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('salud')">
           <div class="settings-row-ico ico-red"><span class="material-icons">favorite</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Salud y Emergencia</span>
             <span class="settings-row-sub" id="sub-salud">Contacto de emergencia, Grupo sanguíneo</span>
           </div>
-          <span class="material-icons settings-row-arrow">chevron_right</span>
+          <span class="settings-row-arrow"></span>
         </div>
 
-        <div class="settings-row" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarSeccion('rendimiento')">
+        <div class="settings-row settings-row-grouped settings-row-last" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarSeccion('rendimiento')">
           <div class="settings-row-ico ico-orange"><span class="material-icons">bar_chart</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Estado y Rendimiento</span>
             <span class="settings-row-sub" id="sub-rendimiento">Estado, Cuota, Asistencia</span>
           </div>
-          <span class="material-icons settings-row-arrow">chevron_right</span>
+          <span class="settings-row-arrow"></span>
         </div>
 
       </div>
