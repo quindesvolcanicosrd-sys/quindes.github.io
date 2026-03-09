@@ -2024,3 +2024,62 @@ input, button, select, textarea {
   display: inline-block;
   transition: opacity 0.12s ease;
 }
+
+
+/* ── Date picker: month label and year label as tappable chips ── */
+.dp-nav-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  cursor: pointer !important;
+  pointer-events: all !important;
+  transition: background 0.15s !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.dp-nav-chip:active {
+  background: var(--chip-bg) !important;
+}
+/* Small underline hint to show they're tappable */
+.dp-nav-chip::after {
+  content: ' ▾';
+  font-size: 10px !important;
+  opacity: 0.5;
+  margin-left: 1px;
+}
+
+/* ── Month grid: 3 columns, same style as year grid ── */
+.dp-month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 8px 16px 16px;
+}
+.dp-month-btn {
+  padding: 14px 6px !important;
+  border: none !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: background 0.15s !important;
+  font-family: var(--font) !important;
+}
+.dp-month-btn:active {
+  background: var(--chip-bg) !important;
+}
+.dp-month-selected {
+  background: var(--accent) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-weight: 700 !important;
+}
