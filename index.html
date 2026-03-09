@@ -11,7 +11,8 @@
   <title>Quindes App</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-  <link rel="icon" href="icons/icon-192x192.png">
+  <link rel="icon" type="image/png" href="icons/icon-192x192.png">
+  <link rel="icon" sizes="32x32" type="image/png" href="icons/icon-96x96.png">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
   <link rel="stylesheet" href="style.css">
@@ -20,8 +21,9 @@
 
 <!-- LOADING -->
 <div id="loadingScreen">
-  <div class="loading-logo"><span class="material-icons">roller_skating</span></div>
-  <h2>Cargando...</h2>
+  <div class="loading-logo">
+    <img src="icons/icon-192x192.png" alt="Quindes" class="loading-logo-img">
+  </div>
 </div>
 
 <!-- LOGIN -->
@@ -506,7 +508,7 @@
     <div class="dp-nav">
       <button class="dp-nav-label" id="dp-month-year-btn" type="button">
         <span id="dp-month-label">Enero</span>&nbsp;<span id="dp-year-label">2000</span>
-        <span class="material-icons" style="font-size:18px;">arrow_drop_down</span>
+        <span class="dp-month-arrow"></span>
       </button>
       <div style="display:flex;gap:4px;">
         <button class="dp-nav-btn" id="dp-prev" type="button"><span class="material-icons">chevron_left</span></button>
