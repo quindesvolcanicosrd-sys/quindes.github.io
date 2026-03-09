@@ -171,9 +171,10 @@ function renderTodo(profile) {
     const id     = 'p-' + key;
     const config = CHIPS_OPTIONS[key];
     const valor  = profile[key] || '';
-    if (config.ui === 'chips')  habilitarChips(id, valor);
-    if (config.ui === 'select') habilitarSelect(id, valor);
-    if (config.ui === 'toggle') habilitarToggle(id, valor);
+    if (config.ui === 'chips')       habilitarChips(id, valor);
+    if (config.ui === 'multiselect') habilitarMultiSelect(id, valor);
+    if (config.ui === 'select')      habilitarSelect(id, valor);
+    if (config.ui === 'toggle')      habilitarToggle(id, valor);
   });
 
   // Archivos
@@ -294,9 +295,10 @@ function activarEdicionSeccion(seccion) {
     if (!CAMPOS_SECCION[seccion].includes(id)) return;
     const config = CHIPS_OPTIONS[key];
     const valor  = document.getElementById(id)?.value || window.myProfile[key] || '';
-    if (config.ui === 'chips')  habilitarChips(id, valor);
-    if (config.ui === 'select') habilitarSelect(id, valor);
-    if (config.ui === 'toggle') habilitarToggle(id, valor);
+    if (config.ui === 'chips')       habilitarChips(id, valor);
+    if (config.ui === 'multiselect') habilitarMultiSelect(id, valor);
+    if (config.ui === 'select')      habilitarSelect(id, valor);
+    if (config.ui === 'toggle')      habilitarToggle(id, valor);
   });
 
   // Avatar editable en sección generales
@@ -436,7 +438,7 @@ function aplicarPermisos() {
 
 // ── CHIPS Y SELECTS ───────────────────────────────────────────
 const CHIPS_OPTIONS = {
-  pronombres:     { multi: true,  ui: 'chips',  options: ['Él','Ella','Elle','No definido'] },
+  pronombres:     { multi: true,  ui: 'multiselect', options: ['Él','Ella','Elle','No definido'] },
   estado:         { multi: false, ui: 'select', options: ['Activx','No Activx','Satélite','Ausente','Técnico'] },
   asisteSemana:   { multi: false, ui: 'select', options: ['1 vez','2 veces','3 o más veces','No aplica'] },
   rolJugadorx:    { multi: false, ui: 'select', options: ['Jammer','Bloquer','Blammer','Ref','Coach','Coach/ref','Bench','No definido'] },
@@ -495,6 +497,126 @@ function habilitarChips(id, valorInicial = '') {
       });
     });
     wrapper.appendChild(chip);
+  });
+}
+
+function habilitarMultiSelect(id, valorInicial = '') {
+  const input = document.getElementById(id);
+  if (!input) return;
+  const key    = id.replace(/^p-/, '');
+  const config = CHIPS_OPTIONS[key];
+  if (!config) return;
+  input.style.display = 'none';
+  const editing = isEditing(id);
+
+  const container = input.closest('.sec-row-body') || input.parentNode;
+
+  // Remove old trigger if exists
+  const old = container.querySelector('.multiselect-trigger');
+  if (old) old.remove();
+
+  // Build display value
+  const selected = new Set(
+    valorInicial ? valorInicial.split(',').map(v => v.trim()).filter(Boolean) : []
+  );
+  const displayVal = selected.size > 0 ? Array.from(selected).join(', ') : '—';
+
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'multiselect-trigger sec-input' + (editing ? ' multiselect-editable' : '');
+  trigger.disabled = !editing;
+
+  // Show value + chevron when editing
+  function updateTrigger() {
+    const val = input.value ? input.value.split(',').map(v=>v.trim()).filter(Boolean).join(', ') : '—';
+    if (editing) {
+      trigger.innerHTML = `<span class="ms-value">${val}</span><span class="material-icons ms-arrow">chevron_right</span>`;
+    } else {
+      trigger.textContent = val;
+    }
+  }
+  input.value = valorInicial;
+  updateTrigger();
+
+  container.appendChild(trigger);
+
+  trigger.addEventListener('click', () => {
+    if (!isEditing(id)) return;
+    const curSelected = new Set(
+      input.value ? input.value.split(',').map(v=>v.trim()).filter(Boolean) : []
+    );
+    abrirMultiSelectModal('Pronombres', config.options, curSelected, (newSelected) => {
+      input.value = Array.from(newSelected).join(',');
+      updateTrigger();
+    });
+  });
+}
+
+function abrirMultiSelectModal(label, options, curSelected, onConfirm) {
+  // Remove existing
+  const old = document.getElementById('multiselect-overlay');
+  if (old) old.remove();
+
+  const working = new Set(curSelected);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'multiselect-overlay';
+  overlay.className = 'bs-overlay';
+
+  const panel = document.createElement('div');
+  panel.className = 'bs-panel ms-panel';
+  panel.innerHTML = `
+    <div class="bs-handle"></div>
+    <div class="bs-title">${label}</div>
+    <div class="ms-options" id="ms-options-list"></div>
+    <div class="ms-footer">
+      <button class="btn-cancel ms-cancel-btn">Cancelar</button>
+      <button class="btn-save ms-confirm-btn">Listo</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(panel);
+
+  const optsList = panel.querySelector('#ms-options-list');
+  function renderOpts() {
+    optsList.innerHTML = '';
+    options.forEach(opt => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'ms-option-row' + (working.has(opt) ? ' ms-selected' : '');
+      row.innerHTML = `
+        <span class="ms-opt-label">${opt}</span>
+        <span class="material-icons ms-check">${working.has(opt) ? 'check_circle' : 'radio_button_unchecked'}</span>
+      `;
+      row.addEventListener('click', () => {
+        if (working.has(opt)) working.delete(opt); else working.add(opt);
+        row.className = 'ms-option-row' + (working.has(opt) ? ' ms-selected' : '');
+        row.querySelector('.ms-check').textContent = working.has(opt) ? 'check_circle' : 'radio_button_unchecked';
+      });
+      optsList.appendChild(row);
+    });
+  }
+  renderOpts();
+
+  function cerrar() {
+    overlay.classList.remove('active');
+    panel.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => { overlay.remove(); panel.remove(); }, 300);
+  }
+
+  overlay.addEventListener('click', cerrar);
+  panel.querySelector('.ms-cancel-btn').addEventListener('click', cerrar);
+  panel.querySelector('.ms-confirm-btn').addEventListener('click', () => {
+    onConfirm(working);
+    cerrar();
+  });
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('active');
+    panel.classList.add('active');
+    document.body.style.overflow = 'hidden';
   });
 }
 
