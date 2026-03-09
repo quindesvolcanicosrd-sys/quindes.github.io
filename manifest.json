@@ -4,8 +4,8 @@
   "description": "App del equipo Quindes Volcánicos Roller Derby Quito",
   "start_url": "https://quindes.github.io/",
   "display": "standalone",
-  "background_color": "#0a0000",
-  "theme_color": "#ef4444",
+  "background_color": "#1a1212",
+  "theme_color": "#1a1212",
   "orientation": "portrait",
   "icons": [
     {
