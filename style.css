@@ -1902,3 +1902,125 @@ input, button, select, textarea {
   border-radius: 20px !important;
   overflow: hidden !important;
 }
+
+/* ── Date picker: ensure month button is always clickable ── */
+#dp-month-year-btn {
+  pointer-events: all !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+#dp-month-year-btn span,
+#dp-month-year-btn .dp-month-arrow {
+  pointer-events: none !important;
+}
+/* date-picker-trigger: always shows pointer */
+.date-picker-trigger {
+  cursor: pointer !important;
+}
+/* When NOT editing, show default cursor and muted appearance */
+.date-picker-trigger:disabled,
+.date-picker-trigger[disabled] {
+  cursor: default !important;
+  opacity: 1 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOME: GROUPED SETTINGS (Android-style single card)
+═══════════════════════════════════════════════════════════ */
+.settings-group {
+  background: var(--card);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.settings-row-grouped {
+  border-radius: 0 !important;
+  border-bottom: 1px solid var(--border3);
+  background: transparent !important;
+}
+.settings-row-grouped:first-child { border-radius: 20px 20px 0 0 !important; }
+.settings-row-last,
+.settings-row-grouped:last-child  { border-radius: 0 0 20px 20px !important; border-bottom: none !important; }
+.settings-row-grouped:active { background: var(--card2) !important; }
+
+/* CSS chevron on grouped rows */
+.settings-row-grouped .settings-row-arrow,
+.settings-row-grouped .settings-row-arrow::after {
+  display: block !important;
+}
+.settings-row-grouped .settings-row-arrow {
+  width: 16px; height: 16px;
+  display: flex !important; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.settings-row-grouped .settings-row-arrow::after {
+  content: '';
+  width: 7px; height: 7px;
+  border-right: 2px solid var(--text3);
+  border-top: 2px solid var(--text3);
+  transform: rotate(45deg) translateX(-2px);
+  border-radius: 1px;
+}
+
+/* ── Hero card: show chevron top-right ── */
+.hero-card-clickable {
+  position: relative;
+  cursor: pointer;
+}
+.hero-card-clickable::after {
+  content: '';
+  position: absolute;
+  top: 18px; right: 18px;
+  width: 8px; height: 8px;
+  border-right: 2.5px solid var(--text3);
+  border-top: 2.5px solid var(--text3);
+  transform: rotate(45deg);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* ── Date field: underline + calendar-edit icon in edit mode ── */
+.date-picker-trigger {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1.5px solid transparent !important;
+  padding: 0 0 2px !important;
+  text-align: left !important;
+  width: 100% !important;
+  transition: border-color 0.2s !important;
+}
+.app-view.is-editing .date-picker-trigger {
+  border-bottom-color: rgba(239,68,68,0.5) !important;
+  cursor: pointer !important;
+}
+.date-picker-trigger .dp-trig-ico {
+  display: none;
+  font-size: 16px !important;
+  color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+  flex-shrink: 0;
+}
+.app-view.is-editing .date-picker-trigger .dp-trig-ico {
+  display: block !important;
+}
+
+/* ── Date picker: smooth transitions when changing month/year ── */
+#dp-days, #dp-year-grid {
+  animation: dpFadeIn 0.18s ease;
+}
+@keyframes dpFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#dp-grid-wrap, #dp-year-grid {
+  transition: opacity 0.15s ease;
+}
+/* Month label animates too */
+#dp-month-label, #dp-year-label {
+  display: inline-block;
+  transition: opacity 0.12s ease;
+}
