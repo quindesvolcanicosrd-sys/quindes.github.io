@@ -499,15 +499,16 @@
       <div class="dp-selected-date" id="dp-selected-label">—</div>
     </div>
     <div class="dp-nav">
-      <button class="dp-nav-label" id="dp-month-year-btn" type="button">
-        <span id="dp-month-label">Enero</span>&nbsp;<span id="dp-year-label">2000</span>
-        <span class="dp-month-arrow"></span>
+      <button class="dp-nav-label" id="dp-month-year-btn" type="button" style="pointer-events:none;">
+        <span id="dp-month-label" class="dp-nav-chip">Enero</span>
+        <span id="dp-year-label"  class="dp-nav-chip">2000</span>
       </button>
-      <div style="display:flex;gap:4px;">
+      <div id="dp-nav-arrows" style="display:flex;gap:4px;">
         <button class="dp-nav-btn" id="dp-prev" type="button"><span class="material-icons">chevron_left</span></button>
         <button class="dp-nav-btn" id="dp-next" type="button"><span class="material-icons">chevron_right</span></button>
       </div>
     </div>
+    <div id="dp-month-grid" class="dp-month-grid" style="display:none;"></div>
     <div id="dp-grid-wrap">
       <div class="dp-grid" id="dp-day-labels">
         <div class="dp-day-label">L</div><div class="dp-day-label">M</div>
