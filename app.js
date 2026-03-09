@@ -131,6 +131,7 @@ function renderTodo(profile) {
   set('p-mostrarEdad',        profile.mostrarEdad);
   set('p-tipoUsuario',        profile.tipoUsuario);
   set('p-fechaNacimiento',    profile.fechaNacimiento);
+  initFechaTrigger();
   set('p-contactoEmergencia', profile.contactoEmergencia);
   set('p-mayor18',            profile.mayor18);
 
@@ -288,6 +289,11 @@ function activarEdicionSeccion(seccion) {
     el.disabled = false;
     el.hidden   = false;
   });
+  // Enable date picker trigger if in personales section
+  if (seccion === 'personales') {
+    const dt = document.querySelector('#view-personales .date-picker-trigger');
+    if (dt) dt.disabled = false;
+  }
 
   // Re-render widgets en modo edición
   Object.keys(CHIPS_OPTIONS).forEach(key => {
@@ -329,6 +335,11 @@ function cancelarEdicionSeccion(seccion) {
     const el = document.getElementById(id);
     if (el) el.disabled = true;
   });
+  // Disable date picker trigger
+  if (seccion === 'personales') {
+    const dt = document.querySelector('#view-personales .date-picker-trigger');
+    if (dt) { dt.disabled = true; dt.textContent = document.getElementById('p-fechaNacimiento')?.value || '—'; }
+  }
 
   if (seccion === 'generales') setSecAvatarEditable(false);
   mostrarFlechasSelect(seccion, false);
@@ -507,13 +518,15 @@ function habilitarMultiSelect(id, valorInicial = '') {
   const config = CHIPS_OPTIONS[key];
   if (!config) return;
   input.style.display = 'none';
+  input.style.position = 'absolute';
+  input.style.visibility = 'hidden';
   const editing = isEditing(id);
 
   const container = input.closest('.sec-row-body') || input.parentNode;
 
   // Remove old trigger if exists
-  const old = container.querySelector('.multiselect-trigger');
-  if (old) old.remove();
+  const oldTrigger = container.querySelector('.multiselect-trigger');
+  if (oldTrigger) oldTrigger.remove();
 
   // Build display value
   const selected = new Set(
@@ -804,9 +817,12 @@ function renderEstadoArchivo(campo, url) {
   const contenedor = document.getElementById('estado-' + campo);
   if (!contenedor) return;
   contenedor.innerHTML = '';
-  if (!url) { contenedor.innerHTML = '<span class="file-status-vacio">No hay archivo cargado</span>'; return; }
+  if (!url) {
+    contenedor.innerHTML = '<span class="file-status-vacio">Sin archivo</span>';
+    return;
+  }
   const esImagen = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
-  let html = `<div class="file-status-ok"><span>✓ Cargado</span><a href="${url}" target="_blank" class="file-link">Ver archivo</a></div>`;
+  let html = `<div class="file-status-ok"><a href="${url}" target="_blank" class="file-link"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">open_in_new</span>VER ARCHIVO</a></div>`;
   if (esImagen) html += `<img src="${url}" class="file-preview" alt="Preview">`;
   contenedor.innerHTML = html;
 }
@@ -924,3 +940,195 @@ document.addEventListener('DOMContentLoaded', () => {
   script.onload = () => initGoogleAuth();
   document.head.appendChild(script);
 });
+
+// ── DATE PICKER ───────────────────────────────────────────────
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESES_CORTO = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+let dpState = {
+  visible: false,
+  viewYear: 2000, viewMonth: 0,
+  selYear: null, selMonth: null, selDay: null,
+  yearMode: false,
+  onConfirm: null,
+};
+
+function parseFecha(str) {
+  // Accepts M/D/YYYY or YYYY-MM-DD or DD/MM/YYYY
+  if (!str) return null;
+  const p1 = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (p1) return { month: parseInt(p1[1])-1, day: parseInt(p1[2]), year: parseInt(p1[3]) };
+  const p2 = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (p2) return { month: parseInt(p2[2])-1, day: parseInt(p2[3]), year: parseInt(p2[1]) };
+  return null;
+}
+
+function formatFecha(y, m, d) {
+  // Store as M/D/YYYY (compatible with GAS)
+  return `${m+1}/${d}/${y}`;
+}
+
+function formatFechaDisplay(y, m, d) {
+  return `${d} ${MESES_CORTO[m]} ${y}`;
+}
+
+function abrirDatePicker(valorActual, onConfirm) {
+  const parsed = parseFecha(valorActual);
+  const now = new Date();
+  dpState.viewYear  = parsed ? parsed.year  : 1990;
+  dpState.viewMonth = parsed ? parsed.month : 0;
+  dpState.selYear   = parsed ? parsed.year  : null;
+  dpState.selMonth  = parsed ? parsed.month : null;
+  dpState.selDay    = parsed ? parsed.day   : null;
+  dpState.yearMode  = false;
+  dpState.onConfirm = onConfirm;
+
+  renderDatePicker();
+  document.getElementById('date-picker-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarDatePicker() {
+  document.getElementById('date-picker-modal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function renderDatePicker() {
+  const { viewYear, viewMonth, selYear, selMonth, selDay, yearMode } = dpState;
+
+  // Header label
+  const lbl = document.getElementById('dp-selected-label');
+  if (selYear && selMonth !== null && selDay) {
+    lbl.textContent = `${selDay} ${MESES[selMonth]} ${selYear}`;
+  } else {
+    lbl.textContent = 'Sin seleccionar';
+  }
+
+  document.getElementById('dp-month-label').textContent = MESES[viewMonth];
+  document.getElementById('dp-year-label').textContent  = viewYear;
+
+  const gridWrap  = document.getElementById('dp-grid-wrap');
+  const yearGrid  = document.getElementById('dp-year-grid');
+  if (yearMode) {
+    gridWrap.style.display = 'none';
+    yearGrid.style.display = 'grid';
+    renderYearGrid();
+  } else {
+    gridWrap.style.display = 'block';
+    yearGrid.style.display = 'none';
+    renderDaysGrid();
+  }
+}
+
+function renderDaysGrid() {
+  const { viewYear, viewMonth, selYear, selMonth, selDay } = dpState;
+  const daysEl = document.getElementById('dp-days');
+  daysEl.innerHTML = '';
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const offset = (firstDay + 6) % 7; // Monday-first
+
+  const today = new Date();
+
+  for (let i = 0; i < offset; i++) {
+    const blank = document.createElement('div');
+    blank.className = 'dp-day dp-other-month';
+    daysEl.appendChild(blank);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'dp-day';
+    btn.textContent = d;
+    const isSelected = selYear === viewYear && selMonth === viewMonth && selDay === d;
+    const isToday = today.getFullYear() === viewYear && today.getMonth() === viewMonth && today.getDate() === d;
+    if (isSelected) btn.classList.add('dp-selected');
+    else if (isToday) btn.classList.add('dp-today');
+    btn.addEventListener('click', () => {
+      dpState.selYear = viewYear; dpState.selMonth = viewMonth; dpState.selDay = d;
+      renderDatePicker();
+    });
+    daysEl.appendChild(btn);
+  }
+}
+
+function renderYearGrid() {
+  const yearGrid = document.getElementById('dp-year-grid');
+  yearGrid.innerHTML = '';
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= 1920; y--) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'dp-year-btn' + (y === dpState.viewYear ? ' dp-year-selected' : '');
+    btn.textContent = y;
+    btn.addEventListener('click', () => {
+      dpState.viewYear = y;
+      dpState.yearMode = false;
+      renderDatePicker();
+    });
+    yearGrid.appendChild(btn);
+  }
+  // Scroll to selected
+  requestAnimationFrame(() => {
+    const sel = yearGrid.querySelector('.dp-year-selected');
+    if (sel) sel.scrollIntoView({ block: 'center' });
+  });
+}
+
+// Wire up date picker events once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('dp-prev')?.addEventListener('click', () => {
+    dpState.viewMonth--;
+    if (dpState.viewMonth < 0) { dpState.viewMonth = 11; dpState.viewYear--; }
+    renderDatePicker();
+  });
+  document.getElementById('dp-next')?.addEventListener('click', () => {
+    dpState.viewMonth++;
+    if (dpState.viewMonth > 11) { dpState.viewMonth = 0; dpState.viewYear++; }
+    renderDatePicker();
+  });
+  document.getElementById('dp-month-year-btn')?.addEventListener('click', () => {
+    dpState.yearMode = !dpState.yearMode;
+    renderDatePicker();
+  });
+  document.getElementById('dp-cancel')?.addEventListener('click', cerrarDatePicker);
+  document.getElementById('date-picker-modal')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('date-picker-modal')) cerrarDatePicker();
+  });
+  document.getElementById('dp-ok')?.addEventListener('click', () => {
+    if (!dpState.selYear || dpState.selMonth === null || !dpState.selDay) return;
+    const val = formatFecha(dpState.selYear, dpState.selMonth, dpState.selDay);
+    if (dpState.onConfirm) dpState.onConfirm(val);
+    cerrarDatePicker();
+  });
+});
+
+// Init date picker trigger for fechaNacimiento
+function initFechaTrigger() {
+  const input = document.getElementById('p-fechaNacimiento');
+  if (!input) return;
+  input.style.display = 'none';
+  input.style.position = 'absolute';
+  input.style.visibility = 'hidden';
+
+  const container = input.closest('.sec-row-body') || input.parentNode;
+  let trigger = container.querySelector('.date-picker-trigger');
+  if (!trigger) {
+    trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'date-picker-trigger';
+    container.appendChild(trigger);
+  }
+  trigger.textContent = input.value || '—';
+  trigger.disabled = true; // always disabled until editing
+
+  trigger.addEventListener('click', () => {
+    if (!isEditing('p-fechaNacimiento')) return;
+    abrirDatePicker(input.value, val => {
+      input.value = val;
+      trigger.textContent = val;
+    });
+  });
+}
