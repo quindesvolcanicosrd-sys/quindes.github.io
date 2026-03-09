@@ -463,6 +463,40 @@
 
 </div><!-- /appContent -->
 
+<!-- Date picker modal -->
+<div id="date-picker-modal">
+  <div class="dp-card">
+    <div class="dp-header">
+      <div class="dp-header-label">Selecciona una fecha</div>
+      <div class="dp-selected-date" id="dp-selected-label">—</div>
+    </div>
+    <div class="dp-nav">
+      <button class="dp-nav-label" id="dp-month-year-btn" type="button">
+        <span id="dp-month-label">Enero</span>&nbsp;<span id="dp-year-label">2000</span>
+        <span class="material-icons" style="font-size:18px;">arrow_drop_down</span>
+      </button>
+      <div style="display:flex;gap:4px;">
+        <button class="dp-nav-btn" id="dp-prev" type="button"><span class="material-icons">chevron_left</span></button>
+        <button class="dp-nav-btn" id="dp-next" type="button"><span class="material-icons">chevron_right</span></button>
+      </div>
+    </div>
+    <div id="dp-grid-wrap">
+      <div class="dp-grid" id="dp-day-labels">
+        <div class="dp-day-label">L</div><div class="dp-day-label">M</div>
+        <div class="dp-day-label">M</div><div class="dp-day-label">J</div>
+        <div class="dp-day-label">V</div><div class="dp-day-label">S</div>
+        <div class="dp-day-label">D</div>
+      </div>
+      <div class="dp-grid" id="dp-days"></div>
+    </div>
+    <div class="dp-year-grid" id="dp-year-grid" style="display:none;"></div>
+    <div class="dp-footer">
+      <button class="dp-btn dp-btn-cancel" id="dp-cancel" type="button">Cancelar</button>
+      <button class="dp-btn dp-btn-ok"     id="dp-ok"     type="button">Aceptar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal crop -->
 <div id="modal-crop" style="display:none;">
   <div class="modal-box">
