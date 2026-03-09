@@ -50,22 +50,38 @@ function mostrarLoginScreen() {
 
 // ── API ───────────────────────────────────────────────────────
 async function gasCall(action, data = {}) {
-  const params = new URLSearchParams({ action, token: accessToken });
-  if (action === 'updateMyProfile') {
-    params.set('rowNumber', data.rowNumber);
-    params.set('data', encodeURIComponent(JSON.stringify(data.data)));
-  } else if (action === 'subirArchivo') {
-    params.set('tipoArchivo', data.tipoArchivo);
-    params.set('base64Data', encodeURIComponent(data.base64Data));
+  let res;
+
+  if (action === 'subirArchivo') {
+    // POST with JSON body — base64 is too large for URL query params
+    const params = new URLSearchParams({ action, token: accessToken });
+    const url = CONFIG.GAS_URL + '?' + params.toString();
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tipoArchivo: data.tipoArchivo,
+        base64Data:  data.base64Data,
+        email:       data.email,
+      }),
+      redirect: 'follow',
+    });
   } else {
-    Object.entries(data).forEach(([k, v]) => params.set(k, v));
+    const params = new URLSearchParams({ action, token: accessToken });
+    if (action === 'updateMyProfile') {
+      params.set('rowNumber', data.rowNumber);
+      params.set('data', encodeURIComponent(JSON.stringify(data.data)));
+    } else {
+      Object.entries(data).forEach(([k, v]) => params.set(k, v));
+    }
+    const url = CONFIG.GAS_URL + '?' + params.toString();
+    res = await fetch(url, { redirect: 'follow' });
   }
-  const url = CONFIG.GAS_URL + '?' + params.toString();
-  const res = await fetch(url, { redirect: 'follow' });
+
   const text = await res.text();
   let json;
   try { json = JSON.parse(text); }
-  catch { throw new Error('Respuesta inválida: ' + text.substring(0, 100)); }
+  catch { throw new Error('Respuesta inválida: ' + text.substring(0, 200)); }
   if (json.error) throw new Error(json.error);
   return json;
 }
@@ -810,6 +826,7 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
       if (campoDestino === 'fotoPerfil') { abrirCropper(base64); return; }
       mostrarSubiendo(campoDestino);
       try {
+        // GAS expects full data URL with prefix
         const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo, email: CURRENT_USER.email });
         window.myProfile[campoDestino] = result.url;
         renderEstadoArchivo(campoDestino, result.url);
@@ -902,10 +919,11 @@ function confirmarCrop() {
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) { btnAplicar.disabled = true; btnAplicar.textContent = 'Procesando...'; }
   const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-  const base64 = canvas.toDataURL('image/jpeg', 0.9);
+  // GAS expects full data URL: "data:image/jpeg;base64,..."
+  const base64DataUrl = canvas.toDataURL('image/jpeg', 0.85);
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
-  subirImagenRecortada(base64);
+  subirImagenRecortada(base64DataUrl);
 }
 
 async function subirImagenRecortada(base64) {
@@ -998,11 +1016,11 @@ function formatFechaDisplay(y, m, d) {
 
 function abrirDatePicker(valorActual, onConfirm) {
   const parsed = parseFecha(valorActual);
-  const now = new Date();
-  dpState.viewYear  = parsed ? parsed.year  : 1990;
-  dpState.viewMonth = parsed ? parsed.month : 0;
+  // Always ensure valid numbers
+  dpState.viewYear  = (parsed && parsed.year)  ? parsed.year  : 1990;
+  dpState.viewMonth = (parsed && typeof parsed.month === 'number') ? parsed.month : 0;
   dpState.selYear   = parsed ? parsed.year  : null;
-  dpState.selMonth  = parsed ? parsed.month : null;
+  dpState.selMonth  = (parsed && typeof parsed.month === 'number') ? parsed.month : null;
   dpState.selDay    = parsed ? parsed.day   : null;
   dpState.yearMode  = false;
   dpState.onConfirm = onConfirm;
@@ -1020,17 +1038,24 @@ function cerrarDatePicker() {
 function renderDatePicker() {
   const { viewYear, viewMonth, selYear, selMonth, selDay, yearMode } = dpState;
 
+  // Guard: ensure month is always a valid 0-11 integer
+  const safeMonth = (Number.isInteger(viewMonth) && viewMonth >= 0 && viewMonth <= 11) ? viewMonth : 0;
+  const safeYear  = (Number.isInteger(viewYear)  && viewYear > 1900) ? viewYear : 1990;
+
   // Header label
   const lbl = document.getElementById('dp-selected-label');
-  if (selYear && selMonth !== null && selDay) {
-    lbl.textContent = `${selDay} ${MESES[selMonth]} ${selYear}`;
-  } else {
-    lbl.textContent = 'Sin seleccionar';
+  if (lbl) {
+    if (Number.isInteger(selYear) && Number.isInteger(selMonth) && Number.isInteger(selDay)) {
+      lbl.textContent = `${selDay} ${MESES[selMonth]} ${selYear}`;
+    } else {
+      lbl.textContent = 'Sin seleccionar';
+    }
   }
 
-  const safeMonth = (typeof viewMonth === 'number' && viewMonth >= 0 && viewMonth <= 11) ? viewMonth : 0;
-  document.getElementById('dp-month-label').textContent = MESES[safeMonth] || 'Enero';
-  document.getElementById('dp-year-label').textContent  = viewYear || new Date().getFullYear();
+  const monthEl = document.getElementById('dp-month-label');
+  const yearEl  = document.getElementById('dp-year-label');
+  if (monthEl) monthEl.textContent = MESES[safeMonth];
+  if (yearEl)  yearEl.textContent  = safeYear;
 
   const gridWrap  = document.getElementById('dp-grid-wrap');
   const yearGrid  = document.getElementById('dp-year-grid');
@@ -1046,7 +1071,9 @@ function renderDatePicker() {
 }
 
 function renderDaysGrid() {
-  const { viewYear, viewMonth, selYear, selMonth, selDay } = dpState;
+  const viewYear  = (Number.isInteger(dpState.viewYear) && dpState.viewYear > 1900) ? dpState.viewYear : 1990;
+  const viewMonth = (Number.isInteger(dpState.viewMonth) && dpState.viewMonth >= 0 && dpState.viewMonth <= 11) ? dpState.viewMonth : 0;
+  const { selYear, selMonth, selDay } = dpState;
   const daysEl = document.getElementById('dp-days');
   daysEl.innerHTML = '';
 
@@ -1118,10 +1145,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dpState.viewMonth > 11) { dpState.viewMonth = 0; dpState.viewYear++; }
     renderDatePicker();
   });
-  document.getElementById('dp-month-year-btn')?.addEventListener('click', () => {
-    dpState.yearMode = !dpState.yearMode;
-    renderDatePicker();
-  });
+  const dpMonthBtn = document.getElementById('dp-month-year-btn');
+  if (dpMonthBtn) {
+    dpMonthBtn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dpState.yearMode = !dpState.yearMode;
+      renderDatePicker();
+    });
+    // Also make child spans not steal clicks
+    dpMonthBtn.querySelectorAll('*').forEach(el => {
+      el.style.pointerEvents = 'none';
+    });
+  }
   document.getElementById('dp-cancel')?.addEventListener('click', cerrarDatePicker);
   document.getElementById('date-picker-modal')?.addEventListener('click', e => {
     if (e.target === document.getElementById('date-picker-modal')) cerrarDatePicker();
@@ -1150,15 +1185,22 @@ function initFechaTrigger() {
     trigger.className = 'date-picker-trigger';
     container.appendChild(trigger);
   }
-  trigger.textContent = input.value || '—';
-  trigger.disabled = false; // always clickable
+  // Show formatted date on load
+  const initParsed = parseFecha(input.value);
+  trigger.textContent = initParsed
+    ? `${initParsed.day} ${MESES_CORTO[initParsed.month]} ${initParsed.year}`
+    : (input.value || '—');
+  trigger.disabled = false;
 
-  trigger.addEventListener('click', () => {
+  trigger.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation();
     if (!isEditing('p-fechaNacimiento')) return;
     const currentVal = input.value || '';
     abrirDatePicker(currentVal, val => {
       input.value = val;
-      trigger.textContent = val || '—';
+      // Format as "15 abr 1994" for display, store M/D/YYYY in input
+      const p = parseFecha(val);
+      trigger.textContent = p ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}` : val || '—';
     });
   });
 }
