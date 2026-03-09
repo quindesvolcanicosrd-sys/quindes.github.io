@@ -6,7 +6,7 @@
 // ── CONFIGURACIÓN ── reemplazá estos valores ──────────────────
 const CONFIG = {
   // Tu GAS Web App URL (termina en /exec)
-  GAS_URL: 'https://black-snow-eff8.quindesvolcanicosrd.workers.dev',
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbwr8wttXc58SEoQYdUnefBVEe6rVTp69W03iBfwweugQnn_sCLpDoFlNLaVkfmKTD3I/exec',
   // Tu Google OAuth Client ID (de Google Cloud Console)
   GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
 };
@@ -182,6 +182,17 @@ function renderMyProfile(profile) {
   renderEstadoArchivo('adjCedula',       profile.adjCedula);
   renderEstadoArchivo('fotoPerfil',      profile.fotoPerfil);
   renderFotoPerfil(normalizarDriveUrl(profile.fotoPerfil));
+
+  // Ajustar ancho del campo email
+  const emailEl = document.getElementById('p-email');
+  if (emailEl) {
+    const tmp = document.createElement('span');
+    tmp.style.cssText = 'position:absolute;visibility:hidden;font-size:15px;font-weight:500;white-space:pre;';
+    tmp.textContent = emailEl.value || ' ';
+    document.body.appendChild(tmp);
+    emailEl.style.width = (tmp.offsetWidth + 4) + 'px';
+    document.body.removeChild(tmp);
+  }
 
   // Hero
   const heroNombre = document.getElementById('hero-nombre-derby');
@@ -385,9 +396,20 @@ function aplicarPermisos() {
 document.addEventListener('DOMContentLoaded', () => {
   const emailInput = document.getElementById('p-email');
   if (emailInput) {
-    emailInput.addEventListener('input', function() {
-      this.value = this.value.replace(/@.*/, '');
+    const adjustWidth = () => {
+      const tmp = document.createElement('span');
+      tmp.style.cssText = 'position:absolute;visibility:hidden;font-size:15px;font-weight:500;white-space:pre;';
+      tmp.textContent = emailInput.value || emailInput.placeholder || ' ';
+      document.body.appendChild(tmp);
+      emailInput.style.width = (tmp.offsetWidth + 4) + 'px';
+      document.body.removeChild(tmp);
+    };
+    emailInput.addEventListener('input', () => {
+      emailInput.value = emailInput.value.replace(/@.*/, '');
+      adjustWidth();
     });
+    // Ajustar al cargar
+    setTimeout(adjustWidth, 100);
   }
 });
 
@@ -500,7 +522,6 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
   requestAnimationFrame(() => {
     const sel = optsEl.querySelector('.selected');
     if (sel) sel.scrollIntoView({ block: 'center' });
-    if (options.length > 6) nuevoSearch.focus();
   });
   overlay.classList.add('active');
   panel.classList.add('active');
