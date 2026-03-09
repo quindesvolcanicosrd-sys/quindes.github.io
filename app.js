@@ -1,25 +1,24 @@
 // ============================================================
-//  QUINDES APP — app.js
-//  GitHub Pages + Google OAuth + GAS como API REST
+//  QUINDES APP — app.js  (navegación por secciones)
 // ============================================================
 
-// ── CONFIGURACIÓN ── reemplazá estos valores ──────────────────
 const CONFIG = {
-  // Tu GAS Web App URL (termina en /exec)
   GAS_URL: 'https://black-snow-eff8.quindesvolcanicosrd.workers.dev',
-  // Tu Google OAuth Client ID (de Google Cloud Console)
   GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
 };
-// ─────────────────────────────────────────────────────────────
 
-let CURRENT_USER  = null;
-let accessToken   = null;
-let urlFotoPerfilActual = "";
-let modoEdicion   = false;
-let fotoSubiendo  = false;
+let CURRENT_USER   = null;
+let accessToken    = null;
+let fotoSubiendo   = false;
 let cropper;
 
-// ── SERVICE WORKER (PWA) ──────────────────────────────────────
+// Estado de edición por sección
+const edicionActiva = {
+  generales: false, personales: false, contacto: false,
+  salud: false, rendimiento: false,
+};
+
+// ── SERVICE WORKER ────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
@@ -35,7 +34,6 @@ function initGoogleAuth() {
 }
 
 function onGoogleSignIn(response) {
-  // Decodificar el JWT para obtener el email
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   accessToken = response.credential;
   inicializarApp(payload.email);
@@ -50,11 +48,9 @@ function mostrarLoginScreen() {
   );
 }
 
-// ── API CALLS A GAS ───────────────────────────────────────────
+// ── API ───────────────────────────────────────────────────────
 async function gasCall(action, data = {}) {
   const params = new URLSearchParams({ action, token: accessToken });
-
-  // Para updateMyProfile los datos van JSON-encoded
   if (action === 'updateMyProfile') {
     params.set('rowNumber', data.rowNumber);
     params.set('data', encodeURIComponent(JSON.stringify(data.data)));
@@ -64,13 +60,12 @@ async function gasCall(action, data = {}) {
   } else {
     Object.entries(data).forEach(([k, v]) => params.set(k, v));
   }
-
   const url = CONFIG.GAS_URL + '?' + params.toString();
   const res = await fetch(url, { redirect: 'follow' });
   const text = await res.text();
   let json;
   try { json = JSON.parse(text); }
-  catch { throw new Error('Respuesta inválida del servidor: ' + text.substring(0, 100)); }
+  catch { throw new Error('Respuesta inválida: ' + text.substring(0, 100)); }
   if (json.error) throw new Error(json.error);
   return json;
 }
@@ -82,22 +77,20 @@ async function inicializarApp(email) {
     document.getElementById('loginScreen').style.display   = 'none';
 
     const user = await gasCall('getCurrentUser', { email });
-
     if (!user || !user.found) {
       document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('unauthorized').style.display  = 'block';
+      document.getElementById('unauthorized').style.display  = 'flex';
       return;
     }
 
     CURRENT_USER = user;
     document.getElementById('user-email').textContent = user.email;
-    applyRole(user.rolApp);
 
     const profile = await gasCall('getMyProfile', { rowNumber: user.rowNumber });
+    window.myProfile = profile;
 
     configurarTodasLasSubidas();
-    window.myProfile = profile;
-    renderMyProfile(profile);
+    renderTodo(profile);
     aplicarPermisos();
 
     document.getElementById('loadingScreen').style.display = 'none';
@@ -110,21 +103,11 @@ async function inicializarApp(email) {
   }
 }
 
-// ── ROLES ─────────────────────────────────────────────────────
-function applyRole(role) {
-  document.querySelectorAll('[data-role]').forEach(el => {
-    const roles = el.dataset.role.split(' ');
-    el.style.display = roles.includes(role) ? 'block' : 'none';
-  });
-}
-function isAdmin()     { return CURRENT_USER?.rolApp === 'Admin'; }
-function isSemiAdmin() { return CURRENT_USER?.rolApp === 'SemiAdmin'; }
-
-// ── RENDER PERFIL ─────────────────────────────────────────────
-function renderMyProfile(profile) {
+// ── RENDER COMPLETO ───────────────────────────────────────────
+function renderTodo(profile) {
   if (!profile) return;
-
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+
   set('p-nombreDerby',        profile.nombreDerby);
   set('p-nombre',             profile.nombre);
   set('p-nombreCivil',        profile.nombreCivil);
@@ -148,52 +131,18 @@ function renderMyProfile(profile) {
   set('p-mostrarEdad',        profile.mostrarEdad);
   set('p-tipoUsuario',        profile.tipoUsuario);
   set('p-fechaNacimiento',    profile.fechaNacimiento);
-  set('p-edad',               profile.edad);
-  set('p-cumple',             profile.cumple);
   set('p-contactoEmergencia', profile.contactoEmergencia);
   set('p-mayor18',            profile.mayor18);
 
   // Stats
-  const puntosMesEl = document.getElementById('p-puntosMes');
-  if (puntosMesEl) {
-    puntosMesEl.textContent = profile.puntosMes || '';
-    puntosMesEl.previousElementSibling.textContent = 'Estado mes de ' + (profile.labelMes || '');
-  }
-  const puntosTrimEl = document.getElementById('p-puntosTrim');
-  if (puntosTrimEl) {
-    puntosTrimEl.textContent = profile.puntosTrimestre || '';
-    puntosTrimEl.previousElementSibling.textContent = 'Estado del ' + (profile.labelTrimestre || '');
-  }
-  const puntosAnioEl = document.getElementById('p-puntosAnio');
-  if (puntosAnioEl) puntosAnioEl.textContent = profile.puntosAnio || '';
-  const labelAnioEl = document.getElementById('label-puntosAnio');
-  if (labelAnioEl) labelAnioEl.textContent = 'Estado del año ' + (profile.labelAnio || '');
-
-  // Chips y selects
-  Object.keys(CHIPS_OPTIONS).forEach(key => {
-    const id     = 'p-' + key;
-    const config = CHIPS_OPTIONS[key];
-    const valor  = profile[key] || '';
-    if (config.ui === 'chips')  habilitarChips(id, valor);
-    if (config.ui === 'select') habilitarSelect(id, valor);
-    if (config.ui === 'toggle') habilitarToggle(id, valor);
-  });
-
-  renderEstadoArchivo('adjPruebaFisica', profile.adjPruebaFisica);
-  renderEstadoArchivo('adjCedula',       profile.adjCedula);
-  renderEstadoArchivo('fotoPerfil',      profile.fotoPerfil);
-  renderFotoPerfil(normalizarDriveUrl(profile.fotoPerfil));
-
-  // Ajustar ancho del campo email
-  const emailEl = document.getElementById('p-email');
-  if (emailEl) {
-    const tmp = document.createElement('span');
-    tmp.style.cssText = 'position:absolute;visibility:hidden;font-size:15px;font-weight:500;white-space:pre;';
-    tmp.textContent = emailEl.value || ' ';
-    document.body.appendChild(tmp);
-    emailEl.style.width = (tmp.offsetWidth + 4) + 'px';
-    document.body.removeChild(tmp);
-  }
+  const mesEl = document.getElementById('p-puntosMes');
+  if (mesEl) { mesEl.textContent = profile.puntosMes || '—'; mesEl.previousElementSibling.textContent = 'Mes de ' + (profile.labelMes || ''); }
+  const trimEl = document.getElementById('p-puntosTrim');
+  if (trimEl) { trimEl.textContent = profile.puntosTrimestre || '—'; trimEl.previousElementSibling.textContent = (profile.labelTrimestre || 'Trimestre'); }
+  const anioEl = document.getElementById('p-puntosAnio');
+  if (anioEl) anioEl.textContent = profile.puntosAnio || '—';
+  const lblAnio = document.getElementById('label-puntosAnio');
+  if (lblAnio) lblAnio.textContent = 'Año ' + (profile.labelAnio || '');
 
   // Hero
   const heroNombre = document.getElementById('hero-nombre-derby');
@@ -204,63 +153,225 @@ function renderMyProfile(profile) {
   if (heroRol) heroRol.textContent = profile.rolJugadorx || '—';
   const heroPron = document.getElementById('hero-pronombres');
   if (heroPron) heroPron.textContent = profile.pronombres || '—';
-}
 
-// ── EDICIÓN ───────────────────────────────────────────────────
-const FILE_INPUTS = ['p-fotoPerfil', 'p-adjCedula', 'p-adjPruebaFisica'];
+  // Subtítulos de las filas del menú
+  actualizarSubtitulos(profile);
 
-function activarEdicion() {
-  toggleUI(true);
-  modoEdicion = true;
-  document.querySelectorAll('.editable').forEach(el => el.disabled = false);
-  FILE_INPUTS.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.disabled = false;
-    if (id !== 'p-fotoPerfil') el.hidden = false;
-  });
-  const role = CURRENT_USER.rolApp;
-  Object.keys(FIELD_CONFIG).forEach(id => {
-    const config = FIELD_CONFIG[id];
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (config.role === 'user')                       { el.disabled = false; el.hidden = false; }
-    if (config.role === 'Admin' && role === 'Admin')  { el.disabled = false; el.hidden = false; }
-  });
-  setAvatarEditable(true);
-  document.getElementById('btnEditar').style.display  = 'none';
-  document.getElementById('btnGuardar').style.display = 'inline-block';
-  document.getElementById('btnCancelar').style.display = 'inline-block';
-  actualizarEstadoChips();
+  // Foto
+  renderFotoPerfil(normalizarDriveUrl(profile.fotoPerfil));
+  // Foto en sección generales
+  const secImg = document.getElementById('sec-img-foto');
+  if (secImg) {
+    const placeholder = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="100%" height="100%" fill="#2b2b2b"/></svg>');
+    secImg.src = normalizarDriveUrl(profile.fotoPerfil) || placeholder;
+  }
+
+  // Selects, chips, toggles
   Object.keys(CHIPS_OPTIONS).forEach(key => {
-    const id    = 'p-' + key;
-    const valor = window.myProfile[key] || '';
+    const id     = 'p-' + key;
     const config = CHIPS_OPTIONS[key];
+    const valor  = profile[key] || '';
     if (config.ui === 'chips')  habilitarChips(id, valor);
     if (config.ui === 'select') habilitarSelect(id, valor);
     if (config.ui === 'toggle') habilitarToggle(id, valor);
   });
+
+  // Archivos
+  renderEstadoArchivo('adjPruebaFisica', profile.adjPruebaFisica);
+  renderEstadoArchivo('adjCedula',       profile.adjCedula);
+
+  // Email width
+  ajustarAnchoEmail();
 }
 
-function cancelarEdicion() {
-  toggleUI(false);
-  modoEdicion = false;
-  renderMyProfile(window.myProfile);
-  document.querySelectorAll('.editable').forEach(input => input.disabled = true);
-  document.getElementById('btnEditar').style.display   = 'inline-block';
-  document.getElementById('btnGuardar').style.display  = 'none';
-  document.getElementById('btnCancelar').style.display = 'none';
-  actualizarEstadoChips();
-  setAvatarEditable(false);
-  FILE_INPUTS.forEach(id => {
+function actualizarSubtitulos(profile) {
+  const sub = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  sub('sub-generales',   [profile.nombreDerby, profile.numero ? '#'+profile.numero : null, profile.rolJugadorx].filter(Boolean).join(' · ') || 'Nombre Derby, Número, Rol');
+  sub('sub-personales',  [profile.cedulaPasaporte, profile.pais, profile.fechaNacimiento].filter(Boolean).join(' · ') || 'Documento, Nacionalidad');
+  sub('sub-contacto',    [profile.email, profile.telefono ? (profile.codigoPais||'') + ' ' + profile.telefono : null].filter(Boolean).join(' · ') || 'Email, Teléfono');
+  sub('sub-salud',       [profile.grupoSanguineo, profile.contactoEmergencia].filter(Boolean).join(' · ') || 'Contacto de emergencia, Grupo sanguíneo');
+  sub('sub-rendimiento', [profile.estado, profile.asisteSemana].filter(Boolean).join(' · ') || 'Estado, Cuota, Asistencia');
+}
+
+function ajustarAnchoEmail() {
+  const emailEl = document.getElementById('p-email');
+  if (!emailEl) return;
+  const tmp = document.createElement('span');
+  tmp.style.cssText = 'position:absolute;visibility:hidden;font-size:16px;font-weight:400;white-space:pre;';
+  tmp.textContent = emailEl.value || ' ';
+  document.body.appendChild(tmp);
+  emailEl.style.width = (tmp.offsetWidth + 4) + 'px';
+  document.body.removeChild(tmp);
+}
+
+// ── NAVEGACIÓN ────────────────────────────────────────────────
+let vistaActual = 'home';
+
+function navegarSeccion(seccion) {
+  const home = document.getElementById('view-home');
+  const dest = document.getElementById('view-' + seccion);
+  if (!dest) return;
+
+  home.classList.add('slide-out');
+  dest.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      dest.classList.add('active');
+      home.classList.remove('active');
+    });
+  });
+  dest.addEventListener('transitionend', () => {
+    home.classList.remove('slide-out');
+    home.style.display = 'none';
+  }, { once: true });
+
+  vistaActual = seccion;
+}
+
+function volverHome() {
+  // Cancelar edición si está activa
+  if (edicionActiva[vistaActual]) {
+    cancelarEdicionSeccion(vistaActual);
+  }
+
+  const home = document.getElementById('view-home');
+  const curr = document.getElementById('view-' + vistaActual);
+  if (!curr) return;
+
+  home.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      home.classList.add('active');
+      curr.classList.remove('active');
+    });
+  });
+  curr.addEventListener('transitionend', () => {
+    curr.style.display = 'none';
+  }, { once: true });
+
+  vistaActual = 'home';
+}
+
+// ── EDICIÓN POR SECCIÓN ───────────────────────────────────────
+// Campos por sección
+const CAMPOS_SECCION = {
+  generales:   ['p-nombreDerby','p-numero','p-rolJugadorx','p-nombre','p-pronombres'],
+  personales:  ['p-nombreCivil','p-cedulaPasaporte','p-pais','p-fechaNacimiento','p-mostrarCumple','p-mostrarEdad','p-mayor18'],
+  contacto:    ['p-email','p-codigoPais','p-telefono'],
+  salud:       ['p-contactoEmergencia','p-grupoSanguineo','p-alergias','p-dieta','p-aptoDeporte'],
+  rendimiento: ['p-estado','p-asisteSemana','p-pruebaFisica','p-tipoUsuario','p-pagaCuota'],
+};
+
+// Campos que solo Admin puede editar
+const SOLO_ADMIN = ['p-nombreCivil','p-nombre','p-estado','p-asisteSemana','p-pruebaFisica','p-aptoDeporte','p-tipoUsuario','p-email'];
+
+function toggleEdicionSeccion(seccion) {
+  if (edicionActiva[seccion]) {
+    cancelarEdicionSeccion(seccion);
+  } else {
+    activarEdicionSeccion(seccion);
+  }
+}
+
+function activarEdicionSeccion(seccion) {
+  edicionActiva[seccion] = true;
+  const view = document.getElementById('view-' + seccion);
+  view.classList.add('is-editing');
+
+  const role = CURRENT_USER.rolApp;
+  CAMPOS_SECCION[seccion].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.disabled = true;
-    if (id !== 'p-fotoPerfil') el.hidden = false;
+    const soloAdmin = SOLO_ADMIN.includes(id);
+    if (soloAdmin && role !== 'Admin') return;
+    el.disabled = false;
+    el.hidden   = false;
   });
+
+  // Re-render widgets en modo edición
+  Object.keys(CHIPS_OPTIONS).forEach(key => {
+    const id = 'p-' + key;
+    if (!CAMPOS_SECCION[seccion].includes(id)) return;
+    const config = CHIPS_OPTIONS[key];
+    const valor  = document.getElementById(id)?.value || window.myProfile[key] || '';
+    if (config.ui === 'chips')  habilitarChips(id, valor);
+    if (config.ui === 'select') habilitarSelect(id, valor);
+    if (config.ui === 'toggle') habilitarToggle(id, valor);
+  });
+
+  // Avatar editable en sección generales
+  if (seccion === 'generales') setSecAvatarEditable(true);
+
+  // Mostrar flechas de select
+  mostrarFlechasSelect(seccion, true);
+
+  // Mostrar botones
+  const saveWrap = document.getElementById('save-' + seccion);
+  if (saveWrap) saveWrap.style.display = 'flex';
+
+  // Cambiar ícono del botón edit
+  const editBtn = document.getElementById('btn-edit-' + seccion);
+  if (editBtn) editBtn.classList.add('editing');
 }
 
-function recogerDatosFormulario() {
+function cancelarEdicionSeccion(seccion) {
+  edicionActiva[seccion] = false;
+  const view = document.getElementById('view-' + seccion);
+  view.classList.remove('is-editing');
+
+  // Re-render con datos originales
+  renderTodo(window.myProfile);
+
+  // Deshabilitar inputs
+  CAMPOS_SECCION[seccion].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = true;
+  });
+
+  if (seccion === 'generales') setSecAvatarEditable(false);
+  mostrarFlechasSelect(seccion, false);
+
+  const saveWrap = document.getElementById('save-' + seccion);
+  if (saveWrap) saveWrap.style.display = 'none';
+
+  const editBtn = document.getElementById('btn-edit-' + seccion);
+  if (editBtn) editBtn.classList.remove('editing');
+}
+
+async function guardarSeccion(seccion) {
+  const errorBox = document.getElementById('error-' + seccion);
+  if (errorBox) errorBox.style.display = 'none';
+
+  if (fotoSubiendo) {
+    if (errorBox) { errorBox.textContent = 'Esperando que la foto termine de subir...'; errorBox.style.display = 'block'; }
+    await new Promise(resolve => {
+      const iv = setInterval(() => { if (!fotoSubiendo) { clearInterval(iv); resolve(); } }, 100);
+    });
+    if (errorBox) errorBox.style.display = 'none';
+  }
+
+  const btnSave = document.querySelector(`#save-${seccion} .btn-save`);
+  if (btnSave) { btnSave.disabled = true; btnSave.textContent = 'Guardando...'; }
+
+  const v = id => document.getElementById(id)?.value || '';
+  const datos = recogerTodosLosDatos();
+
+  try {
+    await gasCall('updateMyProfile', {
+      rowNumber: CURRENT_USER.rowNumber,
+      data: datos,
+    });
+    Object.assign(window.myProfile, datos);
+    renderTodo(window.myProfile);
+    cancelarEdicionSeccion(seccion);
+  } catch (err) {
+    if (errorBox) { errorBox.textContent = err.message || 'Error al guardar'; errorBox.style.display = 'block'; }
+  } finally {
+    if (btnSave) { btnSave.disabled = false; btnSave.textContent = 'Guardar cambios'; }
+  }
+}
+
+function recogerTodosLosDatos() {
   const v = id => document.getElementById(id)?.value || '';
   return {
     nombreDerby:        v('p-nombreDerby'),
@@ -289,131 +400,39 @@ function recogerDatosFormulario() {
     aptoDeporte:        v('p-aptoDeporte'),
     tipoUsuario:        v('p-tipoUsuario'),
     fotoPerfil:         window.myProfile.fotoPerfil,
+    adjCedula:          window.myProfile.adjCedula,
+    adjPruebaFisica:    window.myProfile.adjPruebaFisica,
   };
 }
 
-async function guardarPerfil() {
-  const errorBox = document.getElementById('perfil-error');
-  toggleUI(false);
-
-  if (fotoSubiendo) {
-    errorBox.textContent = 'Esperando a que la foto se termine de subir...';
-    errorBox.style.display = 'block';
-    await new Promise(resolve => {
-      const iv = setInterval(() => { if (!fotoSubiendo) { clearInterval(iv); resolve(); } }, 100);
-    });
-    errorBox.style.display = 'none';
-  }
-
-  const validacion = validarCamposFrontend();
-  if (validacion.primerError) {
-    errorBox.textContent = 'Completá los campos obligatorios: ' + validacion.camposFaltantes.join(', ');
-    errorBox.style.display = 'block';
-    scrollAlCampoElemento(validacion.primerError);
-    return;
-  }
-
-  const btnGuardar = document.getElementById('btnGuardar');
-  btnGuardar.disabled = true;
-  btnGuardar.textContent = 'Guardando...';
-
-  const datosActualizados = recogerDatosFormulario();
-  datosActualizados.fotoPerfil      = window.myProfile.fotoPerfil;
-  datosActualizados.adjCedula       = window.myProfile.adjCedula;
-  datosActualizados.adjPruebaFisica = window.myProfile.adjPruebaFisica;
-
-  try {
-    await gasCall('updateMyProfile', {
-      rowNumber: CURRENT_USER.rowNumber,
-      data: datosActualizados,
-    });
-
-    Object.assign(window.myProfile, datosActualizados);
-    renderMyProfile(window.myProfile);
-    document.querySelectorAll('.editable').forEach(i => i.disabled = true);
-    btnGuardar.textContent = 'Guardar';
-    btnGuardar.disabled    = false;
-    document.getElementById('btnEditar').style.display   = 'inline-block';
-    document.getElementById('btnGuardar').style.display  = 'none';
-    document.getElementById('btnCancelar').style.display = 'none';
-    modoEdicion = false;
-    setAvatarEditable(false);
-
-  } catch (err) {
-    errorBox.textContent   = err.message || 'Error al guardar el perfil';
-    errorBox.style.display = 'block';
-    btnGuardar.textContent = 'Guardar';
-    btnGuardar.disabled    = false;
-  }
-
-  FILE_INPUTS.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.value = ''; el.disabled = true; }
+function mostrarFlechasSelect(seccion, mostrar) {
+  const selectIds = {
+    generales:   ['rolJugadorx'],
+    personales:  ['pais'],
+    contacto:    ['codigoPais'],
+    salud:       ['grupoSanguineo'],
+    rendimiento: ['estado','asisteSemana','pruebaFisica','tipoUsuario'],
+  };
+  (selectIds[seccion] || []).forEach(key => {
+    const arr = document.getElementById('arrow-' + key);
+    if (arr) arr.style.display = mostrar ? 'block' : 'none';
   });
-  document.getElementById('avatar-container').classList.add('disabled');
 }
 
-// ── FIELD CONFIG ──────────────────────────────────────────────
-const FIELD_CONFIG = {
-  'p-puntosMes':    { role: 'none' },
-  'p-puntosTrim':   { role: 'none' },
-  'p-puntosAnio':   { role: 'none' },
-  'p-edad':         { role: 'none' },
-  'p-cumple':       { role: 'none' },
-  'p-nombreCivil':  { role: 'Admin' },
-  'p-nombre':       { role: 'Admin' },
-  'p-estado':       { role: 'Admin' },
-  'p-asisteSemana': { role: 'Admin' },
-  'p-pruebaFisica': { role: 'Admin' },
-  'p-aptoDeporte':  { role: 'Admin' },
-  'p-tipoUsuario':  { role: 'Admin' },
-  'p-email':        { role: 'Admin' },
-  'p-cedulaPasaporte':    { role: 'user' },
-  'p-nombreDerby':        { role: 'user' },
-  'p-numero':             { role: 'user' },
-  'p-pronombres':         { role: 'user', multi: true },
-  'p-rolJugadorx':        { role: 'user' },
-  'p-pagaCuota':          { role: 'user' },
-  'p-fechaNacimiento':    { role: 'user' },
-  'p-alergias':           { role: 'user' },
-  'p-dieta':              { role: 'user' },
-  'p-pais':               { role: 'user' },
-  'p-codigoPais':         { role: 'user' },
-  'p-telefono':           { role: 'user' },
-  'p-grupoSanguineo':     { role: 'user' },
-  'p-contactoEmergencia': { role: 'user' },
-  'p-mostrarCumple':      { role: 'user' },
-  'p-mostrarEdad':        { role: 'user' },
-  'p-mayor18':            { role: 'user' },
-};
-
+// ── PERMISOS ──────────────────────────────────────────────────
 function aplicarPermisos() {
   const role = CURRENT_USER.rolApp;
   document.querySelectorAll('[data-role]').forEach(el => {
     const roles = el.dataset.role.split(' ');
-    el.style.display = roles.includes(role) ? 'block' : 'none';
+    const matches = roles.includes(role);
+    // Preserve display type
+    if (!matches) el.style.display = 'none';
+    else if (el.style.display === 'none') el.style.display = '';
   });
+  // Ocultar fila rendimiento si no corresponde
+  const rowRend = document.getElementById('row-rendimiento');
+  if (rowRend) rowRend.style.display = (role === 'Admin' || role === 'SemiAdmin') ? 'flex' : 'none';
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const emailInput = document.getElementById('p-email');
-  if (emailInput) {
-    const adjustWidth = () => {
-      const tmp = document.createElement('span');
-      tmp.style.cssText = 'position:absolute;visibility:hidden;font-size:15px;font-weight:500;white-space:pre;';
-      tmp.textContent = emailInput.value || emailInput.placeholder || ' ';
-      document.body.appendChild(tmp);
-      emailInput.style.width = (tmp.offsetWidth + 4) + 'px';
-      document.body.removeChild(tmp);
-    };
-    emailInput.addEventListener('input', () => {
-      emailInput.value = emailInput.value.replace(/@.*/, '');
-      adjustWidth();
-    });
-    // Ajustar al cargar
-    setTimeout(adjustWidth, 100);
-  }
-});
 
 // ── CHIPS Y SELECTS ───────────────────────────────────────────
 const CHIPS_OPTIONS = {
@@ -433,6 +452,12 @@ const CHIPS_OPTIONS = {
   tipoUsuario:    { multi: false, ui: 'select', options: ['Admin','SemiAdmin','Invitado'] },
 };
 
+// Determina si alguna sección está en modo edición para este campo
+function isEditing(id) {
+  const seccion = Object.keys(CAMPOS_SECCION).find(s => CAMPOS_SECCION[s].includes(id));
+  return seccion ? edicionActiva[seccion] : false;
+}
+
 function habilitarChips(id, valorInicial = '') {
   const input = document.getElementById(id);
   if (!input) return;
@@ -440,8 +465,12 @@ function habilitarChips(id, valorInicial = '') {
   const config = CHIPS_OPTIONS[key];
   if (!config) return;
   input.style.display = 'none';
-  let wrapper = input.nextElementSibling;
-  if (!wrapper || !wrapper.classList.contains('chip-wrapper')) {
+  const editing = isEditing(id);
+
+  // Buscar o crear wrapper en sec-row-body o directamente en parentNode
+  const container = input.closest('.sec-row-body') || input.parentNode;
+  let wrapper = container.querySelector('.chip-wrapper');
+  if (!wrapper) {
     wrapper = document.createElement('div');
     wrapper.className = 'chip-wrapper';
     input.parentNode.insertBefore(wrapper, input.nextSibling);
@@ -455,9 +484,9 @@ function habilitarChips(id, valorInicial = '') {
     chip.type = 'button';
     chip.textContent = opt;
     chip.className = 'chip ' + (selected.has(opt) ? 'chip-active' : 'chip-inactive');
-    if (!modoEdicion) chip.classList.add('opacity-50', 'cursor-not-allowed');
+    if (!editing) chip.classList.add('opacity-50');
     chip.addEventListener('click', () => {
-      if (!modoEdicion) return;
+      if (!isEditing(id)) return;
       if (config.multi) { selected.has(opt) ? selected.delete(opt) : selected.add(opt); }
       else              { selected.clear(); selected.add(opt); }
       input.value = Array.from(selected).join(',');
@@ -469,14 +498,53 @@ function habilitarChips(id, valorInicial = '') {
   });
 }
 
+function habilitarSelect(id, valorInicial = '') {
+  const input = document.getElementById(id);
+  const key   = id.replace('p-', '');
+  const config = CHIPS_OPTIONS[key];
+  if (!config || !input) return;
+  const editing = isEditing(id);
+
+  // Label: buscar en sec-row-label o en label
+  const rowBody   = input.closest('.sec-row-body');
+  const labelEl   = rowBody ? rowBody.querySelector('.sec-row-label') : input.closest('.profile-field')?.querySelector('label');
+  const labelText = labelEl ? labelEl.textContent : key;
+
+  input.style.display = 'none';
+  input.style.position = 'absolute';
+  input.style.visibility = 'hidden';
+
+  let trigger = input.parentNode.querySelector('.custom-select-trigger');
+  if (trigger) trigger.remove();
+
+  trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'custom-select-trigger sec-input';
+  trigger.textContent = valorInicial || '—';
+  trigger.disabled = !editing;
+  input.value = valorInicial;
+  input.parentNode.insertBefore(trigger, input.nextSibling);
+
+  trigger.addEventListener('click', () => {
+    if (!isEditing(id)) return;
+    abrirBottomSheet(labelText, config.options, input.value, opcion => {
+      input.value = opcion;
+      trigger.textContent = opcion;
+    });
+  });
+}
 
 function habilitarToggle(id, valorInicial = '') {
   const input = document.getElementById(id);
   if (!input) return;
   input.style.display = 'none';
-  // Remove existing toggle wrap if any
-  let existing = input.parentNode.querySelector('.toggle-wrap');
+  const editing = isEditing(id);
+
+  // Buscar contenedor (sec-row-toggle o profile-field-toggle)
+  const container = input.parentNode;
+  let existing = container.querySelector('.toggle-wrap');
   if (existing) existing.remove();
+
   const isOn = (valorInicial === 'Sí');
   const wrap = document.createElement('div');
   wrap.className = 'toggle-wrap';
@@ -486,30 +554,21 @@ function habilitarToggle(id, valorInicial = '') {
     </button>
   `;
   input.value = valorInicial;
-  // Append to the profile-field-toggle container
-  input.parentNode.appendChild(wrap);
+  container.appendChild(wrap);
+
   const btn = wrap.querySelector('.toggle-btn');
+  btn.disabled = !editing;
   btn.addEventListener('click', () => {
-    if (!modoEdicion) return;
+    if (!isEditing(id)) return;
     const on = btn.classList.contains('toggle-off');
     btn.classList.toggle('toggle-on', on);
     btn.classList.toggle('toggle-off', !on);
     btn.setAttribute('aria-pressed', on);
     input.value = on ? 'Sí' : 'No';
   });
-  btn.disabled = !modoEdicion;
 }
 
-function actualizarEstadoChips() {
-  document.querySelectorAll('.chip').forEach(chip => {
-    if (modoEdicion) { chip.classList.remove('opacity-50','cursor-not-allowed'); }
-    else             { chip.classList.add('opacity-50','cursor-not-allowed'); }
-  });
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.disabled = !modoEdicion;
-  });
-}
-
+// ── BOTTOM SHEET (selector modal centrado) ────────────────────
 function crearBottomSheet() {
   if (document.getElementById('bs-overlay')) return;
   const overlay = document.createElement('div'); overlay.className = 'bs-overlay'; overlay.id = 'bs-overlay';
@@ -533,11 +592,10 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
   const panel         = document.getElementById('bs-panel');
   const title         = document.getElementById('bs-title');
   const optsEl        = document.getElementById('bs-options');
-  const searchEl      = document.getElementById('bs-search');
   const searchWrapper = document.getElementById('bs-search-wrapper');
   title.textContent = label;
-  searchEl.value = '';
   searchWrapper.style.display = options.length > 6 ? 'block' : 'none';
+
   function renderOpciones(filtro = '') {
     optsEl.innerHTML = '';
     const filtradas = options.filter(o => o.toLowerCase().includes(filtro.toLowerCase()));
@@ -552,13 +610,18 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
     });
   }
   renderOpciones();
+
+  const searchEl = document.getElementById('bs-search');
   const nuevoSearch = searchEl.cloneNode(true);
   searchEl.parentNode.replaceChild(nuevoSearch, searchEl);
+  nuevoSearch.value = '';
   nuevoSearch.addEventListener('input', () => renderOpciones(nuevoSearch.value));
+
   requestAnimationFrame(() => {
     const sel = optsEl.querySelector('.selected');
     if (sel) sel.scrollIntoView({ block: 'center' });
   });
+
   overlay.classList.add('active');
   panel.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -573,74 +636,6 @@ function cerrarBottomSheet() {
   document.body.style.overflow = '';
 }
 
-function habilitarSelect(id, valorInicial = '') {
-  const input = document.getElementById(id);
-  const key   = id.replace('p-', '');
-  const config = CHIPS_OPTIONS[key];
-  if (!config || !input) return;
-  const fieldEl  = input.closest('.profile-field');
-  const labelEl  = fieldEl ? fieldEl.querySelector('label') : null;
-  const labelText = labelEl ? labelEl.textContent : key;
-  input.style.display = 'none';
-  input.style.position = 'absolute';
-  input.style.visibility = 'hidden';
-  let trigger = input.nextElementSibling;
-  if (trigger && trigger.classList.contains('custom-select-trigger')) trigger.remove();
-  trigger = document.createElement('button');
-  trigger.type = 'button';
-  trigger.className = 'custom-select-trigger';
-  trigger.textContent = valorInicial || 'No definido';
-  trigger.disabled = !modoEdicion;
-  input.value = valorInicial;
-  input.parentNode.insertBefore(trigger, input.nextSibling);
-  trigger.addEventListener('click', () => {
-    if (!modoEdicion) return;
-    abrirBottomSheet(labelText, config.options, input.value, opcionElegida => {
-      input.value = opcionElegida;
-      trigger.textContent = opcionElegida;
-    });
-  });
-}
-
-// ── VALIDACIÓN ────────────────────────────────────────────────
-const CAMPOS_OBLIGATORIOS = [
-  'p-nombreCivil','p-nombre','p-cedulaPasaporte','p-pronombres',
-  'p-fechaNacimiento','p-pais','p-codigoPais','p-telefono',
-  'p-grupoSanguineo','p-contactoEmergencia','p-mostrarCumple',
-  'p-mostrarEdad','p-mayor18'
-];
-const NOMBRES_CAMPOS = {
-  'p-nombreCivil':'Nombre civil','p-nombre':'Nombre',
-  'p-cedulaPasaporte':'Cédula / Pasaporte','p-pronombres':'Pronombres',
-  'p-fechaNacimiento':'Fecha de nacimiento','p-pais':'País',
-  'p-codigoPais':'Código de país','p-telefono':'Teléfono',
-  'p-grupoSanguineo':'Grupo sanguíneo','p-contactoEmergencia':'Contacto de emergencia',
-  'p-mostrarCumple':'Mostrar cumpleaños','p-mostrarEdad':'Mostrar edad',
-  'p-mayor18':'Mayor de 18 años'
-};
-
-function validarCamposFrontend() {
-  let primerError = null, camposFaltantes = [];
-  CAMPOS_OBLIGATORIOS.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.remove('campo-error');
-    if (!el.value?.trim()) {
-      el.classList.add('campo-error');
-      camposFaltantes.push(NOMBRES_CAMPOS[id] || id);
-      if (!primerError) primerError = el;
-    }
-  });
-  return { primerError, camposFaltantes };
-}
-
-function scrollAlCampoElemento(el) {
-  if (!el || typeof el.scrollIntoView !== 'function') return;
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  el.classList.add('campo-error');
-  setTimeout(() => el.classList.remove('campo-error'), 2000);
-}
-
 // ── ARCHIVOS ──────────────────────────────────────────────────
 function configurarTodasLasSubidas() {
   configurarUpload('p-adjPruebaFisica', 'prueba', 'adjPruebaFisica');
@@ -652,17 +647,16 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
   const input = document.getElementById(inputId);
   if (!input) return;
   let inputReal = input;
-  const btnSubir = document.getElementById(`btn-subir-${campoDestino}`);
-  if (btnSubir) btnSubir.onclick = () => { if (modoEdicion) inputReal.click(); };
+
+  const btnSubir = document.getElementById('btn-subir-' + campoDestino);
+  if (btnSubir) btnSubir.onclick = () => { if (isEditing('p-' + campoDestino) || campoDestino === 'fotoPerfil') inputReal.click(); };
+
   if (campoDestino !== 'fotoPerfil') {
     const nuevoInput = input.cloneNode(true);
     input.parentNode.replaceChild(nuevoInput, input);
     inputReal = nuevoInput;
   }
-  if (campoDestino === 'fotoPerfil') {
-    const avatar = document.getElementById('avatar-container');
-    if (avatar) avatar.onclick = () => { if (!modoEdicion) return; inputReal.click(); };
-  }
+
   inputReal.addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -674,11 +668,7 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
       if (campoDestino === 'fotoPerfil') { abrirCropper(base64); return; }
       mostrarSubiendo(campoDestino);
       try {
-        const result = await gasCall('subirArchivo', {
-          base64Data: base64,
-          tipoArchivo,
-          email: CURRENT_USER.email,
-        });
+        const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo, email: CURRENT_USER.email });
         window.myProfile[campoDestino] = result.url;
         renderEstadoArchivo(campoDestino, result.url);
         mostrarExito(campoDestino);
@@ -689,39 +679,49 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
 }
 
 function renderEstadoArchivo(campo, url) {
-  const contenedor = document.getElementById(`estado-${campo}`);
+  const contenedor = document.getElementById('estado-' + campo);
   if (!contenedor) return;
   contenedor.innerHTML = '';
   if (!url) { contenedor.innerHTML = '<span class="file-status-vacio">No hay archivo cargado</span>'; return; }
   const esImagen = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
-  let html = `<div class="file-status-ok"><span>Archivo cargado</span><a href="${url}" target="_blank" class="file-link">Ver archivo</a></div>`;
+  let html = `<div class="file-status-ok"><span>✓ Cargado</span><a href="${url}" target="_blank" class="file-link">Ver archivo</a></div>`;
   if (esImagen) html += `<img src="${url}" class="file-preview" alt="Preview">`;
   contenedor.innerHTML = html;
 }
 
 function mostrarSubiendo(campo) {
-  const el = document.getElementById(`upload-status-${campo}`);
+  const el = document.getElementById('upload-status-' + campo);
   if (el) el.innerHTML = '<span>Subiendo...</span>';
-  if (campo === 'fotoPerfil') document.getElementById('avatar-loader')?.classList.remove('hidden');
 }
 function mostrarExito(campo) {
-  const el = document.getElementById(`upload-status-${campo}`);
+  const el = document.getElementById('upload-status-' + campo);
   if (el) { el.innerHTML = '<span class="text-ok">✓ Subido</span>'; setTimeout(() => el.innerHTML = '', 3000); }
-  if (campo === 'fotoPerfil') document.getElementById('avatar-loader')?.classList.add('hidden');
 }
 function mostrarErrorUpload(campo) {
-  const el = document.getElementById(`upload-status-${campo}`);
+  const el = document.getElementById('upload-status-' + campo);
   if (el) el.innerHTML = '<span class="text-error">Error al subir</span>';
-  if (campo === 'fotoPerfil') document.getElementById('avatar-loader')?.classList.add('hidden');
 }
 
 // ── FOTO DE PERFIL ────────────────────────────────────────────
+function clickEditarFoto() {
+  if (!edicionActiva['generales']) return;
+  document.getElementById('p-fotoPerfil')?.click();
+}
+
+function setSecAvatarEditable(editable) {
+  const container = document.getElementById('avatar-container');
+  if (container) {
+    container.classList.toggle('disabled', !editable);
+    container.onclick = editable ? () => document.getElementById('p-fotoPerfil')?.click() : null;
+  }
+}
+
 function renderFotoPerfil(url) {
+  const placeholder = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150"><rect width="100%" height="100%" fill="#2b2b2b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#888" font-size="20" font-family="Arial">Sin foto</text></svg>');
   const img = document.getElementById('img-preview-foto');
-  if (!img) return;
-  const placeholder = 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150"><rect width="100%" height="100%" fill="#2b2b2b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#888" font-size="20" font-family="Arial">Sin foto</text></svg>`);
-  img.onerror = () => { img.src = placeholder; };
-  img.src = url || placeholder;
+  if (img) { img.onerror = () => { img.src = placeholder; }; img.src = url || placeholder; }
+  const secImg = document.getElementById('sec-img-foto');
+  if (secImg) { secImg.onerror = () => { secImg.src = placeholder; }; secImg.src = url || placeholder; }
 }
 
 function normalizarDriveUrl(url) {
@@ -762,44 +762,19 @@ function confirmarCrop() {
 }
 
 async function subirImagenRecortada(base64) {
-  const img     = document.getElementById('img-preview-foto');
   const overlay = document.getElementById('avatar-overlay');
-  if (img) img.src = base64;
   if (overlay) { overlay.classList.remove('hidden'); overlay.classList.add('flex'); }
   fotoSubiendo = true;
   try {
-    const result = await gasCall('subirArchivo', {
-      base64Data: base64,
-      tipoArchivo: 'foto',
-      email: CURRENT_USER.email,
-    });
+    const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo: 'foto', email: CURRENT_USER.email });
     window.myProfile.fotoPerfil = result.url;
-    renderEstadoArchivo('fotoPerfil', result.url);
-    if (img) img.src = result.url;
+    renderFotoPerfil(normalizarDriveUrl(result.url));
   } catch {
     mostrarErrorUpload('fotoPerfil');
-    if (img && window.myProfile.fotoPerfil) img.src = window.myProfile.fotoPerfil;
   } finally {
     if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
     fotoSubiendo = false;
   }
-}
-
-// ── UI HELPERS ────────────────────────────────────────────────
-function setAvatarEditable(editable) {
-  const avatar = document.getElementById('avatar-container');
-  if (!avatar) return;
-  avatar.classList.toggle('disabled', !editable);
-  avatar.style.pointerEvents = editable ? 'auto' : 'none';
-  avatar.style.cursor = editable ? 'pointer' : 'default';
-}
-
-function toggleUI(isEditing) {
-  document.querySelectorAll('.editable').forEach(input => { input.disabled = !isEditing; });
-  document.getElementById('btnEditar').style.display   = isEditing ? 'none'  : 'block';
-  document.getElementById('btnGuardar').style.display  = isEditing ? 'block' : 'none';
-  document.getElementById('btnCancelar').style.display = isEditing ? 'block' : 'none';
-  document.getElementById('appContent').classList.toggle('is-editing', isEditing);
 }
 
 function cancelarCrop() {
@@ -809,9 +784,19 @@ function cancelarCrop() {
 }
 function rotarImagen() { if (cropper) cropper.rotate(90); }
 
+// ── EMAIL WIDTH ───────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const emailInput = document.getElementById('p-email');
+  if (emailInput) {
+    emailInput.addEventListener('input', () => {
+      emailInput.value = emailInput.value.replace(/@.*/, '');
+      ajustarAnchoEmail();
+    });
+  }
+});
+
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Cargar Google Identity Services
   const script = document.createElement('script');
   script.src = 'https://accounts.google.com/gsi/client';
   script.onload = () => initGoogleAuth();
