@@ -1203,16 +1203,7 @@ input[type="file"] { display: none !important; }
 .app-view.is-editing .file-status-ok { display: none !important; }
 
 /* Fix date picker month/year button white box */
-#dp-month-year-btn {
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  padding: 6px 8px !important;
-  border-radius: 8px !important;
-  -webkit-tap-highlight-color: transparent;
-  cursor: pointer;
-}
-#dp-month-year-btn:active { background: var(--chip-bg) !important; }
+.dp-nav-chips { display: flex; gap: 2px; align-items: center; }
 
 /* sec-input italic: handled below */
 
@@ -1554,15 +1545,7 @@ input[type="file"] { display: none !important; }
 }
 
 /* ── Date picker month/year CSS arrow (no Material icon) ── */
-.dp-month-arrow {
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-right: 2px solid var(--text2);
-  border-bottom: 2px solid var(--text2);
-  transform: rotate(45deg) translateY(-2px);
-  margin-left: 4px; vertical-align: middle;
-  border-radius: 1px;
-}
+
 /* dp-nav-label: fix transparent bg */
 .dp-nav-label {
   background: transparent !important;
@@ -1904,15 +1887,7 @@ input, button, select, textarea {
 }
 
 /* ── Date picker: ensure month button is always clickable ── */
-#dp-month-year-btn {
-  pointer-events: all !important;
-  position: relative !important;
-  z-index: 2 !important;
-}
-#dp-month-year-btn span,
-#dp-month-year-btn .dp-month-arrow {
-  pointer-events: none !important;
-}
+
 /* date-picker-trigger: always shows pointer */
 .date-picker-trigger {
   cursor: pointer !important;
