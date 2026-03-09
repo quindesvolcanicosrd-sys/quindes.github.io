@@ -11,8 +11,23 @@
   <meta name="apple-mobile-web-app-title" content="Quindes">
   <title>Quindes App</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icons/FavIcon.png">
-  <link rel="apple-touch-icon" href="icons/logodarkmode.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+
+  <!-- iOS home screen icon -->
+  <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180x180.png">
+
+  <!-- iOS Splash screens -->
+  <link rel="apple-touch-startup-image" sizes="120x120" href="icons/splash-120x120.png">
+  <link rel="apple-touch-startup-image" sizes="152x152" href="icons/splash-152x152.png">
+  <link rel="apple-touch-startup-image" sizes="180x180" href="icons/splash-180x180.png">
+  <link rel="apple-touch-startup-image" sizes="192x192" href="icons/splash-192x192.png">
+  <link rel="apple-touch-startup-image" sizes="512x512" href="icons/splash-512x512.png">
+
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
@@ -23,14 +38,14 @@
 <!-- LOADING -->
 <div id="loadingScreen">
   <div class="loading-logo">
-    <img src="icons/logodarkmode.png" alt="Quindes" class="loading-logo-img">
+    <img src="icons/splash-512x512.png" alt="Quindes" class="loading-logo-img">
   </div>
 </div>
 
 <!-- LOGIN -->
 <div id="loginScreen" style="display:none;">
   <div class="login-card">
-    <img src="icons/logodarkmode.png" alt="Quindes" class="login-logo">
+    <img src="icons/icon-192x192.png" alt="Quindes" class="login-logo">
     <h1 class="login-title">Quindes Volcánicos</h1>
     <p class="login-sub">Roller Derby Quito</p>
     <div id="google-signin-btn"></div>
@@ -534,7 +549,7 @@
     </div>
     <div class="modal-actions">
       <button onclick="cancelarCrop()"  class="modal-btn modal-btn-cancel">Cancelar</button>
-<button onclick="confirmarCrop()" class="modal-btn modal-btn-confirm" id="btn-aplicar-crop">Aplicar</button>
+      <button onclick="confirmarCrop()" class="modal-btn modal-btn-confirm" id="btn-aplicar-crop">Aplicar</button>
     </div>
   </div>
 </div>
