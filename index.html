@@ -18,11 +18,13 @@
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="loadingScreen">
   <div class="loading-logo"><span class="material-icons">roller_skating</span></div>
   <h2>Cargando...</h2>
 </div>
 
+<!-- LOGIN -->
 <div id="loginScreen" style="display:none;">
   <div class="login-card">
     <img src="icons/icon-192x192.png" alt="Quindes" class="login-logo">
@@ -32,6 +34,7 @@
   </div>
 </div>
 
+<!-- UNAUTHORIZED -->
 <div id="unauthorized" style="display:none;">
   <div class="login-card">
     <span class="material-icons" style="font-size:48px;color:#ef4444;">block</span>
@@ -40,261 +43,425 @@
   </div>
 </div>
 
-<div id="appContent" style="display:none; width:100%;">
-  <header class="pf-header">
-    <span class="pf-header-title">Mi Perfil</span>
-    <span id="user-email" class="pf-header-email"></span>
-  </header>
+<!-- APP SHELL -->
+<div id="appContent" style="display:none;">
 
-  <div class="pf-scroll">
-    <div id="perfil-error" class="error-box" style="display:none;"></div>
+  <!-- ═══════════════════════════════════════════════
+       VISTA PRINCIPAL (home)
+  ═══════════════════════════════════════════════ -->
+  <div id="view-home" class="app-view active">
+    <header class="app-header">
+      <span class="app-header-title">Mi Perfil</span>
+      <span id="user-email" class="app-header-email"></span>
+    </header>
 
-    <div class="pf-card" id="my-profile">
-
-      <div class="pf-banner"></div>
-
-      <div class="pf-avatar-wrap">
-        <div id="avatar-container" class="disabled">
-          <img id="img-preview-foto" src="" alt="Foto de perfil">
-          <div class="pf-avatar-edit"><span class="material-icons">edit</span></div>
-          <div id="avatar-loader" class="hidden"><span class="material-icons">hourglass_empty</span></div>
-          <div id="avatar-overlay" class="hidden"></div>
-        </div>
-      </div>
-      <input type="file" id="p-fotoPerfil" accept="image/*" disabled style="display:none;">
-
-      <div class="pf-hero-text">
-        <p class="pf-hero-name" id="hero-nombre-derby">—</p>
-        <p class="pf-hero-sub"  id="hero-sub">— · —</p>
-        <div class="pf-hero-badges">
-          <span class="pf-badge pf-badge-red"  id="hero-rol">—</span>
-          <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
-        </div>
-      </div>
-
-      <div class="pf-stats">
-        <div class="pf-stat">
-          <span class="material-icons">calendar_today</span>
-          <span class="pf-stat-lbl" id="label-puntosMes">Estado mes</span>
-          <span class="pf-stat-val" id="p-puntosMes">—</span>
-        </div>
-        <div class="pf-stat">
-          <span class="material-icons">date_range</span>
-          <span class="pf-stat-lbl" id="label-puntosTrim">Trimestre</span>
-          <span class="pf-stat-val" id="p-puntosTrim">—</span>
-        </div>
-        <div class="pf-stat">
-          <span class="material-icons">emoji_events</span>
-          <span class="pf-stat-lbl" id="label-puntosAnio">Año</span>
-          <span class="pf-stat-val" id="p-puntosAnio">—</span>
-        </div>
-      </div>
-
-      <div class="pf-btn-wrap">
-        <button id="btnEditar"   class="btn-primary" onclick="activarEdicion()">Editar Perfil</button>
-        <button id="btnGuardar"  class="btn-primary" onclick="guardarPerfil()"  style="display:none;">Guardar Cambios</button>
-        <button id="btnCancelar" class="btn-ghost"   onclick="cancelarEdicion()" style="display:none;">Cancelar</button>
-      </div>
-
-      <!-- DATOS GENERALES -->
-      <div class="pf-section">
-        <div class="pf-section-head">
-          <div class="pf-section-ico ico-blue"><span class="material-icons">person</span></div>
-          <span class="pf-section-title">Datos Generales</span>
-        </div>
-        <div class="profile-field">
-          <label class="accent">Nombre Derby</label>
-          <input id="p-nombreDerby" class="editable" disabled>
-        </div>
-        <div class="pf-row-2">
-          <div class="profile-field">
-            <label>Número derby</label>
-            <input id="p-numero" class="editable" disabled>
+    <div class="app-scroll">
+      <!-- Hero card -->
+      <div class="hero-card">
+        <div class="hero-banner"></div>
+        <div class="hero-avatar-wrap">
+          <div id="avatar-container" class="disabled">
+            <img id="img-preview-foto" src="" alt="Foto de perfil">
+            <div class="pf-avatar-edit"><span class="material-icons">edit</span></div>
+            <div id="avatar-loader" class="hidden"><span class="material-icons">hourglass_empty</span></div>
+            <div id="avatar-overlay" class="hidden"></div>
           </div>
-          <div class="profile-field">
-            <label>Posición / Rol</label>
-            <input id="p-rolJugadorx" class="editable" disabled>
+          <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
+        </div>
+        <div class="hero-text">
+          <p class="hero-name" id="hero-nombre-derby">—</p>
+          <p class="hero-sub" id="hero-sub">— · —</p>
+          <div class="hero-badges">
+            <span class="pf-badge pf-badge-red" id="hero-rol">—</span>
+            <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
           </div>
         </div>
-        <div class="profile-field" data-role="Admin SemiAdmin">
-          <label>Nombre en la app</label>
-          <span class="field-help">Nombre con el que se te identifica</span>
-          <input id="p-nombre" class="editable normal" disabled>
-        </div>
-        <div class="profile-field">
-          <label>Pronombres</label>
-          <input id="p-pronombres" class="editable hidden-input" disabled>
+        <div class="hero-stats">
+          <div class="pf-stat">
+            <span class="material-icons">calendar_today</span>
+            <span class="pf-stat-lbl" id="label-puntosMes">Estado mes</span>
+            <span class="pf-stat-val" id="p-puntosMes">—</span>
+          </div>
+          <div class="pf-stat">
+            <span class="material-icons">date_range</span>
+            <span class="pf-stat-lbl" id="label-puntosTrim">Trimestre</span>
+            <span class="pf-stat-val" id="p-puntosTrim">—</span>
+          </div>
+          <div class="pf-stat">
+            <span class="material-icons">emoji_events</span>
+            <span class="pf-stat-lbl" id="label-puntosAnio">Año</span>
+            <span class="pf-stat-val" id="p-puntosAnio">—</span>
+          </div>
         </div>
       </div>
-      <div class="pf-divider"></div>
 
-      <!-- DATOS PERSONALES -->
-      <div class="pf-section">
-        <div class="pf-section-head">
-          <div class="pf-section-ico ico-purple"><span class="material-icons">badge</span></div>
-          <span class="pf-section-title">Datos Personales</span>
-        </div>
-        <div class="profile-field" data-role="Admin">
-          <label>Nombre civil</label>
-          <input id="p-nombreCivil" class="editable normal" disabled>
-        </div>
-        <div class="profile-field">
-          <label>Número de documento</label>
-          <input id="p-cedulaPasaporte" class="editable normal" disabled>
-        </div>
-        <div class="pf-file-row">
-          <div class="pf-file-ico" style="background:rgba(168,85,247,0.12);">
-            <span class="material-icons" style="color:#c084fc;">contact_page</span>
+      <!-- Settings list -->
+      <div class="settings-list">
+
+        <div class="settings-row" onclick="navegarSeccion('generales')">
+          <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Datos Generales</span>
+            <span class="settings-row-sub" id="sub-generales">Nombre Derby, Número, Rol</span>
           </div>
-          <div style="flex:1;min-width:0;">
-            <p class="pf-file-lbl">Documento de identidad</p>
-            <div id="estado-adjCedula"></div>
-            <input type="file" id="p-adjCedula" accept=".pdf,image/*" disabled style="display:none;">
-            <div class="pf-file-actions">
+          <span class="material-icons settings-row-arrow">chevron_right</span>
+        </div>
+
+        <div class="settings-row" onclick="navegarSeccion('personales')">
+          <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Datos Personales</span>
+            <span class="settings-row-sub" id="sub-personales">Documento, Nacionalidad, Fecha de nacimiento</span>
+          </div>
+          <span class="material-icons settings-row-arrow">chevron_right</span>
+        </div>
+
+        <div class="settings-row" onclick="navegarSeccion('contacto')">
+          <div class="settings-row-ico ico-teal"><span class="material-icons">contacts</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Contacto</span>
+            <span class="settings-row-sub" id="sub-contacto">Email, Teléfono</span>
+          </div>
+          <span class="material-icons settings-row-arrow">chevron_right</span>
+        </div>
+
+        <div class="settings-row" onclick="navegarSeccion('salud')">
+          <div class="settings-row-ico ico-red"><span class="material-icons">favorite</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Salud y Emergencia</span>
+            <span class="settings-row-sub" id="sub-salud">Contacto de emergencia, Grupo sanguíneo</span>
+          </div>
+          <span class="material-icons settings-row-arrow">chevron_right</span>
+        </div>
+
+        <div class="settings-row" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarSeccion('rendimiento')">
+          <div class="settings-row-ico ico-orange"><span class="material-icons">bar_chart</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Estado y Rendimiento</span>
+            <span class="settings-row-sub" id="sub-rendimiento">Estado, Cuota, Asistencia</span>
+          </div>
+          <span class="material-icons settings-row-arrow">chevron_right</span>
+        </div>
+
+      </div>
+      <div style="height:32px;"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       VISTA SECCIÓN GENERALES
+  ═══════════════════════════════════════════════ -->
+  <div id="view-generales" class="app-view">
+    <header class="app-header app-header-section">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Datos Generales</span>
+      <button class="header-edit-btn" id="btn-edit-generales" onclick="toggleEdicionSeccion('generales')">
+        <span class="material-icons">edit</span>
+      </button>
+    </header>
+    <div class="app-scroll">
+      <div id="error-generales" class="error-box" style="display:none;"></div>
+
+      <!-- Foto de perfil -->
+      <div class="sec-group">
+        <div class="sec-row sec-row-avatar" onclick="clickEditarFoto()">
+          <div class="sec-avatar-preview">
+            <img id="sec-img-foto" src="" alt="">
+            <div class="sec-avatar-edit-ico"><span class="material-icons">photo_camera</span></div>
+          </div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Foto de perfil</span>
+            <span class="sec-row-sub">Toca para cambiar</span>
+          </div>
+          <span class="material-icons sec-row-arrow">chevron_right</span>
+        </div>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Nombre Derby</span>
+            <input id="p-nombreDerby" class="sec-input sec-input-bold" disabled>
+          </div>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Número Derby</span>
+            <input id="p-numero" class="sec-input" disabled>
+          </div>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Posición / Rol</span>
+            <input id="p-rolJugadorx" class="sec-input" disabled>
+          </div>
+          <span class="material-icons sec-select-arrow" id="arrow-rolJugadorx" style="display:none;">chevron_right</span>
+        </div>
+        <div class="sec-row" data-role="Admin SemiAdmin">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Nombre en la app</span>
+            <input id="p-nombre" class="sec-input sec-input-normal" disabled>
+          </div>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Pronombres</span>
+            <input id="p-pronombres" class="sec-input" disabled style="display:none;">
+            <div id="chips-pronombres-wrap"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-save-wrap" id="save-generales" style="display:none;">
+        <button class="btn-save" onclick="guardarSeccion('generales')">Guardar cambios</button>
+        <button class="btn-cancel" onclick="toggleEdicionSeccion('generales')">Cancelar</button>
+      </div>
+      <div style="height:32px;"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       VISTA SECCIÓN DATOS PERSONALES
+  ═══════════════════════════════════════════════ -->
+  <div id="view-personales" class="app-view">
+    <header class="app-header app-header-section">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Datos Personales</span>
+      <button class="header-edit-btn" id="btn-edit-personales" onclick="toggleEdicionSeccion('personales')">
+        <span class="material-icons">edit</span>
+      </button>
+    </header>
+    <div class="app-scroll">
+      <div id="error-personales" class="error-box" style="display:none;"></div>
+      <div class="sec-group">
+        <div class="sec-row" data-role="Admin">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Nombre civil</span>
+            <input id="p-nombreCivil" class="sec-input sec-input-normal" disabled>
+          </div>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Número de documento</span>
+            <input id="p-cedulaPasaporte" class="sec-input sec-input-normal" disabled>
+          </div>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Documento de identidad</span>
+            <div id="estado-adjCedula" class="sec-file-status"></div>
+            <input type="file" id="p-adjCedula" accept=".pdf,image/*" style="display:none;">
+            <div class="sec-file-actions">
               <button type="button" class="btn-file" id="btn-subir-adjCedula">Subir archivo</button>
               <span id="upload-status-adjCedula"></span>
             </div>
           </div>
         </div>
-        <div class="profile-field">
-          <label>Nacionalidad</label>
-          <input id="p-pais" class="editable" disabled>
-        </div>
-        <div class="profile-field">
-          <label>Fecha de nacimiento</label>
-          <input id="p-fechaNacimiento" class="editable normal" disabled>
-        </div>
-        <div class="profile-field-toggle">
-          <span class="ptf-label">¿Mostrar cumpleaños?</span>
-          <input id="p-mostrarCumple" class="editable hidden-input" disabled>
-        </div>
-        <div class="profile-field-toggle">
-          <span class="ptf-label">¿Mostrar edad?</span>
-          <input id="p-mostrarEdad" class="editable hidden-input" disabled>
-        </div>
-        <div class="pf-row-2">
-          <div class="profile-field">
-            <label>Cumpleaños</label>
-            <input id="p-cumple" class="editable normal" disabled>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Nacionalidad</span>
+            <input id="p-pais" class="sec-input" disabled>
           </div>
-          <div class="profile-field">
-            <label>Edad</label>
-            <input id="p-edad" class="editable normal" disabled>
-          </div>
+          <span class="material-icons sec-select-arrow" id="arrow-pais" style="display:none;">chevron_right</span>
         </div>
-        <div class="profile-field-toggle">
-          <span class="ptf-label">Mayor de 18 y acepto términos</span>
-          <input id="p-mayor18" class="editable hidden-input" disabled>
-        </div>
-      </div>
-      <div class="pf-divider"></div>
-
-      <!-- CONTACTO -->
-      <div class="pf-section">
-        <div class="pf-section-head">
-          <div class="pf-section-ico ico-teal"><span class="material-icons">contacts</span></div>
-          <span class="pf-section-title">Contacto</span>
-        </div>
-        <div class="profile-field" data-role="Admin">
-          <label>Email (Cuenta de Google)</label>
-          <span class="field-help">Solo la parte antes de @gmail.com</span>
-          <div class="pf-email-wrap">
-            <input id="p-email" class="editable normal" placeholder="tu-email" disabled>
-            <span class="pf-email-suffix">@gmail.com</span>
-          </div>
-        </div>
-        <div class="pf-row-2">
-          <div class="profile-field">
-            <label>Código país</label>
-            <input id="p-codigoPais" class="editable" disabled>
-          </div>
-          <div class="profile-field">
-            <label>Teléfono</label>
-            <input id="p-telefono" class="editable normal" disabled>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Fecha de nacimiento</span>
+            <input id="p-fechaNacimiento" class="sec-input sec-input-normal" disabled>
           </div>
         </div>
       </div>
-      <div class="pf-divider"></div>
+      <div class="sec-group">
+        <div class="sec-row-toggle">
+          <span class="sec-toggle-label">¿Mostrar cumpleaños?</span>
+          <input id="p-mostrarCumple" style="display:none;">
+        </div>
+        <div class="sec-row-toggle">
+          <span class="sec-toggle-label">¿Mostrar edad?</span>
+          <input id="p-mostrarEdad" style="display:none;">
+        </div>
+        <div class="sec-row-toggle">
+          <span class="sec-toggle-label">Mayor de 18 y acepto términos</span>
+          <input id="p-mayor18" style="display:none;">
+        </div>
+      </div>
+      <div class="sec-save-wrap" id="save-personales" style="display:none;">
+        <button class="btn-save" onclick="guardarSeccion('personales')">Guardar cambios</button>
+        <button class="btn-cancel" onclick="toggleEdicionSeccion('personales')">Cancelar</button>
+      </div>
+      <div style="height:32px;"></div>
+    </div>
+  </div>
 
-      <!-- SALUD Y EMERGENCIA -->
-      <div class="pf-section">
-        <div class="pf-section-head">
-          <div class="pf-section-ico ico-red"><span class="material-icons">favorite</span></div>
-          <span class="pf-section-title rojo">Salud y Emergencia</span>
-        </div>
-        <div class="profile-field">
-          <label>Contacto de emergencia</label>
-          <input id="p-contactoEmergencia" class="editable normal" disabled>
-        </div>
-        <div class="profile-field">
-          <label>Grupo sanguíneo</label>
-          <input id="p-grupoSanguineo" class="editable" disabled>
-        </div>
-        <div class="profile-field-toggle" data-role="Admin">
-          <span class="ptf-label">Apto para el deporte</span>
-          <input id="p-aptoDeporte" class="editable hidden-input" disabled>
-        </div>
-        <div class="pf-row-2">
-          <div class="profile-field">
-            <label>Alergias</label>
-            <input id="p-alergias" class="editable normal" disabled>
-          </div>
-          <div class="profile-field">
-            <label>Dieta</label>
-            <input id="p-dieta" class="editable normal" disabled>
+  <!-- ═══════════════════════════════════════════════
+       VISTA SECCIÓN CONTACTO
+  ═══════════════════════════════════════════════ -->
+  <div id="view-contacto" class="app-view">
+    <header class="app-header app-header-section">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Contacto</span>
+      <button class="header-edit-btn" id="btn-edit-contacto" onclick="toggleEdicionSeccion('contacto')">
+        <span class="material-icons">edit</span>
+      </button>
+    </header>
+    <div class="app-scroll">
+      <div id="error-contacto" class="error-box" style="display:none;"></div>
+      <div class="sec-group">
+        <div class="sec-row" data-role="Admin">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Email (Cuenta de Google)</span>
+            <div class="pf-email-wrap">
+              <input id="p-email" class="sec-input sec-input-normal" placeholder="tu-email" disabled>
+              <span class="pf-email-suffix">@gmail.com</span>
+            </div>
           </div>
         </div>
-        <div class="pf-file-row">
-          <div class="pf-file-ico" style="background:rgba(239,68,68,0.12);">
-            <span class="material-icons" style="color:#f87171;">fitness_center</span>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Código de país</span>
+            <input id="p-codigoPais" class="sec-input" disabled>
           </div>
-          <div style="flex:1;min-width:0;">
-            <p class="pf-file-lbl">Prueba física</p>
-            <div id="estado-adjPruebaFisica"></div>
-            <input type="file" id="p-adjPruebaFisica" accept=".pdf,image/*" disabled style="display:none;">
-            <div class="pf-file-actions">
+          <span class="material-icons sec-select-arrow" id="arrow-codigoPais" style="display:none;">chevron_right</span>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Teléfono</span>
+            <input id="p-telefono" class="sec-input sec-input-normal" disabled>
+          </div>
+        </div>
+      </div>
+      <div class="sec-save-wrap" id="save-contacto" style="display:none;">
+        <button class="btn-save" onclick="guardarSeccion('contacto')">Guardar cambios</button>
+        <button class="btn-cancel" onclick="toggleEdicionSeccion('contacto')">Cancelar</button>
+      </div>
+      <div style="height:32px;"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       VISTA SECCIÓN SALUD Y EMERGENCIA
+  ═══════════════════════════════════════════════ -->
+  <div id="view-salud" class="app-view">
+    <header class="app-header app-header-section">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Salud y Emergencia</span>
+      <button class="header-edit-btn" id="btn-edit-salud" onclick="toggleEdicionSeccion('salud')">
+        <span class="material-icons">edit</span>
+      </button>
+    </header>
+    <div class="app-scroll">
+      <div id="error-salud" class="error-box" style="display:none;"></div>
+      <div class="sec-group">
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Contacto de emergencia</span>
+            <input id="p-contactoEmergencia" class="sec-input sec-input-normal" disabled>
+          </div>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Grupo sanguíneo</span>
+            <input id="p-grupoSanguineo" class="sec-input" disabled>
+          </div>
+          <span class="material-icons sec-select-arrow" id="arrow-grupoSanguineo" style="display:none;">chevron_right</span>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Alergias</span>
+            <input id="p-alergias" class="sec-input sec-input-normal" disabled>
+          </div>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Dieta</span>
+            <input id="p-dieta" class="sec-input sec-input-normal" disabled>
+          </div>
+        </div>
+      </div>
+      <div class="sec-group">
+        <div class="sec-row-toggle" data-role="Admin">
+          <span class="sec-toggle-label">Apto para el deporte</span>
+          <input id="p-aptoDeporte" style="display:none;">
+        </div>
+      </div>
+      <div class="sec-group">
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Prueba física (archivo)</span>
+            <div id="estado-adjPruebaFisica" class="sec-file-status"></div>
+            <input type="file" id="p-adjPruebaFisica" accept=".pdf,image/*" style="display:none;">
+            <div class="sec-file-actions">
               <button type="button" class="btn-file" id="btn-subir-adjPruebaFisica">Subir archivo</button>
               <span id="upload-status-adjPruebaFisica"></span>
             </div>
           </div>
         </div>
       </div>
-      <div class="pf-divider"></div>
+      <div class="sec-save-wrap" id="save-salud" style="display:none;">
+        <button class="btn-save" onclick="guardarSeccion('salud')">Guardar cambios</button>
+        <button class="btn-cancel" onclick="toggleEdicionSeccion('salud')">Cancelar</button>
+      </div>
+      <div style="height:32px;"></div>
+    </div>
+  </div>
 
-      <!-- ESTADO Y RENDIMIENTO (solo Admin/SemiAdmin) -->
-      <div class="pf-section" data-role="Admin SemiAdmin">
-        <div class="pf-section-head">
-          <div class="pf-section-ico ico-orange"><span class="material-icons">bar_chart</span></div>
-          <span class="pf-section-title">Estado y Rendimiento</span>
-        </div>
-        <div class="profile-field" data-role="Admin">
-          <label>Estado</label>
-          <input id="p-estado" class="editable hidden-input" disabled>
-        </div>
-        <div class="profile-field-toggle">
-          <span class="ptf-label">Paga cuota</span>
-          <input id="p-pagaCuota" class="editable hidden-input" disabled>
-        </div>
-        <div class="pf-row-2">
-          <div class="profile-field" data-role="Admin">
-            <label>Asiste por semana</label>
-            <input id="p-asisteSemana" class="editable hidden-input" disabled>
+  <!-- ═══════════════════════════════════════════════
+       VISTA SECCIÓN RENDIMIENTO
+  ═══════════════════════════════════════════════ -->
+  <div id="view-rendimiento" class="app-view">
+    <header class="app-header app-header-section">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Estado y Rendimiento</span>
+      <button class="header-edit-btn" id="btn-edit-rendimiento" onclick="toggleEdicionSeccion('rendimiento')">
+        <span class="material-icons">edit</span>
+      </button>
+    </header>
+    <div class="app-scroll">
+      <div id="error-rendimiento" class="error-box" style="display:none;"></div>
+      <div class="sec-group">
+        <div class="sec-row" data-role="Admin">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Estado</span>
+            <input id="p-estado" class="sec-input" disabled>
           </div>
-          <div class="profile-field" data-role="Admin">
-            <label>Prueba física (estado)</label>
-            <input id="p-pruebaFisica" class="editable hidden-input" disabled>
-          </div>
+          <span class="material-icons sec-select-arrow" id="arrow-estado" style="display:none;">chevron_right</span>
         </div>
-        <div class="profile-field" data-role="Admin">
-          <label>Tipo de usuario</label>
-          <input id="p-tipoUsuario" class="editable hidden-input" disabled>
+        <div class="sec-row" data-role="Admin">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Asiste por semana</span>
+            <input id="p-asisteSemana" class="sec-input" disabled>
+          </div>
+          <span class="material-icons sec-select-arrow" id="arrow-asisteSemana" style="display:none;">chevron_right</span>
+        </div>
+        <div class="sec-row" data-role="Admin">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Prueba física (estado)</span>
+            <input id="p-pruebaFisica" class="sec-input" disabled>
+          </div>
+          <span class="material-icons sec-select-arrow" id="arrow-pruebaFisica" style="display:none;">chevron_right</span>
+        </div>
+        <div class="sec-row" data-role="Admin">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Tipo de usuario</span>
+            <input id="p-tipoUsuario" class="sec-input" disabled>
+          </div>
+          <span class="material-icons sec-select-arrow" id="arrow-tipoUsuario" style="display:none;">chevron_right</span>
         </div>
       </div>
+      <div class="sec-group">
+        <div class="sec-row-toggle">
+          <span class="sec-toggle-label">Paga cuota</span>
+          <input id="p-pagaCuota" style="display:none;">
+        </div>
+      </div>
+      <div class="sec-save-wrap" id="save-rendimiento" style="display:none;">
+        <button class="btn-save" onclick="guardarSeccion('rendimiento')">Guardar cambios</button>
+        <button class="btn-cancel" onclick="toggleEdicionSeccion('rendimiento')">Cancelar</button>
+      </div>
+      <div style="height:32px;"></div>
+    </div>
+  </div>
 
-      <div class="pf-card-spacer"></div>
-    </div><!-- /pf-card -->
-    
-  </div><!-- /pf-scroll -->
 </div><!-- /appContent -->
 
 <!-- Modal crop -->
