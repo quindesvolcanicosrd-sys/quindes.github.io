@@ -298,26 +298,23 @@ function volverHome(fromPopState = false) {
 // then pushState to restore the buffer entry.
 
 function ensureHistoryBuffer() {
-  // Push a "home" buffer entry so there's always something to pop before exit
   history.pushState({ seccion: 'home', buffer: true }, '', location.pathname);
 }
 
 window.addEventListener('popstate', (e) => {
   if (vistaActual && vistaActual !== 'home') {
-    // In a section: go back to home
     volverHome(true);
-    // Re-add buffer so next back press is also caught
-    ensureHistoryBuffer();
-  } else {
-    // Already at home: absorb the back gesture, don't exit
-    ensureHistoryBuffer();
   }
+  // Always immediately re-push so there's ALWAYS an entry ahead of us.
+  // This makes it impossible to exit via back gesture — the stack never empties.
+  ensureHistoryBuffer();
 });
 
-// On load: set base state + buffer so first back press is always caught
+// On load: push TWO buffer entries — belt AND suspenders
 window.addEventListener('DOMContentLoaded', () => {
   history.replaceState({ seccion: 'home' }, '', location.pathname);
   ensureHistoryBuffer();
+  ensureHistoryBuffer(); // second entry = extra safety
 });
 
 // ── EDICIÓN POR SECCIÓN ───────────────────────────────────────
