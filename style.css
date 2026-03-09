@@ -1,48 +1,50 @@
 /* ── TOKENS: DARK (default) ── */
 :root {
-  --bg:         #0a0000;
-  --card:       #18181b;
-  --card2:      #1c1c1e;
-  --border:     rgba(255,255,255,0.07);
-  --border2:    rgba(255,255,255,0.05);
-  --border3:    rgba(255,255,255,0.04);
-  --text:       rgba(255,255,255,0.88);
-  --text2:      rgba(255,255,255,0.5);
-  --text3:      rgba(255,255,255,0.3);
-  --text4:      rgba(255,255,255,0.2);
-  --label:      rgba(255,255,255,0.3);
+  /* Material You — Dark rojizo */
+  --bg:         #1a1212;
+  --card:       #251a1a;
+  --card2:      #2e1f1f;
+  --border:     rgba(255,200,200,0.10);
+  --border2:    rgba(255,200,200,0.07);
+  --border3:    rgba(255,200,200,0.05);
+  --text:       #f5e6e6;
+  --text2:      #c4a0a0;
+  --text3:      #8c6464;
+  --text4:      #6b4a4a;
+  --label:      #c4a0a0;
   --accent:     #ef4444;
   --accent2:    #dc2626;
-  --accent-dim: rgba(239,68,68,0.12);
-  --header-bg:  rgba(8,0,0,0.95);
-  --chip-bg:    rgba(255,255,255,0.06);
-  --stat-bg:    rgba(255,255,255,0.04);
-  --section-hd: rgba(255,255,255,0.04);
-  --shadow:     0 20px 60px rgba(0,0,0,0.6);
+  --accent-dim: rgba(239,68,68,0.18);
+  --header-bg:  rgba(22,14,14,0.96);
+  --chip-bg:    rgba(239,68,68,0.08);
+  --stat-bg:    rgba(239,68,68,0.06);
+  --section-hd: rgba(239,68,68,0.05);
+  --shadow:     0 16px 48px rgba(0,0,0,0.5);
 }
 
 /* ── TOKENS: LIGHT ── */
 @media (prefers-color-scheme: light) {
   :root {
-    --bg:         #f2f2f7;
+    /* Material You — Light rojizo */
+    --bg:         #fcf0f0;
     --card:       #ffffff;
-    --card2:      #f5f5f7;
-    --border:     rgba(0,0,0,0.08);
-    --border2:    rgba(0,0,0,0.05);
-    --border3:    rgba(0,0,0,0.04);
-    --text:       #1c1c1e;
-    --text2:      #636366;
-    --text3:      #8e8e93;
-    --text4:      #aeaeb2;
-    --label:      #8e8e93;
-    --accent:     #d92b2b;
+    --card2:      #fff5f5;
+    --border:     rgba(180,0,0,0.10);
+    --border2:    rgba(180,0,0,0.07);
+    --border3:    rgba(180,0,0,0.05);
+    --text:       #1c0a0a;
+    --text2:      #6b3030;
+    --text3:      #9e5050;
+    --text4:      #bb8080;
+    --label:      #9e5050;
+    --accent:     #c62828;
     --accent2:    #b71c1c;
-    --accent-dim: rgba(217,43,43,0.08);
-    --header-bg:  rgba(242,242,247,0.95);
-    --chip-bg:    rgba(0,0,0,0.05);
-    --stat-bg:    rgba(0,0,0,0.03);
-    --section-hd: rgba(0,0,0,0.03);
-    --shadow:     0 8px 32px rgba(0,0,0,0.10);
+    --accent-dim: rgba(198,40,40,0.10);
+    --header-bg:  rgba(252,240,240,0.96);
+    --chip-bg:    rgba(198,40,40,0.07);
+    --stat-bg:    rgba(198,40,40,0.05);
+    --section-hd: rgba(198,40,40,0.04);
+    --shadow:     0 4px 20px rgba(180,0,0,0.12);
   }
 }
 
@@ -804,38 +806,39 @@ input[type="file"] { display: none !important; }
    SETTINGS LIST (home)
 ══════════════════════════════════════════════════ */
 .settings-list {
-  display: flex; flex-direction: column;
-  background: var(--card); border-radius: 20px;
-  overflow: hidden; border: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px;
+  background: transparent;
 }
 .settings-row {
-  display: flex; align-items: center; gap: 14px;
+  display: flex; align-items: center; gap: 16px;
   padding: 14px 16px;
-  border-bottom: 1px solid var(--border3);
+  border: none; border-radius: 16px;
+  background: var(--card);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s;
+  transition: background 0.15s; min-height: 72px;
 }
-.settings-row:last-child { border-bottom: none; }
-.settings-row:active { background: var(--chip-bg); }
+.settings-row:active { background: var(--card2); }
 .settings-row-ico {
-  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+  width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
 }
-.settings-row-ico .material-icons { font-size: 20px !important; }
+.settings-row-ico .material-icons { font-size: 24px !important; }
 .settings-row-body { flex: 1; min-width: 0; }
 .settings-row-title {
-  display: block; font-size: 16px !important; font-weight: 600 !important;
+  display: block; font-size: 18px !important; font-weight: 500 !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  line-height: 1.3 !important;
 }
 .settings-row-sub {
-  display: block; font-size: 12px !important; font-weight: 400 !important;
+  display: block; font-size: 13px !important; font-weight: 400 !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-top: 1px !important;
 }
 .settings-row-arrow {
-  font-size: 20px !important; color: var(--text3) !important;
+  font-size: 24px !important; color: var(--text3) !important;
   -webkit-text-fill-color: var(--text3) !important; flex-shrink: 0;
 }
 
@@ -843,22 +846,22 @@ input[type="file"] { display: none !important; }
    SECTION VIEWS — FIELDS
 ══════════════════════════════════════════════════ */
 .sec-group {
-  background: var(--card); border-radius: 16px;
+  background: var(--card); border-radius: 18px;
   overflow: hidden; border: 1px solid var(--border);
 }
 
 /* Regular row */
 .sec-row {
   display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   border-bottom: 1px solid var(--border3);
-  min-height: 60px;
+  min-height: 68px;
 }
 .sec-row:last-child { border-bottom: none; }
-.sec-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sec-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .sec-row-label {
-  font-size: 11px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.7px !important;
+  font-size: 12px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.6px !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   line-height: 1 !important;
@@ -872,7 +875,7 @@ input[type="file"] { display: none !important; }
   display: block !important; width: 100% !important;
   background: transparent !important; border: none !important; outline: none !important;
   padding: 0 !important; margin: 0 !important;
-  font-size: 16px !important; font-weight: 600 !important;
+  font-size: 18px !important; font-weight: 500 !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
   line-height: 1.3 !important; border-radius: 0 !important;
@@ -895,12 +898,12 @@ input[type="file"] { display: none !important; }
 /* Toggle row */
 .sec-row-toggle {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 16px; min-height: 56px; gap: 16px;
+  padding: 12px 18px; min-height: 64px; gap: 16px;
   border-bottom: 1px solid var(--border3);
 }
 .sec-row-toggle:last-child { border-bottom: none; }
 .sec-toggle-label {
-  font-size: 16px !important; font-weight: 500 !important;
+  font-size: 18px !important; font-weight: 500 !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   flex: 1;
@@ -963,3 +966,82 @@ input[type="file"] { display: none !important; }
 
 /* Chips inside sec-row */
 .sec-row .chip-wrapper { padding-top: 6px; }
+
+/* ══════════════════════════════════════════════════
+   MULTISELECT MODAL (pronombres y futuros)
+══════════════════════════════════════════════════ */
+.ms-panel {
+  max-height: 70vh;
+  display: flex; flex-direction: column;
+}
+.ms-options {
+  flex: 1; overflow-y: auto; padding: 4px 0;
+}
+.ms-option-row {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 16px 20px; border: none; background: transparent;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  border-bottom: 1px solid var(--border3);
+  transition: background 0.15s;
+}
+.ms-option-row:last-child { border-bottom: none; }
+.ms-option-row:active { background: var(--chip-bg); }
+.ms-option-row.ms-selected { background: var(--accent-dim); }
+.ms-opt-label {
+  font-size: 17px !important; font-weight: 500 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+.ms-check {
+  font-size: 22px !important; color: var(--text3) !important;
+  -webkit-text-fill-color: var(--text3) !important;
+}
+.ms-option-row.ms-selected .ms-check {
+  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
+}
+.ms-footer {
+  display: flex; gap: 10px; padding: 12px 16px 16px;
+  border-top: 1px solid var(--border);
+}
+.ms-footer .btn-cancel { flex: 1; padding: 14px; }
+.ms-footer .btn-save   { flex: 2; padding: 14px; }
+
+/* Multiselect trigger (pronombres row) */
+.multiselect-trigger {
+  display: flex !important; align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important; padding: 0 !important;
+  background: transparent !important; border: none !important;
+  cursor: default !important;
+}
+.multiselect-trigger.multiselect-editable { cursor: pointer !important; }
+.ms-value {
+  font-size: 18px !important; font-weight: 500 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  flex: 1; text-align: left;
+}
+.ms-arrow {
+  font-size: 22px !important; color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+}
+
+/* Fix: hide the extra static arrow below selects - only show the one in the row */
+.sec-select-arrow { display: none !important; }
+
+/* Select trigger: show chevron arrow inside the row when editing */
+.custom-select-trigger {
+  display: flex !important; align-items: center !important;
+  justify-content: space-between !important;
+  text-align: left !important; width: 100% !important;
+  background: transparent !important; border: none !important; outline: none !important;
+  padding: 0 !important; cursor: default !important;
+  font-size: 18px !important; font-weight: 500 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+.is-editing .custom-select-trigger { cursor: pointer !important; }
+.is-editing .custom-select-trigger::after {
+  content: "chevron_right"; font-family: "Material Icons";
+  font-size: 22px; color: var(--accent); -webkit-text-fill-color: var(--accent);
+  flex-shrink: 0; margin-left: 4px;
+}
