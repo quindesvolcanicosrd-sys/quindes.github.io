@@ -1237,33 +1237,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dpState.viewMonth > 11) { dpState.viewMonth = 0; dpState.viewYear++; }
     animateDp(); renderDatePicker();
   });
-  // Month label → toggle monthMode
-  const dpMonthLbl = document.getElementById('dp-month-label');
-  if (dpMonthLbl) {
-    dpMonthLbl.style.cursor = 'pointer';
-    dpMonthLbl.style.pointerEvents = 'all';
-    dpMonthLbl.addEventListener('click', (e) => {
-      e.preventDefault(); e.stopPropagation();
-      dpState.monthMode = !dpState.monthMode;
-      dpState.yearMode  = false;
-      animateDp(); renderDatePicker();
+  // Use event delegation on the modal — labels get recreated by renderDatePicker
+  // so we can't attach listeners directly; listen on the stable modal container instead
+  const dpModal = document.getElementById('date-picker-modal');
+  if (dpModal) {
+    dpModal.addEventListener('click', (e) => {
+      const tgt = e.target;
+      if (tgt.id === 'dp-month-label' || tgt.closest('#dp-month-label')) {
+        e.preventDefault(); e.stopPropagation();
+        dpState.monthMode = !dpState.monthMode;
+        dpState.yearMode  = false;
+        animateDp(); renderDatePicker();
+      } else if (tgt.id === 'dp-year-label' || tgt.closest('#dp-year-label')) {
+        e.preventDefault(); e.stopPropagation();
+        dpState.yearMode  = !dpState.yearMode;
+        dpState.monthMode = false;
+        animateDp(); renderDatePicker();
+      }
     });
   }
-  // Year label → toggle yearMode
-  const dpYearLbl = document.getElementById('dp-year-label');
-  if (dpYearLbl) {
-    dpYearLbl.style.cursor = 'pointer';
-    dpYearLbl.style.pointerEvents = 'all';
-    dpYearLbl.addEventListener('click', (e) => {
-      e.preventDefault(); e.stopPropagation();
-      dpState.yearMode  = !dpState.yearMode;
-      dpState.monthMode = false;
-      animateDp(); renderDatePicker();
-    });
-  }
-  // Keep the outer button non-clickable (labels handle it)
-  const dpMonthBtn = document.getElementById('dp-month-year-btn');
-  if (dpMonthBtn) dpMonthBtn.style.pointerEvents = 'none';
   document.getElementById('dp-cancel')?.addEventListener('click', cerrarDatePicker);
   document.getElementById('date-picker-modal')?.addEventListener('click', e => {
     if (e.target === document.getElementById('date-picker-modal')) cerrarDatePicker();
