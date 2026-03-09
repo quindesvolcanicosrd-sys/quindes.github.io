@@ -53,12 +53,12 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── UNIFIED FONT ── */
-:root { --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif; }
+:root { --font: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 html, body { font-family: var(--font); }
 input, button, select, textarea { font-family: var(--font); }
 
 html, body {
-  width: 100%; min-height: 100vh;
+  width: 100%; min-height: 100dvh;
   background: var(--bg);
   font-family: var(--font);
   font-size: 16px; color: var(--text);
@@ -68,6 +68,10 @@ html, body {
   margin: 0; padding: 0;
   -webkit-text-size-adjust: 100%;
   touch-action: pan-y;
+  /* Respect gesture nav bar area */
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* ── LOADING ── */
@@ -724,10 +728,14 @@ input[type="file"] { display: none !important; }
 
 /* ── APP SCROLL ── */
 .app-scroll {
-  flex: 1 1 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  padding: 16px 16px 0;
+  flex: 1 1 0;
+  overflow-y: scroll; -webkit-overflow-scrolling: touch;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
   display: flex; flex-direction: column; gap: 12px;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  /* No side overflow / extra space */
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* ══════════════════════════════════════════════════
@@ -1742,4 +1750,155 @@ input[type="file"] { display: none !important; }
   font-size: 11px !important; font-weight: 700 !important;
   font-style: normal !important; text-transform: uppercase !important;
   letter-spacing: 0.3px !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   DEFINITIVE OVERRIDES — these win over everything above
+   ═══════════════════════════════════════════════════════ */
+
+/* Font: Be Vietnam Pro everywhere */
+* { font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif; }
+input, button, select, textarea {
+  font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* ── 9. ALL inputs: NOT italic, lowercase (capitalize for readability) ── */
+.sec-input,
+.sec-input-bold,
+.sec-input-normal,
+.custom-select-trigger,
+.date-picker-trigger,
+.multiselect-trigger,
+.ms-value {
+  font-style: normal !important;
+  text-transform: none !important;  /* keep natural case */
+  font-family: "Be Vietnam Pro", sans-serif !important;
+}
+/* Still bold for derby name/number */
+.sec-input-bold { font-weight: 800 !important; }
+.sec-input { font-weight: 500 !important; font-size: 17px !important; }
+.custom-select-trigger,
+.date-picker-trigger,
+.multiselect-trigger { font-weight: 500 !important; font-size: 17px !important; }
+
+/* Field labels: small caps, bold, accent in editing */
+.sec-row-label {
+  font-size: 10px !important; font-weight: 700 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+}
+.app-view.is-editing .sec-row-label {
+  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
+}
+
+/* Toggle labels: natural, readable */
+.sec-toggle-label {
+  font-size: 16px !important; font-weight: 500 !important;
+  font-style: normal !important; text-transform: none !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+.app-view.is-editing .sec-toggle-label {
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+
+/* Hero name */
+.hero-name {
+  font-size: 22px !important; font-weight: 800 !important;
+  font-style: normal !important; text-transform: none !important;
+  letter-spacing: -0.3px !important;
+}
+.hero-sub {
+  font-size: 12px !important; font-weight: 500 !important;
+  font-style: normal !important; text-transform: none !important;
+}
+
+/* Nav title */
+.app-header-title {
+  font-size: 17px !important; font-weight: 800 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* Settings list */
+.settings-row-title {
+  font-size: 16px !important; font-weight: 600 !important;
+  font-style: normal !important; text-transform: none !important;
+}
+.settings-row-sub {
+  font-size: 12px !important; font-weight: 400 !important;
+  font-style: normal !important; text-transform: none !important;
+}
+
+/* Buttons */
+.header-save-btn {
+  font-size: 12px !important; font-weight: 800 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+.header-cancel-btn {
+  font-size: 12px !important; font-weight: 600 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+}
+.btn-file {
+  font-size: 12px !important; font-weight: 700 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+}
+
+/* ── 8. SINGLE CLEAN ARROW on selects — kill all Material Icon ::before/::after ── */
+/* Suppress ALL existing ::after/::before on triggers */
+.custom-select-trigger::before,
+.custom-select-trigger::after,
+.date-picker-trigger::before,
+.date-picker-trigger::after,
+.sec-select-arrow { display: none !important; }
+
+/* Only show arrow when editing, using CSS border (not Material icon) */
+.app-view.is-editing .custom-select-trigger::after,
+.app-view.is-editing .date-picker-trigger.enabled::after {
+  content: "" !important;
+  display: inline-block !important;
+  width: 7px !important; height: 7px !important;
+  border-right: 2px solid var(--accent) !important;
+  border-top: 2px solid var(--accent) !important;
+  transform: rotate(45deg) translateY(-1px) !important;
+  border-radius: 1px !important;
+  margin-left: 8px !important;
+  flex-shrink: 0 !important;
+  font-family: none !important;
+  vertical-align: middle !important;
+}
+
+/* ── Photo upload blocker overlay ── */
+#foto-upload-blocker {
+  position: fixed; inset: 0; z-index: 9999;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+}
+.foto-blocker-inner {
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  padding: 32px 40px; border-radius: 20px;
+  background: var(--card);
+}
+.foto-blocker-inner span {
+  font-size: 15px !important; font-weight: 600 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+.foto-blocker-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Loading: pure logo pulse, no bg color on logo box ── */
+.loading-logo {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
 }
