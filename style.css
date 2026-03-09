@@ -888,7 +888,7 @@ input[type="file"] { display: none !important; }
   -webkit-appearance: none !important; opacity: 1 !important;
 }
 .sec-input-bold { font-weight: 800 !important; font-style: italic !important; text-transform: uppercase !important; }
-.sec-input-normal { font-weight: 400 !important; }
+.sec-input-normal { font-weight: 400 !important; font-style: italic !important; }
 .sec-input:disabled { -webkit-text-fill-color: var(--text) !important; opacity: 1 !important; cursor: default !important; }
 .is-editing .sec-input:not(:disabled) {
   border-bottom: 1.5px solid rgba(239,68,68,0.5) !important;
@@ -1208,3 +1208,59 @@ input[type="file"] { display: none !important; }
 /* "VER ARCHIVO" pill: visible by default, hidden in edit mode */
 .file-status-ok { display: flex !important; }
 .app-view.is-editing .file-status-ok { display: none !important; }
+
+/* Fix date picker month/year button white box */
+#dp-month-year-btn {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  padding: 6px 8px !important;
+  border-radius: 8px !important;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+#dp-month-year-btn:active { background: var(--chip-bg) !important; }
+
+/* ── 2. Italic font for plain text inputs (not select/toggle/chips) */
+.sec-input:not(.sec-input-normal) {
+  font-style: italic !important;
+}
+/* Explicitly italic for bold ones too */
+.sec-input-bold { font-style: italic !important; }
+
+/* ── 3. Header action buttons (save/cancel) - fixed in nav */
+.header-actions {
+  display: flex; align-items: center; gap: 8px;
+}
+.header-save-btn {
+  padding: 7px 16px; border-radius: 9999px; border: none;
+  background: var(--accent); cursor: pointer;
+  font-size: 12px !important; font-weight: 900 !important;
+  text-transform: uppercase !important; letter-spacing: 0.05em !important;
+  font-style: italic !important;
+  color: #fff !important; -webkit-text-fill-color: #fff !important;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.header-save-btn:active { filter: brightness(0.88); }
+.header-cancel-btn {
+  padding: 7px 14px; border-radius: 9999px; border: none;
+  background: var(--chip-bg); cursor: pointer;
+  font-size: 12px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.04em !important;
+  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.header-cancel-btn:active { filter: brightness(0.88); }
+
+/* Hide old save wrap at bottom */
+.sec-save-wrap { display: none !important; }
+
+/* Hide pencil edit button when in editing mode */
+.app-view.is-editing .header-edit-btn { display: none !important; }
+
+/* Selects and date: NOT italic */
+.custom-select-trigger,
+.date-picker-trigger,
+.multiselect-trigger { font-style: normal !important; }
