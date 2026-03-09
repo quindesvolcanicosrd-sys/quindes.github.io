@@ -53,14 +53,14 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── UNIFIED FONT ── */
-:root { --font: -apple-system, BlinkMacSystemFont, "Google Sans", "Roboto", "Segoe UI", sans-serif; }
+:root { --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif; }
 html, body { font-family: var(--font); }
 input, button, select, textarea { font-family: var(--font); }
 
 html, body {
   width: 100%; min-height: 100vh;
   background: var(--bg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font);
   font-size: 16px; color: var(--text);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -74,27 +74,21 @@ html, body {
 #loadingScreen {
   position: fixed; inset: 0;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 16px;
+  align-items: center; justify-content: center;
   background: var(--bg); z-index: 200;
 }
-#loadingScreen h2 {
-  font-size: 11px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 3px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-}
+#loadingScreen h2 { display: none; }
 .loading-logo {
-  width: 64px; height: 64px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  animation: lpulse 1.8s ease-in-out infinite;
+  width: 72px; height: 72px;
+  border-radius: 20px; overflow: hidden;
+  animation: lpulse 1.6s ease-in-out infinite;
 }
-.loading-logo .material-icons {
-  font-size: 34px !important; color: #fff !important; -webkit-text-fill-color: #fff !important;
+.loading-logo-img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
 @keyframes lpulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.6; transform: scale(0.93); }
+  50%       { opacity: 0.55; transform: scale(0.88); }
 }
 
 /* ── UNAUTHORIZED ── */
@@ -553,7 +547,7 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   background: var(--chip-bg); border: 1px solid var(--border);
   border-radius: 9999px; outline: none;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-size: 16px !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 16px !important; 
   -webkit-appearance: none;
 }
 .bs-search::placeholder { color: var(--text3); }
@@ -564,7 +558,7 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   width: 100%; padding: 16px 18px; background: transparent; border: none;
   border-bottom: 1px solid var(--border3);
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-size: 16px !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 16px !important; 
   text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 .bs-option:active { background: var(--chip-bg); }
@@ -920,8 +914,8 @@ input[type="file"] { display: none !important; }
 }
 .is-editing .sec-avatar-edit-ico { opacity: 1; }
 .sec-avatar-edit-ico .material-icons { font-size: 18px !important; color: #fff !important; -webkit-text-fill-color: #fff !important; }
-.sec-row-title { font-size: 16px !important; font-weight: 600 !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important; }
-.sec-row-sub { font-size: 12px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important; }
+.sec-row-title { font-size: 16px !important; font-weight: 600 !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;  }
+.sec-row-sub { font-size: 12px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;  }
 .sec-row-arrow { font-size: 20px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; flex-shrink: 0; }
 
 /* File status inside sec-row */
@@ -1212,12 +1206,7 @@ input[type="file"] { display: none !important; }
 }
 #dp-month-year-btn:active { background: var(--chip-bg) !important; }
 
-/* ── 2. Italic font for plain text inputs (not select/toggle/chips) */
-.sec-input:not(.sec-input-normal) {
-  font-style: italic !important;
-}
-/* Explicitly italic for bold ones too */
-.sec-input-bold { font-style: italic !important; }
+/* sec-input italic: handled below */
 
 /* ── 3. Header action buttons (save/cancel) - fixed in nav */
 .header-actions {
@@ -1280,23 +1269,7 @@ input[type="file"] { display: none !important; }
   -webkit-text-fill-color: var(--text) !important;
 }
 
-/* ── 3. ALL sec-input values: uppercase + italic ── */
-.sec-input {
-  text-transform: uppercase !important;
-}
-/* Normal weight fields: uppercase italic */
-.sec-input-normal {
-  text-transform: uppercase !important;
-  font-style: italic !important;
-}
-/* Select trigger and date: uppercase, not italic */
-.custom-select-trigger,
-.date-picker-trigger,
-.multiselect-trigger,
-.ms-value {
-  text-transform: uppercase !important;
-  font-style: normal !important;
-}
+/* select uppercase: handled below */
 
 /* ── 5. Section labels (NOMBRE CIVIL etc): bold, no italic, uppercase ── */
 .sec-row-label {
@@ -1480,4 +1453,155 @@ input[type="file"] { display: none !important; }
 .date-picker-trigger {
   font-style: italic !important;
   text-transform: uppercase !important;
+}
+
+/* ════════════════════════════════════
+   CONSOLIDATED FINAL OVERRIDES
+   ════════════════════════════════════ */
+
+/* Loading */
+.loading-logo .material-icons { display: none; }
+
+/* Favicon — no CSS needed, handled in HTML */
+
+/* Font: single consistent stack for ALL inputs and text */
+.sec-input, .custom-select-trigger, .date-picker-trigger,
+.multiselect-trigger, .ms-value, .sec-row-label,
+.sec-row-title, .sec-row-sub, .sec-toggle-label,
+.app-header-title, .hero-name, .hero-sub {
+  font-family: var(--font) !important;
+}
+
+/* All sec-input values: uppercase + italic */
+.sec-input {
+  font-style: italic !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+}
+.sec-input-bold {
+  font-weight: 800 !important;
+  font-style: italic !important;
+  text-transform: uppercase !important;
+}
+.sec-input-normal {
+  font-weight: 600 !important;
+  font-style: italic !important;
+  text-transform: uppercase !important;
+}
+/* Selects and date: uppercase, NOT italic */
+.custom-select-trigger,
+.date-picker-trigger,
+.multiselect-trigger,
+.ms-value {
+  font-style: normal !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+  font-family: var(--font) !important;
+}
+
+/* Date picker trigger: italic specifically */
+.date-picker-trigger {
+  font-style: italic !important;
+}
+
+/* ── STATS: proper column alignment ── */
+.sec-stat {
+  flex: 1;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 18px 6px 20px !important;
+  gap: 5px !important;
+  text-align: center !important;
+}
+.sec-stat-ico {
+  font-size: 18px !important;
+  color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+  flex-shrink: 0;
+  display: block !important;
+}
+.sec-stat-lbl {
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: var(--text3) !important;
+  -webkit-text-fill-color: var(--text3) !important;
+  display: block !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+  min-height: 22px !important; /* align across all 3 */
+}
+.sec-stat-val {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+  display: block !important;
+  text-align: center !important;
+  line-height: 1.3 !important;
+  text-transform: uppercase !important;
+}
+
+/* ── Date picker month/year CSS arrow (no Material icon) ── */
+.dp-month-arrow {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-right: 2px solid var(--text2);
+  border-bottom: 2px solid var(--text2);
+  transform: rotate(45deg) translateY(-2px);
+  margin-left: 4px; vertical-align: middle;
+  border-radius: 1px;
+}
+/* dp-nav-label: fix transparent bg */
+.dp-nav-label {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  font-family: var(--font) !important;
+  padding: 6px 8px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+}
+
+/* ── Header action row: slide-down animation ── */
+.header-row-actions {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1),
+              opacity    0.22s ease,
+              padding    0.25s ease;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.header-row-actions.visible {
+  max-height: 60px;
+  opacity: 1;
+  padding-top: 4px !important;
+  padding-bottom: 8px !important;
+}
+/* Buttons animate in with slight scale */
+.header-cancel-btn, .header-save-btn {
+  transform: translateY(-6px);
+  opacity: 0;
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
+              opacity   0.18s ease;
+}
+.header-row-actions.visible .header-cancel-btn {
+  transform: translateY(0); opacity: 1;
+  transition-delay: 0.04s;
+}
+.header-row-actions.visible .header-save-btn {
+  transform: translateY(0); opacity: 1;
+  transition-delay: 0.08s;
 }
