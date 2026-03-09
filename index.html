@@ -152,15 +152,17 @@
        VISTA SECCIÓN GENERALES
   ═══════════════════════════════════════════════ -->
   <div id="view-generales" class="app-view">
-    <header class="app-header app-header-section">
-      <button class="header-back" id="btn-back-generales" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
-      <span class="app-header-title">Datos Generales</span>
-      <div class="header-actions" id="header-actions-generales">
+    <header class="app-header app-header-section" id="header-generales">
+      <div class="header-row-top">
+        <button class="header-back" id="btn-back-generales" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+        <span class="app-header-title">Datos Generales</span>
         <button class="header-edit-btn" id="btn-edit-generales" onclick="toggleEdicionSeccion('generales')">
           <span class="material-icons">edit</span>
         </button>
-        <button class="header-cancel-btn" id="btn-hcancel-generales" style="display:none;" onclick="toggleEdicionSeccion('generales')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-generales"   style="display:none;" onclick="guardarSeccion('generales')">Guardar</button>
+      </div>
+      <div class="header-row-actions" id="header-actions-generales" style="display:none;">
+        <button class="header-cancel-btn" id="btn-hcancel-generales" onclick="toggleEdicionSeccion('generales')">Cancelar</button>
+        <button class="header-save-btn"   id="btn-hsave-generales"   onclick="guardarSeccion('generales')">Guardar</button>
       </div>
     </header>
     <div class="app-scroll">
@@ -227,15 +229,17 @@
        VISTA SECCIÓN DATOS PERSONALES
   ═══════════════════════════════════════════════ -->
   <div id="view-personales" class="app-view">
-    <header class="app-header app-header-section">
-      <button class="header-back" id="btn-back-personales" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
-      <span class="app-header-title">Datos Personales</span>
-      <div class="header-actions" id="header-actions-personales">
+    <header class="app-header app-header-section" id="header-personales">
+      <div class="header-row-top">
+        <button class="header-back" id="btn-back-personales" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+        <span class="app-header-title">Datos Personales</span>
         <button class="header-edit-btn" id="btn-edit-personales" onclick="toggleEdicionSeccion('personales')">
           <span class="material-icons">edit</span>
         </button>
-        <button class="header-cancel-btn" id="btn-hcancel-personales" style="display:none;" onclick="toggleEdicionSeccion('personales')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-personales"   style="display:none;" onclick="guardarSeccion('personales')">Guardar</button>
+      </div>
+      <div class="header-row-actions" id="header-actions-personales" style="display:none;">
+        <button class="header-cancel-btn" id="btn-hcancel-personales" onclick="toggleEdicionSeccion('personales')">Cancelar</button>
+        <button class="header-save-btn"   id="btn-hsave-personales"   onclick="guardarSeccion('personales')">Guardar</button>
       </div>
     </header>
     <div class="app-scroll">
@@ -304,15 +308,17 @@
        VISTA SECCIÓN CONTACTO
   ═══════════════════════════════════════════════ -->
   <div id="view-contacto" class="app-view">
-    <header class="app-header app-header-section">
-      <button class="header-back" id="btn-back-contacto" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
-      <span class="app-header-title">Contacto</span>
-      <div class="header-actions" id="header-actions-contacto">
+    <header class="app-header app-header-section" id="header-contacto">
+      <div class="header-row-top">
+        <button class="header-back" id="btn-back-contacto" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+        <span class="app-header-title">Contacto</span>
         <button class="header-edit-btn" id="btn-edit-contacto" onclick="toggleEdicionSeccion('contacto')">
           <span class="material-icons">edit</span>
         </button>
-        <button class="header-cancel-btn" id="btn-hcancel-contacto" style="display:none;" onclick="toggleEdicionSeccion('contacto')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-contacto"   style="display:none;" onclick="guardarSeccion('contacto')">Guardar</button>
+      </div>
+      <div class="header-row-actions" id="header-actions-contacto" style="display:none;">
+        <button class="header-cancel-btn" id="btn-hcancel-contacto" onclick="toggleEdicionSeccion('contacto')">Cancelar</button>
+        <button class="header-save-btn"   id="btn-hsave-contacto"   onclick="guardarSeccion('contacto')">Guardar</button>
       </div>
     </header>
     <div class="app-scroll">
@@ -353,15 +359,17 @@
        VISTA SECCIÓN SALUD Y EMERGENCIA
   ═══════════════════════════════════════════════ -->
   <div id="view-salud" class="app-view">
-    <header class="app-header app-header-section">
-      <button class="header-back" id="btn-back-salud" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
-      <span class="app-header-title">Salud y Emergencia</span>
-      <div class="header-actions" id="header-actions-salud">
+    <header class="app-header app-header-section" id="header-salud">
+      <div class="header-row-top">
+        <button class="header-back" id="btn-back-salud" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+        <span class="app-header-title">Salud y Emergencia</span>
         <button class="header-edit-btn" id="btn-edit-salud" onclick="toggleEdicionSeccion('salud')">
           <span class="material-icons">edit</span>
         </button>
-        <button class="header-cancel-btn" id="btn-hcancel-salud" style="display:none;" onclick="toggleEdicionSeccion('salud')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-salud"   style="display:none;" onclick="guardarSeccion('salud')">Guardar</button>
+      </div>
+      <div class="header-row-actions" id="header-actions-salud" style="display:none;">
+        <button class="header-cancel-btn" id="btn-hcancel-salud" onclick="toggleEdicionSeccion('salud')">Cancelar</button>
+        <button class="header-save-btn"   id="btn-hsave-salud"   onclick="guardarSeccion('salud')">Guardar</button>
       </div>
     </header>
     <div class="app-scroll">
@@ -424,15 +432,17 @@
        VISTA SECCIÓN RENDIMIENTO
   ═══════════════════════════════════════════════ -->
   <div id="view-rendimiento" class="app-view">
-    <header class="app-header app-header-section">
-      <button class="header-back" id="btn-back-rendimiento" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
-      <span class="app-header-title">Estado y Rendimiento</span>
-      <div class="header-actions" id="header-actions-rendimiento">
+    <header class="app-header app-header-section" id="header-rendimiento">
+      <div class="header-row-top">
+        <button class="header-back" id="btn-back-rendimiento" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+        <span class="app-header-title">Estado y Rendimiento</span>
         <button class="header-edit-btn" id="btn-edit-rendimiento" onclick="toggleEdicionSeccion('rendimiento')">
           <span class="material-icons">edit</span>
         </button>
-        <button class="header-cancel-btn" id="btn-hcancel-rendimiento" style="display:none;" onclick="toggleEdicionSeccion('rendimiento')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-rendimiento"   style="display:none;" onclick="guardarSeccion('rendimiento')">Guardar</button>
+      </div>
+      <div class="header-row-actions" id="header-actions-rendimiento" style="display:none;">
+        <button class="header-cancel-btn" id="btn-hcancel-rendimiento" onclick="toggleEdicionSeccion('rendimiento')">Cancelar</button>
+        <button class="header-save-btn"   id="btn-hsave-rendimiento"   onclick="guardarSeccion('rendimiento')">Guardar</button>
       </div>
     </header>
     <div class="app-scroll">
