@@ -248,11 +248,7 @@ function navegarSeccion(seccion) {
   }, { once: true });
 
   vistaActual = seccion;
-
-  // Replace the buffer entry with the section — back will now return to home
-  history.replaceState({ seccion }, '', '#' + seccion);
-  // Push a new buffer behind us so home→back doesn't exit either
-  // (we do this in volverHome via ensureHistoryBuffer)
+  // No history manipulation needed — sentinel handles back gesture globally
 }
 
 function volverHome(fromPopState = false) {
@@ -281,7 +277,6 @@ function volverHome(fromPopState = false) {
   // Clean up hash from URL
   if (!fromPopState) {
     history.replaceState({ seccion: 'home' }, '', location.pathname);
-    ensureHistoryBuffer();
   }
 }
 
@@ -297,24 +292,31 @@ function volverHome(fromPopState = false) {
 // Back gesture pops entry-B → popstate fires → we call volverHome()
 // then pushState to restore the buffer entry.
 
-function ensureHistoryBuffer() {
-  history.pushState({ seccion: 'home', buffer: true }, '', location.pathname);
+// ── BACK GESTURE TRAP ────────────────────────────────────────
+// Strategy: keep a sentinel entry AHEAD of current position.
+// On popstate we immediately go(+1) to undo the pop, then handle
+// in-app navigation ourselves. Works on Android & iOS PWA.
+
+function pushSentinel() {
+  history.pushState({ sentinel: true }, '', location.pathname + '#_');
 }
 
 window.addEventListener('popstate', (e) => {
+  // Immediately reverse the back navigation
+  history.go(1);
+
+  // Now handle in-app back
   if (vistaActual && vistaActual !== 'home') {
     volverHome(true);
   }
-  // Always immediately re-push so there's ALWAYS an entry ahead of us.
-  // This makes it impossible to exit via back gesture — the stack never empties.
-  ensureHistoryBuffer();
+  // else: already at home, back gesture silently absorbed
 });
 
-// On load: push TWO buffer entries — belt AND suspenders
 window.addEventListener('DOMContentLoaded', () => {
-  history.replaceState({ seccion: 'home' }, '', location.pathname);
-  ensureHistoryBuffer();
-  ensureHistoryBuffer(); // second entry = extra safety
+  // Base entry (no hash)
+  history.replaceState({ base: true }, '', location.pathname);
+  // Sentinel entry ahead — this is what gets popped on back gesture
+  pushSentinel();
 });
 
 // ── EDICIÓN POR SECCIÓN ───────────────────────────────────────
