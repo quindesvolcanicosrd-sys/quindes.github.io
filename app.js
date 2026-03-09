@@ -1038,6 +1038,7 @@ let dpState = {
   viewYear: 2000, viewMonth: 0,
   selYear: null, selMonth: null, selDay: null,
   yearMode: false,
+  monthMode: false,
   onConfirm: null,
 };
 
@@ -1069,6 +1070,7 @@ function abrirDatePicker(valorActual, onConfirm) {
   dpState.selMonth  = (parsed && typeof parsed.month === 'number') ? parsed.month : null;
   dpState.selDay    = parsed ? parsed.day   : null;
   dpState.yearMode  = false;
+  dpState.monthMode = false;
   dpState.onConfirm = onConfirm;
 
   renderDatePicker();
@@ -1103,15 +1105,27 @@ function renderDatePicker() {
   if (monthEl) monthEl.textContent = MESES[safeMonth];
   if (yearEl)  yearEl.textContent  = safeYear;
 
-  const gridWrap  = document.getElementById('dp-grid-wrap');
-  const yearGrid  = document.getElementById('dp-year-grid');
+  const gridWrap   = document.getElementById('dp-grid-wrap');
+  const yearGrid   = document.getElementById('dp-year-grid');
+  const monthGrid  = document.getElementById('dp-month-grid');
+
+  // Hide/show prev-next arrows in month/year mode
+  const navArrows = document.getElementById('dp-nav-arrows');
+  if (navArrows) navArrows.style.display = (yearMode || dpState.monthMode) ? 'none' : 'flex';
+
   if (yearMode) {
-    gridWrap.style.display = 'none';
-    yearGrid.style.display = 'grid';
+    gridWrap.style.display  = 'none';
+    yearGrid.style.display  = 'grid';
+    if (monthGrid) monthGrid.style.display = 'none';
     renderYearGrid();
+  } else if (dpState.monthMode) {
+    gridWrap.style.display  = 'none';
+    yearGrid.style.display  = 'none';
+    if (monthGrid) { monthGrid.style.display = 'grid'; renderMonthGrid(); }
   } else {
-    gridWrap.style.display = 'block';
-    yearGrid.style.display = 'none';
+    gridWrap.style.display  = 'block';
+    yearGrid.style.display  = 'none';
+    if (monthGrid) monthGrid.style.display = 'none';
     renderDaysGrid();
   }
 }
@@ -1162,8 +1176,9 @@ function renderYearGrid() {
     btn.className = 'dp-year-btn' + (y === dpState.viewYear ? ' dp-year-selected' : '');
     btn.textContent = y;
     btn.addEventListener('click', () => {
-      dpState.viewYear = y;
-      dpState.yearMode = false;
+      dpState.viewYear  = y;
+      dpState.yearMode  = false;
+      dpState.monthMode = false;
       if (typeof dpState.viewMonth !== 'number' || dpState.viewMonth < 0 || dpState.viewMonth > 11) {
         dpState.viewMonth = 0;
       }
@@ -1191,6 +1206,25 @@ function animateDp() {
   });
 }
 
+function renderMonthGrid() {
+  const monthGrid = document.getElementById('dp-month-grid');
+  if (!monthGrid) return;
+  monthGrid.innerHTML = '';
+  MESES.forEach((nombre, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    const isCurrent = idx === dpState.viewMonth;
+    btn.className = 'dp-month-btn' + (isCurrent ? ' dp-month-selected' : '');
+    btn.textContent = nombre;
+    btn.addEventListener('click', () => {
+      dpState.viewMonth = idx;
+      dpState.monthMode = false;
+      animateDp(); renderDatePicker();
+    });
+    monthGrid.appendChild(btn);
+  });
+}
+
 // Wire up date picker events once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dp-prev')?.addEventListener('click', () => {
@@ -1203,18 +1237,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dpState.viewMonth > 11) { dpState.viewMonth = 0; dpState.viewYear++; }
     animateDp(); renderDatePicker();
   });
-  const dpMonthBtn = document.getElementById('dp-month-year-btn');
-  if (dpMonthBtn) {
-    dpMonthBtn.addEventListener('click', (e) => {
+  // Month label → toggle monthMode
+  const dpMonthLbl = document.getElementById('dp-month-label');
+  if (dpMonthLbl) {
+    dpMonthLbl.style.cursor = 'pointer';
+    dpMonthLbl.style.pointerEvents = 'all';
+    dpMonthLbl.addEventListener('click', (e) => {
       e.preventDefault(); e.stopPropagation();
-      dpState.yearMode = !dpState.yearMode;
-      renderDatePicker();
-    });
-    // Also make child spans not steal clicks
-    dpMonthBtn.querySelectorAll('*').forEach(el => {
-      el.style.pointerEvents = 'none';
+      dpState.monthMode = !dpState.monthMode;
+      dpState.yearMode  = false;
+      animateDp(); renderDatePicker();
     });
   }
+  // Year label → toggle yearMode
+  const dpYearLbl = document.getElementById('dp-year-label');
+  if (dpYearLbl) {
+    dpYearLbl.style.cursor = 'pointer';
+    dpYearLbl.style.pointerEvents = 'all';
+    dpYearLbl.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dpState.yearMode  = !dpState.yearMode;
+      dpState.monthMode = false;
+      animateDp(); renderDatePicker();
+    });
+  }
+  // Keep the outer button non-clickable (labels handle it)
+  const dpMonthBtn = document.getElementById('dp-month-year-btn');
+  if (dpMonthBtn) dpMonthBtn.style.pointerEvents = 'none';
   document.getElementById('dp-cancel')?.addEventListener('click', cerrarDatePicker);
   document.getElementById('date-picker-modal')?.addEventListener('click', e => {
     if (e.target === document.getElementById('date-picker-modal')) cerrarDatePicker();
