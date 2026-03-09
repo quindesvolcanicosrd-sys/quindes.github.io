@@ -673,7 +673,7 @@ input[type="file"] { display: none !important; }
 
 /* ── APP HEADER ── */
 .app-header {
-  position: sticky; top: 0; z-index: 50; height: 60px;
+  position: sticky; top: 0; z-index: 50; min-height: 60px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 20px;
   /* Gloss glass — same hue as bg, no border */
@@ -684,7 +684,14 @@ input[type="file"] { display: none !important; }
   box-shadow: none;
   flex-shrink: 0;
 }
-.app-header-section { padding: 0 12px 0 8px; gap: 4px; }
+.app-header-section {
+  padding: 0 12px 0 8px; gap: 4px;
+  height: auto !important;
+  min-height: 60px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: 10px; padding-bottom: 10px;
+}
 .app-header-title {
   font-size: 20px !important; font-weight: 900 !important; font-style: italic !important;
   text-transform: uppercase !important; letter-spacing: -0.5px !important;
@@ -1231,6 +1238,7 @@ input[type="file"] { display: none !important; }
 /* ── 3. Header action buttons (save/cancel) - fixed in nav */
 .header-actions {
   display: flex; align-items: center; gap: 8px;
+  /* sits right in flex row after title */
 }
 .header-save-btn {
   padding: 7px 16px; border-radius: 9999px; border: none;
@@ -1264,3 +1272,98 @@ input[type="file"] { display: none !important; }
 .custom-select-trigger,
 .date-picker-trigger,
 .multiselect-trigger { font-style: normal !important; }
+
+/* ── EDIT MODE: inputs & triggers keep normal text color (not red) ── */
+.app-view.is-editing .sec-input,
+.app-view.is-editing .custom-select-trigger,
+.app-view.is-editing .date-picker-trigger,
+.app-view.is-editing .multiselect-trigger,
+.app-view.is-editing .ms-value {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+/* Underline accent on editable fields instead */
+.app-view.is-editing .sec-input:not(:disabled),
+.app-view.is-editing .custom-select-trigger,
+.app-view.is-editing .date-picker-trigger.enabled,
+.app-view.is-editing .multiselect-trigger.multiselect-editable {
+  border-bottom: 1.5px solid var(--accent) !important;
+  padding-bottom: 2px !important;
+}
+/* Toggle labels in editing: accent only on LABEL (small caps), NOT on sec-toggle-label */
+.app-view.is-editing .sec-toggle-label {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* ── 3. ALL sec-input values: uppercase + italic ── */
+.sec-input {
+  text-transform: uppercase !important;
+}
+/* Normal weight fields: uppercase italic */
+.sec-input-normal {
+  text-transform: uppercase !important;
+  font-style: italic !important;
+}
+/* Select trigger and date: uppercase, not italic */
+.custom-select-trigger,
+.date-picker-trigger,
+.multiselect-trigger,
+.ms-value {
+  text-transform: uppercase !important;
+  font-style: normal !important;
+}
+
+/* ── 5. Section labels (NOMBRE CIVIL etc): bold, no italic, uppercase ── */
+.sec-row-label {
+  font-weight: 700 !important;
+  font-style: normal !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  font-size: 11px !important;
+  color: var(--text3) !important;
+  -webkit-text-fill-color: var(--text3) !important;
+}
+
+/* ── 4. Date picker footer: more breathing room ── */
+.dp-footer {
+  padding: 16px 20px 28px !important;
+  gap: 12px !important;
+}
+.dp-btn {
+  padding: 13px 24px !important;
+  font-size: 14px !important;
+}
+.dp-year-grid {
+  gap: 10px !important;
+  padding: 16px 20px 16px !important;
+}
+.dp-year-btn {
+  padding: 14px 4px !important;
+  font-size: 15px !important;
+  border-radius: 14px !important;
+}
+
+/* ── SECTION HEADER: stacked layout ── */
+.app-header-section {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  height: auto !important;
+  padding: 8px 12px 8px 8px !important;
+  gap: 0 !important;
+}
+.header-row-top {
+  display: flex; align-items: center; gap: 4px;
+  min-height: 44px;
+}
+.header-row-top .app-header-title {
+  flex: 1;
+}
+.header-row-actions {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 10px; padding: 4px 4px 6px;
+}
+/* In editing mode, show action row */
+.app-view.is-editing .header-row-actions { display: flex !important; }
+/* Hide pencil in edit mode */
+.app-view.is-editing .header-edit-btn { display: none !important; }
