@@ -313,13 +313,15 @@ function activarEdicionSeccion(seccion) {
   // Mostrar flechas de select
   mostrarFlechasSelect(seccion, true);
 
-  // Mostrar botones
-  const saveWrap = document.getElementById('save-' + seccion);
-  if (saveWrap) saveWrap.style.display = 'flex';
+  // Show header save/cancel, hide pencil (CSS handles pencil via .is-editing)
+  const hcancel = document.getElementById('btn-hcancel-' + seccion);
+  const hsave   = document.getElementById('btn-hsave-'   + seccion);
+  if (hcancel) hcancel.style.display = '';
+  if (hsave)   hsave.style.display   = '';
 
-  // Cambiar ícono del botón edit
-  const editBtn = document.getElementById('btn-edit-' + seccion);
-  if (editBtn) editBtn.classList.add('editing');
+  // Keep bottom save wrap hidden (CSS: .sec-save-wrap display:none)
+  const saveWrap = document.getElementById('save-' + seccion);
+  if (saveWrap) saveWrap.style.display = 'none';
 }
 
 function cancelarEdicionSeccion(seccion) {
@@ -344,11 +346,11 @@ function cancelarEdicionSeccion(seccion) {
   if (seccion === 'generales') setSecAvatarEditable(false);
   mostrarFlechasSelect(seccion, false);
 
-  const saveWrap = document.getElementById('save-' + seccion);
-  if (saveWrap) saveWrap.style.display = 'none';
-
-  const editBtn = document.getElementById('btn-edit-' + seccion);
-  if (editBtn) editBtn.classList.remove('editing');
+  // Hide header save/cancel
+  const hcancel = document.getElementById('btn-hcancel-' + seccion);
+  const hsave   = document.getElementById('btn-hsave-'   + seccion);
+  if (hcancel) hcancel.style.display = 'none';
+  if (hsave)   hsave.style.display   = 'none';
 }
 
 async function guardarSeccion(seccion) {
@@ -363,8 +365,8 @@ async function guardarSeccion(seccion) {
     if (errorBox) errorBox.style.display = 'none';
   }
 
-  const btnSave = document.querySelector(`#save-${seccion} .btn-save`);
-  if (btnSave) { btnSave.disabled = true; btnSave.textContent = 'Guardando...'; }
+  const btnSave = document.getElementById('btn-hsave-' + seccion);
+  if (btnSave) { btnSave.disabled = true; btnSave.textContent = '...'; }
 
   const v = id => document.getElementById(id)?.value || '';
   const datos = recogerTodosLosDatos();
@@ -380,7 +382,7 @@ async function guardarSeccion(seccion) {
   } catch (err) {
     if (errorBox) { errorBox.textContent = err.message || 'Error al guardar'; errorBox.style.display = 'block'; }
   } finally {
-    if (btnSave) { btnSave.disabled = false; btnSave.textContent = 'Guardar cambios'; }
+    if (btnSave) { btnSave.disabled = false; btnSave.textContent = 'Guardar'; }
   }
 }
 
@@ -842,8 +844,10 @@ function mostrarErrorUpload(campo) {
 
 // ── FOTO DE PERFIL ────────────────────────────────────────────
 function clickEditarFoto() {
-  if (!edicionActiva['generales']) return;
-  document.getElementById('p-fotoPerfil')?.click();
+  // Always open file picker if in edit mode
+  if (edicionActiva['generales']) {
+    document.getElementById('p-fotoPerfil')?.click();
+  }
 }
 
 function setSecAvatarEditable(editable) {
