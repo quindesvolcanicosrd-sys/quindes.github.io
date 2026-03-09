@@ -103,7 +103,7 @@
           <span class="pf-section-title">Datos Generales</span>
         </div>
         <div class="profile-field">
-          <label>Nombre Derby</label>
+          <label class="accent">Nombre Derby</label>
           <input id="p-nombreDerby" class="editable" disabled>
         </div>
         <div class="pf-row-2">
@@ -164,15 +164,13 @@
           <label>Fecha de nacimiento</label>
           <input id="p-fechaNacimiento" class="editable normal" disabled>
         </div>
-        <div class="pf-row-2">
-          <div class="profile-field">
-            <label>¿Mostrar cumpleaños?</label>
-            <input id="p-mostrarCumple" class="editable hidden-input" disabled>
-          </div>
-          <div class="profile-field">
-            <label>¿Mostrar edad?</label>
-            <input id="p-mostrarEdad" class="editable hidden-input" disabled>
-          </div>
+        <div class="profile-field-toggle">
+          <span class="ptf-label">¿Mostrar cumpleaños?</span>
+          <input id="p-mostrarCumple" class="editable hidden-input" disabled>
+        </div>
+        <div class="profile-field-toggle">
+          <span class="ptf-label">¿Mostrar edad?</span>
+          <input id="p-mostrarEdad" class="editable hidden-input" disabled>
         </div>
         <div class="pf-row-2">
           <div class="profile-field">
@@ -184,8 +182,8 @@
             <input id="p-edad" class="editable normal" disabled>
           </div>
         </div>
-        <div class="profile-field">
-          <label>Mayor de 18 y acepto términos</label>
+        <div class="profile-field-toggle">
+          <span class="ptf-label">Mayor de 18 y acepto términos</span>
           <input id="p-mayor18" class="editable hidden-input" disabled>
         </div>
       </div>
@@ -228,15 +226,13 @@
           <label>Contacto de emergencia</label>
           <input id="p-contactoEmergencia" class="editable normal" disabled>
         </div>
-        <div class="pf-row-2">
-          <div class="profile-field">
-            <label>Grupo sanguíneo</label>
-            <input id="p-grupoSanguineo" class="editable" disabled>
-          </div>
-          <div class="profile-field" data-role="Admin">
-            <label>Apto para el deporte</label>
-            <input id="p-aptoDeporte" class="editable hidden-input" disabled>
-          </div>
+        <div class="profile-field">
+          <label>Grupo sanguíneo</label>
+          <input id="p-grupoSanguineo" class="editable" disabled>
+        </div>
+        <div class="profile-field-toggle" data-role="Admin">
+          <span class="ptf-label">Apto para el deporte</span>
+          <input id="p-aptoDeporte" class="editable hidden-input" disabled>
         </div>
         <div class="pf-row-2">
           <div class="profile-field">
@@ -271,15 +267,13 @@
           <div class="pf-section-ico ico-orange"><span class="material-icons">bar_chart</span></div>
           <span class="pf-section-title">Estado y Rendimiento</span>
         </div>
-        <div class="pf-row-2">
-          <div class="profile-field" data-role="Admin">
-            <label>Estado</label>
-            <input id="p-estado" class="editable hidden-input" disabled>
-          </div>
-          <div class="profile-field">
-            <label>Paga cuota</label>
-            <input id="p-pagaCuota" class="editable hidden-input" disabled>
-          </div>
+        <div class="profile-field" data-role="Admin">
+          <label>Estado</label>
+          <input id="p-estado" class="editable hidden-input" disabled>
+        </div>
+        <div class="profile-field-toggle">
+          <span class="ptf-label">Paga cuota</span>
+          <input id="p-pagaCuota" class="editable hidden-input" disabled>
         </div>
         <div class="pf-row-2">
           <div class="profile-field" data-role="Admin">
