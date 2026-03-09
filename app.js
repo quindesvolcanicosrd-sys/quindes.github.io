@@ -786,13 +786,12 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
   const input = document.getElementById(inputId);
   if (!input) return;
 
-  // For non-foto: clone to remove stale listeners
-  let inputReal = input;
-  if (campoDestino !== 'fotoPerfil') {
-    const nuevoInput = input.cloneNode(true);
-    input.parentNode.replaceChild(nuevoInput, input);
-    inputReal = nuevoInput;
-  }
+  // Clone input to remove stale event listeners
+  const nuevoInput = input.cloneNode(true);
+  input.parentNode.replaceChild(nuevoInput, input);
+  let inputReal = nuevoInput;
+  // Reset value so same file can be selected again
+  inputReal.addEventListener('click', () => { inputReal.value = ''; });
 
   const btnSubir = document.getElementById('btn-subir-' + campoDestino);
   if (btnSubir) btnSubir.onclick = () => {
@@ -910,18 +909,34 @@ function confirmarCrop() {
 }
 
 async function subirImagenRecortada(base64) {
-  const overlay = document.getElementById('avatar-overlay');
-  if (overlay) { overlay.classList.remove('hidden'); overlay.classList.add('flex'); }
+  // Block entire UI while uploading photo
+  mostrarCargandoFoto(true);
   fotoSubiendo = true;
   try {
     const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo: 'foto', email: CURRENT_USER.email });
     window.myProfile.fotoPerfil = result.url;
     renderFotoPerfil(normalizarDriveUrl(result.url));
-  } catch {
-    mostrarErrorUpload('fotoPerfil');
+  } catch (e) {
+    console.error('Error subiendo foto:', e);
+    alert('Error al subir la foto. Intenta de nuevo.');
   } finally {
-    if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+    mostrarCargandoFoto(false);
     fotoSubiendo = false;
+  }
+}
+
+function mostrarCargandoFoto(show) {
+  let el = document.getElementById('foto-upload-blocker');
+  if (show) {
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'foto-upload-blocker';
+      el.innerHTML = '<div class="foto-blocker-inner"><div class="foto-blocker-spinner"></div><span>Cargando foto...</span></div>';
+      document.body.appendChild(el);
+    }
+    el.style.display = 'flex';
+  } else {
+    if (el) el.style.display = 'none';
   }
 }
 
@@ -1076,6 +1091,10 @@ function renderYearGrid() {
     btn.addEventListener('click', () => {
       dpState.viewYear = y;
       dpState.yearMode = false;
+      // ensure viewMonth is still valid
+      if (typeof dpState.viewMonth !== 'number' || dpState.viewMonth < 0 || dpState.viewMonth > 11) {
+        dpState.viewMonth = 0;
+      }
       renderDatePicker();
     });
     yearGrid.appendChild(btn);
