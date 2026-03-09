@@ -136,14 +136,18 @@ function renderTodo(profile) {
   set('p-mayor18',            profile.mayor18);
 
   // Stats
-  const mesEl = document.getElementById('p-puntosMes');
-  if (mesEl) { mesEl.textContent = profile.puntosMes || '—'; mesEl.previousElementSibling.textContent = 'Mes de ' + (profile.labelMes || ''); }
-  const trimEl = document.getElementById('p-puntosTrim');
-  if (trimEl) { trimEl.textContent = profile.puntosTrimestre || '—'; trimEl.previousElementSibling.textContent = (profile.labelTrimestre || 'Trimestre'); }
-  const anioEl = document.getElementById('p-puntosAnio');
-  if (anioEl) anioEl.textContent = profile.puntosAnio || '—';
-  const lblAnio = document.getElementById('label-puntosAnio');
-  if (lblAnio) lblAnio.textContent = 'Año ' + (profile.labelAnio || '');
+  const mesEl  = document.getElementById('p-puntosMes');
+  const mesLbl = document.getElementById('label-puntosMes');
+  if (mesEl)  mesEl.textContent  = profile.puntosMes || '—';
+  if (mesLbl) mesLbl.textContent = 'Mes de ' + (profile.labelMes || '');
+  const trimEl  = document.getElementById('p-puntosTrim');
+  const trimLbl = document.getElementById('label-puntosTrim');
+  if (trimEl)  trimEl.textContent  = profile.puntosTrimestre || '—';
+  if (trimLbl) trimLbl.textContent = profile.labelTrimestre  || 'Trimestre';
+  const anioEl  = document.getElementById('p-puntosAnio');
+  const anioLbl = document.getElementById('label-puntosAnio');
+  if (anioEl)  anioEl.textContent  = profile.puntosAnio || '—';
+  if (anioLbl) anioLbl.textContent = 'Año ' + (profile.labelAnio || '');
 
   // Hero
   const heroNombre = document.getElementById('hero-nombre-derby');
