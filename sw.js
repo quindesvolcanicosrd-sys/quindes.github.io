@@ -1,12 +1,12 @@
-const CACHE = 'quindes-v4';
+const CACHE = 'quindes-v5';
 const ASSETS = [
   './index.html',
   './style.css',
   './manifest.json',
   './icons/icon-192x192.png',
   './icons/icon-512x512.png',
+  './icons/splash-512x512.png',
 ];
-
 // Archivos que NUNCA se cachean (siempre van a la red)
 const NO_CACHE = ['app.js', 'workers.dev', 'script.google.com'];
 
