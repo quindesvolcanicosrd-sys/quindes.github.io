@@ -53,9 +53,12 @@ html, body {
   background: var(--bg);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px; color: var(--text);
-  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  overflow-y: auto;
   margin: 0; padding: 0;
   -webkit-text-size-adjust: 100%;
+  touch-action: pan-y;
 }
 
 /* ── LOADING ── */
@@ -118,7 +121,6 @@ html, body {
   padding-top: 72px; padding-bottom: 48px;
   display: flex; flex-direction: column; align-items: center;
   width: 100%; min-width: 0;
-  overscroll-behavior-y: contain;
 }
 
 /* ── ERROR BOX ── */
