@@ -248,9 +248,14 @@ function navegarSeccion(seccion) {
   }, { once: true });
 
   vistaActual = seccion;
+
+  // Replace the buffer entry with the section — back will now return to home
+  history.replaceState({ seccion }, '', '#' + seccion);
+  // Push a new buffer behind us so home→back doesn't exit either
+  // (we do this in volverHome via ensureHistoryBuffer)
 }
 
-function volverHome() {
+function volverHome(fromPopState = false) {
   // Cancelar edición si está activa
   if (edicionActiva[vistaActual]) {
     cancelarEdicionSeccion(vistaActual);
@@ -272,7 +277,48 @@ function volverHome() {
   }, { once: true });
 
   vistaActual = 'home';
+
+  // Clean up hash from URL
+  if (!fromPopState) {
+    history.replaceState({ seccion: 'home' }, '', location.pathname);
+    ensureHistoryBuffer();
+  }
 }
+
+// ── Handle browser back gesture / button ──────────────────────
+// Strategy: always keep 2 history entries when at home so the OS back
+// gesture hits our popstate handler instead of closing the app/tab.
+//
+// Stack looks like:
+//   [entry-A: home]  ← current when at home (replaceState)
+//   [entry-B: home]  ← one behind it (pushState on load)
+//
+// When in a section: [entry-A: home] [entry-B: section]
+// Back gesture pops entry-B → popstate fires → we call volverHome()
+// then pushState to restore the buffer entry.
+
+function ensureHistoryBuffer() {
+  // Push a "home" buffer entry so there's always something to pop before exit
+  history.pushState({ seccion: 'home', buffer: true }, '', location.pathname);
+}
+
+window.addEventListener('popstate', (e) => {
+  if (vistaActual && vistaActual !== 'home') {
+    // In a section: go back to home
+    volverHome(true);
+    // Re-add buffer so next back press is also caught
+    ensureHistoryBuffer();
+  } else {
+    // Already at home: absorb the back gesture, don't exit
+    ensureHistoryBuffer();
+  }
+});
+
+// On load: set base state + buffer so first back press is always caught
+window.addEventListener('DOMContentLoaded', () => {
+  history.replaceState({ seccion: 'home' }, '', location.pathname);
+  ensureHistoryBuffer();
+});
 
 // ── EDICIÓN POR SECCIÓN ───────────────────────────────────────
 // Campos por sección
