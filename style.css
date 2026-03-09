@@ -465,7 +465,7 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   text-transform: uppercase !important;
 }
 .file-link::before {
-  content: 'open_in_new'; font-family: 'Material Icons';
+  font-family: 'Material Icons';
   font-size: 13px !important; color: #60a5fa !important;
   -webkit-text-fill-color: #60a5fa !important;
   line-height: 1;
