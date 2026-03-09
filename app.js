@@ -822,7 +822,7 @@ function renderEstadoArchivo(campo, url) {
     return;
   }
   const esImagen = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
-  let html = `<div class="file-status-ok"><a href="${url}" target="_blank" class="file-link"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">open_in_new</span>VER ARCHIVO</a></div>`;
+  let html = `<div class="file-status-ok"><a href="${url}" target="_blank" class="file-link">VER ARCHIVO</a></div>`;
   if (esImagen) html += `<img src="${url}" class="file-preview" alt="Preview">`;
   contenedor.innerHTML = html;
 }
