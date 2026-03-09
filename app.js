@@ -840,26 +840,27 @@ function mostrarErrorUpload(campo) {
 
 // ── FOTO DE PERFIL ────────────────────────────────────────────
 function clickEditarFoto() {
-  // Always open file picker if in edit mode
-  if (edicionActiva['generales']) {
-    document.getElementById('p-fotoPerfil')?.click();
-  }
+  // Foto always editable — no edit mode required
+  document.getElementById('p-fotoPerfil')?.click();
+}
+
+function abrirFotoSinEdicion() {
+  // From hero card: always allowed to change photo
+  document.getElementById('p-fotoPerfil')?.click();
 }
 
 function setSecAvatarEditable(editable) {
-  const container = document.getElementById('avatar-container');
-  if (container) {
-    container.classList.toggle('disabled', !editable);
-    container.onclick = editable ? () => document.getElementById('p-fotoPerfil')?.click() : null;
-  }
+  // The main avatar-container (in hero) is always clickable
+  // sec-row-avatar in generales section uses clickEditarFoto() which checks edit mode
 }
 
 function renderFotoPerfil(url) {
   const placeholder = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150"><rect width="100%" height="100%" fill="#2b2b2b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#888" font-size="20" font-family="Arial">Sin foto</text></svg>');
-  const img = document.getElementById('img-preview-foto');
-  if (img) { img.onerror = () => { img.src = placeholder; }; img.src = url || placeholder; }
-  const secImg = document.getElementById('sec-img-foto');
-  if (secImg) { secImg.onerror = () => { secImg.src = placeholder; }; secImg.src = url || placeholder; }
+  [document.getElementById('img-preview-foto'), document.getElementById('sec-img-foto')].forEach(img => {
+    if (!img) return;
+    img.onerror = () => { img.src = placeholder; };
+    img.src = url || placeholder;
+  });
 }
 
 function normalizarDriveUrl(url) {
