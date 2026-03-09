@@ -1118,11 +1118,10 @@ function renderYearGrid() {
     btn.addEventListener('click', () => {
       dpState.viewYear = y;
       dpState.yearMode = false;
-      // ensure viewMonth is still valid
       if (typeof dpState.viewMonth !== 'number' || dpState.viewMonth < 0 || dpState.viewMonth > 11) {
         dpState.viewMonth = 0;
       }
-      renderDatePicker();
+      animateDp(); renderDatePicker();
     });
     yearGrid.appendChild(btn);
   }
@@ -1133,17 +1132,30 @@ function renderYearGrid() {
   });
 }
 
+function animateDp() {
+  // Briefly fade out the grid so re-render feels animated
+  const grid = document.getElementById('dp-grid-wrap');
+  const yearG = document.getElementById('dp-year-grid');
+  const lbl = document.getElementById('dp-month-label');
+  [grid, yearG, lbl].forEach(el => { if (el) { el.style.opacity = '0'; el.style.transition = 'none'; } });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      [grid, yearG, lbl].forEach(el => { if (el) { el.style.opacity = ''; el.style.transition = ''; } });
+    });
+  });
+}
+
 // Wire up date picker events once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dp-prev')?.addEventListener('click', () => {
     dpState.viewMonth--;
     if (dpState.viewMonth < 0) { dpState.viewMonth = 11; dpState.viewYear--; }
-    renderDatePicker();
+    animateDp(); renderDatePicker();
   });
   document.getElementById('dp-next')?.addEventListener('click', () => {
     dpState.viewMonth++;
     if (dpState.viewMonth > 11) { dpState.viewMonth = 0; dpState.viewYear++; }
-    renderDatePicker();
+    animateDp(); renderDatePicker();
   });
   const dpMonthBtn = document.getElementById('dp-month-year-btn');
   if (dpMonthBtn) {
@@ -1183,13 +1195,28 @@ function initFechaTrigger() {
     trigger = document.createElement('button');
     trigger.type = 'button';
     trigger.className = 'date-picker-trigger';
+    // Calendar-edit icon shown in edit mode
+    const icoSpan = document.createElement('span');
+    icoSpan.className = 'material-icons dp-trig-ico';
+    icoSpan.textContent = 'edit_calendar';
+    trigger.appendChild(icoSpan);
     container.appendChild(trigger);
   }
-  // Show formatted date on load
-  const initParsed = parseFecha(input.value);
-  trigger.textContent = initParsed
-    ? `${initParsed.day} ${MESES_CORTO[initParsed.month]} ${initParsed.year}`
-    : (input.value || '—');
+  // Always refresh display from current input value
+  function refreshTriggerDisplay() {
+    const p = parseFecha(input.value);
+    const txt = p
+      ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}`
+      : (input.value || '—');
+    // Update text node only, preserve the icon span child
+    let textNode = Array.from(trigger.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+    if (textNode) {
+      textNode.nodeValue = txt;
+    } else {
+      trigger.appendChild(document.createTextNode(txt));
+    }
+  }
+  refreshTriggerDisplay();
   trigger.disabled = false;
 
   trigger.addEventListener('click', (e) => {
@@ -1198,9 +1225,7 @@ function initFechaTrigger() {
     const currentVal = input.value || '';
     abrirDatePicker(currentVal, val => {
       input.value = val;
-      // Format as "15 abr 1994" for display, store M/D/YYYY in input
-      const p = parseFecha(val);
-      trigger.textContent = p ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}` : val || '—';
+      refreshTriggerDisplay();
     });
   });
 }
