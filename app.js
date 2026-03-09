@@ -1282,21 +1282,22 @@ function initFechaTrigger() {
     trigger = document.createElement('button');
     trigger.type = 'button';
     trigger.className = 'date-picker-trigger';
-    // Calendar-edit icon shown in edit mode
+    // Build: [icon LEFT] [date text RIGHT]
     const icoSpan = document.createElement('span');
     icoSpan.className = 'material-icons dp-trig-ico';
     icoSpan.textContent = 'edit_calendar';
-    trigger.appendChild(icoSpan);
+    const txtNode = document.createTextNode('—');
+    trigger.appendChild(icoSpan);  // first = left
+    trigger.appendChild(txtNode);  // second = right
     container.appendChild(trigger);
   }
-  // Always refresh display from current input value
+  // Refresh the text node (second child), icon span stays untouched
   function refreshTriggerDisplay() {
     const p = parseFecha(input.value);
     const txt = p
       ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}`
       : (input.value || '—');
-    // Update text node only, preserve the icon span child
-    let textNode = Array.from(trigger.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+    const textNode = Array.from(trigger.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
     if (textNode) {
       textNode.nodeValue = txt;
     } else {
