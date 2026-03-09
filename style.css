@@ -50,6 +50,11 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── UNIFIED FONT ── */
+:root { --font: -apple-system, BlinkMacSystemFont, "Google Sans", "Roboto", "Segoe UI", sans-serif; }
+html, body { font-family: var(--font); }
+input, button, select, textarea { font-family: var(--font); }
+
 html, body {
   width: 100%; min-height: 100vh;
   background: var(--bg);
@@ -211,7 +216,6 @@ html, body {
   display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px;
   font-size: 10px !important; font-weight: 800 !important;
   text-transform: uppercase !important; letter-spacing: 0.4px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 .pf-badge-red {
   background: var(--accent-dim); color: var(--accent) !important;
@@ -248,13 +252,11 @@ html, body {
   text-transform: uppercase !important; letter-spacing: 0.3px !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
   line-height: 1.4 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 .pf-stat-val {
   display: block !important; font-size: 13px !important; font-weight: 800 !important;
   color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
   line-height: 1.3 !important; word-break: break-word !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
 /* ── BOTONES ── */
@@ -266,7 +268,6 @@ html, body {
   font-size: 14px !important; font-weight: 900 !important;
   text-transform: uppercase !important; letter-spacing: 0.1em !important;
   font-style: italic !important; cursor: pointer; border: none; line-height: 1 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.1s ease, opacity 0.15s ease;
 }
@@ -307,7 +308,6 @@ html, body {
   font-size: 15px !important; font-weight: 900 !important;
   text-transform: uppercase !important; letter-spacing: 0.4px !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   font-style: italic !important;
 }
 .pf-section-title.rojo { color: #f87171 !important; -webkit-text-fill-color: #f87171 !important; }
@@ -335,7 +335,6 @@ label {
   color: var(--label) !important; -webkit-text-fill-color: var(--label) !important;
   line-height: 1 !important; margin: 0 0 5px !important; padding: 0 !important;
   background: transparent !important; border: none !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   transition: color 0.2s;
 }
 label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; }
@@ -349,7 +348,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   font-size: 11px !important; color: var(--text4) !important;
   -webkit-text-fill-color: var(--text4) !important;
   line-height: 1.3 !important; margin: 0 0 4px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
 /* ── EDITABLE ── */
@@ -360,7 +358,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   font-size: 15px !important; font-weight: 700 !important;
   font-style: italic !important; text-transform: uppercase !important;
   letter-spacing: -0.2px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
   line-height: 1.3 !important; border-radius: 0 !important;
   -webkit-appearance: none !important; opacity: 1 !important;
@@ -393,7 +390,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   font-size: 15px !important; font-weight: 700 !important;
   font-style: italic !important; text-transform: uppercase !important;
   letter-spacing: -0.2px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
   text-align: left !important; cursor: default !important;
   -webkit-appearance: none !important; border-radius: 0 !important;
@@ -419,7 +415,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
 .chip {
   padding: 6px 14px !important; border-radius: 9999px !important;
   font-size: 12px !important; font-weight: 700 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   border: 1px solid var(--border) !important; cursor: pointer !important;
   white-space: nowrap !important; line-height: 1 !important;
   -webkit-tap-highlight-color: transparent !important; transition: all 0.15s ease !important;
@@ -450,7 +445,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   text-transform: uppercase !important; letter-spacing: 0.8px !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
   margin: 0 0 6px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 .file-status-vacio {
   font-size: 12px !important; color: var(--text3) !important;
@@ -486,7 +480,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   cursor: pointer !important; background: var(--accent-dim) !important;
   color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
   border: 1px solid rgba(239,68,68,0.25) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   -webkit-tap-highlight-color: transparent !important;
 }
 .text-ok    { color: #4ade80 !important; -webkit-text-fill-color: #4ade80 !important; font-size: 11px !important; }
@@ -526,7 +519,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   flex: 1; padding: 14px; border-radius: 12px;
   color: #fff !important; -webkit-text-fill-color: #fff !important;
   font-weight: 700 !important; font-size: 13px !important; cursor: pointer; border: none;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 .modal-btn-cancel  { background: #3a3a3c; }
 .modal-btn-rotate  { background: #48484a; }
@@ -545,7 +537,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   transform: translate(-50%, -50%) scale(0.95);
   width: calc(100% - 48px); max-width: 340px;
   background: var(--card2); border-radius: 20px;
-  border: 1px solid var(--border);
   opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease;
   max-height: 65vh; display: flex; flex-direction: column;
   overflow: hidden;
@@ -558,7 +549,6 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   text-transform: uppercase !important; letter-spacing: 1px !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
   padding: 16px 18px 12px; flex-shrink: 0; border-bottom: 1px solid var(--border2);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 .bs-search-wrapper { padding: 10px 14px; border-bottom: 1px solid var(--border2); flex-shrink: 0; }
 .bs-search {
@@ -602,7 +592,7 @@ input[type="file"] { display: none !important; }
 .login-card {
   display: flex; flex-direction: column; align-items: center; gap: 12px;
   padding: 40px 32px; background: var(--card); border-radius: 24px;
-  border: 1px solid var(--border); max-width: 340px; width: 90%;
+  max-width: 340px; width: 90%;
   text-align: center; box-shadow: var(--shadow);
 }
 .login-logo { width: 120px; height: 120px; object-fit: contain; }
@@ -627,7 +617,6 @@ input[type="file"] { display: none !important; }
 .ptf-label {
   font-size: 15px !important; font-weight: 500 !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   line-height: 1.3 !important; flex: 1;
 }
 .is-editing .profile-field-toggle .ptf-label {
@@ -743,7 +732,7 @@ input[type="file"] { display: none !important; }
 ══════════════════════════════════════════════════ */
 .hero-card {
   background: var(--card); border-radius: 24px; overflow: hidden;
-  border: 1px solid var(--border); box-shadow: var(--shadow);
+  box-shadow: var(--shadow);
 }
 .hero-banner {
   height: 80px;
@@ -815,7 +804,7 @@ input[type="file"] { display: none !important; }
   border: none; border-radius: 16px;
   background: var(--card);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s; min-height: 72px;
+  transition: background 0.15s; min-height: 72px; box-shadow: none;
 }
 .settings-row:active { background: var(--card2); }
 .settings-row-ico {
@@ -827,13 +816,11 @@ input[type="file"] { display: none !important; }
 .settings-row-title {
   display: block; font-size: 18px !important; font-weight: 500 !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   line-height: 1.3 !important;
 }
 .settings-row-sub {
   display: block; font-size: 13px !important; font-weight: 400 !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   margin-top: 1px !important;
 }
@@ -847,7 +834,7 @@ input[type="file"] { display: none !important; }
 ══════════════════════════════════════════════════ */
 .sec-group {
   background: var(--card); border-radius: 18px;
-  overflow: hidden; border: 1px solid var(--border);
+  overflow: hidden;
 }
 
 /* Regular row */
@@ -863,7 +850,6 @@ input[type="file"] { display: none !important; }
   font-size: 12px !important; font-weight: 700 !important;
   text-transform: uppercase !important; letter-spacing: 0.6px !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   line-height: 1 !important;
   transition: color 0.2s;
 }
@@ -876,7 +862,6 @@ input[type="file"] { display: none !important; }
   background: transparent !important; border: none !important; outline: none !important;
   padding: 0 !important; margin: 0 !important;
   font-size: 18px !important; font-weight: 500 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
   line-height: 1.3 !important; border-radius: 0 !important;
   -webkit-appearance: none !important; opacity: 1 !important;
@@ -905,7 +890,6 @@ input[type="file"] { display: none !important; }
 .sec-toggle-label {
   font-size: 18px !important; font-weight: 500 !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   flex: 1;
 }
 
@@ -944,7 +928,6 @@ input[type="file"] { display: none !important; }
   font-size: 14px !important; font-weight: 900 !important;
   text-transform: uppercase !important; letter-spacing: 0.1em !important;
   font-style: italic !important; cursor: pointer; border: none; line-height: 1 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   background: linear-gradient(145deg, #ff4d4d, #d61f1f) !important;
   color: #fff !important; -webkit-text-fill-color: #fff !important;
   box-shadow: 0 6px 18px rgba(239,68,68,0.38);
@@ -956,7 +939,6 @@ input[type="file"] { display: none !important; }
   font-size: 13px !important; font-weight: 700 !important;
   text-transform: uppercase !important; cursor: pointer;
   border: 1px solid var(--border) !important; line-height: 1 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   background: var(--chip-bg) !important;
   color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
   -webkit-tap-highlight-color: transparent;
@@ -990,7 +972,6 @@ input[type="file"] { display: none !important; }
 .ms-opt-label {
   font-size: 17px !important; font-weight: 500 !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 .ms-check {
   font-size: 22px !important; color: var(--text3) !important;
@@ -1036,7 +1017,6 @@ input[type="file"] { display: none !important; }
   background: transparent !important; border: none !important; outline: none !important;
   padding: 0 !important; cursor: default !important;
   font-size: 18px !important; font-weight: 500 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
 }
 .is-editing .custom-select-trigger { cursor: pointer !important; }
@@ -1045,3 +1025,156 @@ input[type="file"] { display: none !important; }
   font-size: 22px; color: var(--accent); -webkit-text-fill-color: var(--accent);
   flex-shrink: 0; margin-left: 4px;
 }
+
+/* Hide verbose upload text, only show pill */
+.file-status-ok > span:first-child { display: none !important; }
+
+/* Extra breathing room for rows with file upload or multi-line content */
+.sec-row.sec-row-tall { min-height: 80px; align-items: flex-start; padding-top: 18px; padding-bottom: 18px; }
+.sec-row-body.has-file { gap: 8px; }
+
+/* Date picker trigger */
+.date-picker-trigger {
+  display: flex !important; align-items: center !important; justify-content: space-between !important;
+  width: 100% !important; background: transparent !important; border: none !important;
+  outline: none !important; padding: 0 !important; cursor: default !important;
+  font-size: 18px !important; font-weight: 500 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  -webkit-appearance: none !important;
+}
+.is-editing .date-picker-trigger { cursor: pointer !important; }
+.is-editing .date-picker-trigger::after {
+  content: "edit_calendar"; font-family: "Material Icons";
+  font-size: 20px; color: var(--accent); -webkit-text-fill-color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Date picker modal */
+#date-picker-modal {
+  position: fixed; inset: 0; z-index: 2000;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  padding: 24px;
+}
+#date-picker-modal.active { display: flex; }
+.dp-card {
+  background: var(--card); border-radius: 28px;
+  width: 100%; max-width: 340px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.dp-header {
+  padding: 24px 24px 8px;
+}
+.dp-header-label {
+  font-size: 12px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.6px !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+  margin-bottom: 4px;
+}
+.dp-selected-date {
+  font-size: 32px !important; font-weight: 400 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  line-height: 1.2 !important;
+}
+.dp-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px 4px;
+}
+.dp-nav-label {
+  font-size: 14px !important; font-weight: 600 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+}
+.dp-nav-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: transparent; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.dp-nav-btn:active { background: var(--chip-bg); }
+.dp-nav-btn .material-icons {
+  font-size: 20px !important; color: var(--text2) !important;
+  -webkit-text-fill-color: var(--text2) !important;
+}
+.dp-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 2px; padding: 4px 12px 8px;
+}
+.dp-day-label {
+  text-align: center; font-size: 11px !important; font-weight: 700 !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+  padding: 6px 0;
+}
+.dp-day {
+  aspect-ratio: 1; border-radius: 50%; border: none; background: transparent;
+  font-size: 14px !important; font-weight: 400 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent; transition: background 0.15s;
+}
+.dp-day:hover { background: var(--chip-bg); }
+.dp-day.dp-selected {
+  background: var(--accent) !important;
+  color: #fff !important; -webkit-text-fill-color: #fff !important;
+  font-weight: 700 !important;
+}
+.dp-day.dp-other-month { color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important; }
+.dp-day.dp-today:not(.dp-selected) {
+  border: 1.5px solid var(--accent);
+  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
+}
+.dp-footer {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 8px 16px 20px;
+}
+.dp-btn {
+  padding: 10px 20px; border-radius: 9999px; border: none;
+  font-size: 14px !important; font-weight: 700 !important;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  text-transform: uppercase !important; letter-spacing: 0.05em !important;
+}
+.dp-btn-cancel {
+  background: transparent; color: var(--text2) !important;
+  -webkit-text-fill-color: var(--text2) !important;
+}
+.dp-btn-cancel:active { background: var(--chip-bg); }
+.dp-btn-ok {
+  background: var(--accent); color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.dp-btn-ok:active { filter: brightness(0.9); }
+
+/* Year/month picker inside date picker */
+.dp-year-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; padding: 12px 16px 16px; max-height: 220px; overflow-y: auto;
+}
+.dp-year-btn {
+  padding: 12px 4px; border-radius: 12px; border: none;
+  font-size: 15px !important; font-weight: 500 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  background: transparent; cursor: pointer; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.dp-year-btn.dp-year-selected {
+  background: var(--accent) !important;
+  color: #fff !important; -webkit-text-fill-color: #fff !important;
+  font-weight: 700 !important;
+}
+.dp-year-btn:active { background: var(--chip-bg); }
+
+/* ── EXTRA BREATHING ROOM ── */
+.sec-row { padding: 18px 18px; }
+
+/* Longer toggle labels wrap gracefully */
+.sec-toggle-label { line-height: 1.3 !important; }
+
+/* File action row spacing */
+.sec-file-actions { margin-top: 8px; }
+
+/* sec-row with file content */
+.sec-row .sec-file-status + .sec-file-actions { margin-top: 6px; }
+
+/* Chips hidden when not editing - show only trigger */
+.chip-wrapper { display: none; }
