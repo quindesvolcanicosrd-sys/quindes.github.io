@@ -474,22 +474,20 @@ function habilitarToggle(id, valorInicial = '') {
   const input = document.getElementById(id);
   if (!input) return;
   input.style.display = 'none';
-  // Remove existing toggle if any
-  let tog = input.nextElementSibling;
-  if (tog && tog.classList.contains('toggle-wrap')) tog.remove();
+  // Remove existing toggle wrap if any
+  let existing = input.parentNode.querySelector('.toggle-wrap');
+  if (existing) existing.remove();
   const isOn = (valorInicial === 'Sí');
   const wrap = document.createElement('div');
   wrap.className = 'toggle-wrap';
   wrap.innerHTML = `
-    <span class="toggle-label-off">No</span>
     <button type="button" class="toggle-btn ${isOn ? 'toggle-on' : 'toggle-off'}" aria-pressed="${isOn}">
       <span class="toggle-thumb"></span>
-      <span class="toggle-text">${isOn ? 'Sí' : 'No'}</span>
     </button>
-    <span class="toggle-label-on">Sí</span>
   `;
   input.value = valorInicial;
-  input.parentNode.insertBefore(wrap, input.nextSibling);
+  // Append to the profile-field-toggle container
+  input.parentNode.appendChild(wrap);
   const btn = wrap.querySelector('.toggle-btn');
   btn.addEventListener('click', () => {
     if (!modoEdicion) return;
@@ -497,7 +495,6 @@ function habilitarToggle(id, valorInicial = '') {
     btn.classList.toggle('toggle-on', on);
     btn.classList.toggle('toggle-off', !on);
     btn.setAttribute('aria-pressed', on);
-    btn.querySelector('.toggle-text').textContent = on ? 'Sí' : 'No';
     input.value = on ? 'Sí' : 'No';
   });
   btn.disabled = !modoEdicion;
