@@ -1605,3 +1605,141 @@ input[type="file"] { display: none !important; }
   transform: translateY(0); opacity: 1;
   transition-delay: 0.08s;
 }
+
+
+/* ════════════════════════════════════════════════════════════════
+   TYPOGRAPHY SYSTEM — single source of truth, overrides all above
+   
+   SCALE:
+   • Hero name        — 24px, 900, uppercase, italic  (identity)
+   • Hero sub/badges  — 12px, 600, uppercase, normal  (metadata)
+   • Section title (header) — 18px, 900, uppercase, italic  (nav)
+   • Settings row title     — 16px, 600, normal, normal    (list)
+   • Settings row sub       — 12px, 400, normal, normal    (preview)
+   • Field label (caps)     — 10px, 700, uppercase, normal (key)
+   • Field value (input)    — 17px, 600, uppercase, italic (value)
+   • Field value bold       — 17px, 900, uppercase, italic (derby name/number)
+   • Toggle label           — 16px, 500, normal, normal    (question)
+   • Button text            — 12px, 800, uppercase, italic (CTA)
+   • Stat label             — 9px,  700, uppercase, normal
+   • Stat value             — 12px, 700, uppercase, italic
+   ════════════════════════════════════════════════════════════════ */
+
+/* Hero */
+.hero-name {
+  font-size: 24px !important; font-weight: 900 !important;
+  font-style: italic !important; text-transform: uppercase !important;
+  letter-spacing: -0.5px !important; line-height: 1.1 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+.hero-sub {
+  font-size: 12px !important; font-weight: 600 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+  letter-spacing: 0.6px !important; line-height: 1.4 !important;
+  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
+}
+
+/* Header / nav title */
+.app-header-title {
+  font-size: 18px !important; font-weight: 900 !important;
+  font-style: italic !important; text-transform: uppercase !important;
+  letter-spacing: -0.3px !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+
+/* Settings list rows */
+.settings-row-title {
+  font-size: 16px !important; font-weight: 600 !important;
+  font-style: normal !important; text-transform: none !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+.settings-row-sub {
+  font-size: 12px !important; font-weight: 400 !important;
+  font-style: normal !important; text-transform: none !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+}
+
+/* Field labels (NOMBRE DERBY, etc.) */
+.sec-row-label {
+  font-size: 10px !important; font-weight: 700 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+  letter-spacing: 0.7px !important; line-height: 1 !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+}
+.app-view.is-editing .sec-row-label {
+  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
+}
+
+/* Field values — ALL inputs/selects/date share the same scale */
+.sec-input,
+.custom-select-trigger,
+.date-picker-trigger,
+.multiselect-trigger,
+.ms-value {
+  font-size: 17px !important; font-weight: 600 !important;
+  font-style: italic !important; text-transform: uppercase !important;
+  font-family: var(--font) !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+/* Bold variant — derby name/number/rol */
+.sec-input-bold {
+  font-weight: 900 !important;
+}
+/* Selects are NOT italic (it's a choice, not typed text) */
+.custom-select-trigger,
+.multiselect-trigger,
+.ms-value {
+  font-style: normal !important;
+}
+
+/* Toggle question label */
+.sec-toggle-label {
+  font-size: 16px !important; font-weight: 500 !important;
+  font-style: normal !important; text-transform: none !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+.app-view.is-editing .sec-toggle-label {
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+}
+
+/* Buttons */
+.header-save-btn {
+  font-size: 12px !important; font-weight: 800 !important;
+  font-style: italic !important; text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+.header-cancel-btn {
+  font-size: 12px !important; font-weight: 600 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+}
+
+/* Stats */
+.sec-stat-lbl {
+  font-size: 9px !important; font-weight: 700 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+.sec-stat-val {
+  font-size: 12px !important; font-weight: 700 !important;
+  font-style: italic !important; text-transform: uppercase !important;
+}
+
+/* Photo row sub-label */
+.sec-row-title {
+  font-size: 16px !important; font-weight: 600 !important;
+  font-style: normal !important; text-transform: none !important;
+  font-family: var(--font) !important;
+}
+.sec-row-sub {
+  font-size: 12px !important; font-weight: 400 !important;
+  font-style: normal !important; text-transform: none !important;
+  font-family: var(--font) !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+}
+
+/* Badges */
+.pf-badge {
+  font-size: 11px !important; font-weight: 700 !important;
+  font-style: normal !important; text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+}
