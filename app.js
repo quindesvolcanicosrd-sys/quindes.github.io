@@ -313,15 +313,9 @@ function activarEdicionSeccion(seccion) {
   // Mostrar flechas de select
   mostrarFlechasSelect(seccion, true);
 
-  // Show header save/cancel, hide pencil (CSS handles pencil via .is-editing)
-  const hcancel = document.getElementById('btn-hcancel-' + seccion);
-  const hsave   = document.getElementById('btn-hsave-'   + seccion);
-  if (hcancel) hcancel.style.display = '';
-  if (hsave)   hsave.style.display   = '';
-
-  // Keep bottom save wrap hidden (CSS: .sec-save-wrap display:none)
-  const saveWrap = document.getElementById('save-' + seccion);
-  if (saveWrap) saveWrap.style.display = 'none';
+  // Show header action row (CSS also handles pencil hide via .is-editing)
+  const actionsRow = document.getElementById('header-actions-' + seccion);
+  if (actionsRow) actionsRow.style.display = 'flex';
 }
 
 function cancelarEdicionSeccion(seccion) {
@@ -346,11 +340,9 @@ function cancelarEdicionSeccion(seccion) {
   if (seccion === 'generales') setSecAvatarEditable(false);
   mostrarFlechasSelect(seccion, false);
 
-  // Hide header save/cancel
-  const hcancel = document.getElementById('btn-hcancel-' + seccion);
-  const hsave   = document.getElementById('btn-hsave-'   + seccion);
-  if (hcancel) hcancel.style.display = 'none';
-  if (hsave)   hsave.style.display   = 'none';
+  // Hide header action row
+  const actionsRow = document.getElementById('header-actions-' + seccion);
+  if (actionsRow) actionsRow.style.display = 'none';
 }
 
 async function guardarSeccion(seccion) {
@@ -366,7 +358,7 @@ async function guardarSeccion(seccion) {
   }
 
   const btnSave = document.getElementById('btn-hsave-' + seccion);
-  if (btnSave) { btnSave.disabled = true; btnSave.textContent = '...'; }
+  if (btnSave) { btnSave.disabled = true; btnSave.textContent = '…'; }
 
   const v = id => document.getElementById(id)?.value || '';
   const datos = recogerTodosLosDatos();
