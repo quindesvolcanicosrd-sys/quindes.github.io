@@ -779,7 +779,7 @@ input[type="file"] { display: none !important; }
 #avatar-loader.hidden { display: none; }
 #avatar-overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); }
 #avatar-overlay.flex { display: flex; }
-.hero-text { text-align: center; padding: 0 16px 6px; }
+.hero-text { text-align: center; padding: 0 16px 20px; }
 .hero-name {
   font-size: 24px !important; font-weight: 900 !important; font-style: italic !important;
   text-transform: uppercase !important; letter-spacing: -0.4px !important;
@@ -795,9 +795,7 @@ input[type="file"] { display: none !important; }
 }
 .hero-badges { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; }
 .hero-stats {
-  display: flex; gap: 8px; padding: 12px 12px 14px;
-  border-top: 1px solid var(--border2);
-  margin-top: 8px;
+  display: none;
 }
 
 /* ══════════════════════════════════════════════════
@@ -1367,3 +1365,88 @@ input[type="file"] { display: none !important; }
 .app-view.is-editing .header-row-actions { display: flex !important; }
 /* Hide pencil in edit mode */
 .app-view.is-editing .header-edit-btn { display: none !important; }
+
+/* ── STYLIZED CHEVRONS: thin CSS arrow, no Material icon font ── */
+.settings-row-arrow,
+.sec-row-arrow,
+.sec-select-arrow {
+  /* Hide the Material icon text, use CSS border arrow instead */
+  font-family: none !important;
+  font-size: 0 !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  width: 20px; height: 20px;
+  display: flex !important; align-items: center; justify-content: center;
+  flex-shrink: 0; position: relative;
+}
+.settings-row-arrow::after,
+.sec-row-arrow::after {
+  content: '';
+  display: block;
+  width: 8px; height: 8px;
+  border-right: 2px solid var(--text3);
+  border-top: 2px solid var(--text3);
+  transform: rotate(45deg) translateX(-2px);
+  border-radius: 1px;
+}
+
+/* ── FIX date-picker-trigger::after — remove "edit_calendar" text icon ── */
+.is-editing .date-picker-trigger::after {
+  content: '' !important;
+  display: block;
+  width: 8px; height: 8px;
+  border-right: 2px solid var(--accent);
+  border-top: 2px solid var(--accent);
+  transform: rotate(45deg) translateX(-2px);
+  border-radius: 1px;
+  font-family: none !important;
+}
+
+/* ── is-editing select trigger arrow: thin red chevron ── */
+.is-editing .custom-select-trigger::after {
+  content: '' !important;
+  display: block;
+  width: 8px; height: 8px;
+  border-right: 2px solid var(--accent);
+  border-top: 2px solid var(--accent);
+  transform: rotate(45deg) translateX(-2px);
+  border-radius: 1px;
+  font-family: none !important;
+  flex-shrink: 0; margin-left: 8px;
+}
+
+/* ── STATS in generales section ── */
+.sec-stats-group { background: var(--card) !important; }
+.sec-stat-row {
+  display: flex; gap: 0;
+  padding: 4px 0;
+}
+.sec-stat {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 16px 8px 18px;
+  gap: 6px;
+  border-right: 1px solid var(--border3);
+}
+.sec-stat:last-child { border-right: none; }
+.sec-stat-ico {
+  font-size: 18px !important;
+  color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+  opacity: 0.7;
+}
+.sec-stat-lbl {
+  font-size: 9px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.5px !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+  text-align: center; line-height: 1.2;
+}
+.sec-stat-val {
+  font-size: 12px !important; font-weight: 700 !important;
+  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
+  text-align: center; line-height: 1.3;
+  text-transform: uppercase !important;
+}
+
+/* Hide old hero-stats (now empty) */
+.hero-stats { display: none !important; }
