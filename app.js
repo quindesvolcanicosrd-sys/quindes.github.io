@@ -982,6 +982,7 @@ function crearBottomSheet() {
 }
 
 function abrirBottomSheet(label, options, valorActual, onSelect) {
+  if (_bsClosing) return; // still closing, ignore this tap
   crearBottomSheet();
   const overlay       = document.getElementById('bs-overlay');
   const panel         = document.getElementById('bs-panel');
@@ -1026,6 +1027,8 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
   if (_regScr && _regScr.style.display !== 'none') _regScr.style.overflowY = 'hidden';
 }
 
+let _bsClosing = false; // guard against immediate reopen after close
+
 function cerrarBottomSheet() {
   const overlay = document.getElementById('bs-overlay');
   const panel   = document.getElementById('bs-panel');
@@ -1038,6 +1041,9 @@ function cerrarBottomSheet() {
   document.body.style.overflow = '';
   const reg = document.getElementById('registroScreen');
   if (reg) reg.style.overflowY = '';
+  // Block reopening for 400ms — prevents the closing tap from firing the button below
+  _bsClosing = true;
+  setTimeout(() => { _bsClosing = false; }, 400);
 }
 
 // ── ARCHIVOS ──────────────────────────────────────────────────
