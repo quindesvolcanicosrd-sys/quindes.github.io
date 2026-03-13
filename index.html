@@ -11,23 +11,9 @@
   <meta name="apple-mobile-web-app-title" content="Quindes">
   <title>Quindes App</title>
   <link rel="manifest" href="manifest.json">
-
-  <!-- Favicons -->
-  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
-
-  <!-- iOS home screen icon -->
-  <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180x180.png">
-
-  <!-- iOS Splash screens -->
-  <link rel="apple-touch-startup-image" sizes="120x120" href="icons/splash-120x120.png">
-  <link rel="apple-touch-startup-image" sizes="152x152" href="icons/splash-152x152.png">
-  <link rel="apple-touch-startup-image" sizes="180x180" href="icons/splash-180x180.png">
-  <link rel="apple-touch-startup-image" sizes="192x192" href="icons/splash-192x192.png">
-  <link rel="apple-touch-startup-image" sizes="512x512" href="icons/splash-512x512.png">
-
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <link rel="icon" type="image/png" href="icons/icon-192x192.png">
+  <link rel="icon" sizes="32x32" type="image/png" href="icons/icon-96x96.png">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
@@ -38,7 +24,7 @@
 <!-- LOADING -->
 <div id="loadingScreen">
   <div class="loading-logo">
-    <img src="icons/splash-512x512.png" alt="Quindes" class="loading-logo-img">
+    <img src="icons/logo-loading.png" alt="Quindes" class="loading-logo-img">
   </div>
 </div>
 
@@ -49,6 +35,66 @@
     <h1 class="login-title">Quindes Volcánicos</h1>
     <p class="login-sub">Roller Derby Quito</p>
     <div id="google-signin-btn"></div>
+  </div>
+</div>
+
+
+<!-- REGISTRO NUEVO USUARIO -->
+<div id="registroScreen" style="display:none;">
+  <div class="registro-card">
+    <img src="icons/icon-192x192.png" alt="Quindes" class="login-logo">
+    <h1 class="login-title">Crear perfil</h1>
+    <p class="login-sub">Completá tus datos para unirte</p>
+
+    <div id="reg-error" class="error-box" style="display:none;"></div>
+
+    <!-- Nombre -->
+    <div class="reg-field">
+      <label class="reg-label">Nombre *</label>
+      <input id="reg-nombre" class="reg-input" type="text" placeholder="Tu nombre" autocomplete="given-name" maxlength="60">
+    </div>
+
+    <!-- Pronombres -->
+    <div class="reg-field">
+      <label class="reg-label">Pronombres</label>
+      <div id="reg-pronombres-chips" class="chip-wrapper reg-chips"></div>
+    </div>
+
+    <!-- País -->
+    <div class="reg-field">
+      <label class="reg-label">País de origen *</label>
+      <button type="button" id="reg-pais-btn" class="reg-selector-btn chip chip-inactive">
+        <span id="reg-pais-display">Seleccionar país</span>
+        <span class="material-icons reg-selector-ico">expand_more</span>
+      </button>
+    </div>
+
+    <!-- Código de país + Teléfono -->
+    <div class="reg-field">
+      <label class="reg-label">Teléfono *</label>
+      <div class="reg-phone-row">
+        <button type="button" id="reg-codigo-btn" class="reg-selector-btn chip chip-inactive reg-codigo-btn">
+          <span id="reg-codigo-display">+?</span>
+          <span class="material-icons reg-selector-ico">expand_more</span>
+        </button>
+        <input id="reg-telefono" class="reg-input reg-tel-input" type="tel" placeholder="Número" maxlength="20">
+      </div>
+    </div>
+
+    <!-- Mostrar cumpleaños -->
+    <div class="reg-field">
+      <label class="reg-label">¿Compartir fecha de cumpleaños? *</label>
+      <div id="reg-cumple-chips" class="chip-wrapper reg-chips"></div>
+    </div>
+
+    <!-- Mostrar edad -->
+    <div class="reg-field">
+      <label class="reg-label">¿Compartir edad? *</label>
+      <div id="reg-edad-chips" class="chip-wrapper reg-chips"></div>
+    </div>
+
+    <button id="reg-submit" class="btn-save reg-submit-btn">Crear mi perfil</button>
+    <p class="reg-note">Tu cuenta se creará como <strong>Invitada</strong>.<br>Un admin podrá actualizar tu rol después.</p>
   </div>
 </div>
 
@@ -549,7 +595,7 @@
     </div>
     <div class="modal-actions">
       <button onclick="cancelarCrop()"  class="modal-btn modal-btn-cancel">Cancelar</button>
-      <button onclick="confirmarCrop()" class="modal-btn modal-btn-confirm" id="btn-aplicar-crop">Aplicar</button>
+<button onclick="confirmarCrop()" class="modal-btn modal-btn-confirm" id="btn-aplicar-crop">Aplicar</button>
     </div>
   </div>
 </div>
