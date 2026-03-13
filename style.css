@@ -525,8 +525,9 @@ label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--a
   position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
   opacity: 0; pointer-events: none; transition: opacity 0.2s;
   display: flex; align-items: center; justify-content: center;
+  -webkit-overflow-scrolling: auto;
 }
-.bs-overlay.active { opacity: 1; pointer-events: all; }
+.bs-overlay.active { opacity: 1; pointer-events: all; touch-action: none; }
 .bs-panel {
   position: fixed; z-index: 1001;
   left: 50%; top: 50%;
