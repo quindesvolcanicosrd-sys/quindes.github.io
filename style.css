@@ -2062,28 +2062,23 @@ input, button, select, textarea {
   font-weight: 700 !important;
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    NO ENCONTRADO — pantalla intermedia
-═══════════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 #noEncontradoScreen {
   position: fixed; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  background: var(--bg); z-index: 100;
-  padding: 24px;
+  background: var(--bg); z-index: 100; padding: 24px;
 }
-.no-encontrado-card {
-  gap: 14px !important;
-  max-width: 340px !important;
-}
+.no-encontrado-card { gap: 14px !important; max-width: 340px !important; }
 .no-enc-icon {
-  font-size: 52px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  align-self: center;
+  font-size: 52px !important; color: var(--text3) !important;
+  -webkit-text-fill-color: var(--text3) !important; align-self: center;
 }
 .no-enc-title {
   font-size: 20px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.2px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  text-transform: uppercase !important; color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
   text-align: center; margin: 0 !important;
 }
 .no-enc-sub {
@@ -2096,8 +2091,7 @@ input, button, select, textarea {
   display: block; font-size: 13px !important; word-break: break-all;
 }
 .no-enc-divider-wrap {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%;
+  display: flex; align-items: center; justify-content: center; width: 100%;
 }
 .no-enc-divider-label {
   font-size: 11px !important; font-weight: 700 !important;
@@ -2106,12 +2100,8 @@ input, button, select, textarea {
   text-align: center;
 }
 #google-resignin-btn { align-self: center; }
-.no-enc-or {
-  display: flex; align-items: center; gap: 12px; width: 100%;
-}
-.no-enc-or span {
-  flex: 1; height: 1px; background: var(--border);
-}
+.no-enc-or { display: flex; align-items: center; gap: 12px; width: 100%; }
+.no-enc-or span { flex: 1; height: 1px; background: var(--border); }
 .no-enc-or em {
   font-size: 12px !important; font-style: normal !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
@@ -2119,92 +2109,189 @@ input, button, select, textarea {
 }
 .no-enc-register-btn {
   display: flex !important; align-items: center !important;
-  justify-content: center !important; gap: 6px !important;
-  font-style: normal !important;
+  justify-content: center !important; gap: 6px !important; font-style: normal !important;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   REGISTRO DE USUARIO NUEVO
-═══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   WIZARD DE REGISTRO — paso a paso
+══════════════════════════════════════════════════════════════ */
+
 #registroScreen {
-  position: fixed; inset: 0;
-  display: flex; align-items: flex-start; justify-content: center;
-  background: var(--bg); z-index: 100;
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
-  padding: 0 0 env(safe-area-inset-bottom);
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column;
+  background: var(--bg); overflow: hidden;
 }
 
-.registro-card {
-  display: flex; flex-direction: column; align-items: stretch; gap: 20px;
-  padding: 0 20px 48px;
-  width: 100%; max-width: 440px;
-  box-sizing: border-box;
+/* ── Header fijo ── */
+.wiz-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 6px 20px 6px 4px; min-height: 56px; flex-shrink: 0;
+  background: var(--bg); border-bottom: 1px solid var(--border2);
+  position: relative; z-index: 2;
 }
-
-/* ── Header with back ── */
-.reg-header {
-  position: sticky; top: 0; z-index: 10;
-  display: flex; align-items: center; gap: 8px;
-  min-height: 56px; padding: 0 0 0 4px;
-  background: var(--bg);
-  margin: 0 -20px; padding-left: 8px; padding-right: 20px;
-  border-bottom: 1px solid var(--border2);
-  margin-bottom: 4px;
-}
-.reg-back-btn {
+.wiz-back-btn {
   width: 44px; height: 44px; border-radius: 50%; border: none;
-  background: transparent; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+  background: transparent; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
 }
-.reg-back-btn .material-icons {
-  font-size: 24px !important; color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important;
-}
-.reg-back-btn:active { background: var(--chip-bg); }
-.reg-header-title {
-  font-size: 18px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.2px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  flex: 1;
-}
-
-/* ── Field wrapper ── */
-.reg-field {
-  display: flex; flex-direction: column; gap: 8px;
-}
-
-.reg-label {
-  font-size: 10px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.8px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  margin: 0 !important;
-}
-.reg-required {
+.wiz-back-btn:active { background: var(--chip-bg); }
+.wiz-back-btn .material-icons {
+  font-size: 24px !important;
   color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
 }
-.reg-optional {
-  color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important;
-  font-weight: 500 !important; text-transform: none !important; letter-spacing: 0 !important;
-  font-size: 9px !important;
+.wiz-progress-wrap { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.wiz-progress-bar {
+  height: 5px; background: var(--border); border-radius: 99px; overflow: hidden;
+}
+.wiz-progress-fill {
+  height: 100%; background: var(--accent); border-radius: 99px;
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+.wiz-step-label {
+  font-size: 10px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.7px !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+}
+
+/* ── Viewport ── */
+.wiz-viewport {
+  flex: 1; position: relative; overflow: hidden;
+}
+
+/* ── Individual step ── */
+.wiz-step {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  padding: 28px 24px 32px;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  /* off-screen by default, JS controls transform */
+}
+
+/* ── Background emoji watermark ── */
+.wiz-bg-emoji {
+  position: absolute; bottom: -10px; right: -10px;
+  font-size: 160px; line-height: 1;
+  opacity: 0.06; pointer-events: none; user-select: none;
+  transform: rotate(-12deg);
+  z-index: 0;
+}
+
+/* ── Step content sits above bg emoji ── */
+.wiz-emoji, .wiz-title, .wiz-desc, .wiz-content, .wiz-actions {
+  position: relative; z-index: 1;
+}
+
+/* ── Emoji ── */
+.wiz-emoji {
+  font-size: 54px; line-height: 1; margin-bottom: 18px;
+  user-select: none;
+}
+
+/* ── Entry animations ── */
+@keyframes wiz-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* applied via JS when step becomes active */
+.wiz-step.wiz-animate .wiz-emoji    { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.00s both; }
+.wiz-step.wiz-animate .wiz-title    { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.06s both; }
+.wiz-step.wiz-animate .wiz-desc     { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.12s both; }
+.wiz-step.wiz-animate .wiz-content  { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.18s both; }
+.wiz-step.wiz-animate .wiz-actions  { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.24s both; }
+
+/* ── Typography ── */
+.wiz-title {
+  font-size: 28px !important; font-weight: 900 !important;
+  font-style: italic !important; text-transform: uppercase !important;
+  letter-spacing: -0.5px !important; line-height: 1.1 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  margin: 0 0 10px !important;
+}
+.wiz-desc {
+  font-size: 15px !important; font-weight: 400 !important;
+  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
+  line-height: 1.65 !important; margin: 0 0 28px !important;
+}
+
+/* ── Content area ── */
+.wiz-content { display: flex; flex-direction: column; gap: 12px; }
+
+/* ── Actions area ── */
+.wiz-actions {
+  margin-top: auto; padding-top: 28px;
+  display: flex; flex-direction: column; gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ── Buttons ── */
+.wiz-btn-next, .wiz-btn-finish {
+  display: flex !important; align-items: center !important;
+  justify-content: center !important; gap: 8px !important;
+  width: 100% !important; padding: 18px 24px !important;
+  border-radius: 9999px !important; border: none !important;
+  background: linear-gradient(135deg, #ff3b3b 0%, #c41212 100%) !important;
+  color: #fff !important; -webkit-text-fill-color: #fff !important;
+  font-size: 13px !important; font-weight: 900 !important;
+  text-transform: uppercase !important; letter-spacing: 0.1em !important;
+  cursor: pointer !important; -webkit-tap-highlight-color: transparent !important;
+  box-shadow: 0 8px 24px rgba(220,30,30,0.35) !important;
+  transition: transform 0.12s, box-shadow 0.12s !important;
+}
+.wiz-btn-next:active, .wiz-btn-finish:active {
+  transform: scale(0.97) !important;
+  box-shadow: 0 4px 12px rgba(220,30,30,0.25) !important;
+}
+.wiz-btn-next .material-icons,
+.wiz-btn-finish .material-icons {
+  font-size: 18px !important;
+  color: rgba(255,255,255,0.9) !important; -webkit-text-fill-color: rgba(255,255,255,0.9) !important;
+}
+.wiz-btn-skip {
+  background: transparent !important; border: none !important;
+  font-size: 12px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.06em !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+  padding: 10px !important; cursor: pointer !important;
+  -webkit-tap-highlight-color: transparent !important;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* Spinning icon for loading state */
+@keyframes wiz-spin { to { transform: rotate(360deg); } }
+.wiz-spin { display: inline-block !important; animation: wiz-spin 0.9s linear infinite !important; }
+
+/* ── Error toast at bottom ── */
+.wiz-error-toast {
+  position: absolute !important;
+  bottom: 20px; left: 16px; right: 16px;
+  background: var(--card) !important;
+  border: 1.5px solid var(--accent) !important;
+  border-radius: 14px !important; padding: 14px 16px !important;
+  font-size: 14px !important; font-weight: 600 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
+  z-index: 20 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.18) !important;
+  animation: wiz-fade-up 0.2s ease both;
 }
 
 /* ── Avatar / foto ── */
-.reg-field-foto { align-items: flex-start; }
-.reg-foto-wrap { display: flex; align-items: center; gap: 16px; }
+.reg-foto-center {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
 .reg-avatar {
-  width: 80px; height: 80px; border-radius: 20px; flex-shrink: 0;
-  background: var(--card2); border: 2px dashed var(--border);
+  width: 120px; height: 120px; border-radius: 28px; flex-shrink: 0;
+  background: var(--card2); border: 2.5px dashed var(--border);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; overflow: hidden; position: relative;
-  -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.2s;
+  -webkit-tap-highlight-color: transparent; transition: border-color 0.18s;
 }
 .reg-avatar:active { border-color: var(--accent); }
-.reg-avatar img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
-}
+.reg-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .reg-avatar-placeholder {
-  font-size: 28px !important; color: var(--text3) !important;
+  font-size: 38px !important; color: var(--text3) !important;
   -webkit-text-fill-color: var(--text3) !important;
 }
 .reg-avatar-overlay {
@@ -2212,15 +2299,25 @@ input, button, select, textarea {
   display: flex; align-items: center; justify-content: center;
 }
 .reg-avatar-overlay .material-icons {
-  font-size: 22px !important; color: #fff !important; -webkit-text-fill-color: #fff !important;
+  font-size: 26px !important; color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 .reg-foto-hint {
-  font-size: 12px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important; line-height: 1.4 !important;
-  margin: 0 !important;
+  font-size: 13px !important; color: var(--text3) !important;
+  -webkit-text-fill-color: var(--text3) !important;
+  text-align: center; margin: 0 !important;
 }
 
-/* ── Text input ── */
+/* ── Shared field labels ── */
+.reg-label {
+  font-size: 10px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.8px !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+  margin: 0 !important;
+}
+.reg-required { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; }
+
+/* ── Text inputs ── */
 .reg-input {
   width: 100% !important; padding: 14px 16px !important;
   background: var(--card) !important; border: 1.5px solid var(--border) !important;
@@ -2228,13 +2325,15 @@ input, button, select, textarea {
   font-size: 16px !important; font-weight: 500 !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
   -webkit-appearance: none !important; box-sizing: border-box !important;
+  font-family: inherit !important;
 }
 .reg-input:focus { border-color: var(--accent) !important; }
 .reg-input::placeholder {
   color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important;
 }
+.wiz-big-input { font-size: 18px !important; padding: 16px 18px !important; }
 
-/* ── Selector button ── */
+/* ── Selector buttons ── */
 .reg-selector-btn {
   display: flex !important; align-items: center !important;
   justify-content: space-between !important;
@@ -2245,10 +2344,9 @@ input, button, select, textarea {
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
   text-align: left !important; cursor: pointer !important;
   -webkit-tap-highlight-color: transparent !important; box-sizing: border-box !important;
+  font-family: inherit !important;
 }
-.reg-selector-btn.has-value {
-  border-color: var(--border) !important;
-}
+.wiz-selector-btn { padding: 16px 18px !important; font-size: 16px !important; }
 .reg-selector-btn.has-value .reg-selector-val {
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
 }
@@ -2261,29 +2359,38 @@ input, button, select, textarea {
 
 /* ── Phone row ── */
 .reg-phone-row { display: flex; gap: 10px; align-items: stretch; }
-.reg-codigo-btn { flex-shrink: 0 !important; width: 130px !important; min-width: 0 !important; }
+.reg-codigo-btn { flex-shrink: 0 !important; width: 130px !important; }
 .reg-tel-input  { flex: 1 !important; width: auto !important; }
 
-/* ── Chips ── */
-.reg-chips {
-  display: flex !important; flex-wrap: wrap !important; gap: 8px !important;
-}
-.reg-chips .chip {
-  padding: 9px 18px !important; font-size: 14px !important; font-weight: 600 !important;
-}
+/* ── Wizard chips ── */
+.wiz-chips { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
+.wiz-chips .chip { font-size: 15px !important; padding: 11px 22px !important; }
+.wiz-chips-inline { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
+.wiz-chips-inline .chip { font-size: 13px !important; padding: 8px 16px !important; }
 
-/* ── Submit ── */
-.reg-submit-btn {
-  margin-top: 4px !important; font-style: normal !important;
+/* ── Privacy box (paso 6) ── */
+.wiz-privacy-box {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 16px; margin-top: 4px;
+  background: var(--card); border-radius: 16px;
+  border: 1px solid var(--border2);
+}
+.wiz-privacy-title {
+  font-size: 11px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.6px !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+  margin: 0 !important;
+}
+.wiz-privacy-row { display: flex; flex-direction: column; gap: 8px; }
+.wiz-privacy-q {
+  font-size: 14px !important; font-weight: 500 !important;
+  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
 }
 
 /* ── Fine print ── */
 .reg-note {
-  text-align: center;
-  font-size: 12px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
+  text-align: center; font-size: 12px !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
   line-height: 1.5 !important; margin: 0 !important;
 }
-.reg-note strong {
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-}
+.reg-note strong { color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; }
