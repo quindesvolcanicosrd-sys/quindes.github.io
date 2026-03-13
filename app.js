@@ -141,112 +141,119 @@ function mostrarNoEncontrado(email) {
 const REG_PAISES  = ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'];
 const REG_CODIGOS = ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'];
 const REG_PRONOMBRES = ['Él / su', 'Ella / su', 'Elle / su', 'Prefiero no decir'];
-const WIZ_TOTAL = 6;
+const REG_ROLES      = ['Jammer', 'Bloquer', 'Blammer', 'Ref', 'Coach', 'Bench', 'No definido'];
+const REG_ROLES_JUG  = ['Jammer', 'Bloquer', 'Blammer', 'No definido'];
+const REG_ASISTENCIA = ['1 vez', '2 veces', '3 o más veces'];
 
+const WIZ_STEPS_BASE = [1,2,3,4,5,6,7,8,10,11];
+let wizStepSequence = [...WIZ_STEPS_BASE];
 let wizStep = 1;
 let cropTarget = 'app';
 
 const regData = {
   nombre:'', pronombres:'', pais:'', codigoPais:'',
   telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
-  fotoBase64: null,
+  nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
+  alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null,
 };
 
-// ── Abrir wizard ──────────────────────────────────────────────
+function esJugadorx(rol) { return REG_ROLES_JUG.includes(rol); }
+
+function wizRecalcSequence() {
+  wizStepSequence = esJugadorx(regData.rolJugadorx)
+    ? [1,2,3,4,5,6,7,8,9,10,11]
+    : [1,2,3,4,5,6,7,8,10,11];
+}
+
+function wizPositionInSequence() { return wizStepSequence.indexOf(wizStep) + 1; }
+
 function mostrarRegistroWizard() {
   wizStep = 1;
-  // Reset data
-  Object.assign(regData, { nombre:'', pronombres:'', pais:'', codigoPais:'',
-    telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'', fotoBase64:null });
-  // Reset UI
-  const ni = document.getElementById('reg-nombre');   if (ni) ni.value = '';
-  const ti = document.getElementById('reg-telefono'); if (ti) ti.value = '';
+  wizRecalcSequence();
+  Object.assign(regData, {
+    nombre:'', pronombres:'', pais:'', codigoPais:'',
+    telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
+    nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
+    alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null
+  });
+
+  ['reg-nombre','reg-telefono','reg-nombreDerby','reg-numero',
+   'reg-alergias','reg-dieta','reg-emergencia'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+
   regResetAvatar();
   regRenderChips('reg-pronombres-chips', REG_PRONOMBRES, '', v => { regData.pronombres = v; });
-  regRenderChips('reg-cumple-chips',     ['Sí', 'No'],   '', v => { regData.mostrarCumple = v; });
-  regRenderChips('reg-edad-chips',       ['Sí', 'No'],   '', v => { regData.mostrarEdad   = v; });
+  regRenderChips('reg-cumple-chips',     ['Sí','No'],     '', v => { regData.mostrarCumple = v; });
+  regRenderChips('reg-edad-chips',       ['Sí','No'],     '', v => { regData.mostrarEdad   = v; });
+  regRenderChips('reg-rol-chips',        REG_ROLES,       '', wizOnRolSelected);
+  regRenderChips('reg-asiste-chips',     REG_ASISTENCIA,  '', v => { regData.asisteSemana = v; });
+
   wizSetVal('reg-pais-display',   'Seleccionar país…');
   wizSetVal('reg-codigo-display', '+?');
   wizSetVal('reg-fecha-display',  'Seleccionar fecha…');
   ['reg-pais-btn','reg-codigo-btn','reg-fecha-btn'].forEach(id =>
     document.getElementById(id)?.classList.remove('has-value'));
+
+  const fotoBtn = document.getElementById('wiz-btn-foto');
+  if (fotoBtn) fotoBtn.style.display = 'none';
+
   wizHideError();
 
-  // Reset ALL steps — hide them (CSS default is visibility:hidden for non-active)
-  for (let i = 1; i <= WIZ_TOTAL; i++) {
+  for (let i = 1; i <= 11; i++) {
     const s = document.getElementById('wiz-step-' + i);
     if (!s) continue;
     s.classList.remove('wiz-active','wiz-animate');
-    s.style.transition  = '';
-    s.style.transform   = '';
-    s.style.visibility  = '';
+    s.style.transition = s.style.transform = s.style.visibility = '';
   }
 
   document.getElementById('registroScreen').style.display = 'flex';
   wizUpdateHeader();
 
-  // Activate step 1 and animate in
   const s1 = document.getElementById('wiz-step-1');
-  if (s1) {
-    s1.classList.add('wiz-active');
-    setTimeout(() => { s1.classList.add('wiz-animate'); }, 60);
-  }
+  if (s1) { s1.classList.add('wiz-active'); setTimeout(() => s1.classList.add('wiz-animate'), 60); }
 
-  // Push sentinel so back gesture is caught
   history.pushState({ wizSentinel: true }, '', location.pathname + '#_wiz');
 }
 
-function wizSetVal(id, txt) {
-  const el = document.getElementById(id); if (el) el.textContent = txt;
+function wizSetVal(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
+
+function wizOnRolSelected(val) {
+  regData.rolJugadorx = val;
+  regRenderChips('reg-rol-chips', REG_ROLES, val, wizOnRolSelected);
+  wizRecalcSequence();
+  wizUpdateHeader(); // update total count when sequence changes
 }
 
-// ── Navigate between steps ────────────────────────────────────
 function wizGoTo(next, forward = true) {
-  if (next < 1 || next > WIZ_TOTAL) return;
   const DURATION = 300;
-
   const prevEl = document.getElementById('wiz-step-' + wizStep);
   const nextEl = document.getElementById('wiz-step-' + next);
   if (!nextEl) return;
 
-  // ── 1. Snap next step into start position (off-screen, invisible, no transition) ──
-  nextEl.style.transition  = 'none';
-  nextEl.style.transform   = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  nextEl.style.transition = 'none';
+  nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-30%)';
   nextEl.classList.remove('wiz-animate');
-  // Make it visible so the translate is meaningful, but pointer-events still off
-  nextEl.style.visibility    = 'visible';
-
-  // Force reflow so browser registers the start position before we animate
+  nextEl.style.visibility = 'visible';
   void nextEl.offsetHeight;
 
-  // ── 2. Start transitions ──
   const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
-
   if (prevEl) {
     prevEl.style.transition = ease;
     prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
-    // Hide prev after animation ends
     prevEl.addEventListener('transitionend', () => {
       prevEl.classList.remove('wiz-active');
-      prevEl.style.visibility   = '';
-      prevEl.style.transition   = '';
-      prevEl.style.transform    = '';
+      prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
     }, { once: true });
   }
-
-  nextEl.style.transition  = ease;
-  nextEl.style.transform   = 'translateX(0)';
+  nextEl.style.transition = ease;
+  nextEl.style.transform  = 'translateX(0)';
   nextEl.classList.add('wiz-active');
-
-  // Trigger staggered entry animations
-  setTimeout(() => {
-    nextEl.classList.add('wiz-animate');
-  }, 80);
-
-  // Focus input after slide
+  setTimeout(() => nextEl.classList.add('wiz-animate'), 80);
   setTimeout(() => {
     if (next === 2) document.getElementById('reg-nombre')?.focus();
     if (next === 5) document.getElementById('reg-telefono')?.focus();
+    if (next === 7) document.getElementById('reg-nombreDerby')?.focus();
   }, DURATION + 60);
 
   wizStep = next;
@@ -254,16 +261,17 @@ function wizGoTo(next, forward = true) {
 }
 
 function wizUpdateHeader() {
+  const pos   = wizPositionInSequence();
+  const total = wizStepSequence.length;
   const fill  = document.getElementById('wiz-progress-fill');
   const label = document.getElementById('wiz-step-label');
-  if (fill)  fill.style.width = ((wizStep / WIZ_TOTAL) * 100) + '%';
-  if (label) label.textContent = 'Paso ' + wizStep + ' de ' + WIZ_TOTAL;
+  if (fill)  fill.style.width = (pos / total * 100) + '%';
+  if (label) label.textContent = 'Paso ' + pos + ' de ' + total;
 }
 
-// ── Next / Back ───────────────────────────────────────────────
 function wizNext() {
   wizHideError();
-  // Validate current step
+
   if (wizStep === 2) {
     const val = document.getElementById('reg-nombre')?.value.trim();
     if (!val) { wizShowError('Escribí cómo querés que te llamemos ✍️'); return; }
@@ -278,23 +286,42 @@ function wizNext() {
     if (!tel) { wizShowError('Ingresá tu número de teléfono 📱'); return; }
     regData.telefono = tel;
   }
-  if (wizStep < WIZ_TOTAL) wizGoTo(wizStep + 1, true);
+  if (wizStep === 6) {
+    if (!regData.fechaNacimiento) { wizShowError('Ingresá tu fecha de nacimiento 🎂'); return; }
+    if (!regData.mostrarCumple)   { wizShowError('Indicá si querés compartir tu cumpleaños 🎉'); return; }
+    if (!regData.mostrarEdad)     { wizShowError('Indicá si querés compartir tu edad 🔢'); return; }
+  }
+  if (wizStep === 7) {
+    regData.nombreDerby = document.getElementById('reg-nombreDerby')?.value.trim() || '';
+    regData.numero      = document.getElementById('reg-numero')?.value.trim() || '';
+  }
+  if (wizStep === 8 && !regData.rolJugadorx) {
+    wizShowError('Seleccioná tu rol en el equipo 🏅'); return;
+  }
+  if (wizStep === 9 && !regData.asisteSemana) {
+    wizShowError('Indicá cuántas veces entrenás por semana 🏋️'); return;
+  }
+  if (wizStep === 10) {
+    regData.alergias = document.getElementById('reg-alergias')?.value.trim() || '';
+    regData.dieta    = document.getElementById('reg-dieta')?.value.trim() || '';
+  }
+
+  const idx = wizStepSequence.indexOf(wizStep);
+  if (idx < wizStepSequence.length - 1) wizGoTo(wizStepSequence[idx + 1], true);
 }
 
 function wizBack() {
   wizHideError();
-  if (wizStep > 1) {
-    wizGoTo(wizStep - 1, false);
+  const idx = wizStepSequence.indexOf(wizStep);
+  if (idx > 0) {
+    wizGoTo(wizStepSequence[idx - 1], false);
   } else {
-    // Exit wizard → back to no-encontrado
     document.getElementById('registroScreen').style.display = 'none';
     document.getElementById('noEncontradoScreen').style.display = 'flex';
-    // Clean up sentinel from history if still there
     if (history.state && history.state.wizSentinel) history.back();
   }
 }
 
-// ── Error display ─────────────────────────────────────────────
 function wizShowError(msg) {
   const el = document.getElementById('reg-error');
   if (!el) return;
@@ -302,28 +329,22 @@ function wizShowError(msg) {
   clearTimeout(el._t);
   el._t = setTimeout(() => { el.style.display = 'none'; }, 3500);
 }
-function wizHideError() {
-  const el = document.getElementById('reg-error');
-  if (el) el.style.display = 'none';
-}
+function wizHideError() { const el = document.getElementById('reg-error'); if (el) el.style.display = 'none'; }
 function mostrarRegError(msg) { wizShowError(msg); }
 
-// ── Chips ─────────────────────────────────────────────────────
 function regRenderChips(containerId, opciones, valorActual, onSelect) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
+  const el = document.getElementById(containerId); if (!el) return;
   el.innerHTML = '';
   opciones.forEach(opt => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'chip ' + (opt === valorActual ? 'chip-active' : 'chip-inactive');
     btn.textContent = opt;
-    btn.addEventListener('click', () => { onSelect(opt); regRenderChips(containerId, opciones, opt, onSelect); });
+    btn.addEventListener('click', () => onSelect(opt));
     el.appendChild(btn);
   });
 }
 
-// ── Avatar ────────────────────────────────────────────────────
 function regAbrirFoto() { document.getElementById('reg-foto-input').click(); }
 
 function regResetAvatar() {
@@ -331,10 +352,12 @@ function regResetAvatar() {
   const ph  = document.getElementById('reg-avatar-placeholder');
   const ov  = document.getElementById('reg-avatar-overlay');
   const ht  = document.getElementById('reg-foto-hint');
+  const btn = document.getElementById('wiz-btn-foto');
   if (img) { img.src = ''; img.style.display = 'none'; }
   if (ph)  ph.style.display = 'block';
   if (ov)  ov.style.display = 'none';
   if (ht)  ht.textContent   = 'Toca para agregar';
+  if (btn) btn.style.display = 'none';
 }
 
 function regRecibirFotoRecortada(base64DataUrl) {
@@ -343,17 +366,17 @@ function regRecibirFotoRecortada(base64DataUrl) {
   const ph  = document.getElementById('reg-avatar-placeholder');
   const ov  = document.getElementById('reg-avatar-overlay');
   const ht  = document.getElementById('reg-foto-hint');
+  const btn = document.getElementById('wiz-btn-foto');
   if (img) { img.src = base64DataUrl; img.style.display = 'block'; }
   if (ph)  ph.style.display = 'none';
   if (ov)  ov.style.display = 'flex';
   if (ht)  ht.textContent   = 'Toca para cambiar';
+  if (btn) btn.style.display = 'flex';
 }
 
-// ── Init listeners (called once from DOMContentLoaded) ────────
 function initRegistroListeners() {
   document.getElementById('wiz-back-btn')?.addEventListener('click', wizBack);
 
-  // Foto
   const fi = document.getElementById('reg-foto-input');
   if (fi) {
     fi.addEventListener('click', () => { fi.value = ''; });
@@ -366,47 +389,36 @@ function initRegistroListeners() {
     });
   }
 
-  // País
   document.getElementById('reg-pais-btn')?.addEventListener('click', () => {
     abrirBottomSheet('Nacionalidad', REG_PAISES, regData.pais, val => {
-      regData.pais = val;
-      wizSetVal('reg-pais-display', val);
+      regData.pais = val; wizSetVal('reg-pais-display', val);
       document.getElementById('reg-pais-btn').classList.add('has-value');
     });
   });
 
-  // Código de país
   document.getElementById('reg-codigo-btn')?.addEventListener('click', () => {
     abrirBottomSheet('Código de país', REG_CODIGOS, regData.codigoPais, val => {
-      regData.codigoPais = val;
-      wizSetVal('reg-codigo-display', val);
+      regData.codigoPais = val; wizSetVal('reg-codigo-display', val);
       document.getElementById('reg-codigo-btn').classList.add('has-value');
     });
   });
 
-  // Fecha de nacimiento
   document.getElementById('reg-fecha-btn')?.addEventListener('click', () => {
     abrirDatePicker(regData.fechaNacimiento, val => {
       regData.fechaNacimiento = val;
       const p = parseFecha(val);
-      const display = p ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}` : val;
+      const display = p ? `${String(p.day).padStart(2,'0')} ${MESES_CORTO[p.month]} ${p.year}` : val;
       wizSetVal('reg-fecha-display', display);
       document.getElementById('reg-fecha-btn').classList.add('has-value');
     });
   });
 
-  // Teléfono sync on input
-  document.getElementById('reg-telefono')?.addEventListener('input', e => {
-    regData.telefono = e.target.value;
-  });
+  document.getElementById('reg-telefono')?.addEventListener('input', e => { regData.telefono = e.target.value; });
 }
 
-// ── Loading overlay ──────────────────────────────────────────
 const WIZ_LOADING_MSGS = [
-  'Preparando todo para vos…',
-  'Guardando tu información…',
-  'Armando tu perfil de estrella…',
-  '¡Ya casi está!',
+  'Preparando todo para vos…', 'Guardando tu información…',
+  'Armando tu perfil de estrella…', '¡Ya casi está!',
 ];
 
 function wizMostrarCargando() {
@@ -414,16 +426,13 @@ function wizMostrarCargando() {
   const sub     = document.getElementById('wiz-loading-sub');
   if (!overlay) return;
   overlay.style.display = 'flex';
-  // Cycle through messages
   let idx = 0;
   if (sub) sub.textContent = WIZ_LOADING_MSGS[0];
   overlay._interval = setInterval(() => {
     idx = (idx + 1) % WIZ_LOADING_MSGS.length;
     if (sub) {
       sub.style.opacity = '0';
-      setTimeout(() => {
-        if (sub) { sub.textContent = WIZ_LOADING_MSGS[idx]; sub.style.opacity = '1'; }
-      }, 400);
+      setTimeout(() => { if (sub) { sub.textContent = WIZ_LOADING_MSGS[idx]; sub.style.opacity = '1'; } }, 400);
     }
   }, 2200);
 }
@@ -435,13 +444,8 @@ function wizOcultarCargando() {
   overlay.style.display = 'none';
 }
 
-// ── Submit ────────────────────────────────────────────────────
 async function submitRegistro() {
-  // Validate step 6
-  if (!regData.fechaNacimiento) { wizShowError('Ingresá tu fecha de nacimiento 🎂'); return; }
-  if (!regData.mostrarCumple)   { wizShowError('¿Querés que tu cumpleaños sea visible? 🎉'); return; }
-  if (!regData.mostrarEdad)     { wizShowError('¿Querés que tu edad sea visible? 🔢'); return; }
-
+  regData.contactoEmergencia = document.getElementById('reg-emergencia')?.value.trim() || '';
   wizHideError();
   const btnEl = document.getElementById('reg-submit');
   if (btnEl) btnEl.disabled = true;
@@ -457,6 +461,10 @@ async function submitRegistro() {
         pais: regData.pais, codigoPais: regData.codigoPais,
         telefono: regData.telefono.trim(), fechaNacimiento: regData.fechaNacimiento,
         mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
+        nombreDerby: regData.nombreDerby, numero: regData.numero,
+        rolJugadorx: regData.rolJugadorx, asisteSemana: regData.asisteSemana,
+        alergias: regData.alergias, dieta: regData.dieta,
+        contactoEmergencia: regData.contactoEmergencia,
       }),
       redirect: 'follow',
     });
@@ -466,17 +474,13 @@ async function submitRegistro() {
     CURRENT_USER = { found: true, rowNumber: json.rowNumber, email: json.email, rolApp: 'Invitado' };
     document.getElementById('user-email').textContent = json.email;
 
-    // Upload photo if chosen
     if (regData.fotoBase64) {
       try {
-        mostrarCargandoFoto(true);
         const fr = await gasCall('subirArchivo', { base64Data: regData.fotoBase64, tipoArchivo: 'foto', email: json.email });
         window._regFotoUrl = fr.url;
       } catch(e) { window._regFotoUrl = null; }
-      finally { mostrarCargandoFoto(false); }
     }
 
-    // Keep wiz-loading-overlay visible while we fetch profile
     const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
     if (window._regFotoUrl) {
       profile.fotoPerfil = window._regFotoUrl;
@@ -494,7 +498,7 @@ async function submitRegistro() {
   } catch(err) {
     wizOcultarCargando();
     wizShowError(err.message || 'Algo salió mal. Intentá de nuevo 😅');
-    if (btnEl) { btnEl.disabled = false; }
+    if (btnEl) btnEl.disabled = false;
   }
 }
 
