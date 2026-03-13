@@ -95,7 +95,7 @@ async function inicializarApp(email) {
     const user = await gasCall('getCurrentUser', { email });
     if (!user || !user.found) {
       document.getElementById('loadingScreen').style.display = 'none';
-      mostrarRegistroScreen();
+      mostrarNoEncontrado(email);
       return;
     }
 
@@ -120,39 +120,66 @@ async function inicializarApp(email) {
 }
 
 
-// ── REGISTRO DE USUARIO NUEVO ────────────────────────────────
+// ── NO ENCONTRADO + REGISTRO ─────────────────────────────────
+
+function mostrarNoEncontrado(email) {
+  const emailEl = document.getElementById('no-enc-email');
+  if (emailEl) emailEl.textContent = email || '';
+  document.getElementById('noEncontradoScreen').style.display = 'flex';
+  google.accounts.id.renderButton(
+    document.getElementById('google-resignin-btn'),
+    { theme: 'filled_black', size: 'large', width: 280, text: 'signin_with' }
+  );
+  const btnIr = document.getElementById('btn-ir-registro');
+  if (btnIr) {
+    btnIr.onclick = () => {
+      document.getElementById('noEncontradoScreen').style.display = 'none';
+      mostrarRegistroScreen();
+    };
+  }
+}
+
 const REG_PAISES = ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'];
 const REG_CODIGOS = ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'];
 const REG_PRONOMBRES = ['Él','Ella','Elle','No definido'];
 
-// Estado del formulario de registro
 const regData = {
-  nombre: '',
-  pronombres: '',
-  pais: '',
-  codigoPais: '',
-  telefono: '',
-  mostrarCumple: '',
-  mostrarEdad: '',
+  nombre: '', pronombres: '', pais: '', codigoPais: '',
+  telefono: '', mostrarCumple: '', mostrarEdad: '', fotoBase64: null,
 };
+
+// 'app' | 'registro' — determines where confirmarCrop sends the result
+let cropTarget = 'app';
 
 function mostrarRegistroScreen() {
   document.getElementById('registroScreen').style.display = 'flex';
-  renderRegistroForm();
+  regData.nombre=''; regData.pronombres=''; regData.pais=''; regData.codigoPais='';
+  regData.telefono=''; regData.mostrarCumple=''; regData.mostrarEdad=''; regData.fotoBase64=null;
+  const n = document.getElementById('reg-nombre'); if (n) n.value = '';
+  const t = document.getElementById('reg-telefono'); if (t) t.value = '';
+  regResetAvatar();
+  regRenderChips('reg-pronombres-chips', REG_PRONOMBRES, '', v => { regData.pronombres = v; });
+  regRenderChips('reg-cumple-chips', ['Sí','No'], '', v => { regData.mostrarCumple = v; });
+  regRenderChips('reg-edad-chips',   ['Sí','No'], '', v => { regData.mostrarEdad   = v; });
+  document.getElementById('reg-pais-display').textContent = 'Seleccionar país';
+  document.getElementById('reg-pais-btn').classList.remove('has-value');
+  document.getElementById('reg-codigo-display').textContent = '+?';
+  document.getElementById('reg-codigo-btn').classList.remove('has-value');
+  const e = document.getElementById('reg-error'); if (e) e.style.display = 'none';
+  const card = document.querySelector('.registro-card'); if (card) card.scrollTop = 0;
 }
 
-function renderRegistroForm() {
-  // Reset validation errors
-  const errEl = document.getElementById('reg-error');
-  if (errEl) errEl.style.display = 'none';
+function regResetAvatar() {
+  const img = document.getElementById('reg-avatar-img');
+  const ph  = document.getElementById('reg-avatar-placeholder');
+  const ov  = document.getElementById('reg-avatar-overlay');
+  if (img) { img.src = ''; img.style.display = 'none'; }
+  if (ph)  ph.style.display  = 'block';
+  if (ov)  ov.style.display  = 'none';
 }
 
-// Generic single-select bottom sheet for registro
-function regAbrirSelector(label, opciones, valorActual, onSelect) {
-  abrirBottomSheet(label, opciones, valorActual, onSelect);
-}
+function regAbrirFoto() { document.getElementById('reg-foto-input').click(); }
 
-// Render a pill-chip selector row for registro
 function regRenderChips(containerId, opciones, valorActual, onSelect) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -162,168 +189,122 @@ function regRenderChips(containerId, opciones, valorActual, onSelect) {
     btn.type = 'button';
     btn.className = 'chip ' + (opt === valorActual ? 'chip-active' : 'chip-inactive');
     btn.textContent = opt;
-    btn.addEventListener('click', () => {
-      onSelect(opt);
-      regRenderChips(containerId, opciones, opt, onSelect);
-    });
+    btn.addEventListener('click', () => { onSelect(opt); regRenderChips(containerId, opciones, opt, onSelect); });
     el.appendChild(btn);
   });
 }
 
-// Update a display field in the registro form
-function regSetDisplay(displayId, value) {
-  const el = document.getElementById(displayId);
-  if (el) el.textContent = value || '—';
+function regRecibirFotoRecortada(base64DataUrl) {
+  regData.fotoBase64 = base64DataUrl;
+  const img = document.getElementById('reg-avatar-img');
+  const ph  = document.getElementById('reg-avatar-placeholder');
+  const ov  = document.getElementById('reg-avatar-overlay');
+  if (img) { img.src = base64DataUrl; img.style.display = 'block'; }
+  if (ph)  ph.style.display = 'none';
+  if (ov)  ov.style.display = 'flex';
 }
 
-// Wire up registro form interactions after DOM ready
 function initRegistroListeners() {
-  // Nombre — plain text input
-  const nombreInput = document.getElementById('reg-nombre');
-  if (nombreInput) {
-    nombreInput.addEventListener('input', () => {
-      regData.nombre = nombreInput.value;
-    });
-  }
-
-  // Teléfono
-  const telInput = document.getElementById('reg-telefono');
-  if (telInput) {
-    telInput.addEventListener('input', () => {
-      regData.telefono = telInput.value;
-    });
-  }
-
-  // País — bottom sheet
-  const paisBtn = document.getElementById('reg-pais-btn');
-  if (paisBtn) {
-    paisBtn.addEventListener('click', () => {
-      regAbrirSelector('Nacionalidad', REG_PAISES, regData.pais, val => {
-        regData.pais = val;
-        regSetDisplay('reg-pais-display', val);
-        paisBtn.classList.toggle('chip-active', !!val);
-        paisBtn.classList.toggle('chip-inactive', !val);
-      });
-    });
-  }
-
-  // Código de país — bottom sheet
-  const codBtn = document.getElementById('reg-codigo-btn');
-  if (codBtn) {
-    codBtn.addEventListener('click', () => {
-      regAbrirSelector('Código de país', REG_CODIGOS, regData.codigoPais, val => {
-        regData.codigoPais = val;
-        regSetDisplay('reg-codigo-display', val);
-        codBtn.classList.toggle('chip-active', !!val);
-        codBtn.classList.toggle('chip-inactive', !val);
-      });
-    });
-  }
-
-  // Pronombres chips
-  regRenderChips('reg-pronombres-chips', REG_PRONOMBRES, regData.pronombres, val => {
-    regData.pronombres = val;
+  document.getElementById('reg-back-btn')?.addEventListener('click', () => {
+    document.getElementById('registroScreen').style.display = 'none';
+    document.getElementById('noEncontradoScreen').style.display = 'flex';
   });
-
-  // Mostrar cumple chips
-  regRenderChips('reg-cumple-chips', ['Sí','No'], regData.mostrarCumple, val => {
-    regData.mostrarCumple = val;
+  const ni = document.getElementById('reg-nombre');
+  if (ni) ni.addEventListener('input', () => { regData.nombre = ni.value; });
+  const ti = document.getElementById('reg-telefono');
+  if (ti) ti.addEventListener('input', () => { regData.telefono = ti.value; });
+  const fi = document.getElementById('reg-foto-input');
+  if (fi) {
+    fi.addEventListener('click', () => { fi.value = ''; });
+    fi.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) { alert('La imagen no puede superar 5MB'); return; }
+      const r = new FileReader();
+      r.onload = ev => { cropTarget = 'registro'; abrirCropper(ev.target.result); };
+      r.readAsDataURL(file);
+    });
+  }
+  document.getElementById('reg-pais-btn')?.addEventListener('click', () => {
+    abrirBottomSheet('Nacionalidad', REG_PAISES, regData.pais, val => {
+      regData.pais = val;
+      document.getElementById('reg-pais-display').textContent = val;
+      document.getElementById('reg-pais-btn').classList.add('has-value');
+    });
   });
-
-  // Mostrar edad chips
-  regRenderChips('reg-edad-chips', ['Sí','No'], regData.mostrarEdad, val => {
-    regData.mostrarEdad = val;
+  document.getElementById('reg-codigo-btn')?.addEventListener('click', () => {
+    abrirBottomSheet('Código de país', REG_CODIGOS, regData.codigoPais, val => {
+      regData.codigoPais = val;
+      document.getElementById('reg-codigo-display').textContent = val;
+      document.getElementById('reg-codigo-btn').classList.add('has-value');
+    });
   });
-
-  // Submit
-  const btnSubmit = document.getElementById('reg-submit');
-  if (btnSubmit) btnSubmit.addEventListener('click', submitRegistro);
+  document.getElementById('reg-submit')?.addEventListener('click', submitRegistro);
 }
 
 async function submitRegistro() {
-  const errEl  = document.getElementById('reg-error');
-  const btnEl  = document.getElementById('reg-submit');
-
-  // Client-side validation
-  if (!regData.nombre.trim()) {
-    return mostrarRegError('Ingresá tu nombre para continuar.');
-  }
-  if (!regData.pais) {
-    return mostrarRegError('Seleccioná tu país de origen.');
-  }
-  if (!regData.codigoPais) {
-    return mostrarRegError('Seleccioná el código de país de tu teléfono.');
-  }
-  if (!regData.telefono.trim()) {
-    return mostrarRegError('Ingresá tu número de teléfono.');
-  }
-  if (!regData.mostrarCumple) {
-    return mostrarRegError('Indicá si querés compartir tu fecha de cumpleaños.');
-  }
-  if (!regData.mostrarEdad) {
-    return mostrarRegError('Indicá si querés compartir tu edad.');
-  }
-
+  const errEl = document.getElementById('reg-error');
+  const btnEl = document.getElementById('reg-submit');
+  if (!regData.nombre.trim())   return mostrarRegError('Ingresá tu nombre para continuar.');
+  if (!regData.pais)            return mostrarRegError('Seleccioná tu país de origen.');
+  if (!regData.codigoPais)      return mostrarRegError('Seleccioná el código de país.');
+  if (!regData.telefono.trim()) return mostrarRegError('Ingresá tu número de teléfono.');
+  if (!regData.mostrarCumple)   return mostrarRegError('Indicá si querés compartir tu cumpleaños.');
+  if (!regData.mostrarEdad)     return mostrarRegError('Indicá si querés compartir tu edad.');
   if (errEl) errEl.style.display = 'none';
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Registrando...'; }
-
   try {
     const params = new URLSearchParams({ action: 'registrarUsuario', token: accessToken });
-    const url = CONFIG.GAS_URL + '?' + params.toString();
-    const res = await fetch(url, {
+    const res = await fetch(CONFIG.GAS_URL + '?' + params.toString(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nombre:        regData.nombre.trim(),
-        pronombres:    regData.pronombres,
-        pais:          regData.pais,
-        codigoPais:    regData.codigoPais,
-        telefono:      regData.telefono.trim(),
-        mostrarCumple: regData.mostrarCumple,
-        mostrarEdad:   regData.mostrarEdad,
+        nombre: regData.nombre.trim(), pronombres: regData.pronombres,
+        pais: regData.pais, codigoPais: regData.codigoPais,
+        telefono: regData.telefono.trim(),
+        mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
       }),
       redirect: 'follow',
     });
-
-    const text = await res.text();
-    let json;
-    try { json = JSON.parse(text); }
-    catch { throw new Error('Respuesta inválida del servidor.'); }
-
+    const json = JSON.parse(await res.text());
     if (json.error) throw new Error(json.error);
 
-    // Registration succeeded — continue into app
-    document.getElementById('registroScreen').style.display = 'none';
-
-    // Use the returned user data to continue
-    CURRENT_USER = {
-      found:     true,
-      rowNumber: json.rowNumber,
-      email:     json.email,
-      rolApp:    'Invitado',
-    };
+    CURRENT_USER = { found: true, rowNumber: json.rowNumber, email: json.email, rolApp: 'Invitado' };
     document.getElementById('user-email').textContent = json.email;
-    document.getElementById('loadingScreen').style.display = 'flex';
 
+    if (regData.fotoBase64) {
+      try {
+        mostrarCargandoFoto(true);
+        const fr = await gasCall('subirArchivo', { base64Data: regData.fotoBase64, tipoArchivo: 'foto', email: json.email });
+        window._regFotoUrl = fr.url;
+      } catch(e) { window._regFotoUrl = null; } finally { mostrarCargandoFoto(false); }
+    }
+
+    document.getElementById('registroScreen').style.display = 'none';
+    document.getElementById('loadingScreen').style.display  = 'flex';
     const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
+    if (window._regFotoUrl) {
+      profile.fotoPerfil = window._regFotoUrl;
+      try { await gasCall('updateMyProfile', { rowNumber: json.rowNumber, data: { fotoPerfil: window._regFotoUrl } }); } catch(e) {}
+      window._regFotoUrl = null;
+    }
     window.myProfile = profile;
     configurarTodasLasSubidas();
     renderTodo(profile);
     aplicarPermisos();
-
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('appContent').style.display    = 'block';
-
-  } catch (err) {
+  } catch(err) {
     mostrarRegError(err.message || 'Error al registrarse. Intenta de nuevo.');
     if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Crear mi perfil'; }
   }
 }
 
 function mostrarRegError(msg) {
-  const errEl = document.getElementById('reg-error');
-  if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  const e = document.getElementById('reg-error');
+  if (e) { e.textContent = msg; e.style.display = 'block'; e.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
 }
+
 
 // ── RENDER COMPLETO ───────────────────────────────────────────
 function renderTodo(profile) {
@@ -1124,7 +1105,7 @@ function clickEditarFoto() {
 }
 
 function abrirFotoSinEdicion() {
-  // From hero card: always allowed to change photo
+  cropTarget = 'app';
   document.getElementById('p-fotoPerfil')?.click();
 }
 
@@ -1176,7 +1157,12 @@ function confirmarCrop() {
   const base64DataUrl = canvas.toDataURL('image/jpeg', 0.85);
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
-  subirImagenRecortada(base64DataUrl);
+  if (cropTarget === 'registro') {
+    cropTarget = 'app';
+    regRecibirFotoRecortada(base64DataUrl);
+  } else {
+    subirImagenRecortada(base64DataUrl);
+  }
 }
 
 async function subirImagenRecortada(base64) {
