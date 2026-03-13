@@ -120,66 +120,188 @@ async function inicializarApp(email) {
 }
 
 
-// ── NO ENCONTRADO + REGISTRO ─────────────────────────────────
+// ── NO ENCONTRADO ─────────────────────────────────────────────
 
 function mostrarNoEncontrado(email) {
-  const emailEl = document.getElementById('no-enc-email');
-  if (emailEl) emailEl.textContent = email || '';
+  const el = document.getElementById('no-enc-email');
+  if (el) el.textContent = email || '';
   document.getElementById('noEncontradoScreen').style.display = 'flex';
   google.accounts.id.renderButton(
     document.getElementById('google-resignin-btn'),
     { theme: 'filled_black', size: 'large', width: 280, text: 'signin_with' }
   );
-  const btnIr = document.getElementById('btn-ir-registro');
-  if (btnIr) {
-    btnIr.onclick = () => {
-      document.getElementById('noEncontradoScreen').style.display = 'none';
-      mostrarRegistroScreen();
-    };
+  document.getElementById('btn-ir-registro').onclick = () => {
+    document.getElementById('noEncontradoScreen').style.display = 'none';
+    mostrarRegistroWizard();
+  };
+}
+
+// ── WIZARD DE REGISTRO ────────────────────────────────────────
+
+const REG_PAISES  = ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'];
+const REG_CODIGOS = ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'];
+const REG_PRONOMBRES = ['Él / su', 'Ella / su', 'Elle / su', 'Prefiero no decir'];
+const WIZ_TOTAL = 6;
+
+let wizStep = 1;
+let cropTarget = 'app';
+
+const regData = {
+  nombre:'', pronombres:'', pais:'', codigoPais:'',
+  telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
+  fotoBase64: null,
+};
+
+// ── Abrir wizard ──────────────────────────────────────────────
+function mostrarRegistroWizard() {
+  wizStep = 1;
+  // Reset data
+  Object.assign(regData, { nombre:'', pronombres:'', pais:'', codigoPais:'',
+    telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'', fotoBase64:null });
+  // Reset UI
+  const ni = document.getElementById('reg-nombre');   if (ni) ni.value = '';
+  const ti = document.getElementById('reg-telefono'); if (ti) ti.value = '';
+  regResetAvatar();
+  regRenderChips('reg-pronombres-chips', REG_PRONOMBRES, '', v => { regData.pronombres = v; });
+  regRenderChips('reg-cumple-chips',     ['Sí', 'No'],   '', v => { regData.mostrarCumple = v; });
+  regRenderChips('reg-edad-chips',       ['Sí', 'No'],   '', v => { regData.mostrarEdad   = v; });
+  wizSetVal('reg-pais-display',   'Seleccionar país…');
+  wizSetVal('reg-codigo-display', '+?');
+  wizSetVal('reg-fecha-display',  'Seleccionar fecha…');
+  ['reg-pais-btn','reg-codigo-btn','reg-fecha-btn'].forEach(id =>
+    document.getElementById(id)?.classList.remove('has-value'));
+  wizHideError();
+
+  // Place all steps: step-1 visible (translateX 0), rest off-right
+  for (let i = 1; i <= WIZ_TOTAL; i++) {
+    const s = document.getElementById('wiz-step-' + i);
+    if (!s) continue;
+    s.classList.remove('wiz-active','wiz-out-left','wiz-in-right');
+    s.style.transform   = i === 1 ? 'translateX(0)' : 'translateX(105%)';
+    s.style.transition  = 'none';
+  }
+
+  document.getElementById('registroScreen').style.display = 'flex';
+  wizUpdateHeader();
+
+  // Immediately mark step 1 as active and animate in
+  const s1 = document.getElementById('wiz-step-1');
+  if (s1) {
+    s1.classList.add('wiz-active');
+    setTimeout(() => { s1.classList.add('wiz-animate'); }, 50);
+  }
+
+  // Push sentinel so back gesture is caught
+  history.pushState({ wizSentinel: true }, '', location.pathname + '#_wiz');
+}
+
+function wizSetVal(id, txt) {
+  const el = document.getElementById(id); if (el) el.textContent = txt;
+}
+
+// ── Navigate between steps ────────────────────────────────────
+function wizGoTo(next, forward = true) {
+  if (next < 1 || next > WIZ_TOTAL) return;
+  const DURATION = 320; // ms, matches CSS transition
+
+  const prevStep = document.getElementById('wiz-step-' + wizStep);
+  const nextStep = document.getElementById('wiz-step-' + next);
+  if (!nextStep) return;
+
+  // Position the incoming step (no transition yet)
+  nextStep.style.transition  = 'none';
+  nextStep.style.transform   = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  nextStep.classList.remove('wiz-active','wiz-out-left','wiz-in-right');
+
+  // Re-trigger entry animations on incoming step children
+  ['wiz-emoji','wiz-title','wiz-desc','wiz-content','wiz-actions'].forEach(cls => {
+    const el = nextStep.querySelector('.' + cls);
+    if (el) { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
+  });
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // Enable transitions
+      if (prevStep) {
+        prevStep.style.transition = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
+        prevStep.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
+      }
+      nextStep.style.transition = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
+      nextStep.style.transform  = 'translateX(0)';
+      nextStep.classList.add('wiz-active');
+      // Trigger entry animations
+      nextStep.classList.remove('wiz-animate');
+      void nextStep.offsetWidth; // reflow
+      nextStep.classList.add('wiz-animate');
+
+      // Focus relevant input after animation
+      setTimeout(() => {
+        if (next === 2) document.getElementById('reg-nombre')?.focus();
+        if (next === 5) document.getElementById('reg-telefono')?.focus();
+      }, DURATION + 50);
+    });
+  });
+
+  wizStep = next;
+  wizUpdateHeader();
+}
+
+function wizUpdateHeader() {
+  const fill  = document.getElementById('wiz-progress-fill');
+  const label = document.getElementById('wiz-step-label');
+  if (fill)  fill.style.width = ((wizStep / WIZ_TOTAL) * 100) + '%';
+  if (label) label.textContent = 'Paso ' + wizStep + ' de ' + WIZ_TOTAL;
+}
+
+// ── Next / Back ───────────────────────────────────────────────
+function wizNext() {
+  wizHideError();
+  // Validate current step
+  if (wizStep === 2) {
+    const val = document.getElementById('reg-nombre')?.value.trim();
+    if (!val) { wizShowError('Escribí cómo querés que te llamemos ✍️'); return; }
+    regData.nombre = val;
+  }
+  if (wizStep === 4 && !regData.pais) {
+    wizShowError('Seleccioná tu país de origen 🌎'); return;
+  }
+  if (wizStep === 5) {
+    if (!regData.codigoPais) { wizShowError('Seleccioná el código de tu país 📱'); return; }
+    const tel = document.getElementById('reg-telefono')?.value.trim();
+    if (!tel) { wizShowError('Ingresá tu número de teléfono 📱'); return; }
+    regData.telefono = tel;
+  }
+  if (wizStep < WIZ_TOTAL) wizGoTo(wizStep + 1, true);
+}
+
+function wizBack() {
+  wizHideError();
+  if (wizStep > 1) {
+    wizGoTo(wizStep - 1, false);
+  } else {
+    // Exit wizard → back to no-encontrado
+    document.getElementById('registroScreen').style.display = 'none';
+    document.getElementById('noEncontradoScreen').style.display = 'flex';
+    // Clean up sentinel from history if still there
+    if (history.state && history.state.wizSentinel) history.back();
   }
 }
 
-const REG_PAISES = ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'];
-const REG_CODIGOS = ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'];
-const REG_PRONOMBRES = ['Él','Ella','Elle','No definido'];
-
-const regData = {
-  nombre: '', pronombres: '', pais: '', codigoPais: '',
-  telefono: '', mostrarCumple: '', mostrarEdad: '', fotoBase64: null,
-};
-
-// 'app' | 'registro' — determines where confirmarCrop sends the result
-let cropTarget = 'app';
-
-function mostrarRegistroScreen() {
-  document.getElementById('registroScreen').style.display = 'flex';
-  regData.nombre=''; regData.pronombres=''; regData.pais=''; regData.codigoPais='';
-  regData.telefono=''; regData.mostrarCumple=''; regData.mostrarEdad=''; regData.fotoBase64=null;
-  const n = document.getElementById('reg-nombre'); if (n) n.value = '';
-  const t = document.getElementById('reg-telefono'); if (t) t.value = '';
-  regResetAvatar();
-  regRenderChips('reg-pronombres-chips', REG_PRONOMBRES, '', v => { regData.pronombres = v; });
-  regRenderChips('reg-cumple-chips', ['Sí','No'], '', v => { regData.mostrarCumple = v; });
-  regRenderChips('reg-edad-chips',   ['Sí','No'], '', v => { regData.mostrarEdad   = v; });
-  document.getElementById('reg-pais-display').textContent = 'Seleccionar país';
-  document.getElementById('reg-pais-btn').classList.remove('has-value');
-  document.getElementById('reg-codigo-display').textContent = '+?';
-  document.getElementById('reg-codigo-btn').classList.remove('has-value');
-  const e = document.getElementById('reg-error'); if (e) e.style.display = 'none';
-  const card = document.querySelector('.registro-card'); if (card) card.scrollTop = 0;
+// ── Error display ─────────────────────────────────────────────
+function wizShowError(msg) {
+  const el = document.getElementById('reg-error');
+  if (!el) return;
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.display = 'none'; }, 3500);
 }
-
-function regResetAvatar() {
-  const img = document.getElementById('reg-avatar-img');
-  const ph  = document.getElementById('reg-avatar-placeholder');
-  const ov  = document.getElementById('reg-avatar-overlay');
-  if (img) { img.src = ''; img.style.display = 'none'; }
-  if (ph)  ph.style.display  = 'block';
-  if (ov)  ov.style.display  = 'none';
+function wizHideError() {
+  const el = document.getElementById('reg-error');
+  if (el) el.style.display = 'none';
 }
+function mostrarRegError(msg) { wizShowError(msg); }
 
-function regAbrirFoto() { document.getElementById('reg-foto-input').click(); }
-
+// ── Chips ─────────────────────────────────────────────────────
 function regRenderChips(containerId, opciones, valorActual, onSelect) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -194,65 +316,95 @@ function regRenderChips(containerId, opciones, valorActual, onSelect) {
   });
 }
 
+// ── Avatar ────────────────────────────────────────────────────
+function regAbrirFoto() { document.getElementById('reg-foto-input').click(); }
+
+function regResetAvatar() {
+  const img = document.getElementById('reg-avatar-img');
+  const ph  = document.getElementById('reg-avatar-placeholder');
+  const ov  = document.getElementById('reg-avatar-overlay');
+  const ht  = document.getElementById('reg-foto-hint');
+  if (img) { img.src = ''; img.style.display = 'none'; }
+  if (ph)  ph.style.display = 'block';
+  if (ov)  ov.style.display = 'none';
+  if (ht)  ht.textContent   = 'Toca para agregar';
+}
+
 function regRecibirFotoRecortada(base64DataUrl) {
   regData.fotoBase64 = base64DataUrl;
   const img = document.getElementById('reg-avatar-img');
   const ph  = document.getElementById('reg-avatar-placeholder');
   const ov  = document.getElementById('reg-avatar-overlay');
+  const ht  = document.getElementById('reg-foto-hint');
   if (img) { img.src = base64DataUrl; img.style.display = 'block'; }
   if (ph)  ph.style.display = 'none';
   if (ov)  ov.style.display = 'flex';
+  if (ht)  ht.textContent   = 'Toca para cambiar';
 }
 
+// ── Init listeners (called once from DOMContentLoaded) ────────
 function initRegistroListeners() {
-  document.getElementById('reg-back-btn')?.addEventListener('click', () => {
-    document.getElementById('registroScreen').style.display = 'none';
-    document.getElementById('noEncontradoScreen').style.display = 'flex';
-  });
-  const ni = document.getElementById('reg-nombre');
-  if (ni) ni.addEventListener('input', () => { regData.nombre = ni.value; });
-  const ti = document.getElementById('reg-telefono');
-  if (ti) ti.addEventListener('input', () => { regData.telefono = ti.value; });
+  document.getElementById('wiz-back-btn')?.addEventListener('click', wizBack);
+
+  // Foto
   const fi = document.getElementById('reg-foto-input');
   if (fi) {
     fi.addEventListener('click', () => { fi.value = ''; });
     fi.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (file.size > 5 * 1024 * 1024) { alert('La imagen no puede superar 5MB'); return; }
+      const file = e.target.files[0]; if (!file) return;
+      if (file.size > 5*1024*1024) { alert('La imagen no puede superar 5 MB'); return; }
       const r = new FileReader();
       r.onload = ev => { cropTarget = 'registro'; abrirCropper(ev.target.result); };
       r.readAsDataURL(file);
     });
   }
+
+  // País
   document.getElementById('reg-pais-btn')?.addEventListener('click', () => {
     abrirBottomSheet('Nacionalidad', REG_PAISES, regData.pais, val => {
       regData.pais = val;
-      document.getElementById('reg-pais-display').textContent = val;
+      wizSetVal('reg-pais-display', val);
       document.getElementById('reg-pais-btn').classList.add('has-value');
     });
   });
+
+  // Código de país
   document.getElementById('reg-codigo-btn')?.addEventListener('click', () => {
     abrirBottomSheet('Código de país', REG_CODIGOS, regData.codigoPais, val => {
       regData.codigoPais = val;
-      document.getElementById('reg-codigo-display').textContent = val;
+      wizSetVal('reg-codigo-display', val);
       document.getElementById('reg-codigo-btn').classList.add('has-value');
     });
   });
-  document.getElementById('reg-submit')?.addEventListener('click', submitRegistro);
+
+  // Fecha de nacimiento
+  document.getElementById('reg-fecha-btn')?.addEventListener('click', () => {
+    abrirDatePicker(regData.fechaNacimiento, val => {
+      regData.fechaNacimiento = val;
+      const p = parseFecha(val);
+      const display = p ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}` : val;
+      wizSetVal('reg-fecha-display', display);
+      document.getElementById('reg-fecha-btn').classList.add('has-value');
+    });
+  });
+
+  // Teléfono sync on input
+  document.getElementById('reg-telefono')?.addEventListener('input', e => {
+    regData.telefono = e.target.value;
+  });
 }
 
+// ── Submit ────────────────────────────────────────────────────
 async function submitRegistro() {
-  const errEl = document.getElementById('reg-error');
+  // Validate step 6
+  if (!regData.fechaNacimiento) { wizShowError('Ingresá tu fecha de nacimiento 🎂'); return; }
+  if (!regData.mostrarCumple)   { wizShowError('¿Querés que tu cumpleaños sea visible? 🎉'); return; }
+  if (!regData.mostrarEdad)     { wizShowError('¿Querés que tu edad sea visible? 🔢'); return; }
+
+  wizHideError();
   const btnEl = document.getElementById('reg-submit');
-  if (!regData.nombre.trim())   return mostrarRegError('Ingresá tu nombre para continuar.');
-  if (!regData.pais)            return mostrarRegError('Seleccioná tu país de origen.');
-  if (!regData.codigoPais)      return mostrarRegError('Seleccioná el código de país.');
-  if (!regData.telefono.trim()) return mostrarRegError('Ingresá tu número de teléfono.');
-  if (!regData.mostrarCumple)   return mostrarRegError('Indicá si querés compartir tu cumpleaños.');
-  if (!regData.mostrarEdad)     return mostrarRegError('Indicá si querés compartir tu edad.');
-  if (errEl) errEl.style.display = 'none';
-  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Registrando...'; }
+  if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="material-icons wiz-spin">sync</span> Creando perfil…'; }
+
   try {
     const params = new URLSearchParams({ action: 'registrarUsuario', token: accessToken });
     const res = await fetch(CONFIG.GAS_URL + '?' + params.toString(), {
@@ -261,7 +413,7 @@ async function submitRegistro() {
       body: JSON.stringify({
         nombre: regData.nombre.trim(), pronombres: regData.pronombres,
         pais: regData.pais, codigoPais: regData.codigoPais,
-        telefono: regData.telefono.trim(),
+        telefono: regData.telefono.trim(), fechaNacimiento: regData.fechaNacimiento,
         mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
       }),
       redirect: 'follow',
@@ -272,16 +424,19 @@ async function submitRegistro() {
     CURRENT_USER = { found: true, rowNumber: json.rowNumber, email: json.email, rolApp: 'Invitado' };
     document.getElementById('user-email').textContent = json.email;
 
+    // Upload photo if chosen
     if (regData.fotoBase64) {
       try {
         mostrarCargandoFoto(true);
         const fr = await gasCall('subirArchivo', { base64Data: regData.fotoBase64, tipoArchivo: 'foto', email: json.email });
         window._regFotoUrl = fr.url;
-      } catch(e) { window._regFotoUrl = null; } finally { mostrarCargandoFoto(false); }
+      } catch(e) { window._regFotoUrl = null; }
+      finally { mostrarCargandoFoto(false); }
     }
 
     document.getElementById('registroScreen').style.display = 'none';
     document.getElementById('loadingScreen').style.display  = 'flex';
+
     const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
     if (window._regFotoUrl) {
       profile.fotoPerfil = window._regFotoUrl;
@@ -294,15 +449,11 @@ async function submitRegistro() {
     aplicarPermisos();
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('appContent').style.display    = 'block';
-  } catch(err) {
-    mostrarRegError(err.message || 'Error al registrarse. Intenta de nuevo.');
-    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Crear mi perfil'; }
-  }
-}
 
-function mostrarRegError(msg) {
-  const e = document.getElementById('reg-error');
-  if (e) { e.textContent = msg; e.style.display = 'block'; e.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+  } catch(err) {
+    wizShowError(err.message || 'Algo salió mal. Intentá de nuevo 😅');
+    if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<span class="material-icons">check_circle</span> ¡Crear mi perfil!'; }
+  }
 }
 
 
@@ -491,6 +642,13 @@ function pushSentinel() {
 window.addEventListener('popstate', (e) => {
   // Immediately reverse the back navigation
   history.go(1);
+
+  // Wizard open? handle wizard back
+  const regScr = document.getElementById('registroScreen');
+  if (regScr && regScr.style.display !== 'none') {
+    wizBack();
+    return;
+  }
 
   // Now handle in-app back
   if (vistaActual && vistaActual !== 'home') {
