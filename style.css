@@ -2166,8 +2166,15 @@ input, button, select, textarea {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
   padding: 28px 24px 32px;
-  -webkit-overflow-scrolling: touch;
-  /* off-screen by default, JS controls transform */
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  /* hidden by default — JS moves and shows them */
+  visibility: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+.wiz-step.wiz-active {
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /* ── Background emoji watermark ── */
@@ -2326,6 +2333,14 @@ input, button, select, textarea {
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
   -webkit-appearance: none !important; box-sizing: border-box !important;
   font-family: inherit !important;
+  /* force correct colors even when browser autofills or overrides */
+  caret-color: var(--accent) !important;
+}
+.reg-input:-webkit-autofill,
+.reg-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--card) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: var(--accent) !important;
 }
 .reg-input:focus { border-color: var(--accent) !important; }
 .reg-input::placeholder {
