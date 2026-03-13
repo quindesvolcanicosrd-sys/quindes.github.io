@@ -95,7 +95,7 @@ async function inicializarApp(email) {
     const user = await gasCall('getCurrentUser', { email });
     if (!user || !user.found) {
       document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('unauthorized').style.display  = 'flex';
+      mostrarRegistroScreen();
       return;
     }
 
@@ -117,6 +117,212 @@ async function inicializarApp(email) {
     document.getElementById('loadingScreen').style.display = 'none';
     mostrarLoginScreen();
   }
+}
+
+
+// ── REGISTRO DE USUARIO NUEVO ────────────────────────────────
+const REG_PAISES = ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'];
+const REG_CODIGOS = ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'];
+const REG_PRONOMBRES = ['Él','Ella','Elle','No definido'];
+
+// Estado del formulario de registro
+const regData = {
+  nombre: '',
+  pronombres: '',
+  pais: '',
+  codigoPais: '',
+  telefono: '',
+  mostrarCumple: '',
+  mostrarEdad: '',
+};
+
+function mostrarRegistroScreen() {
+  document.getElementById('registroScreen').style.display = 'flex';
+  renderRegistroForm();
+}
+
+function renderRegistroForm() {
+  // Reset validation errors
+  const errEl = document.getElementById('reg-error');
+  if (errEl) errEl.style.display = 'none';
+}
+
+// Generic single-select bottom sheet for registro
+function regAbrirSelector(label, opciones, valorActual, onSelect) {
+  abrirBottomSheet(label, opciones, valorActual, onSelect);
+}
+
+// Render a pill-chip selector row for registro
+function regRenderChips(containerId, opciones, valorActual, onSelect) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  opciones.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chip ' + (opt === valorActual ? 'chip-active' : 'chip-inactive');
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      onSelect(opt);
+      regRenderChips(containerId, opciones, opt, onSelect);
+    });
+    el.appendChild(btn);
+  });
+}
+
+// Update a display field in the registro form
+function regSetDisplay(displayId, value) {
+  const el = document.getElementById(displayId);
+  if (el) el.textContent = value || '—';
+}
+
+// Wire up registro form interactions after DOM ready
+function initRegistroListeners() {
+  // Nombre — plain text input
+  const nombreInput = document.getElementById('reg-nombre');
+  if (nombreInput) {
+    nombreInput.addEventListener('input', () => {
+      regData.nombre = nombreInput.value;
+    });
+  }
+
+  // Teléfono
+  const telInput = document.getElementById('reg-telefono');
+  if (telInput) {
+    telInput.addEventListener('input', () => {
+      regData.telefono = telInput.value;
+    });
+  }
+
+  // País — bottom sheet
+  const paisBtn = document.getElementById('reg-pais-btn');
+  if (paisBtn) {
+    paisBtn.addEventListener('click', () => {
+      regAbrirSelector('Nacionalidad', REG_PAISES, regData.pais, val => {
+        regData.pais = val;
+        regSetDisplay('reg-pais-display', val);
+        paisBtn.classList.toggle('chip-active', !!val);
+        paisBtn.classList.toggle('chip-inactive', !val);
+      });
+    });
+  }
+
+  // Código de país — bottom sheet
+  const codBtn = document.getElementById('reg-codigo-btn');
+  if (codBtn) {
+    codBtn.addEventListener('click', () => {
+      regAbrirSelector('Código de país', REG_CODIGOS, regData.codigoPais, val => {
+        regData.codigoPais = val;
+        regSetDisplay('reg-codigo-display', val);
+        codBtn.classList.toggle('chip-active', !!val);
+        codBtn.classList.toggle('chip-inactive', !val);
+      });
+    });
+  }
+
+  // Pronombres chips
+  regRenderChips('reg-pronombres-chips', REG_PRONOMBRES, regData.pronombres, val => {
+    regData.pronombres = val;
+  });
+
+  // Mostrar cumple chips
+  regRenderChips('reg-cumple-chips', ['Sí','No'], regData.mostrarCumple, val => {
+    regData.mostrarCumple = val;
+  });
+
+  // Mostrar edad chips
+  regRenderChips('reg-edad-chips', ['Sí','No'], regData.mostrarEdad, val => {
+    regData.mostrarEdad = val;
+  });
+
+  // Submit
+  const btnSubmit = document.getElementById('reg-submit');
+  if (btnSubmit) btnSubmit.addEventListener('click', submitRegistro);
+}
+
+async function submitRegistro() {
+  const errEl  = document.getElementById('reg-error');
+  const btnEl  = document.getElementById('reg-submit');
+
+  // Client-side validation
+  if (!regData.nombre.trim()) {
+    return mostrarRegError('Ingresá tu nombre para continuar.');
+  }
+  if (!regData.pais) {
+    return mostrarRegError('Seleccioná tu país de origen.');
+  }
+  if (!regData.codigoPais) {
+    return mostrarRegError('Seleccioná el código de país de tu teléfono.');
+  }
+  if (!regData.telefono.trim()) {
+    return mostrarRegError('Ingresá tu número de teléfono.');
+  }
+  if (!regData.mostrarCumple) {
+    return mostrarRegError('Indicá si querés compartir tu fecha de cumpleaños.');
+  }
+  if (!regData.mostrarEdad) {
+    return mostrarRegError('Indicá si querés compartir tu edad.');
+  }
+
+  if (errEl) errEl.style.display = 'none';
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Registrando...'; }
+
+  try {
+    const params = new URLSearchParams({ action: 'registrarUsuario', token: accessToken });
+    const url = CONFIG.GAS_URL + '?' + params.toString();
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre:        regData.nombre.trim(),
+        pronombres:    regData.pronombres,
+        pais:          regData.pais,
+        codigoPais:    regData.codigoPais,
+        telefono:      regData.telefono.trim(),
+        mostrarCumple: regData.mostrarCumple,
+        mostrarEdad:   regData.mostrarEdad,
+      }),
+      redirect: 'follow',
+    });
+
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); }
+    catch { throw new Error('Respuesta inválida del servidor.'); }
+
+    if (json.error) throw new Error(json.error);
+
+    // Registration succeeded — continue into app
+    document.getElementById('registroScreen').style.display = 'none';
+
+    // Use the returned user data to continue
+    CURRENT_USER = {
+      found:     true,
+      rowNumber: json.rowNumber,
+      email:     json.email,
+      rolApp:    'Invitado',
+    };
+    document.getElementById('user-email').textContent = json.email;
+    document.getElementById('loadingScreen').style.display = 'flex';
+
+    const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
+    window.myProfile = profile;
+    configurarTodasLasSubidas();
+    renderTodo(profile);
+    aplicarPermisos();
+
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('appContent').style.display    = 'block';
+
+  } catch (err) {
+    mostrarRegError(err.message || 'Error al registrarse. Intenta de nuevo.');
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Crear mi perfil'; }
+  }
+}
+
+function mostrarRegError(msg) {
+  const errEl = document.getElementById('reg-error');
+  if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
 }
 
 // ── RENDER COMPLETO ───────────────────────────────────────────
@@ -317,6 +523,8 @@ window.addEventListener('DOMContentLoaded', () => {
   history.replaceState({ base: true }, '', location.pathname);
   // Sentinel entry ahead — this is what gets popped on back gesture
   pushSentinel();
+  // Registro form listeners
+  initRegistroListeners();
 });
 
 // ── EDICIÓN POR SECCIÓN ───────────────────────────────────────
