@@ -172,23 +172,24 @@ function mostrarRegistroWizard() {
     document.getElementById(id)?.classList.remove('has-value'));
   wizHideError();
 
-  // Place all steps: step-1 visible (translateX 0), rest off-right
+  // Reset ALL steps — hide them (CSS default is visibility:hidden for non-active)
   for (let i = 1; i <= WIZ_TOTAL; i++) {
     const s = document.getElementById('wiz-step-' + i);
     if (!s) continue;
-    s.classList.remove('wiz-active','wiz-out-left','wiz-in-right');
-    s.style.transform   = i === 1 ? 'translateX(0)' : 'translateX(105%)';
-    s.style.transition  = 'none';
+    s.classList.remove('wiz-active','wiz-animate');
+    s.style.transition  = '';
+    s.style.transform   = '';
+    s.style.visibility  = '';
   }
 
   document.getElementById('registroScreen').style.display = 'flex';
   wizUpdateHeader();
 
-  // Immediately mark step 1 as active and animate in
+  // Activate step 1 and animate in
   const s1 = document.getElementById('wiz-step-1');
   if (s1) {
     s1.classList.add('wiz-active');
-    setTimeout(() => { s1.classList.add('wiz-animate'); }, 50);
+    setTimeout(() => { s1.classList.add('wiz-animate'); }, 60);
   }
 
   // Push sentinel so back gesture is caught
@@ -202,45 +203,51 @@ function wizSetVal(id, txt) {
 // ── Navigate between steps ────────────────────────────────────
 function wizGoTo(next, forward = true) {
   if (next < 1 || next > WIZ_TOTAL) return;
-  const DURATION = 320; // ms, matches CSS transition
+  const DURATION = 300;
 
-  const prevStep = document.getElementById('wiz-step-' + wizStep);
-  const nextStep = document.getElementById('wiz-step-' + next);
-  if (!nextStep) return;
+  const prevEl = document.getElementById('wiz-step-' + wizStep);
+  const nextEl = document.getElementById('wiz-step-' + next);
+  if (!nextEl) return;
 
-  // Position the incoming step (no transition yet)
-  nextStep.style.transition  = 'none';
-  nextStep.style.transform   = forward ? 'translateX(105%)' : 'translateX(-30%)';
-  nextStep.classList.remove('wiz-active','wiz-out-left','wiz-in-right');
+  // ── 1. Snap next step into start position (off-screen, invisible, no transition) ──
+  nextEl.style.transition  = 'none';
+  nextEl.style.transform   = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  nextEl.classList.remove('wiz-animate');
+  // Make it visible so the translate is meaningful, but pointer-events still off
+  nextEl.style.visibility    = 'visible';
 
-  // Re-trigger entry animations on incoming step children
-  ['wiz-emoji','wiz-title','wiz-desc','wiz-content','wiz-actions'].forEach(cls => {
-    const el = nextStep.querySelector('.' + cls);
-    if (el) { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
-  });
+  // Force reflow so browser registers the start position before we animate
+  void nextEl.offsetHeight;
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      // Enable transitions
-      if (prevStep) {
-        prevStep.style.transition = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
-        prevStep.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
-      }
-      nextStep.style.transition = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
-      nextStep.style.transform  = 'translateX(0)';
-      nextStep.classList.add('wiz-active');
-      // Trigger entry animations
-      nextStep.classList.remove('wiz-animate');
-      void nextStep.offsetWidth; // reflow
-      nextStep.classList.add('wiz-animate');
+  // ── 2. Start transitions ──
+  const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
 
-      // Focus relevant input after animation
-      setTimeout(() => {
-        if (next === 2) document.getElementById('reg-nombre')?.focus();
-        if (next === 5) document.getElementById('reg-telefono')?.focus();
-      }, DURATION + 50);
-    });
-  });
+  if (prevEl) {
+    prevEl.style.transition = ease;
+    prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
+    // Hide prev after animation ends
+    prevEl.addEventListener('transitionend', () => {
+      prevEl.classList.remove('wiz-active');
+      prevEl.style.visibility   = '';
+      prevEl.style.transition   = '';
+      prevEl.style.transform    = '';
+    }, { once: true });
+  }
+
+  nextEl.style.transition  = ease;
+  nextEl.style.transform   = 'translateX(0)';
+  nextEl.classList.add('wiz-active');
+
+  // Trigger staggered entry animations
+  setTimeout(() => {
+    nextEl.classList.add('wiz-animate');
+  }, 80);
+
+  // Focus input after slide
+  setTimeout(() => {
+    if (next === 2) document.getElementById('reg-nombre')?.focus();
+    if (next === 5) document.getElementById('reg-telefono')?.focus();
+  }, DURATION + 60);
 
   wizStep = next;
   wizUpdateHeader();
