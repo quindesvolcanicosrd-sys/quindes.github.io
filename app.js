@@ -1457,18 +1457,23 @@ let dpState = {
 };
 
 function parseFecha(str) {
-  // Accepts M/D/YYYY or YYYY-MM-DD or DD/MM/YYYY
+  // Accepts DD/MM/YYYY (primary), YYYY-MM-DD, or legacy M/D/YYYY
   if (!str) return null;
-  const p1 = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (p1) return { month: parseInt(p1[1])-1, day: parseInt(p1[2]), year: parseInt(p1[3]) };
-  const p2 = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (p2) return { month: parseInt(p2[2])-1, day: parseInt(p2[3]), year: parseInt(p2[1]) };
+  const slash = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slash) {
+    // DD/MM/YYYY — day is first (our stored format)
+    return { day: parseInt(slash[1]), month: parseInt(slash[2])-1, year: parseInt(slash[3]) };
+  }
+  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) return { month: parseInt(iso[2])-1, day: parseInt(iso[3]), year: parseInt(iso[1]) };
   return null;
 }
 
 function formatFecha(y, m, d) {
-  // Store as M/D/YYYY (compatible with GAS)
-  return `${m+1}/${d}/${y}`;
+  // Store as DD/MM/YYYY
+  const dd = String(d).padStart(2, '0');
+  const mm = String(m + 1).padStart(2, '0');
+  return `${dd}/${mm}/${y}`;
 }
 
 function formatFechaDisplay(y, m, d) {
