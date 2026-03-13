@@ -38,43 +38,96 @@
   </div>
 </div>
 
+<!-- NO ENCONTRADO — pantalla intermedia -->
+<div id="noEncontradoScreen" style="display:none;">
+  <div class="login-card no-encontrado-card">
+    <span class="material-icons no-enc-icon">person_search</span>
+    <h2 class="no-enc-title">Correo no encontrado</h2>
+    <p class="no-enc-sub">
+      <strong id="no-enc-email"></strong><br>
+      no está registrado en el equipo todavía.
+    </p>
+
+    <!-- Intentar con otra cuenta -->
+    <div class="no-enc-divider-wrap">
+      <span class="no-enc-divider-label">¿Te equivocaste de cuenta?</span>
+    </div>
+    <div id="google-resignin-btn"></div>
+
+    <!-- Separador -->
+    <div class="no-enc-or">
+      <span></span><em>o</em><span></span>
+    </div>
+
+    <!-- Crear perfil nuevo -->
+    <button id="btn-ir-registro" class="btn-save no-enc-register-btn">
+      <span class="material-icons" style="font-size:18px;margin-right:6px;">person_add</span>
+      Crear mi perfil
+    </button>
+    <p class="reg-note" style="margin-top:4px;">
+      Tu cuenta se creará como <strong>Invitada</strong>.<br>
+      Un admin podrá actualizar tu rol después.
+    </p>
+  </div>
+</div>
 
 <!-- REGISTRO NUEVO USUARIO -->
 <div id="registroScreen" style="display:none;">
   <div class="registro-card">
-    <img src="icons/icon-192x192.png" alt="Quindes" class="login-logo">
-    <h1 class="login-title">Crear perfil</h1>
-    <p class="login-sub">Completá tus datos para unirte</p>
+
+    <!-- Header con back -->
+    <div class="reg-header">
+      <button type="button" class="reg-back-btn" id="reg-back-btn">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <span class="reg-header-title">Crear perfil</span>
+    </div>
 
     <div id="reg-error" class="error-box" style="display:none;"></div>
 
+    <!-- Foto de perfil (opcional) -->
+    <div class="reg-field reg-field-foto">
+      <label class="reg-label">Foto de perfil <span class="reg-optional">(opcional)</span></label>
+      <div class="reg-foto-wrap">
+        <div class="reg-avatar" id="reg-avatar" onclick="regAbrirFoto()">
+          <img id="reg-avatar-img" src="" alt="" style="display:none;">
+          <span class="material-icons reg-avatar-placeholder" id="reg-avatar-placeholder">add_a_photo</span>
+          <div class="reg-avatar-overlay" id="reg-avatar-overlay" style="display:none;">
+            <span class="material-icons">photo_camera</span>
+          </div>
+        </div>
+        <p class="reg-foto-hint">Toca para agregar</p>
+      </div>
+      <input type="file" id="reg-foto-input" accept="image/*" style="display:none;">
+    </div>
+
     <!-- Nombre -->
     <div class="reg-field">
-      <label class="reg-label">Nombre *</label>
-      <input id="reg-nombre" class="reg-input" type="text" placeholder="Tu nombre (Sin apellido)" autocomplete="given-name" maxlength="60">
+      <label class="reg-label">Nombre <span class="reg-required">*</span></label>
+      <input id="reg-nombre" class="reg-input" type="text" placeholder="Tu nombre (sin apellido)" autocomplete="given-name" maxlength="60">
     </div>
 
     <!-- Pronombres -->
     <div class="reg-field">
-      <label class="reg-label">Pronombres</label>
+      <label class="reg-label">Pronombres <span class="reg-optional">(opcional)</span></label>
       <div id="reg-pronombres-chips" class="chip-wrapper reg-chips"></div>
     </div>
 
     <!-- País -->
     <div class="reg-field">
-      <label class="reg-label">País de origen *</label>
-      <button type="button" id="reg-pais-btn" class="reg-selector-btn chip chip-inactive">
-        <span id="reg-pais-display">Seleccionar país</span>
+      <label class="reg-label">País de origen <span class="reg-required">*</span></label>
+      <button type="button" id="reg-pais-btn" class="reg-selector-btn">
+        <span id="reg-pais-display" class="reg-selector-val">Seleccionar país</span>
         <span class="material-icons reg-selector-ico">expand_more</span>
       </button>
     </div>
 
     <!-- Código de país + Teléfono -->
     <div class="reg-field">
-      <label class="reg-label">Teléfono *</label>
+      <label class="reg-label">Teléfono <span class="reg-required">*</span></label>
       <div class="reg-phone-row">
-        <button type="button" id="reg-codigo-btn" class="reg-selector-btn chip chip-inactive reg-codigo-btn">
-          <span id="reg-codigo-display">+?</span>
+        <button type="button" id="reg-codigo-btn" class="reg-selector-btn reg-codigo-btn">
+          <span id="reg-codigo-display" class="reg-selector-val">+?</span>
           <span class="material-icons reg-selector-ico">expand_more</span>
         </button>
         <input id="reg-telefono" class="reg-input reg-tel-input" type="tel" placeholder="Número" maxlength="20">
@@ -83,33 +136,27 @@
 
     <!-- Mostrar cumpleaños -->
     <div class="reg-field">
-      <label class="reg-label">¿Deseas que tu fecha de cumpleaños sea visible? *</label>
+      <label class="reg-label">¿Tu fecha de cumpleaños será visible? <span class="reg-required">*</span></label>
       <div id="reg-cumple-chips" class="chip-wrapper reg-chips"></div>
     </div>
 
     <!-- Mostrar edad -->
     <div class="reg-field">
-      <label class="reg-label">¿Deseas que tu edad sea visible? *</label>
+      <label class="reg-label">¿Tu edad será visible? <span class="reg-required">*</span></label>
       <div id="reg-edad-chips" class="chip-wrapper reg-chips"></div>
     </div>
 
     <button id="reg-submit" class="btn-save reg-submit-btn">Crear mi perfil</button>
-    <p class="reg-note">Al crear tu perfil aceptás los <strong>términos y condiciones</strong>, uso y tratamiento de tus datos personales.<br></p>
-  </div>
-</div>
 
-<!-- UNAUTHORIZED -->
-<div id="unauthorized" style="display:none;">
-  <div class="login-card">
-    <span class="material-icons" style="font-size:48px;color:#ef4444;">block</span>
-    <h2>Sin acceso</h2>
-    <p>Este correo no está registrado en el equipo.</p>
+    <p class="reg-note">
+      Al crear tu perfil aceptás los <strong>términos y condiciones</strong>
+      y el uso y tratamiento de tus datos personales.
+    </p>
   </div>
 </div>
 
 <!-- APP SHELL -->
 <div id="appContent" style="display:none;">
-
   <!-- ═══════════════════════════════════════════════
        VISTA PRINCIPAL (home)
   ═══════════════════════════════════════════════ -->
@@ -118,7 +165,6 @@
       <span class="app-header-title">Mi Perfil</span>
       <span id="user-email" class="app-header-email"></span>
     </header>
-
     <div class="app-scroll">
       <!-- Hero card — click → Datos Generales -->
       <div class="hero-card hero-card-clickable" onclick="navegarSeccion('generales')">
@@ -140,10 +186,8 @@
         </div>
         <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
       </div>
-
       <!-- Settings list — grouped like Android Settings -->
       <div class="settings-group">
-
         <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
           <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
           <div class="settings-row-body">
@@ -152,7 +196,6 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-
         <div class="settings-row settings-row-grouped" onclick="navegarSeccion('contacto')">
           <div class="settings-row-ico ico-teal"><span class="material-icons">contacts</span></div>
           <div class="settings-row-body">
@@ -161,7 +204,6 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-
         <div class="settings-row settings-row-grouped" onclick="navegarSeccion('salud')">
           <div class="settings-row-ico ico-red"><span class="material-icons">favorite</span></div>
           <div class="settings-row-body">
@@ -170,7 +212,6 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-
         <div class="settings-row settings-row-grouped settings-row-last" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarSeccion('rendimiento')">
           <div class="settings-row-ico ico-orange"><span class="material-icons">bar_chart</span></div>
           <div class="settings-row-body">
@@ -179,7 +220,6 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-
       </div>
       <div style="height:32px;"></div>
     </div>
@@ -204,8 +244,6 @@
     </header>
     <div class="app-scroll">
       <div id="error-generales" class="error-box" style="display:none;"></div>
-
-      <!-- Foto de perfil -->
       <div class="sec-group">
         <div class="sec-row sec-row-avatar" onclick="clickEditarFoto()">
           <div class="sec-avatar-preview">
@@ -219,8 +257,6 @@
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
-
-      <!-- Stats section — right after foto -->
       <div class="sec-group sec-stats-group">
         <div class="sec-stat-row">
           <div class="sec-stat">
@@ -240,7 +276,6 @@
           </div>
         </div>
       </div>
-
       <div class="sec-group">
         <div class="sec-row">
           <div class="sec-row-body">
@@ -274,7 +309,6 @@
           </div>
         </div>
       </div>
-
       <div class="sec-save-wrap" id="save-generales" style="display:none;">
         <button class="btn-save" onclick="guardarSeccion('generales')">Guardar cambios</button>
         <button class="btn-cancel" onclick="toggleEdicionSeccion('generales')">Cancelar</button>
@@ -548,7 +582,6 @@
       <div style="height:32px;"></div>
     </div>
   </div>
-
 </div><!-- /appContent -->
 
 <!-- Date picker modal -->
@@ -586,7 +619,7 @@
   </div>
 </div>
 
-<!-- Modal crop -->
+<!-- Modal crop (shared by app + registro) -->
 <div id="modal-crop" style="display:none;">
   <div class="modal-box">
     <h3>Ajustar foto de perfil</h3>
@@ -595,7 +628,7 @@
     </div>
     <div class="modal-actions">
       <button onclick="cancelarCrop()"  class="modal-btn modal-btn-cancel">Cancelar</button>
-<button onclick="confirmarCrop()" class="modal-btn modal-btn-confirm" id="btn-aplicar-crop">Aplicar</button>
+      <button onclick="confirmarCrop()" class="modal-btn modal-btn-confirm" id="btn-aplicar-crop">Aplicar</button>
     </div>
   </div>
 </div>
