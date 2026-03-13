@@ -869,12 +869,12 @@ function abrirMultiSelectModal(label, options, curSelected, onConfirm) {
   function cerrar() {
     overlay.classList.remove('active');
     panel.classList.remove('active');
-    setTimeout(() => {
-      document.body.style.overflow = '';
-      const reg = document.getElementById('registroScreen');
-      if (reg) reg.style.overflowY = '';
-      overlay.remove(); panel.remove();
-    }, 260);
+    overlay.style.pointerEvents = 'none';
+    panel.style.pointerEvents   = 'none';
+    document.body.style.overflow = '';
+    const reg = document.getElementById('registroScreen');
+    if (reg) reg.style.overflowY = '';
+    setTimeout(() => { overlay.remove(); panel.remove(); }, 220);
   }
 
   overlay.addEventListener('click', cerrar);
@@ -1017,6 +1017,8 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
     if (sel) sel.scrollIntoView({ block: 'center' });
   });
 
+  overlay.style.pointerEvents = '';
+  panel.style.pointerEvents   = '';
   overlay.classList.add('active');
   panel.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -1028,13 +1030,14 @@ function cerrarBottomSheet() {
   const overlay = document.getElementById('bs-overlay');
   const panel   = document.getElementById('bs-panel');
   if (!overlay || !panel) return;
+  // Kill pointer-events immediately so taps below work right away
+  overlay.style.pointerEvents = 'none';
+  panel.style.pointerEvents   = 'none';
   overlay.classList.remove('active');
   panel.classList.remove('active');
-  setTimeout(() => {
-    document.body.style.overflow = '';
-    const reg = document.getElementById('registroScreen');
-    if (reg) reg.style.overflowY = '';
-  }, 260);
+  document.body.style.overflow = '';
+  const reg = document.getElementById('registroScreen');
+  if (reg) reg.style.overflowY = '';
 }
 
 // ── ARCHIVOS ──────────────────────────────────────────────────
