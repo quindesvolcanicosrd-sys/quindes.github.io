@@ -401,6 +401,40 @@ function initRegistroListeners() {
   });
 }
 
+// ── Loading overlay ──────────────────────────────────────────
+const WIZ_LOADING_MSGS = [
+  'Preparando todo para vos…',
+  'Guardando tu información…',
+  'Armando tu perfil de estrella…',
+  '¡Ya casi está!',
+];
+
+function wizMostrarCargando() {
+  const overlay = document.getElementById('wiz-loading-overlay');
+  const sub     = document.getElementById('wiz-loading-sub');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  // Cycle through messages
+  let idx = 0;
+  if (sub) sub.textContent = WIZ_LOADING_MSGS[0];
+  overlay._interval = setInterval(() => {
+    idx = (idx + 1) % WIZ_LOADING_MSGS.length;
+    if (sub) {
+      sub.style.opacity = '0';
+      setTimeout(() => {
+        if (sub) { sub.textContent = WIZ_LOADING_MSGS[idx]; sub.style.opacity = '1'; }
+      }, 400);
+    }
+  }, 2200);
+}
+
+function wizOcultarCargando() {
+  const overlay = document.getElementById('wiz-loading-overlay');
+  if (!overlay) return;
+  clearInterval(overlay._interval);
+  overlay.style.display = 'none';
+}
+
 // ── Submit ────────────────────────────────────────────────────
 async function submitRegistro() {
   // Validate step 6
@@ -410,7 +444,8 @@ async function submitRegistro() {
 
   wizHideError();
   const btnEl = document.getElementById('reg-submit');
-  if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="material-icons wiz-spin">sync</span> Creando perfil…'; }
+  if (btnEl) btnEl.disabled = true;
+  wizMostrarCargando();
 
   try {
     const params = new URLSearchParams({ action: 'registrarUsuario', token: accessToken });
@@ -441,9 +476,7 @@ async function submitRegistro() {
       finally { mostrarCargandoFoto(false); }
     }
 
-    document.getElementById('registroScreen').style.display = 'none';
-    document.getElementById('loadingScreen').style.display  = 'flex';
-
+    // Keep wiz-loading-overlay visible while we fetch profile
     const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
     if (window._regFotoUrl) {
       profile.fotoPerfil = window._regFotoUrl;
@@ -454,12 +487,14 @@ async function submitRegistro() {
     configurarTodasLasSubidas();
     renderTodo(profile);
     aplicarPermisos();
-    document.getElementById('loadingScreen').style.display = 'none';
+    wizOcultarCargando();
+    document.getElementById('registroScreen').style.display = 'none';
     document.getElementById('appContent').style.display    = 'block';
 
   } catch(err) {
+    wizOcultarCargando();
     wizShowError(err.message || 'Algo salió mal. Intentá de nuevo 😅');
-    if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<span class="material-icons">check_circle</span> ¡Crear mi perfil!'; }
+    if (btnEl) { btnEl.disabled = false; }
   }
 }
 
