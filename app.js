@@ -869,8 +869,12 @@ function abrirMultiSelectModal(label, options, curSelected, onConfirm) {
   function cerrar() {
     overlay.classList.remove('active');
     panel.classList.remove('active');
-    document.body.style.overflow = '';
-    setTimeout(() => { overlay.remove(); panel.remove(); }, 300);
+    setTimeout(() => {
+      document.body.style.overflow = '';
+      const reg = document.getElementById('registroScreen');
+      if (reg) reg.style.overflowY = '';
+      overlay.remove(); panel.remove();
+    }, 260);
   }
 
   overlay.addEventListener('click', cerrar);
@@ -884,6 +888,8 @@ function abrirMultiSelectModal(label, options, curSelected, onConfirm) {
     overlay.classList.add('active');
     panel.classList.add('active');
     document.body.style.overflow = 'hidden';
+    const _regScr = document.getElementById('registroScreen');
+    if (_regScr && _regScr.style.display !== 'none') _regScr.style.overflowY = 'hidden';
   });
 }
 
@@ -1014,6 +1020,8 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
   overlay.classList.add('active');
   panel.classList.add('active');
   document.body.style.overflow = 'hidden';
+  const _regScr = document.getElementById('registroScreen');
+  if (_regScr && _regScr.style.display !== 'none') _regScr.style.overflowY = 'hidden';
 }
 
 function cerrarBottomSheet() {
@@ -1022,7 +1030,11 @@ function cerrarBottomSheet() {
   if (!overlay || !panel) return;
   overlay.classList.remove('active');
   panel.classList.remove('active');
-  document.body.style.overflow = '';
+  setTimeout(() => {
+    document.body.style.overflow = '';
+    const reg = document.getElementById('registroScreen');
+    if (reg) reg.style.overflowY = '';
+  }, 260);
 }
 
 // ── ARCHIVOS ──────────────────────────────────────────────────
