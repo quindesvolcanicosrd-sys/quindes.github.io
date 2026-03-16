@@ -1619,8 +1619,11 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
   const input = document.getElementById(inputId);
   if (!input) return;
 
+  // Clear any existing value before cloning — prevents stale file from triggering change
+  input.value = '';
   // Clone input to remove stale event listeners
   const nuevoInput = input.cloneNode(true);
+  nuevoInput.value = ''; // ensure clone is also empty
   input.parentNode.replaceChild(nuevoInput, input);
   let inputReal = nuevoInput;
   // Reset value so same file can be selected again
@@ -1655,7 +1658,10 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
         window.myProfile[campoDestino] = result.url;
         renderEstadoArchivo(campoDestino, result.url);
         mostrarExito(campoDestino);
-      } catch { mostrarErrorUpload(campoDestino); }
+      } catch(err) {
+        console.error('Error subiendo archivo:', err);
+        mostrarErrorUpload(campoDestino);
+      }
     };
     reader.readAsDataURL(file);
   });
