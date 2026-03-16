@@ -1721,11 +1721,15 @@ function renderFotoPerfil(url) {
 
 function normalizarDriveUrl(url) {
   if (!url) return '';
+  // Extract Drive file ID from any Drive URL format
+  let fileId = null;
   const m1 = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (m1?.[1]) return 'https://drive.google.com/thumbnail?id=' + m1[1] + '&sz=w500';
+  if (m1?.[1]) fileId = m1[1];
   const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m2?.[1]) return 'https://drive.google.com/thumbnail?id=' + m2[1] + '&sz=w500';
-  return url;
+  if (!fileId && m2?.[1]) fileId = m2[1];
+  if (!fileId) return url;
+  // Use googleusercontent CDN — works without auth, no redirect issues
+  return 'https://lh3.googleusercontent.com/d/' + fileId + '=w500';
 }
 
 function abrirCropper(base64) {
