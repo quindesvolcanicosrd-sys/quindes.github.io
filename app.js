@@ -9,6 +9,7 @@ const CONFIG = {
 
 let CURRENT_USER   = null;
 let accessToken    = null;
+let wizOrigen      = null; // 'login' | 'noEncontrado' — tracks where wizard was launched from
 let fotoSubiendo   = false;
 let cropper;
 
@@ -303,6 +304,7 @@ async function inicializarApp(email) {
 // ── REGISTRO DESDE LOGIN ──────────────────────────────────────
 function mostrarRegistroDesdeLogin() {
   window._registroDesdeLogin = true;
+  wizOrigen = 'login';
   // Show registroScreen with step-0 (Google login step)
   document.getElementById('loginScreen').style.display    = 'none';
   document.getElementById('registroScreen').style.display = 'flex';
@@ -350,14 +352,16 @@ function wizStep0Volver() {
 }
 
 function wizIntroVolver() {
-  // From intro: if we came via "Crear mi perfil" → go back to step-0
-  // Otherwise → go back to noEncontrado
-  if (window._registroDesdeLogin) {
-    document.getElementById('wiz-intro').style.display   = 'none';
-    document.getElementById('wiz-step-0').style.display  = 'flex';
-  } else {
-    document.getElementById('registroScreen').style.display    = 'none';
+  if (wizOrigen === 'login') {
+    document.getElementById('wiz-intro').style.display  = 'none';
+    document.getElementById('wiz-step-0').style.display = 'flex';
+  } else if (wizOrigen === 'noEncontrado') {
+    document.getElementById('registroScreen').style.display     = 'none';
     document.getElementById('noEncontradoScreen').style.display = 'flex';
+  } else {
+    // Default: go back to main login screen
+    document.getElementById('registroScreen').style.display = 'none';
+    mostrarLoginScreen();
   }
 }
 
@@ -374,6 +378,7 @@ function mostrarNoEncontrado(email) {
   // If user came from "Crear mi perfil" on login screen, go straight to wizard
   if (window._registroDesdeLogin) {
     window._registroDesdeLogin = false;
+    wizOrigen = 'login';
     mostrarRegistroWizard();
     return;
   }
@@ -382,6 +387,7 @@ function mostrarNoEncontrado(email) {
 
   // Wire button before showing screen
   document.getElementById('btn-ir-registro').onclick = () => {
+    wizOrigen = 'noEncontrado';
     document.getElementById('noEncontradoScreen').style.display = 'none';
     mostrarRegistroWizard();
   };
@@ -447,6 +453,7 @@ function wizPositionInSequence() { return wizStepSequence.indexOf(wizStep) + 1; 
 
 function mostrarRegistroWizard() {
   wizStep = 1;
+  if (!wizOrigen) wizOrigen = 'login'; // fallback
   wizRecalcSequence();
   Object.assign(regData, {
     nombre:'', pronombres:[], pais:'', codigoPais:'',
