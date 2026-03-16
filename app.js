@@ -890,6 +890,26 @@ window.addEventListener('popstate', (e) => {
   // else: already at home, back gesture silently absorbed
 });
 
+// ── Block body scroll/bounce on mobile (iOS rubber-band + Android overscroll) ──
+// We intercept touchmove on the document and only allow it on elements
+// that are actually scrollable AND have scrollable content.
+document.addEventListener('touchmove', (e) => {
+  // Walk up the DOM from the touch target to find a scrollable ancestor
+  let el = e.target;
+  let scrollable = false;
+  while (el && el !== document.body) {
+    const style = window.getComputedStyle(el);
+    const overflowY = style.overflowY;
+    const canScroll = overflowY === 'auto' || overflowY === 'scroll';
+    if (canScroll && el.scrollHeight > el.clientHeight) {
+      scrollable = true;
+      break;
+    }
+    el = el.parentElement;
+  }
+  if (!scrollable) e.preventDefault();
+}, { passive: false });
+
 window.addEventListener('DOMContentLoaded', () => {
   // Base entry (no hash)
   history.replaceState({ base: true }, '', location.pathname);
