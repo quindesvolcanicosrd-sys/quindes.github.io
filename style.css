@@ -822,6 +822,23 @@ input[type="file"] { display: none !important; }
   background: var(--card);
 }
 
+/* Wizard step-0 note */
+.wiz-step0-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text3);
+  line-height: 1.5;
+  text-align: left;
+  margin-top: 8px;
+}
+.wiz-step0-note strong { color: var(--text); }
+
 .login-disclaimer {
   font-size: 11px !important; color: var(--text4) !important;
   -webkit-text-fill-color: var(--text4) !important;
