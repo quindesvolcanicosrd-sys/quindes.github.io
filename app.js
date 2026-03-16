@@ -1711,25 +1711,29 @@ function setSecAvatarEditable(editable) {
 }
 
 function renderFotoPerfil(url) {
+  console.log('[renderFotoPerfil] url:', url);
   const placeholder = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150"><rect width="100%" height="100%" fill="#2b2b2b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#888" font-size="20" font-family="Arial">Sin foto</text></svg>');
   [document.getElementById('img-preview-foto'), document.getElementById('sec-img-foto')].forEach(img => {
     if (!img) return;
-    img.onerror = () => { img.src = placeholder; };
+    img.onerror = (e) => { console.log('[renderFotoPerfil] img error, falling to placeholder. src was:', img.src); img.src = placeholder; };
     img.src = url || placeholder;
+    console.log('[renderFotoPerfil] set img.src to:', img.src, 'element:', img.id);
   });
 }
 
 function normalizarDriveUrl(url) {
   if (!url) return '';
+  console.log('[normalizarDriveUrl] input:', url);
   // Extract Drive file ID from any Drive URL format
   let fileId = null;
   const m1 = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (m1?.[1]) fileId = m1[1];
   const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   if (!fileId && m2?.[1]) fileId = m2[1];
-  if (!fileId) return url;
-  // Use googleusercontent CDN — works without auth, no redirect issues
-  return 'https://lh3.googleusercontent.com/d/' + fileId + '=w500';
+  if (!fileId) { console.log('[normalizarDriveUrl] no fileId found, returning raw:', url); return url; }
+  const result = 'https://lh3.googleusercontent.com/d/' + fileId + '=w500';
+  console.log('[normalizarDriveUrl] output:', result);
+  return result;
 }
 
 function abrirCropper(base64) {
