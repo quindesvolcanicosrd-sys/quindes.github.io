@@ -58,17 +58,16 @@ html, body { font-family: var(--font); }
 input, button, select, textarea { font-family: var(--font); }
 
 html, body {
-  width: 100%; min-height: 100dvh;
+  width: 100%; height: 100%; max-height: 100%;
   background: var(--bg);
   font-family: var(--font);
   font-size: 16px; color: var(--text);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden;          /* no body scroll at all — each view manages its own */
+  overscroll-behavior: none; /* kill pull-to-refresh and bounce */
   margin: 0; padding: 0;
   -webkit-text-size-adjust: 100%;
   touch-action: pan-y;
-  /* Respect gesture nav bar area */
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
@@ -662,8 +661,10 @@ input[type="file"] { display: none !important; }
    NAVEGACIÓN POR VISTAS
 ══════════════════════════════════════════════════ */
 #appContent {
-  width: 100%; min-height: 100vh;
-  position: relative; overflow: hidden;
+  width: 100%; height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 .app-view {
   position: absolute; top: 0; left: 0; width: 100%;
@@ -673,6 +674,8 @@ input[type="file"] { display: none !important; }
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   overflow-y: scroll;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .app-view.active {
@@ -2131,7 +2134,11 @@ input, button, select, textarea {
 #registroScreen {
   position: fixed; inset: 0; z-index: 100;
   display: flex; flex-direction: column;
-  background: var(--bg); overflow: hidden;
+  background: var(--bg);
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-y;      /* only allow vertical touch, kills lateral drift */
+  width: 100%; height: 100%;
 }
 
 /* ── Header fijo ── */
@@ -2170,7 +2177,9 @@ input, button, select, textarea {
 
 /* ── Viewport ── */
 .wiz-viewport {
-  flex: 1; position: relative; overflow: hidden;
+  flex: 1; position: relative;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 /* ── Individual step ── */
@@ -2178,12 +2187,16 @@ input, button, select, textarea {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
   padding: 28px 24px 32px;
-  overflow-y: scroll;
+  overflow-x: hidden;        /* never scroll sideways */
+  overflow-y: auto;          /* scroll only when content taller than step */
+  overscroll-behavior-y: contain; /* stop scroll chaining to body */
   -webkit-overflow-scrolling: touch;
   /* hidden by default — JS moves and shows them */
   visibility: hidden;
   pointer-events: none;
   background: var(--bg);
+  box-sizing: border-box;
+  width: 100%;
 }
 .wiz-step.wiz-active {
   visibility: visible;
@@ -2550,6 +2563,9 @@ input, button, select, textarea {
   display: flex; align-items: stretch; justify-content: center;
   background: var(--bg);
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-y;
+  width: 100%; height: 100%;
 }
 
 /* ── Decorative rings in background ── */
@@ -2588,7 +2604,11 @@ input, button, select, textarea {
   padding: 52px 28px 40px;
   width: 100%; max-width: 420px;
   gap: 0;
-  overflow-y: scroll; -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
 }
 
 /* ── Logo / hero ── */
