@@ -311,11 +311,21 @@ function mostrarRegistroDesdeLogin() {
   document.getElementById('wiz-header').style.display     = 'none';
   document.getElementById('wiz-viewport').style.display   = 'none';
 
-  // Render Google sign-in button inside the wizard step
+  // Render Google button
   requestAnimationFrame(() => {
     const wrap = document.getElementById('wiz-google-btn');
     if (wrap && wrap.childElementCount === 0) {
-      renderGoogleButton('wiz-google-btn', 'continue_with');
+      renderGoogleButton('wiz-google-btn', 'continue_with', true);
+    }
+    // Fade in Google button after 1s — same as login screen
+    const btn = document.getElementById('wiz-google-btn');
+    if (btn) {
+      btn.style.opacity    = '0';
+      btn.style.transition = 'none';
+      setTimeout(() => {
+        btn.style.transition = 'opacity 0.4s ease';
+        btn.style.opacity    = '1';
+      }, 1000);
     }
   });
 
@@ -379,16 +389,26 @@ function mostrarNoEncontrado(email) {
   // Ensure button is rendered (pre-rendered on init, this is a no-op if already done)
   preRenderResigninButton();
 
-  // Show screen with a fade-in so any async iframe load is invisible
+  // Show screen immediately
   const screen = document.getElementById('noEncontradoScreen');
   screen.style.opacity = '0';
   screen.style.display = 'flex';
-  // Small delay lets the iframe settle before fading in
-  setTimeout(() => {
-    screen.style.transition = 'opacity 0.25s ease';
+  requestAnimationFrame(() => {
+    screen.style.transition = 'opacity 0.3s ease';
     screen.style.opacity    = '1';
-    setTimeout(() => { screen.style.transition = ''; }, 260);
-  }, 80);
+    setTimeout(() => { screen.style.transition = ''; }, 310);
+  });
+
+  // Fade in Google button after 1s — same as login screen
+  const resignBtn = document.getElementById('google-resignin-btn');
+  if (resignBtn) {
+    resignBtn.style.opacity    = '0';
+    resignBtn.style.transition = 'none';
+    setTimeout(() => {
+      resignBtn.style.transition = 'opacity 0.4s ease';
+      resignBtn.style.opacity    = '1';
+    }, 1000);
+  }
 
   // Push sentinel so back gesture is absorbed, not passed to OS
   pushSentinel();
