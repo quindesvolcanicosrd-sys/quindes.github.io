@@ -203,7 +203,7 @@ function mostrarRegistroWizard() {
   for (let i = 1; i <= 11; i++) {
     const s = document.getElementById('wiz-step-' + i);
     if (!s) continue;
-    s.classList.remove('wiz-active','wiz-animate');
+    s.classList.remove('wiz-active');
     s.style.transition = s.style.transform = s.style.visibility = '';
   }
 
@@ -273,7 +273,6 @@ function wizGoTo(next, forward = true) {
 
   // ── Strip any lingering animate class from next step BEFORE making it visible
   // Use a unique data attribute timestamp so CSS always sees a "new" animation
-  nextEl.classList.remove('wiz-animate');
   nextEl.style.transition = 'none';
   nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-30%)';
   nextEl.style.visibility = 'visible';
@@ -287,7 +286,7 @@ function wizGoTo(next, forward = true) {
       prevEl.style.transition = ease;
       prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
       prevEl.addEventListener('transitionend', () => {
-        prevEl.classList.remove('wiz-active', 'wiz-animate');
+        prevEl.classList.remove('wiz-active');
         prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
       }, { once: true });
     }
