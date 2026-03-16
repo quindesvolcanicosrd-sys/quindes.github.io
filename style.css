@@ -132,12 +132,12 @@ html, body {
   animation: derby-move 1.8s cubic-bezier(0.3,0,0.7,1) infinite;
 }
 .derby-skate-1 {
-  transform: translateY(-56%) scaleX(-1);
+  transform: translateY(-56%);
   animation-delay: 0s;
 }
 .derby-skate-2 {
-  transform: translateY(-44%) scaleX(-1);
-  animation-delay: -0.9s; /* half cycle offset = alternating stride */
+  transform: translateY(-44%);
+  animation-delay: -0.9s;
 }
 @keyframes derby-move {
   from { left: -14%; }
