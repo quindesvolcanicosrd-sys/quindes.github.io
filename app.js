@@ -1777,10 +1777,12 @@ async function subirImagenRecortada(base64) {
     window.myProfile.fotoPerfil = result.url;
     renderFotoPerfil(normalizarDriveUrl(result.url));
     // Guardar URL en la planilla (col AA)
-    await gasCall('updateMyProfile', {
+    console.log('[subirFoto] guardando URL. rowNumber:', CURRENT_USER.rowNumber, 'url:', result.url);
+    const updateResult = await gasCall('updateMyProfile', {
       rowNumber: CURRENT_USER.rowNumber,
       data: { fotoPerfil: result.url },
     });
+    console.log('[subirFoto] updateMyProfile result:', updateResult);
   } catch (e) {
     console.error('Error subiendo foto:', e);
     // Show error in a non-blocking way — no alert that could cause blank screen
