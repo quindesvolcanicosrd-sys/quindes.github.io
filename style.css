@@ -1167,6 +1167,7 @@ input[type="file"] { display: none !important; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 8px 12px 4px;
 }
+#dp-nav-arrows { display: none !important; } /* arrows hidden — chips handle navigation */
 .dp-nav-label {
   font-size: 14px !important; font-weight: 600 !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
@@ -2077,31 +2078,30 @@ input, button, select, textarea {
 }
 
 
-/* ── Date picker: month label and year label as tappable chips ── */
+/* ── Date picker: month/year as pill buttons ── */
 .dp-nav-chip {
   display: inline-flex !important;
   align-items: center !important;
-  padding: 4px 10px !important;
-  border-radius: 8px !important;
+  gap: 4px !important;
+  padding: 8px 14px !important;
+  border-radius: 99px !important;
+  border: 1.5px solid var(--border) !important;
+  background: var(--card) !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   color: var(--text) !important;
   -webkit-text-fill-color: var(--text) !important;
   cursor: pointer !important;
   pointer-events: all !important;
-  transition: background 0.15s !important;
+  transition: background 0.15s, border-color 0.15s !important;
   -webkit-tap-highlight-color: transparent !important;
 }
 .dp-nav-chip:active {
   background: var(--chip-bg) !important;
+  border-color: var(--accent) !important;
 }
-/* Small underline hint to show they're tappable */
-.dp-nav-chip::after {
-  content: ' ▾';
-  font-size: 10px !important;
-  opacity: 0.5;
-  margin-left: 1px;
-}
+/* No pseudo-content arrow — chip shape is enough affordance */
+.dp-nav-chip::after { content: none; }
 
 /* ── Month grid: 3 columns, same style as year grid ── */
 .dp-month-grid {
