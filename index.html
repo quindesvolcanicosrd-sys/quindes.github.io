@@ -70,7 +70,48 @@
 <!-- REGISTRO — WIZARD PASO A PASO -->
 <div id="registroScreen" style="display:none;">
 
-  <div class="wiz-header">
+  <!-- ══ INTRO SCREEN ══ -->
+  <div id="wiz-intro" class="wiz-intro-screen">
+    <div class="wiz-intro-bg">
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></span>
+    </div>
+    <div class="wiz-intro-content">
+      <div class="wiz-intro-logo">🛼</div>
+      <h1 class="wiz-intro-title">Vamos a crear<br>tu perfil</h1>
+      <p class="wiz-intro-sub">Te vamos a hacer algunas preguntas cortas. El proceso toma menos de 2 minutos y puedes completar o editar cualquier dato después.</p>
+
+      <div class="wiz-intro-steps">
+        <div class="wiz-intro-step wiz-intro-step-1">
+          <span class="wiz-intro-step-ico">📸</span>
+          <span class="wiz-intro-step-txt">Foto y nombre</span>
+        </div>
+        <div class="wiz-intro-step wiz-intro-step-2">
+          <span class="wiz-intro-step-ico">🌎</span>
+          <span class="wiz-intro-step-txt">Contacto y origen</span>
+        </div>
+        <div class="wiz-intro-step wiz-intro-step-3">
+          <span class="wiz-intro-step-ico">🏅</span>
+          <span class="wiz-intro-step-txt">Tu rol en el equipo</span>
+        </div>
+        <div class="wiz-intro-step wiz-intro-step-4">
+          <span class="wiz-intro-step-ico">🩺</span>
+          <span class="wiz-intro-step-txt">Salud y emergencia</span>
+        </div>
+      </div>
+
+      <button class="wiz-intro-btn" onclick="wizIntroStart()">
+        <span>Comenzar</span>
+        <span class="material-icons">arrow_forward</span>
+      </button>
+      <button class="wiz-btn-skip" onclick="document.getElementById('noEncontradoScreen').style.display='flex'; document.getElementById('registroScreen').style.display='none';">
+        Volver
+      </button>
+    </div>
+  </div>
+
+  <div class="wiz-header" id="wiz-header" style="display:none;">
     <button type="button" class="wiz-back-btn" id="wiz-back-btn">
       <span class="material-icons">arrow_back</span>
     </button>
@@ -82,7 +123,7 @@
     </div>
   </div>
 
-  <div class="wiz-viewport">
+  <div class="wiz-viewport" id="wiz-viewport" style="display:none;">
 
     <!-- ══ PASO 1: Foto ══ -->
     <div class="wiz-step" id="wiz-step-1">
@@ -308,7 +349,7 @@
 
   </div><!-- /wiz-viewport -->
 
-  <div id="reg-error" class="wiz-error-toast" style="display:none;"></div>
+  <div id="reg-error" class="wiz-error-toast" style="display:none;position:fixed;"></div>
 
   <!-- Overlay de carga -->
   <div id="wiz-loading-overlay" style="display:none;">
