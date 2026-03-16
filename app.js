@@ -112,6 +112,7 @@ function initGoogleAuth() {
     client_id: CONFIG.GOOGLE_CLIENT_ID,
     callback: onGoogleSignIn,
     auto_select: false,
+    scope: 'https://www.googleapis.com/auth/drive.file',
   });
 
   // Skip One Tap popup — use explicit login screen button only
@@ -174,7 +175,8 @@ async function gasCall(action, data = {}) {
     const params = new URLSearchParams({ action, token: accessToken });
     if (action === 'updateMyProfile') {
       params.set('rowNumber', data.rowNumber);
-      params.set('data', encodeURIComponent(JSON.stringify(data.data)));
+      // Let URLSearchParams handle encoding — don't double-encode
+      params.set('data', JSON.stringify(data.data));
     } else {
       Object.entries(data).forEach(([k, v]) => params.set(k, v));
     }
@@ -1776,27 +1778,19 @@ async function subirImagenRecortada(base64) {
     if (!result || !result.url) throw new Error('No se recibió URL de la foto');
     window.myProfile.fotoPerfil = result.url;
     renderFotoPerfil(normalizarDriveUrl(result.url));
-    // Guardar URL en la planilla (col AA)
-    console.log('[subirFoto] guardando URL. rowNumber:', CURRENT_USER.rowNumber, 'url:', result.url);
-    const updateResult = await gasCall('updateMyProfile', {
+    // Save URL to spreadsheet (col AA)
+    await gasCall('updateMyProfile', {
       rowNumber: CURRENT_USER.rowNumber,
       data: { fotoPerfil: result.url },
     });
-    console.log('[subirFoto] updateMyProfile result:', updateResult);
   } catch (e) {
     console.error('Error subiendo foto:', e);
-    // Show error in a non-blocking way — no alert that could cause blank screen
-    wizShowError?.('Error al subir la foto. Intenta de nuevo.');
-    // If wizShowError not available (in profile view), use a toast
-    if (typeof wizShowError === 'undefined') {
-      const t = document.createElement('div');
-      t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:12px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:9999;';
-      t.textContent = 'Error al subir la foto. Intenta de nuevo.';
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 3500);
-    }
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:12px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:9999;white-space:nowrap;';
+    t.textContent = 'Error al subir la foto. Intenta de nuevo.';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
   } finally {
-    // Always clean up — never leave the UI blocked
     try { mostrarCargandoFoto(false); } catch(e) {}
     fotoSubiendo = false;
   }
