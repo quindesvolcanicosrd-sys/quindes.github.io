@@ -102,6 +102,26 @@
 <!-- REGISTRO — WIZARD PASO A PASO -->
 <div id="registroScreen" style="display:none;">
 
+  <!-- ══ PASO 0: Login con Google (solo para registro desde login) ══ -->
+  <div id="wiz-step-0" class="wiz-intro-screen" style="display:none;">
+    <div class="wiz-intro-bg">
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></span>
+    </div>
+    <div class="wiz-intro-content">
+      <div class="wiz-intro-logo">👋</div>
+      <h1 class="wiz-intro-title">¡Bienvenidx<br>al equipo!</h1>
+      <p class="wiz-intro-sub">Para crear tu perfil necesitamos identificarte. Iniciá sesión con tu cuenta de Google — todo el proceso toma menos de 2 minutos.</p>
+      <div class="wiz-step0-note">
+        <span class="material-icons" style="font-size:18px;opacity:0.6;">info</span>
+        Solo se admiten cuentas de Google. Si no tenés una, podés crear una gratis en <strong>google.com</strong>.
+      </div>
+      <div id="wiz-google-btn" class="login-google-btn-wrap" style="margin:24px auto 0;"></div>
+      <button class="wiz-btn-skip" onclick="wizStep0Volver()">Volver</button>
+    </div>
+  </div>
+
   <!-- ══ INTRO SCREEN ══ -->
   <div id="wiz-intro" class="wiz-intro-screen">
     <div class="wiz-intro-bg">
