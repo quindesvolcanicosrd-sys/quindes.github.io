@@ -2286,19 +2286,24 @@ input, button, select, textarea {
 
 /* ── Avatar / foto ── */
 .reg-foto-center {
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  padding-top: 16px;
 }
 .reg-avatar {
-  width: 120px; height: 120px; border-radius: 28px; flex-shrink: 0;
-  background: var(--card2); border: 2.5px dashed var(--border);
+  width: 160px; height: 160px; border-radius: 36px; flex-shrink: 0;
+  background: var(--card2); border: 3px dashed var(--border);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; overflow: hidden; position: relative;
-  -webkit-tap-highlight-color: transparent; transition: border-color 0.18s;
+  -webkit-tap-highlight-color: transparent; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.reg-avatar:active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(220,30,30,0.12);
 }
 .reg-avatar:active { border-color: var(--accent); }
 .reg-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .reg-avatar-placeholder {
-  font-size: 38px !important; color: var(--text3) !important;
+  font-size: 52px !important; color: var(--text3) !important;
   -webkit-text-fill-color: var(--text3) !important;
 }
 .reg-avatar-overlay {
@@ -2306,7 +2311,7 @@ input, button, select, textarea {
   display: flex; align-items: center; justify-content: center;
 }
 .reg-avatar-overlay .material-icons {
-  font-size: 26px !important; color: #fff !important;
+  font-size: 32px !important; color: #fff !important;
   -webkit-text-fill-color: #fff !important;
 }
 .reg-foto-hint {
