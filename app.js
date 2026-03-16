@@ -970,7 +970,7 @@ async function submitRegistro() {
 
   } catch(err) {
     wizOcultarCargando();
-    wizShowError(err.message || 'Algo salió mal. Intentá de nuevo 😅');
+    wizShowError(err.message || 'Algo salió mal. Intenta de nuevo 😅');
     if (btnEl) btnEl.disabled = false;
   }
 }
