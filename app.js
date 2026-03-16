@@ -234,25 +234,35 @@ async function inicializarApp(email) {
 
 // ── REGISTRO DESDE LOGIN ──────────────────────────────────────
 function mostrarRegistroDesdeLogin() {
-  // Set flag so after Google sign-in, if not registered, go straight to wizard
   window._registroDesdeLogin = true;
+  // Show registroScreen with step-0 (Google login step)
+  document.getElementById('loginScreen').style.display    = 'none';
+  document.getElementById('registroScreen').style.display = 'flex';
+  document.getElementById('wiz-intro').style.display      = 'none';
+  document.getElementById('wiz-step-0').style.display     = 'flex';
+  document.getElementById('wiz-header').style.display     = 'none';
+  document.getElementById('wiz-viewport').style.display   = 'none';
 
-  // Transform the login screen to show registration context
-  const instruccion = document.querySelector('.login-instruction');
-  const disclaimer  = document.querySelector('.login-disclaimer');
-  const divider     = document.querySelector('.login-divider');
-  const registerBtn = document.querySelector('.login-register-btn');
-  const sub         = document.querySelector('.login-sub');
+  // Render Google sign-in button inside the wizard step
+  requestAnimationFrame(() => {
+    const wrap = document.getElementById('wiz-google-btn');
+    if (wrap && wrap.childElementCount === 0) {
+      google.accounts.id.renderButton(wrap, {
+        type: 'standard', theme: 'outline', size: 'large',
+        text: 'continue_with', shape: 'rectangular', width: 280,
+      });
+    }
+  });
 
-  if (sub)         sub.textContent = '¡Bienvenidx al equipo!';
-  if (instruccion) instruccion.innerHTML = '<span class="login-instruction-icon">📋</span>Primero necesitamos identificarte. Iniciá sesión con tu cuenta de Google para crear tu perfil.';
-  if (disclaimer)  disclaimer.innerHTML  = 'Solo se admiten cuentas de Google.<br>Si no tenés una, podés crear una en <strong>google.com</strong>.';
-  if (divider)     divider.style.display = 'none';
-  if (registerBtn) registerBtn.style.display = 'none';
+  // Push history state so back gesture returns to login
+  history.pushState({ wizStep0: true }, '');
+}
 
-  // Scroll to google button smoothly
-  const btn = document.getElementById('google-signin-btn');
-  if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+function wizStep0Volver() {
+  document.getElementById('registroScreen').style.display = 'none';
+  document.getElementById('wiz-step-0').style.display     = 'none';
+  mostrarLoginScreen();
+  window._registroDesdeLogin = false;
 }
 
 // ── NO ENCONTRADO ─────────────────────────────────────────────
