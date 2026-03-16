@@ -1,2992 +1,2294 @@
-/* ── TOKENS: DARK (default) ── */
-:root {
-  /* Material You — Dark rojizo */
-  --bg-rgb: 26, 18, 18;
-  --bg:         #1a1212;
-  --card:       #251a1a;
-  --card2:      #2e1f1f;
-  --border:     rgba(255,200,200,0.10);
-  --border2:    rgba(255,200,200,0.07);
-  --border3:    rgba(255,200,200,0.05);
-  --text:       #f5e6e6;
-  --text2:      #c4a0a0;
-  --text3:      #8c6464;
-  --text4:      #6b4a4a;
-  --label:      #c4a0a0;
-  --accent:     #ef4444;
-  --accent2:    #dc2626;
-  --accent-dim: rgba(239,68,68,0.18);
-  --header-bg:  rgba(26,18,18,0.80);
-  --chip-bg:    rgba(239,68,68,0.08);
-  --stat-bg:    rgba(239,68,68,0.06);
-  --section-hd: rgba(239,68,68,0.05);
-  --shadow:     0 16px 48px rgba(0,0,0,0.5);
+// ============================================================
+//  QUINDES APP — app.js  (navegación por secciones)
+// ============================================================
+
+const CONFIG = {
+  GAS_URL: 'https://black-snow-eff8.quindesvolcanicosrd.workers.dev',
+  GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
+};
+
+let CURRENT_USER   = null;
+let accessToken    = null;
+let fotoSubiendo   = false;
+let cropper;
+
+// Estado de edición por sección
+const edicionActiva = {
+  generales: false, personales: false, contacto: false,
+  salud: false, rendimiento: false,
+};
+
+// ── SERVICE WORKER ────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
-/* ── TOKENS: LIGHT ── */
-@media (prefers-color-scheme: light) {
-  :root {
-    /* Material You — Light rojizo */
-    --bg-rgb: 252, 240, 240;
-    --bg:         #fcf0f0;
-    --card:       #ffffff;
-    --card2:      #fff5f5;
-    --border:     rgba(180,0,0,0.10);
-    --border2:    rgba(180,0,0,0.07);
-    --border3:    rgba(180,0,0,0.05);
-    --text:       #1c0a0a;
-    --text2:      #6b3030;
-    --text3:      #9e5050;
-    --text4:      #bb8080;
-    --label:      #9e5050;
-    --accent:     #c62828;
-    --accent2:    #b71c1c;
-    --accent-dim: rgba(198,40,40,0.10);
-    --header-bg:  rgba(252,240,240,0.80);
-    --chip-bg:    rgba(198,40,40,0.07);
-    --stat-bg:    rgba(198,40,40,0.05);
-    --section-hd: rgba(198,40,40,0.04);
-    --shadow:     0 4px 20px rgba(180,0,0,0.12);
+// ── DERBY LOADER ─────────────────────────────────────────────
+const DERBY_MSGS = [
+  'Cargando…',
+  'Atando los patines…',
+  'Calentando motores…',
+  'Ajustando el casco…',
+  'Entrando a la pista…',
+];
+
+let _derbyMsgTimer  = null;
+let _derbyIconTimer = null;
+let _derbyActiveIdx = 0;
+const DERBY_ICON_COUNT = 4;
+
+function _derbyNextIcon() {
+  // Pick a random different index
+  let next;
+  do { next = Math.floor(Math.random() * DERBY_ICON_COUNT); }
+  while (next === _derbyActiveIdx);
+
+  // ── Phase 1: shrink current — all icons go small (the "pause") ──
+  for (let i = 0; i < DERBY_ICON_COUNT; i++) {
+    const ic = document.getElementById('di-' + i);
+    if (ic) ic.classList.remove('di-active', 'di-near');
+  }
+
+  // ── Phase 2: after short pause, grow the next one ──
+  const PAUSE = 110; // ms — the beat where everything is small
+  _derbyIconTimer = setTimeout(() => {
+
+    _derbyActiveIdx = next;
+    const curr = document.getElementById('di-' + _derbyActiveIdx);
+    if (curr) curr.classList.add('di-active');
+
+    // Neighbors get pulled in
+    const leftIdx  = (_derbyActiveIdx - 1 + DERBY_ICON_COUNT) % DERBY_ICON_COUNT;
+    const rightIdx = (_derbyActiveIdx + 1) % DERBY_ICON_COUNT;
+    const leftEl   = document.getElementById('di-' + leftIdx);
+    const rightEl  = document.getElementById('di-' + rightIdx);
+    if (leftEl)  leftEl.classList.add('di-near');
+    if (rightEl) rightEl.classList.add('di-near');
+
+    // Random hold 700–1500ms before next cycle
+    const wait = 700 + Math.random() * 800;
+    _derbyIconTimer = setTimeout(_derbyNextIcon, wait);
+
+  }, PAUSE);
+}
+
+function iniciarDerbyLoader() {
+  // Messages
+  const el = document.getElementById('derby-loader-text');
+  if (el) el.textContent = DERBY_MSGS[0];
+  let idx = 0;
+  _derbyMsgTimer = setInterval(() => {
+    idx = (idx + 1) % DERBY_MSGS.length;
+    if (el) {
+      el.style.opacity = '0';
+      setTimeout(() => { if (el) { el.textContent = DERBY_MSGS[idx]; el.style.opacity = ''; } }, 300);
+    }
+  }, 2200);
+
+  // Icons — start with index 0 active, neighbors pulled in
+  _derbyActiveIdx = 0;
+  for (let i = 0; i < DERBY_ICON_COUNT; i++) {
+    const ic = document.getElementById('di-' + i);
+    if (!ic) continue;
+    ic.classList.remove('di-active','di-near');
+    if (i === 0) ic.classList.add('di-active');
+    if (i === 1 || i === DERBY_ICON_COUNT - 1) ic.classList.add('di-near');
+  }
+  // First switch after a short delay
+  _derbyIconTimer = setTimeout(_derbyNextIcon, 900);
+}
+
+function detenerDerbyLoader() {
+  clearInterval(_derbyMsgTimer);
+  clearTimeout(_derbyIconTimer);
+}
+
+// Start derby loader immediately
+document.addEventListener('DOMContentLoaded', () => { iniciarDerbyLoader(); });
+
+// ── GOOGLE IDENTITY SERVICES ─────────────────────────────────
+// Fix Google button flicker: fade in iframe once it loads
+// Get Google button theme based on current color scheme
+function getGoogleBtnTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'filled_black' : 'outline';
+}
+
+// Render a single Google button by id, with flicker prevention
+function renderGoogleButton(id, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.dataset.rendered === 'true') return; // already rendered, skip
+  el.dataset.rendered = 'true';
+  el.style.opacity = '0';
+  const theme = getGoogleBtnTheme();
+  google.accounts.id.renderButton(el, {
+    theme, size: 'large', width: 300, text, logo_alignment: 'center',
+  });
+  // Fade in once the iframe loads
+  const reveal = () => {
+    el.style.transition = 'opacity 0.25s ease';
+    el.style.opacity = '1';
+  };
+  const iframe = el.querySelector('iframe');
+  if (iframe) {
+    iframe.addEventListener('load', reveal, { once: true });
+    setTimeout(reveal, 800); // fallback
+  } else {
+    // iframe not injected yet — wait for it
+    const obs = new MutationObserver(() => {
+      const f = el.querySelector('iframe');
+      if (!f) return;
+      obs.disconnect();
+      f.addEventListener('load', reveal, { once: true });
+      setTimeout(reveal, 800); // fallback
+    });
+    obs.observe(el, { childList: true, subtree: true });
   }
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* ── UNIFIED FONT ── */
-:root { --font: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-html, body { font-family: var(--font); }
-input, button, select, textarea { font-family: var(--font); }
-
-html, body {
-  width: 100%; height: 100%; max-height: 100%;
-  background: var(--bg);
-  font-family: var(--font);
-  font-size: 16px; color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;          /* no body scroll at all — each view manages its own */
-  overscroll-behavior: none; /* kill pull-to-refresh and bounce */
-  margin: 0; padding: 0;
-  -webkit-text-size-adjust: 100%;
-  touch-action: pan-y;
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-}
-
-/* ── LOADING ── */
-#loadingScreen {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  background: var(--bg); z-index: 200;
-}
-#loadingScreen h2 { display: none; }
-.loading-logo {
-  width: 160px; height: 160px;
-  border-radius: 0; overflow: visible;
-  background: transparent;
-}
-.loading-logo-img {
-  width: 100%; height: 100%; object-fit: contain; display: block;
-}
-/* ══════════════════════════════════════════════════════════════
-   DERBY LOADER
-══════════════════════════════════════════════════════════════ */
-.derby-loader {
-  margin-top: 20px;
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-}
-
-/* Row of 4 icons always visible */
-.derby-icons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 26px;
-  transition: gap 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.derby-icon {
-  font-size: 22px;
-  line-height: 1;
-  user-select: none;
-  display: block;
-  opacity: 0.38;
-  transform: scale(0.58);
-  /* Spring bounce on scale, smooth on rest */
-  transition:
-    transform  0.5s  cubic-bezier(0.34, 1.7, 0.64, 1),
-    opacity    0.3s  ease,
-    filter     0.3s  ease,
-    margin     0.45s cubic-bezier(0.34, 1.7, 0.64, 1);
-  filter: none;
-  margin: 0;
-}
-
-/* Active icon — spring bounce up */
-.derby-icon.di-active {
-  opacity: 1;
-  transform: scale(1.6);
-  filter:
-    drop-shadow(0 0 7px rgba(255,210,0,0.95))
-    drop-shadow(0 0 18px rgba(255,140,0,0.55));
-  margin-left: -4px;
-  margin-right: -4px;
-}
-
-/* Neighbors — subtle pull inward */
-.derby-icon.di-near {
-  margin-left: -5px;
-  margin-right: -5px;
-  transform: scale(0.62);
-  opacity: 0.45;
-  transition:
-    transform  0.45s cubic-bezier(0.34, 1.5, 0.64, 1),
-    opacity    0.3s  ease,
-    filter     0.3s  ease,
-    margin     0.45s cubic-bezier(0.34, 1.5, 0.64, 1);
-}
-
-/* ── Label ── */
-.derby-loader-text {
-  font-size: 11px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.12em !important;
-  color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important;
-  margin: 0 !important; text-align: center;
-  transition: opacity 0.3s;
-  animation: derby-text-pulse 2s ease-in-out infinite;
-}
-@keyframes derby-text-pulse {
-  0%,100% { opacity: 0.4; }
-  50%      { opacity: 1;   }
-}
-
-/* ── UNAUTHORIZED ── */
-#unauthorized {
-  position: fixed; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--bg); z-index: 100;
-}
-
-/* ── HEADER ── */
-.pf-header {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-  height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px;
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-}
-.pf-header-title {
-  font-size: 20px !important; font-weight: 900 !important; font-style: italic !important;
-  text-transform: uppercase !important; letter-spacing: -0.5px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-#user-email {
-  font-size: 12px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-  max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-/* ── SCROLL ── */
-.pf-scroll {
-  padding-top: 72px; padding-bottom: 48px;
-  display: flex; flex-direction: column; align-items: center;
-  width: 100%; min-width: 0;
-}
-
-/* ── ERROR BOX ── */
-#perfil-error {
-  display: none; width: 100%; max-width: 600px;
-  margin: 0 auto 12px; padding: 12px 16px; border-radius: 12px;
-  border: 1px solid var(--accent); background: var(--accent-dim);
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  font-size: 13px !important; font-weight: 500 !important;
-}
-
-/* ── TARJETA ── */
-.pf-card {
-  width: 100%; max-width: 600px;
-  background: var(--card); border-radius: 2.5rem; overflow: hidden;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  margin: 0;
-}
-
-/* ── BANNER ── */
-.pf-banner {
-  height: 110px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  position: relative; overflow: hidden;
-}
-.pf-banner::after {
-  content: 'roller_skating'; font-family: 'Material Icons';
-  position: absolute; right: 8px; bottom: -12px;
-  font-size: 130px; color: rgba(255,255,255,0.07);
-  line-height: 1; pointer-events: none; user-select: none;
-}
-
-/* ── AVATAR ── */
-.pf-avatar-wrap {
-  display: flex; justify-content: center;
-  margin-top: -50px; margin-bottom: 6px;
-  position: relative; z-index: 2;
-}
-#avatar-container {
-  position: relative; width: 100px; height: 100px;
-  border-radius: 1.8rem; border: 5px solid var(--card);
-  background: var(--card2); overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3); cursor: default;
-}
-#avatar-container:not(.disabled) { cursor: pointer; }
-#img-preview-foto { width: 100%; height: 100%; object-fit: cover; display: block; }
-.pf-avatar-edit {
-  position: absolute; bottom: 4px; right: 4px;
-  width: 26px; height: 26px; border-radius: 9999px; background: var(--accent);
-  display: flex; align-items: center; justify-content: center; border: 2px solid var(--card);
-  opacity: 0; transition: opacity 0.2s; pointer-events: none;
-}
-#avatar-container:not(.disabled) .pf-avatar-edit { opacity: 1; }
-.pf-avatar-edit .material-icons {
-  font-size: 12px !important; color: #fff !important; -webkit-text-fill-color: #fff !important;
-}
-#avatar-loader {
-  position: absolute; inset: 0; display: flex;
-  align-items: center; justify-content: center; background: rgba(0,0,0,0.6);
-}
-#avatar-loader.hidden { display: none; }
-#avatar-overlay {
-  position: absolute; inset: 0; display: none;
-  align-items: center; justify-content: center; background: rgba(0,0,0,0.6);
-}
-#avatar-overlay.flex { display: flex; }
-
-/* ── HERO TEXT ── */
-.pf-hero-text { text-align: center; padding: 4px 20px 8px; }
-.pf-hero-name {
-  font-size: 26px !important; font-weight: 900 !important; font-style: italic !important;
-  text-transform: uppercase !important; letter-spacing: -0.4px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  line-height: 1.1 !important; margin-bottom: 4px !important;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.pf-hero-sub {
-  font-size: 11px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.2em !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  margin-bottom: 8px !important;
-}
-.pf-hero-badges { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
-.pf-badge {
-  display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px;
-  font-size: 10px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.4px !important;
-}
-.pf-badge-red {
-  background: var(--accent-dim); color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important; border: 1px solid rgba(239,68,68,0.3);
-}
-.pf-badge-ghost {
-  background: var(--chip-bg); color: var(--text2) !important;
-  -webkit-text-fill-color: var(--text2) !important; border: 1px solid var(--border);
-}
-
-/* ── STATS ── */
-.pf-stats {
-  display: flex; gap: 10px;
-  padding: 14px 16px;
-  border-top: 1px solid var(--border2);
-  border-bottom: 1px solid var(--border2);
-  margin: 12px 0 0;
-}
-.pf-stat {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 14px 8px; gap: 5px; text-align: center;
-  background: var(--stat-bg);
-  border-radius: 16px;
-  border: 1px solid var(--border2);
-}
-.pf-stat .material-icons {
-  font-size: 18px !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  opacity: 0.7;
-}
-.pf-stat-lbl {
-  display: block !important; font-size: 8px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.3px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  line-height: 1.4 !important;
-}
-.pf-stat-val {
-  display: block !important; font-size: 13px !important; font-weight: 800 !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  line-height: 1.3 !important; word-break: break-word !important;
-}
-
-/* ── BOTONES ── */
-.pf-btn-wrap { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
-.pf-card-spacer { height: 28px; }
-#btnEditar, #btnGuardar, #btnCancelar {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; padding: 18px; border-radius: 9999px;
-  font-size: 14px !important; font-weight: 900 !important;
-  text-transform: uppercase !important; letter-spacing: 0.1em !important;
-  font-style: italic !important; cursor: pointer; border: none; line-height: 1 !important;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.1s ease, opacity 0.15s ease;
-}
-#btnEditar, #btnGuardar {
-  background: linear-gradient(145deg, #ff4d4d, #d61f1f) !important;
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  box-shadow: 0 6px 18px rgba(239,68,68,0.38);
-}
-#btnCancelar {
-  background: var(--chip-bg) !important;
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-  border: 1px solid var(--border) !important; font-style: normal !important;
-}
-#btnEditar:active, #btnGuardar:active, #btnCancelar:active { transform: scale(0.98); }
-
-/* ── SECCIONES ── */
-.pf-section { padding: 0; }
-.pf-divider { height: 1px; background: var(--border2); }
-
-.pf-section-head {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 20px 12px;
-  background: var(--section-hd);
-  border-bottom: 1px solid var(--border2);
-}
-.pf-section-ico {
-  width: 36px; height: 36px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.pf-section-ico .material-icons { font-size: 18px !important; }
-.ico-blue   { background: rgba(59,130,246,0.14);  } .ico-blue   .material-icons { color: #60a5fa !important; -webkit-text-fill-color: #60a5fa !important; }
-.ico-purple { background: rgba(168,85,247,0.14);  } .ico-purple .material-icons { color: #c084fc !important; -webkit-text-fill-color: #c084fc !important; }
-.ico-teal   { background: rgba(20,184,166,0.14);  } .ico-teal   .material-icons { color: #2dd4bf !important; -webkit-text-fill-color: #2dd4bf !important; }
-.ico-red    { background: rgba(239,68,68,0.14);   } .ico-red    .material-icons { color: #f87171 !important; -webkit-text-fill-color: #f87171 !important; }
-.ico-orange { background: rgba(249,115,22,0.14);  } .ico-orange .material-icons { color: #fb923c !important; -webkit-text-fill-color: #fb923c !important; }
-
-.pf-section-title {
-  font-size: 15px !important; font-weight: 900 !important;
-  text-transform: uppercase !important; letter-spacing: 0.4px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-style: italic !important;
-}
-.pf-section-title.rojo { color: #f87171 !important; -webkit-text-fill-color: #f87171 !important; }
-
-/* ── PROFILE FIELD ── */
-.profile-field {
-  display: flex; flex-direction: column; justify-content: center;
-  min-height: 58px; padding: 12px 20px;
-  border-bottom: 1px solid var(--border3); width: 100%;
-}
-.profile-field:last-child { border-bottom: none; }
-.is-editing .profile-field { background: rgba(239,68,68,0.015); }
-
-.pf-row-2 {
-  display: grid; grid-template-columns: 1fr 1fr;
-  border-bottom: 1px solid var(--border3);
-}
-.pf-row-2 .profile-field { border-bottom: none; }
-.pf-row-2 .profile-field:first-child { border-right: 1px solid var(--border3); }
-
-/* ── LABEL ── */
-label {
-  display: block !important; font-size: 9px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.8px !important;
-  color: var(--label) !important; -webkit-text-fill-color: var(--label) !important;
-  line-height: 1 !important; margin: 0 0 5px !important; padding: 0 !important;
-  background: transparent !important; border: none !important;
-  transition: color 0.2s;
-}
-label.accent { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; }
-
-/* Labels rojos en modo edición */
-.is-editing .profile-field label {
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-
-.field-help {
-  font-size: 11px !important; color: var(--text4) !important;
-  -webkit-text-fill-color: var(--text4) !important;
-  line-height: 1.3 !important; margin: 0 0 4px !important;
-}
-
-/* ── EDITABLE ── */
-.editable {
-  display: block !important; width: 100% !important;
-  background: transparent !important; border: none !important; outline: none !important;
-  padding: 0 !important; margin: 0 !important;
-  font-size: 15px !important; font-weight: 700 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: -0.2px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  line-height: 1.3 !important; border-radius: 0 !important;
-  -webkit-appearance: none !important; opacity: 1 !important;
-}
-.editable.normal {
-  font-style: normal !important; text-transform: none !important;
-  font-weight: 500 !important; letter-spacing: 0 !important;
-}
-.editable:disabled {
-  -webkit-text-fill-color: var(--text) !important;
-  opacity: 1 !important; cursor: default !important;
-}
-.is-editing .editable:not(:disabled) {
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  border-bottom: 1.5px solid rgba(239,68,68,0.5) !important; padding-bottom: 3px !important;
-}
-.is-editing .editable:not(:disabled):focus {
-  border-bottom-color: var(--accent) !important; outline: none !important;
-}
-.campo-error {
-  border-bottom: 1.5px solid var(--accent) !important;
-  box-shadow: 0 1px 0 var(--accent) !important;
-}
-
-/* ── CUSTOM SELECT TRIGGER ── */
-.custom-select-trigger {
-  display: flex !important; align-items: center !important; justify-content: space-between !important;
-  width: 100% !important; background: transparent !important; border: none !important;
-  outline: none !important; padding: 0 !important; margin: 0 !important;
-  font-size: 15px !important; font-weight: 700 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: -0.2px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  text-align: left !important; cursor: default !important;
-  -webkit-appearance: none !important; border-radius: 0 !important;
-}
-.custom-select-trigger::after { display: none !important; }
-.custom-select-trigger:disabled { cursor: default !important; }
-.is-editing .custom-select-trigger:not(:disabled) {
-  border-bottom: 1.5px solid rgba(239,68,68,0.5) !important; padding-bottom: 3px !important;
-  cursor: pointer !important;
-}
-.is-editing .custom-select-trigger:not(:disabled)::after {
-  display: block !important;
-  content: '›' !important; font-size: 22px !important; line-height: 1 !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  flex-shrink: 0 !important; margin-left: 8px !important;
-}
-
-/* ── CHIPS ── */
-.chip-wrapper {
-  display: flex !important; flex-wrap: wrap !important;
-  gap: 6px !important; padding-top: 4px !important;
-}
-.chip {
-  padding: 6px 14px !important; border-radius: 9999px !important;
-  font-size: 12px !important; font-weight: 700 !important;
-  border: 1px solid var(--border) !important; cursor: pointer !important;
-  white-space: nowrap !important; line-height: 1 !important;
-  -webkit-tap-highlight-color: transparent !important; transition: all 0.15s ease !important;
-}
-.chip-inactive {
-  background: var(--chip-bg) !important;
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-}
-.chip-active {
-  background: var(--accent) !important; color: #fff !important;
-  -webkit-text-fill-color: #fff !important; border-color: var(--accent) !important;
-}
-.chip.opacity-50 { opacity: 0.35 !important; cursor: default !important; }
-
-/* ── FILE ROW ── */
-.pf-file-row {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 14px 20px; border-bottom: 1px solid var(--border3);
-}
-.pf-file-row:last-child { border-bottom: none; }
-.pf-file-ico {
-  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.pf-file-ico .material-icons { font-size: 20px !important; }
-.pf-file-lbl {
-  font-size: 9px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.8px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  margin: 0 0 6px !important;
-}
-.file-status-vacio {
-  font-size: 12px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-}
-.file-status-ok { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; }
-.file-status-ok span { color: #4ade80 !important; -webkit-text-fill-color: #4ade80 !important; font-size: 12px !important; }
-
-/* Pill "Ver archivo" */
-.file-link {
-  display: inline-flex !important; align-items: center !important;
-  padding: 5px 14px !important; border-radius: 9999px !important;
-  background: rgba(66,133,244,0.12) !important;
-  color: #60a5fa !important; -webkit-text-fill-color: #60a5fa !important;
-  font-size: 11px !important; font-weight: 800 !important;
-  text-decoration: none !important; letter-spacing: 0.4px !important;
-  text-transform: uppercase !important;
-}
-/* In edit mode, hide the "VER ARCHIVO" pill — only show upload button */
-.is-editing .file-status-ok { display: none !important; }
-.file-preview { margin-top: 8px !important; max-height: 90px !important; border-radius: 8px !important; border: 1px solid var(--border) !important; display: block !important; max-width: 100% !important; }
-.pf-file-actions { display: none; margin-top: 6px; gap: 8px; flex-wrap: wrap; align-items: center; }
-.is-editing .pf-file-actions { display: flex; }
-.btn-file {
-  display: inline-flex !important; align-items: center !important;
-  padding: 7px 16px !important; border-radius: 9999px !important;
-  font-size: 11px !important; font-weight: 800 !important; text-transform: uppercase !important;
-  cursor: pointer !important; background: var(--accent-dim) !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  border: 1px solid rgba(239,68,68,0.25) !important;
-  -webkit-tap-highlight-color: transparent !important;
-}
-.text-ok    { color: #4ade80 !important; -webkit-text-fill-color: #4ade80 !important; font-size: 11px !important; }
-.text-error { color: #f87171 !important; -webkit-text-fill-color: #f87171 !important; font-size: 11px !important; }
-
-/* ── EMAIL inline ── */
-.pf-email-wrap {
-  display: inline-flex; align-items: baseline; gap: 0; max-width: 100%;
-}
-.pf-email-suffix {
-  font-size: 15px !important; font-weight: 500 !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  white-space: nowrap !important; flex-shrink: 0 !important; font-style: normal !important;
-}
-#p-email {
-  min-width: 20px !important; width: auto !important; flex: none !important;
-  font-style: normal !important; text-transform: none !important; font-weight: 500 !important;
-}
-
-/* ── MODAL CROP ── */
-/* ── CROP MODAL — bottom sheet style ── */
-#modal-crop {
-  position: fixed; inset: 0; z-index: 9999;
-  display: none; align-items: flex-end; justify-content: center;
-  background: rgba(0,0,0,0.85);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-}
-#modal-crop[style*="flex"] { display: flex; }
-.crop-sheet {
-  width: 100%; max-width: 520px;
-  background: #111; 
-  border-radius: 24px 24px 0 0;
-  padding: 12px 0 0;
-  display: flex; flex-direction: column;
-  animation: crop-sheet-in 0.32s cubic-bezier(0.4,0,0.2,1) both;
-}
-@keyframes crop-sheet-in {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-.crop-handle {
-  width: 36px; height: 4px; border-radius: 99px;
-  background: rgba(255,255,255,0.2);
-  margin: 0 auto 14px;
-}
-.crop-title {
-  font-size: 13px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.08em !important;
-  color: rgba(255,255,255,0.5) !important; -webkit-text-fill-color: rgba(255,255,255,0.5) !important;
-  text-align: center; margin: 0 0 14px !important;
-}
-.crop-area {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: #000;
-  overflow: hidden;
-  position: relative;
-}
-.crop-area img { display: block; max-width: 100%; }
-.crop-hint {
-  font-size: 11px !important; font-weight: 500 !important;
-  color: rgba(255,255,255,0.35) !important; -webkit-text-fill-color: rgba(255,255,255,0.35) !important;
-  text-align: center; margin: 10px 0 0 !important;
-  letter-spacing: 0.02em !important;
-}
-.crop-actions {
-  display: flex; align-items: center; gap: 10px;
-  padding: 14px 20px calc(20px + env(safe-area-inset-bottom, 0px));
-}
-.crop-btn-cancel {
-  flex: 1; padding: 16px; border-radius: 14px; border: none;
-  background: rgba(255,255,255,0.1);
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  font-size: 13px !important; font-weight: 700 !important;
-  font-family: inherit !important; cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.crop-btn-rotate {
-  width: 52px; height: 52px; border-radius: 14px; border: none; flex-shrink: 0;
-  background: rgba(255,255,255,0.1);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-}
-.crop-btn-rotate .material-icons {
-  font-size: 22px !important; color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-}
-.crop-btn-confirm {
-  flex: 1.6; padding: 16px; border-radius: 14px; border: none;
-  background: linear-gradient(135deg, #ff3b3b 0%, #c41212 100%);
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  font-size: 13px !important; font-weight: 900 !important;
-  text-transform: uppercase !important; letter-spacing: 0.08em !important;
-  font-family: inherit !important; cursor: pointer;
-  box-shadow: 0 4px 16px rgba(220,30,30,0.4);
-  -webkit-tap-highlight-color: transparent;
-}
-.crop-btn-cancel:active  { opacity: 0.7; }
-.crop-btn-rotate:active  { opacity: 0.7; }
-.crop-btn-confirm:active { transform: scale(0.97); }
-
-/* ── SELECTOR CENTRADO (reemplaza bottom sheet) ── */
-.bs-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  display: flex; align-items: center; justify-content: center;
-  -webkit-overflow-scrolling: auto;
-}
-.bs-overlay.active { opacity: 1; pointer-events: all; touch-action: none; }
-.bs-panel {
-  position: fixed; z-index: 1001;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
-  width: calc(100% - 48px); max-width: 340px;
-  background: var(--card2); border-radius: 20px;
-  opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease;
-  max-height: 65vh; display: flex; flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
-}
-.bs-panel.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-.bs-handle { display: none; }
-.bs-title {
-  font-size: 11px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 1px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  padding: 16px 18px 12px; flex-shrink: 0; border-bottom: 1px solid var(--border2);
-}
-.bs-search-wrapper { padding: 10px 14px; border-bottom: 1px solid var(--border2); flex-shrink: 0; }
-.bs-search {
-  width: 100%; padding: 10px 16px;
-  background: var(--chip-bg); border: 1px solid var(--border);
-  border-radius: 9999px; outline: none;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-size: 16px !important; 
-  -webkit-appearance: none;
-}
-.bs-search::placeholder { color: var(--text3); }
-.bs-search:focus { border-color: var(--accent); outline: none; }
-.bs-options { overflow-y: scroll; flex: 1; -webkit-overflow-scrolling: touch; }
-.bs-option {
-  display: flex; justify-content: space-between; align-items: center;
-  width: 100%; padding: 16px 18px; background: transparent; border: none;
-  border-bottom: 1px solid var(--border3);
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  font-size: 16px !important; 
-  text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent;
-}
-.bs-option:active { background: var(--chip-bg); }
-.bs-option.selected { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; font-weight: 700 !important; }
-.bs-option.selected::after { content: '✓'; }
-.bs-empty {
-  text-align: center; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-  font-size: 14px !important; padding: 32px 0;
-}
-
-/* ── MISC ── */
-input[type="file"] { display: none !important; }
-.hidden-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-
-/* ── LOGIN ── */
-#loginScreen, #unauthorized {
-  position: fixed; inset: 0;
-  display: flex; align-items: stretch; justify-content: center;
-  background: var(--bg); z-index: 100;
-  overflow: hidden;
-}
-
-/* ── Decorative bg rings (same style as wizard intro) ── */
-.login-bg {
-  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
-}
-.login-bg-ring {
-  position: absolute; border-radius: 50%;
-  border: 2px solid var(--accent); opacity: 0.07;
-}
-.login-bg-ring-1 {
-  width: 500px; height: 500px; top: -200px; left: -180px;
-  animation: intro-ring-pulse 5s ease-in-out infinite;
-}
-.login-bg-ring-2 {
-  width: 300px; height: 300px; top: -80px; left: -60px;
-  animation: intro-ring-pulse 5s ease-in-out 1s infinite;
-}
-
-/* ── Main layout ── */
-.login-content {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 400px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: space-between;
-  padding: 80px 32px 52px;
-  box-sizing: border-box;
-}
-
-/* ── Hero section ── */
-.login-hero {
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  animation: wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.1s both;
-}
-.login-logo {
-  width: 96px; height: 96px; object-fit: contain;
-  border-radius: 22px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-}
-.login-title {
-  font-size: 22px !important; font-weight: 900 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: -0.3px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  margin: 0 !important; text-align: center;
-}
-.login-sub {
-  font-size: 13px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-  margin: 0 !important; text-align: center; letter-spacing: 0.5px;
-  text-transform: uppercase; font-weight: 600;
-}
-
-/* ── CTA box ── */
-.login-cta-box {
-  width: 100%;
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-  animation: wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.25s both;
-}
-.login-instruction {
-  display: flex; align-items: center; justify-content: center;
-  gap: 8px;
-  background: var(--card); border: 1px solid var(--border2);
-  border-radius: 16px; padding: 14px 18px;
-  font-size: 14px !important; font-weight: 600 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  text-align: center; line-height: 1.45 !important;
-  margin: 0 !important; width: 100%; box-sizing: border-box;
-}
-.login-instruction-icon { font-size: 20px; flex-shrink: 0; }
-.login-google-btn-wrap {
-  display: flex; justify-content: center; align-items: center;
-  min-height: 48px; width: 100%;
-}
-.login-divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 16px 0 12px;
-  width: 100%;
-}
-.login-divider span {
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-.login-divider em {
-  font-style: normal;
-  font-size: 12px;
-  color: var(--text4);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
-.login-register-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 13px 20px;
-  border-radius: 14px;
-  border: 1.5px solid var(--border);
-  background: transparent;
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.18s, border-color 0.18s;
-}
-.login-register-btn:active {
-  background: var(--card);
-}
-
-/* Wizard step-0 note */
-.wiz-step0-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 13px;
-  color: var(--text3);
-  line-height: 1.5;
-  text-align: left;
-  margin-top: 8px;
-}
-.wiz-step0-note strong { color: var(--text); }
-
-.login-disclaimer {
-  font-size: 11px !important; color: var(--text4) !important;
-  -webkit-text-fill-color: var(--text4) !important;
-  text-align: center; line-height: 1.5 !important;
-  margin: 0 !important;
-}
-
-/* ── Keep old .login-card for noEncontrado screen which still uses it ── */
-.login-card {
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  padding: 40px 32px; background: var(--card); border-radius: 24px;
-  max-width: 340px; width: 90%;
-  text-align: center; box-shadow: var(--shadow);
-}
-
-.error-box {
-  margin: 12px 16px 0; padding: 12px 16px;
-  background: var(--accent-dim); border: 1px solid rgba(239,68,68,0.4);
-  border-radius: 10px; color: var(--accent); font-size: 13px; line-height: 1.4;
-}
-
-/* ── TOGGLE ROW (Settings style) ── */
-.profile-field-toggle {
-  display: flex; align-items: center; justify-content: space-between;
-  min-height: 56px; padding: 12px 20px;
-  border-bottom: 1px solid var(--border3); width: 100%;
-  gap: 16px;
-}
-.profile-field-toggle:last-child { border-bottom: none; }
-.is-editing .profile-field-toggle { background: rgba(239,68,68,0.015); }
-.ptf-label {
-  font-size: 15px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  line-height: 1.3 !important; flex: 1;
-}
-.is-editing .profile-field-toggle .ptf-label {
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-
-/* Toggle switch */
-.toggle-wrap { display: flex; align-items: center; flex-shrink: 0; }
-.toggle-btn {
-  position: relative; width: 52px; height: 30px;
-  border-radius: 9999px; border: none; cursor: default;
-  transition: background 0.25s ease; padding: 0;
-  -webkit-tap-highlight-color: transparent; flex-shrink: 0;
-  outline: none;
-}
-.toggle-btn:not(:disabled) { cursor: pointer; }
-.toggle-off {
-  background: var(--chip-bg);
-  box-shadow: inset 0 0 0 1.5px var(--border);
-}
-.toggle-on  { background: var(--accent); box-shadow: none; }
-.toggle-thumb {
-  position: absolute; width: 24px; height: 24px;
-  background: #fff; border-radius: 9999px;
-  top: 50%; transform: translateY(-50%);
-  transition: left 0.22s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-}
-.toggle-off .toggle-thumb { left: 3px; }
-.toggle-on  .toggle-thumb { left: calc(100% - 27px); }
-.toggle-text { display: none; }
-.toggle-btn:disabled { opacity: 0.4; }
-
-/* ══════════════════════════════════════════════════
-   NAVEGACIÓN POR VISTAS
-══════════════════════════════════════════════════ */
-#appContent {
-  width: 100%; height: 100dvh;
-  position: relative;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-.app-view {
-  position: absolute; top: 0; left: 0; width: 100%;
-  min-height: 100%;
-  display: none; flex-direction: column;
-  background: var(--bg);
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  overflow-y: scroll;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-.app-view.active {
-  display: flex;
-  transform: translateX(0);
-}
-.app-view.slide-out {
-  transform: translateX(-30%);
-}
-
-/* ── APP HEADER ── */
-.app-header {
-  position: sticky; top: 0; z-index: 50; min-height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px;
-  /* Gloss glass — same hue as bg, no border */
-  background: rgba(var(--bg-rgb), 0.78);
-  backdrop-filter: blur(28px) saturate(1.8) brightness(1.05);
-  -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.05);
-  border-bottom: none;
-  box-shadow: none;
-  flex-shrink: 0;
-}
-.app-header-section {
-  padding: 0 12px 0 8px; gap: 4px;
-  height: auto !important;
-  min-height: 60px;
-  flex-wrap: wrap;
-  align-items: center;
-  padding-top: 10px; padding-bottom: 10px;
-}
-.app-header-title {
-  font-size: 20px !important; font-weight: 900 !important; font-style: italic !important;
-  text-transform: uppercase !important; letter-spacing: -0.5px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  flex: 1;
-}
-.app-header-section .app-header-title { font-size: 18px !important; }
-.app-header-email {
-  font-size: 12px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-  max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.header-back {
-  width: 44px; height: 44px; border-radius: 50%; border: none;
-  background: transparent; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
-}
-.header-back .material-icons {
-  font-size: 24px !important; color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important;
-}
-.header-back:active { background: var(--chip-bg); }
-.header-edit-btn {
-  width: 44px; height: 44px; border-radius: 50%; border: none;
-  background: transparent; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
-}
-.header-edit-btn .material-icons {
-  font-size: 20px !important; color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important;
-}
-.header-edit-btn:active { background: var(--chip-bg); }
-.header-edit-btn.editing .material-icons {
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-}
-
-/* ── APP SCROLL ── */
-.app-scroll {
-  flex: 1 1 0;
-  overflow-y: scroll; -webkit-overflow-scrolling: touch;
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-  display: flex; flex-direction: column; gap: 12px;
-  overscroll-behavior-y: contain;
-  /* No side overflow / extra space */
-  overflow-x: hidden;
-  box-sizing: border-box;
-}
-
-/* ══════════════════════════════════════════════════
-   HERO CARD (home)
-══════════════════════════════════════════════════ */
-.hero-card {
-  background: var(--card); border-radius: 20px;
-  box-shadow: var(--shadow); padding: 18px 18px 16px;
-}
-.hero-banner { display: none; }
-.hero-avatar-wrap { display: none; }
-#avatar-container {
-  position: relative; width: 72px; height: 72px;
-  border-radius: 18px;
-  background: var(--card2); overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3); cursor: pointer;
-  flex-shrink: 0;
-}
-#img-preview-foto { width: 100%; height: 100%; object-fit: cover; display: block; }
-.pf-avatar-edit {
-  position: absolute; bottom: 3px; right: 3px;
-  width: 22px; height: 22px; border-radius: 9999px; background: var(--accent);
-  display: flex; align-items: center; justify-content: center; border: 2px solid var(--card);
-  opacity: 0; transition: opacity 0.2s; pointer-events: none;
-}
-#avatar-container:not(.disabled) .pf-avatar-edit { opacity: 1; }
-.pf-avatar-edit .material-icons { font-size: 11px !important; color: #fff !important; -webkit-text-fill-color: #fff !important; }
-#avatar-loader { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); }
-#avatar-loader.hidden { display: none; }
-#avatar-overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); }
-#avatar-overlay.flex { display: flex; }
-.hero-text { text-align: center; padding: 0 16px 20px; }
-.hero-name {
-  font-size: 24px !important; font-weight: 900 !important; font-style: italic !important;
-  text-transform: uppercase !important; letter-spacing: -0.4px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  line-height: 1.1 !important; margin-bottom: 3px !important;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.hero-sub {
-  font-size: 11px !important; font-weight: 800 !important;
-  text-transform: uppercase !important; letter-spacing: 0.2em !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  margin-bottom: 8px !important;
-}
-.hero-badges { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; }
-.hero-stats {
-  display: none;
-}
-
-/* ══════════════════════════════════════════════════
-   SETTINGS LIST (home)
-══════════════════════════════════════════════════ */
-.settings-list {
-  display: flex; flex-direction: column; gap: 8px;
-  background: transparent;
-}
-.settings-row {
-  display: flex; align-items: center; gap: 16px;
-  padding: 14px 16px;
-  border: none; border-radius: 16px;
-  background: var(--card);
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s; min-height: 72px; box-shadow: none;
-}
-.settings-row:active { background: var(--card2); }
-.settings-row-ico {
-  width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.settings-row-ico .material-icons { font-size: 24px !important; }
-.settings-row-body { flex: 1; min-width: 0; }
-.settings-row-title {
-  display: block; font-size: 18px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  line-height: 1.3 !important;
-}
-.settings-row-sub {
-  display: block; font-size: 13px !important; font-weight: 400 !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-top: 1px !important;
-}
-.settings-row-arrow {
-  font-size: 24px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important; flex-shrink: 0;
-}
-
-/* ══════════════════════════════════════════════════
-   SECTION VIEWS — FIELDS
-══════════════════════════════════════════════════ */
-.sec-group {
-  background: var(--card); border-radius: 18px;
-  overflow: visible;
-}
-/* But clip inner items to rounded corners */
-.sec-group > .sec-row:first-child { border-radius: 18px 18px 0 0; }
-.sec-group > .sec-row:last-child  { border-radius: 0 0 18px 18px; }
-.sec-group > .sec-row:only-child  { border-radius: 18px; }
-.sec-group > .sec-row-toggle:first-child { border-radius: 18px 18px 0 0; }
-.sec-group > .sec-row-toggle:last-child  { border-radius: 0 0 18px 18px; }
-.sec-group > .sec-row-toggle:only-child  { border-radius: 18px; }
-
-/* Regular row */
-.sec-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--border3);
-  min-height: 68px;
-}
-.sec-row:last-child { border-bottom: none; }
-.sec-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.sec-row-label {
-  font-size: 12px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.6px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  line-height: 1 !important;
-  transition: color 0.2s;
-}
-/* Labels: default = muted, red ONLY when that specific view is being edited */
-.sec-row-label {
-  color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-}
-.sec-toggle-label {
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
-}
-/* Red labels only inside the view that has is-editing */
-.app-view.is-editing .sec-row-label {
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-.app-view.is-editing .sec-toggle-label {
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-.sec-input {
-  display: block !important; width: 100% !important;
-  background: transparent !important; border: none !important; outline: none !important;
-  padding: 0 !important; margin: 0 !important;
-  font-size: 18px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  line-height: 1.3 !important; border-radius: 0 !important;
-  -webkit-appearance: none !important; opacity: 1 !important;
-}
-.sec-input-bold { font-weight: 800 !important; font-style: italic !important; text-transform: uppercase !important; }
-.sec-input-normal { font-weight: 400 !important; font-style: italic !important; }
-.sec-input:disabled { -webkit-text-fill-color: var(--text) !important; opacity: 1 !important; cursor: default !important; }
-.is-editing .sec-input:not(:disabled) {
-  border-bottom: 1.5px solid rgba(239,68,68,0.5) !important;
-  padding-bottom: 2px !important;
-}
-.is-editing .sec-input:not(:disabled):focus { border-bottom-color: var(--accent) !important; }
-
-.sec-select-arrow {
-  font-size: 20px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important; flex-shrink: 0;
-}
-
-/* Toggle row */
-.sec-row-toggle {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 18px; min-height: 64px; gap: 16px;
-  border-bottom: 1px solid var(--border3);
-}
-.sec-row-toggle:last-child { border-bottom: none; }
-.sec-toggle-label {
-  font-size: 18px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  flex: 1;
-}
-
-/* Avatar row in section */
-.sec-row-avatar { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.sec-row-avatar:active { background: var(--chip-bg); }
-.sec-avatar-preview {
-  width: 48px; height: 48px; border-radius: 12px; overflow: hidden;
-  background: var(--card2); flex-shrink: 0; position: relative;
-}
-.sec-avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sec-avatar-edit-ico {
-  position: absolute; inset: 0; background: rgba(0,0,0,0.45);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity 0.2s;
-}
-.is-editing .sec-avatar-edit-ico { opacity: 1; }
-.sec-avatar-edit-ico .material-icons { font-size: 18px !important; color: #fff !important; -webkit-text-fill-color: #fff !important; }
-.sec-row-title { font-size: 16px !important; font-weight: 600 !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;  }
-.sec-row-sub { font-size: 12px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;  }
-.sec-row-arrow { font-size: 20px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; flex-shrink: 0; }
-
-/* File status inside sec-row */
-.sec-file-status { margin-top: 2px; }
-.sec-file-actions { display: none; margin-top: 6px; gap: 8px; flex-wrap: wrap; align-items: center; }
-.is-editing .sec-file-actions { display: flex; }
-
-/* Save/Cancel row */
-.sec-save-wrap {
-  display: flex; flex-direction: column; gap: 10px;
-  padding: 4px 0;
-}
-.btn-save {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; padding: 18px; border-radius: 9999px;
-  font-size: 14px !important; font-weight: 900 !important;
-  text-transform: uppercase !important; letter-spacing: 0.1em !important;
-  font-style: italic !important; cursor: pointer; border: none; line-height: 1 !important;
-  background: linear-gradient(145deg, #ff4d4d, #d61f1f) !important;
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  box-shadow: 0 6px 18px rgba(239,68,68,0.38);
-  -webkit-tap-highlight-color: transparent;
-}
-.btn-cancel {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; padding: 16px; border-radius: 9999px;
-  font-size: 13px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; cursor: pointer;
-  border: 1px solid var(--border) !important; line-height: 1 !important;
-  background: var(--chip-bg) !important;
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-  -webkit-tap-highlight-color: transparent;
-}
-.btn-save:active { transform: scale(0.98); }
-.btn-cancel:active { transform: scale(0.98); }
-
-/* Chips inside sec-row */
-.sec-row .chip-wrapper { padding-top: 6px; }
-
-/* ══════════════════════════════════════════════════
-   MULTISELECT MODAL (pronombres y futuros)
-══════════════════════════════════════════════════ */
-.ms-panel {
-  max-height: 70vh;
-  display: flex; flex-direction: column;
-}
-.ms-options {
-  flex: 1; overflow-y: scroll; padding: 4px 0;
-}
-.ms-option-row {
-  display: flex; align-items: center; justify-content: space-between;
-  width: 100%; padding: 16px 20px; border: none; background: transparent;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  border-bottom: 1px solid var(--border3);
-  transition: background 0.15s;
-}
-.ms-option-row:last-child { border-bottom: none; }
-.ms-option-row:active { background: var(--chip-bg); }
-.ms-option-row.ms-selected { background: var(--accent-dim); }
-.ms-opt-label {
-  font-size: 17px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-.ms-check {
-  font-size: 22px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-}
-.ms-option-row.ms-selected .ms-check {
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-.ms-footer {
-  display: flex; gap: 10px; padding: 12px 16px 16px;
-  border-top: 1px solid var(--border);
-}
-.ms-footer .btn-cancel { flex: 1; padding: 14px; }
-.ms-footer .btn-save   { flex: 2; padding: 14px; }
-
-/* Multiselect trigger (pronombres row) */
-.multiselect-trigger {
-  display: flex !important; align-items: center !important;
-  justify-content: space-between !important;
-  width: 100% !important; padding: 0 !important;
-  background: transparent !important; border: none !important;
-  cursor: default !important;
-}
-.multiselect-trigger.multiselect-editable { cursor: pointer !important; }
-.ms-value {
-  font-size: 18px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  flex: 1; text-align: left;
-}
-.ms-arrow {
-  font-size: 22px !important; color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important;
-}
-
-/* Fix: hide the extra static arrow below selects - only show the one in the row */
-.sec-select-arrow { display: none !important; }
-
-/* Select trigger: show chevron arrow inside the row when editing */
-.custom-select-trigger {
-  display: flex !important; align-items: center !important;
-  justify-content: space-between !important;
-  text-align: left !important; width: 100% !important;
-  background: transparent !important; border: none !important; outline: none !important;
-  padding: 0 !important; cursor: default !important;
-  font-size: 18px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-.is-editing .custom-select-trigger { cursor: pointer !important; }
-.is-editing .custom-select-trigger::after {
-  content: "chevron_right"; font-family: "Material Icons";
-  font-size: 22px; color: var(--accent); -webkit-text-fill-color: var(--accent);
-  flex-shrink: 0; margin-left: 4px;
-}
-
-/* Extra breathing room for rows with file upload or multi-line content */
-.sec-row.sec-row-tall { min-height: 80px; align-items: flex-start; padding-top: 18px; padding-bottom: 18px; }
-.sec-row-body.has-file { gap: 8px; }
-
-/* Date picker trigger */
-.date-picker-trigger {
-  display: flex !important; align-items: center !important; justify-content: space-between !important;
-  width: 100% !important; background: transparent !important; border: none !important;
-  outline: none !important; padding: 0 !important; cursor: default !important;
-  font-size: 18px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  -webkit-appearance: none !important;
-}
-.is-editing .date-picker-trigger { cursor: pointer !important; }
-.is-editing .date-picker-trigger::after {
-  content: "edit_calendar"; font-family: "Material Icons";
-  font-size: 20px; color: var(--accent); -webkit-text-fill-color: var(--accent);
-  flex-shrink: 0;
-}
-
-/* Date picker modal */
-#date-picker-modal {
-  position: fixed; inset: 0; z-index: 2000;
-  display: none; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-  padding: 24px;
-}
-#date-picker-modal.active { display: flex; }
-.dp-card {
-  background: var(--card); border-radius: 28px;
-  width: 100%; max-width: 340px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
-  overflow: hidden;
-}
-.dp-header {
-  padding: 24px 24px 8px;
-}
-.dp-header-label {
-  font-size: 12px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.6px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  margin-bottom: 4px;
-}
-.dp-selected-date {
-  font-size: 32px !important; font-weight: 400 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  line-height: 1.2 !important;
-}
-.dp-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px 4px;
-}
-#dp-nav-arrows { display: none !important; } /* arrows hidden — chips handle navigation */
-.dp-nav-label {
-  font-size: 14px !important; font-weight: 600 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  cursor: pointer; display: flex; align-items: center; gap: 4px;
-}
-.dp-nav-btn {
-  width: 40px; height: 40px; border-radius: 50%; border: none;
-  background: transparent; cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-}
-.dp-nav-btn:active { background: var(--chip-bg); }
-.dp-nav-btn .material-icons {
-  font-size: 20px !important; color: var(--text2) !important;
-  -webkit-text-fill-color: var(--text2) !important;
-}
-.dp-grid {
-  display: grid; grid-template-columns: repeat(7, 1fr);
-  gap: 2px; padding: 4px 12px 8px;
-}
-.dp-day-label {
-  text-align: center; font-size: 11px !important; font-weight: 700 !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  padding: 6px 0;
-}
-.dp-day {
-  aspect-ratio: 1; border-radius: 50%; border: none; background: transparent;
-  font-size: 14px !important; font-weight: 400 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  -webkit-tap-highlight-color: transparent; transition: background 0.15s;
-}
-.dp-day:hover { background: var(--chip-bg); }
-.dp-day.dp-selected {
-  background: var(--accent) !important;
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  font-weight: 700 !important;
-}
-.dp-day.dp-other-month { color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important; }
-.dp-day.dp-today:not(.dp-selected) {
-  border: 1.5px solid var(--accent);
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-.dp-error {
-  margin: 0 12px 0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(255,59,48,0.12);
-  border: 1px solid rgba(255,59,48,0.3);
-  font-size: 13px !important; font-weight: 600 !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  text-align: center;
-  animation: wiz-fade-up 0.2s ease both;
-}
-.dp-footer {
-  display: flex; justify-content: flex-end; gap: 8px;
-  padding: 8px 16px 20px;
-}
-.dp-btn {
-  padding: 10px 20px; border-radius: 9999px; border: none;
-  font-size: 14px !important; font-weight: 700 !important;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  text-transform: uppercase !important; letter-spacing: 0.05em !important;
-}
-.dp-btn-cancel {
-  background: transparent; color: var(--text2) !important;
-  -webkit-text-fill-color: var(--text2) !important;
-}
-.dp-btn-cancel:active { background: var(--chip-bg); }
-.dp-btn-ok {
-  background: var(--accent); color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-}
-.dp-btn-ok:active { filter: brightness(0.9); }
-
-/* Year/month picker inside date picker */
-.dp-year-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 8px; padding: 12px 16px 16px; max-height: 220px; overflow-y: scroll;
-}
-.dp-year-btn {
-  padding: 12px 4px; border-radius: 12px; border: none;
-  font-size: 15px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  background: transparent; cursor: pointer; text-align: center;
-  -webkit-tap-highlight-color: transparent;
-}
-.dp-year-btn.dp-year-selected {
-  background: var(--accent) !important;
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  font-weight: 700 !important;
-}
-.dp-year-btn:active { background: var(--chip-bg); }
-
-/* ── EXTRA BREATHING ROOM ── */
-.sec-row { padding: 18px 18px; }
-
-/* Longer toggle labels wrap gracefully */
-.sec-toggle-label { line-height: 1.3 !important; }
-
-/* File action row spacing */
-.sec-file-actions { margin-top: 8px; }
-
-/* sec-row with file content */
-.sec-row .sec-file-status + .sec-file-actions { margin-top: 6px; }
-
-/* Chips hidden when not editing - show only trigger */
-.chip-wrapper { display: none; }
-
-
-/* Sec groups and rows: height always wraps content */
-.sec-group, .sec-row, .sec-row-toggle { height: auto !important; }
-
-/* sec-file-actions: hidden by default, shown in edit mode */
-.sec-file-actions { display: none !important; }
-.app-view.is-editing .sec-file-actions { display: flex !important; }
-
-/* "VER ARCHIVO" pill: visible by default, hidden in edit mode */
-.file-status-ok { display: flex !important; }
-.app-view.is-editing .file-status-ok { display: none !important; }
-
-/* Fix date picker month/year button white box */
-.dp-nav-chips { display: flex; gap: 2px; align-items: center; }
-
-/* sec-input italic: handled below */
-
-/* ── 3. Header action buttons (save/cancel) - fixed in nav */
-.header-actions {
-  display: flex; align-items: center; gap: 8px;
-  /* sits right in flex row after title */
-}
-.header-save-btn {
-  padding: 7px 16px; border-radius: 9999px; border: none;
-  background: var(--accent); cursor: pointer;
-  font-size: 12px !important; font-weight: 900 !important;
-  text-transform: uppercase !important; letter-spacing: 0.05em !important;
-  font-style: italic !important;
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  -webkit-tap-highlight-color: transparent;
-  white-space: nowrap;
-}
-.header-save-btn:active { filter: brightness(0.88); }
-.header-cancel-btn {
-  padding: 7px 14px; border-radius: 9999px; border: none;
-  background: var(--chip-bg); cursor: pointer;
-  font-size: 12px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.04em !important;
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-  -webkit-tap-highlight-color: transparent;
-  white-space: nowrap;
-}
-.header-cancel-btn:active { filter: brightness(0.88); }
-
-/* Hide old save wrap at bottom */
-.sec-save-wrap { display: none !important; }
-
-/* Hide pencil edit button when in editing mode */
-.app-view.is-editing .header-edit-btn { display: none !important; }
-
-/* Selects and date: NOT italic */
-.custom-select-trigger,
-.date-picker-trigger,
-.multiselect-trigger { font-style: normal !important; }
-
-/* ── EDIT MODE: inputs & triggers keep normal text color (not red) ── */
-.app-view.is-editing .sec-input,
-.app-view.is-editing .custom-select-trigger,
-.app-view.is-editing .date-picker-trigger,
-.app-view.is-editing .multiselect-trigger,
-.app-view.is-editing .ms-value {
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
-}
-/* Underline accent on editable fields instead */
-.app-view.is-editing .sec-input:not(:disabled),
-.app-view.is-editing .custom-select-trigger,
-.app-view.is-editing .date-picker-trigger.enabled,
-.app-view.is-editing .multiselect-trigger.multiselect-editable {
-  border-bottom: 1.5px solid var(--accent) !important;
-  padding-bottom: 2px !important;
-}
-/* Toggle labels in editing: accent only on LABEL (small caps), NOT on sec-toggle-label */
-.app-view.is-editing .sec-toggle-label {
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
-}
-
-/* select uppercase: handled below */
-
-/* ── 5. Section labels (NOMBRE CIVIL etc): bold, no italic, uppercase ── */
-.sec-row-label {
-  font-weight: 700 !important;
-  font-style: normal !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.6px !important;
-  font-size: 11px !important;
-  color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-}
-
-/* ── 4. Date picker footer: more breathing room ── */
-.dp-footer {
-  padding: 16px 20px 28px !important;
-  gap: 12px !important;
-}
-.dp-btn {
-  padding: 13px 24px !important;
-  font-size: 14px !important;
-}
-.dp-year-grid {
-  gap: 10px !important;
-  padding: 16px 20px 16px !important;
-}
-.dp-year-btn {
-  padding: 14px 4px !important;
-  font-size: 15px !important;
-  border-radius: 14px !important;
-}
-
-/* ── SECTION HEADER: stacked layout ── */
-.app-header-section {
-  flex-direction: column !important;
-  align-items: stretch !important;
-  height: auto !important;
-  padding: 8px 12px 8px 8px !important;
-  gap: 0 !important;
-}
-.header-row-top {
-  display: flex; align-items: center; gap: 4px;
-  min-height: 44px;
-}
-.header-row-top .app-header-title {
-  flex: 1;
-}
-.header-row-actions {
-  display: flex; align-items: center; justify-content: flex-end;
-  gap: 10px; padding: 4px 4px 6px;
-}
-/* In editing mode, show action row */
-.app-view.is-editing .header-row-actions { display: flex !important; }
-/* Hide pencil in edit mode */
-.app-view.is-editing .header-edit-btn { display: none !important; }
-
-/* ── STYLIZED CHEVRONS: thin CSS arrow, no Material icon font ── */
-.settings-row-arrow,
-.sec-row-arrow,
-.sec-select-arrow {
-  /* Hide the Material icon text, use CSS border arrow instead */
-  font-family: none !important;
-  font-size: 0 !important;
-  color: transparent !important;
-  -webkit-text-fill-color: transparent !important;
-  width: 20px; height: 20px;
-  display: flex !important; align-items: center; justify-content: center;
-  flex-shrink: 0; position: relative;
-}
-.settings-row-arrow::after,
-.sec-row-arrow::after {
-  content: '';
-  display: block;
-  width: 8px; height: 8px;
-  border-right: 2px solid var(--text3);
-  border-top: 2px solid var(--text3);
-  transform: rotate(45deg) translateX(-2px);
-  border-radius: 1px;
-}
-
-/* ── FIX date-picker-trigger::after — remove "edit_calendar" text icon ── */
-.is-editing .date-picker-trigger::after {
-  content: '' !important;
-  display: block;
-  width: 8px; height: 8px;
-  border-right: 2px solid var(--accent);
-  border-top: 2px solid var(--accent);
-  transform: rotate(45deg) translateX(-2px);
-  border-radius: 1px;
-  font-family: none !important;
-}
-
-/* ── is-editing select trigger arrow: thin red chevron ── */
-.is-editing .custom-select-trigger::after {
-  content: '' !important;
-  display: block;
-  width: 8px; height: 8px;
-  border-right: 2px solid var(--accent);
-  border-top: 2px solid var(--accent);
-  transform: rotate(45deg) translateX(-2px);
-  border-radius: 1px;
-  font-family: none !important;
-  flex-shrink: 0; margin-left: 8px;
-}
-
-/* ── STATS in generales section ── */
-.sec-stats-group { background: var(--card) !important; }
-.sec-stat-row {
-  display: flex; gap: 0;
-  padding: 4px 0;
-}
-.sec-stat {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 16px 8px 18px;
-  gap: 6px;
-  border-right: 1px solid var(--border3);
-}
-.sec-stat:last-child { border-right: none; }
-.sec-stat-ico {
-  font-size: 18px !important;
-  color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important;
-  opacity: 0.7;
-}
-.sec-stat-lbl {
-  font-size: 9px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.5px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  text-align: center; line-height: 1.2;
-}
-.sec-stat-val {
-  font-size: 12px !important; font-weight: 700 !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  text-align: center; line-height: 1.3;
-  text-transform: uppercase !important;
-}
-
-/* Hide old hero-stats (now empty) */
-.hero-stats { display: none !important; }
-
-/* ── HERO CARD — flat Android Settings style ── */
-.hero-flat-row {
-  display: flex; align-items: center; gap: 16px;
-  margin-bottom: 12px;
-}
-.hero-avatar-flat {
-  /* override inherited styles for flat layout */
-}
-.hero-flat-info {
-  flex: 1; min-width: 0;
-}
-.hero-flat-info .hero-name {
-  text-align: left !important;
-  font-size: 22px !important;
-  margin-bottom: 2px !important;
-}
-.hero-flat-info .hero-sub {
-  text-align: left !important;
-  font-size: 12px !important;
-  margin-bottom: 0 !important;
-}
-.hero-flat-badges {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  padding-left: 0;
-}
-/* Camera icon always visible on hero avatar (no edit mode needed) */
-.hero-avatar-flat .pf-avatar-edit {
-  opacity: 1 !important;
-}
-/* hero-text and hero-badges: hide old centered ones */
-.hero-text { display: none !important; }
-.hero-badges { display: none !important; }
-.hero-avatar-wrap { display: none !important; }
-
-/* ── Fix double-arrow on select rows (the ::after + the static span) ── */
-/* sec-select-arrow span: hide when arrow is shown via CSS ::after */
-.sec-select-arrow { display: none !important; }
-/* Only the CSS ::after on .custom-select-trigger and .date-picker-trigger shows the arrow */
-
-/* ── Date picker trigger italic ── */
-.date-picker-trigger {
-  font-style: italic !important;
-  text-transform: uppercase !important;
-}
-
-/* ════════════════════════════════════
-   CONSOLIDATED FINAL OVERRIDES
-   ════════════════════════════════════ */
-
-/* Loading */
-.loading-logo .material-icons { display: none; }
-
-/* Favicon — no CSS needed, handled in HTML */
-
-/* Font: single consistent stack for ALL inputs and text */
-.sec-input, .custom-select-trigger, .date-picker-trigger,
-.multiselect-trigger, .ms-value, .sec-row-label,
-.sec-row-title, .sec-row-sub, .sec-toggle-label,
-.app-header-title, .hero-name, .hero-sub {
-  font-family: var(--font) !important;
-}
-
-/* All sec-input values: uppercase + italic */
-.sec-input {
-  font-style: italic !important;
-  text-transform: uppercase !important;
-  font-weight: 600 !important;
-}
-.sec-input-bold {
-  font-weight: 800 !important;
-  font-style: italic !important;
-  text-transform: uppercase !important;
-}
-.sec-input-normal {
-  font-weight: 600 !important;
-  font-style: italic !important;
-  text-transform: uppercase !important;
-}
-/* Selects and date: uppercase, NOT italic */
-.custom-select-trigger,
-.date-picker-trigger,
-.multiselect-trigger,
-.ms-value {
-  font-style: normal !important;
-  text-transform: uppercase !important;
-  font-weight: 600 !important;
-  font-family: var(--font) !important;
-}
-
-/* Date picker trigger: italic specifically */
-.date-picker-trigger {
-  font-style: italic !important;
-}
-
-/* ── STATS: proper column alignment ── */
-.sec-stat {
-  flex: 1;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  padding: 18px 6px 20px !important;
-  gap: 5px !important;
-  text-align: center !important;
-}
-.sec-stat-ico {
-  font-size: 18px !important;
-  color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important;
-  flex-shrink: 0;
-  display: block !important;
-}
-.sec-stat-lbl {
-  font-size: 9px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-  color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-  display: block !important;
-  text-align: center !important;
-  line-height: 1.2 !important;
-  min-height: 22px !important; /* align across all 3 */
-}
-.sec-stat-val {
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important;
-  display: block !important;
-  text-align: center !important;
-  line-height: 1.3 !important;
-  text-transform: uppercase !important;
-}
-
-/* ── Date picker month/year CSS arrow (no Material icon) ── */
-
-/* dp-nav-label: fix transparent bg */
-.dp-nav-label {
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 2px !important;
-  font-size: 15px !important;
-  font-weight: 700 !important;
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
-  font-family: var(--font) !important;
-  padding: 6px 8px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-}
-
-/* ── Header action row: slide-down animation ── */
-.header-row-actions {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1),
-              opacity    0.22s ease,
-              padding    0.25s ease;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-.header-row-actions.visible {
-  max-height: 60px;
-  opacity: 1;
-  padding-top: 4px !important;
-  padding-bottom: 8px !important;
-}
-/* Buttons animate in with slight scale */
-.header-cancel-btn, .header-save-btn {
-  transform: translateY(-6px);
-  opacity: 0;
-  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
-              opacity   0.18s ease;
-}
-.header-row-actions.visible .header-cancel-btn {
-  transform: translateY(0); opacity: 1;
-  transition-delay: 0.04s;
-}
-.header-row-actions.visible .header-save-btn {
-  transform: translateY(0); opacity: 1;
-  transition-delay: 0.08s;
-}
-
-
-/* ════════════════════════════════════════════════════════════════
-   TYPOGRAPHY SYSTEM — single source of truth, overrides all above
-   
-   SCALE:
-   • Hero name        — 24px, 900, uppercase, italic  (identity)
-   • Hero sub/badges  — 12px, 600, uppercase, normal  (metadata)
-   • Section title (header) — 18px, 900, uppercase, italic  (nav)
-   • Settings row title     — 16px, 600, normal, normal    (list)
-   • Settings row sub       — 12px, 400, normal, normal    (preview)
-   • Field label (caps)     — 10px, 700, uppercase, normal (key)
-   • Field value (input)    — 17px, 600, uppercase, italic (value)
-   • Field value bold       — 17px, 900, uppercase, italic (derby name/number)
-   • Toggle label           — 16px, 500, normal, normal    (question)
-   • Button text            — 12px, 800, uppercase, italic (CTA)
-   • Stat label             — 9px,  700, uppercase, normal
-   • Stat value             — 12px, 700, uppercase, italic
-   ════════════════════════════════════════════════════════════════ */
-
-/* Hero */
-.hero-name {
-  font-size: 24px !important; font-weight: 900 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: -0.5px !important; line-height: 1.1 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-.hero-sub {
-  font-size: 12px !important; font-weight: 600 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-  letter-spacing: 0.6px !important; line-height: 1.4 !important;
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-}
-
-/* Header / nav title */
-.app-header-title {
-  font-size: 18px !important; font-weight: 900 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: -0.3px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-
-/* Settings list rows */
-.settings-row-title {
-  font-size: 16px !important; font-weight: 600 !important;
-  font-style: normal !important; text-transform: none !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-.settings-row-sub {
-  font-size: 12px !important; font-weight: 400 !important;
-  font-style: normal !important; text-transform: none !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-}
-
-/* Field labels (NOMBRE DERBY, etc.) */
-.sec-row-label {
-  font-size: 10px !important; font-weight: 700 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-  letter-spacing: 0.7px !important; line-height: 1 !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-}
-.app-view.is-editing .sec-row-label {
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-
-/* Field values — ALL inputs/selects/date share the same scale */
-.sec-input,
-.custom-select-trigger,
-.date-picker-trigger,
-.multiselect-trigger,
-.ms-value {
-  font-size: 17px !important; font-weight: 600 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  font-family: var(--font) !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-/* Bold variant — derby name/number/rol */
-.sec-input-bold {
-  font-weight: 900 !important;
-}
-/* Selects are NOT italic (it's a choice, not typed text) */
-.custom-select-trigger,
-.multiselect-trigger,
-.ms-value {
-  font-style: normal !important;
-}
-
-/* Toggle question label */
-.sec-toggle-label {
-  font-size: 16px !important; font-weight: 500 !important;
-  font-style: normal !important; text-transform: none !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-.app-view.is-editing .sec-toggle-label {
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-
-/* Buttons */
-.header-save-btn {
-  font-size: 12px !important; font-weight: 800 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-}
-.header-cancel-btn {
-  font-size: 12px !important; font-weight: 600 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-}
-
-/* Stats */
-.sec-stat-lbl {
-  font-size: 9px !important; font-weight: 700 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-}
-.sec-stat-val {
-  font-size: 12px !important; font-weight: 700 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-}
-
-/* Photo row sub-label */
-.sec-row-title {
-  font-size: 16px !important; font-weight: 600 !important;
-  font-style: normal !important; text-transform: none !important;
-  font-family: var(--font) !important;
-}
-.sec-row-sub {
-  font-size: 12px !important; font-weight: 400 !important;
-  font-style: normal !important; text-transform: none !important;
-  font-family: var(--font) !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-}
-
-/* Badges */
-.pf-badge {
-  font-size: 11px !important; font-weight: 700 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-  letter-spacing: 0.3px !important;
-}
-
-
-/* ═══════════════════════════════════════════════════════
-   DEFINITIVE OVERRIDES — these win over everything above
-   ═══════════════════════════════════════════════════════ */
-
-/* Font: Be Vietnam Pro everywhere */
-* { font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif; }
-input, button, select, textarea {
-  font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif !important;
-}
-
-/* ── 9. ALL inputs: NOT italic, lowercase (capitalize for readability) ── */
-.sec-input,
-.sec-input-bold,
-.sec-input-normal,
-.custom-select-trigger,
-.date-picker-trigger,
-.multiselect-trigger,
-.ms-value {
-  font-style: normal !important;
-  text-transform: none !important;  /* keep natural case */
-  font-family: "Be Vietnam Pro", sans-serif !important;
-}
-/* Still bold for derby name/number */
-.sec-input-bold { font-weight: 800 !important; }
-.sec-input { font-weight: 500 !important; font-size: 17px !important; }
-.custom-select-trigger,
-.date-picker-trigger,
-.multiselect-trigger { font-weight: 500 !important; font-size: 17px !important; }
-
-/* Field labels: small caps, bold, accent in editing */
-.sec-row-label {
-  font-size: 10px !important; font-weight: 700 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-  letter-spacing: 0.8px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-}
-.app-view.is-editing .sec-row-label {
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-
-/* Toggle labels: natural, readable */
-.sec-toggle-label {
-  font-size: 16px !important; font-weight: 500 !important;
-  font-style: normal !important; text-transform: none !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-.app-view.is-editing .sec-toggle-label {
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-
-/* Hero name */
-.hero-name {
-  font-size: 22px !important; font-weight: 800 !important;
-  font-style: normal !important; text-transform: none !important;
-  letter-spacing: -0.3px !important;
-}
-.hero-sub {
-  font-size: 12px !important; font-weight: 500 !important;
-  font-style: normal !important; text-transform: none !important;
-}
-
-/* Nav title */
-.app-header-title {
-  font-size: 17px !important; font-weight: 800 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-  letter-spacing: 0.2px !important;
-}
-
-/* Settings list */
-.settings-row-title {
-  font-size: 16px !important; font-weight: 600 !important;
-  font-style: normal !important; text-transform: none !important;
-}
-.settings-row-sub {
-  font-size: 12px !important; font-weight: 400 !important;
-  font-style: normal !important; text-transform: none !important;
-}
-
-/* Buttons */
-.header-save-btn {
-  font-size: 12px !important; font-weight: 800 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-}
-.header-cancel-btn {
-  font-size: 12px !important; font-weight: 600 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-}
-.btn-file {
-  font-size: 12px !important; font-weight: 700 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-}
-
-/* ── 8. SINGLE CLEAN ARROW on selects — kill all Material Icon ::before/::after ── */
-/* Suppress ALL existing ::after/::before on triggers */
-.custom-select-trigger::before,
-.custom-select-trigger::after,
-.date-picker-trigger::before,
-.date-picker-trigger::after,
-.sec-select-arrow { display: none !important; }
-
-/* Only show arrow when editing, using CSS border (not Material icon) */
-.app-view.is-editing .custom-select-trigger::after,
-.app-view.is-editing .date-picker-trigger.enabled::after {
-  content: "" !important;
-  display: inline-block !important;
-  width: 7px !important; height: 7px !important;
-  border-right: 2px solid var(--accent) !important;
-  border-top: 2px solid var(--accent) !important;
-  transform: rotate(45deg) translateY(-1px) !important;
-  border-radius: 1px !important;
-  margin-left: 8px !important;
-  flex-shrink: 0 !important;
-  font-family: none !important;
-  vertical-align: middle !important;
-}
-
-/* ── Photo upload blocker overlay ── */
-#foto-upload-blocker {
-  position: fixed; inset: 0; z-index: 9999;
-  display: none; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(6px);
-}
-.foto-blocker-inner {
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-  padding: 32px 40px; border-radius: 20px;
-  background: var(--card);
-}
-.foto-blocker-inner span {
-  font-size: 15px !important; font-weight: 600 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-.foto-blocker-spinner {
-  width: 36px; height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── Loading: pure logo pulse, no bg color on logo box ── */
-.loading-logo {
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  overflow: visible !important;
-}
-
-/* ── Date picker: ensure month button is always clickable ── */
-
-/* date-picker-trigger: always shows pointer */
-.date-picker-trigger {
-  cursor: pointer !important;
-}
-/* When NOT editing, show default cursor and muted appearance */
-.date-picker-trigger:disabled,
-.date-picker-trigger[disabled] {
-  cursor: default !important;
-  opacity: 1 !important;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   HOME: GROUPED SETTINGS (Android-style single card)
-═══════════════════════════════════════════════════════════ */
-.settings-group {
-  background: var(--card);
-  border-radius: 20px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.settings-row-grouped {
-  border-radius: 0 !important;
-  border-bottom: 1px solid var(--border3);
-  background: transparent !important;
-}
-.settings-row-grouped:first-child { border-radius: 20px 20px 0 0 !important; }
-.settings-row-last,
-.settings-row-grouped:last-child  { border-radius: 0 0 20px 20px !important; border-bottom: none !important; }
-.settings-row-grouped:active { background: var(--card2) !important; }
-
-/* CSS chevron on grouped rows */
-.settings-row-grouped .settings-row-arrow,
-.settings-row-grouped .settings-row-arrow::after {
-  display: block !important;
-}
-.settings-row-grouped .settings-row-arrow {
-  width: 16px; height: 16px;
-  display: flex !important; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.settings-row-grouped .settings-row-arrow::after {
-  content: '';
-  width: 7px; height: 7px;
-  border-right: 2px solid var(--text3);
-  border-top: 2px solid var(--text3);
-  transform: rotate(45deg) translateX(-2px);
-  border-radius: 1px;
-}
-
-/* ── Hero card: show chevron top-right ── */
-.hero-card-clickable {
-  position: relative;
-  cursor: pointer;
-}
-.hero-card-clickable::after {
-  content: '';
-  position: absolute;
-  top: 18px; right: 18px;
-  width: 8px; height: 8px;
-  border-right: 2.5px solid var(--text3);
-  border-top: 2.5px solid var(--text3);
-  transform: rotate(45deg);
-  border-radius: 1px;
-  pointer-events: none;
-}
-
-/* ── Date field: underline + calendar-edit icon in edit mode ── */
-.date-picker-trigger {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 1.5px solid transparent !important;
-  padding: 0 0 2px !important;
-  text-align: left !important;
-  width: 100% !important;
-  transition: border-color 0.2s !important;
-}
-.app-view.is-editing .date-picker-trigger {
-  border-bottom-color: rgba(239,68,68,0.5) !important;
-  cursor: pointer !important;
-}
-.date-picker-trigger .dp-trig-ico {
-  display: none;
-  font-size: 16px !important;
-  color: var(--accent) !important;
-  -webkit-text-fill-color: var(--accent) !important;
-  flex-shrink: 0;
-}
-.app-view.is-editing .date-picker-trigger .dp-trig-ico {
-  display: block !important;
-}
-
-/* ── Date picker: smooth transitions when changing month/year ── */
-#dp-days, #dp-year-grid {
-  animation: dpFadeIn 0.18s ease;
-}
-@keyframes dpFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-#dp-grid-wrap, #dp-year-grid {
-  transition: opacity 0.15s ease;
-}
-/* Month label animates too */
-#dp-month-label, #dp-year-label {
-  display: inline-block;
-  transition: opacity 0.12s ease;
-}
-
-
-/* ── Date picker: month/year as pill buttons ── */
-.dp-nav-chip {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  padding: 8px 14px !important;
-  border-radius: 99px !important;
-  border: 1.5px solid var(--border) !important;
-  background: var(--card) !important;
-  font-size: 15px !important;
-  font-weight: 700 !important;
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
-  cursor: pointer !important;
-  pointer-events: all !important;
-  transition: background 0.15s, border-color 0.15s !important;
-  -webkit-tap-highlight-color: transparent !important;
-}
-.dp-nav-chip:active {
-  background: var(--chip-bg) !important;
-  border-color: var(--accent) !important;
-}
-/* No pseudo-content arrow — chip shape is enough affordance */
-.dp-nav-chip::after { content: none; }
-
-/* ── Month grid: 3 columns, same style as year grid ── */
-.dp-month-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  padding: 8px 16px 16px;
-}
-.dp-month-btn {
-  padding: 14px 6px !important;
-  border: none !important;
-  border-radius: 12px !important;
-  background: transparent !important;
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  text-align: center !important;
-  -webkit-tap-highlight-color: transparent !important;
-  transition: background 0.15s !important;
-  font-family: var(--font) !important;
-}
-.dp-month-btn:active {
-  background: var(--chip-bg) !important;
-}
-.dp-month-selected {
-  background: var(--accent) !important;
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  font-weight: 700 !important;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   NO ENCONTRADO — pantalla intermedia
-══════════════════════════════════════════════════════════════ */
-#noEncontradoScreen {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  background: var(--bg); z-index: 100;
-  overflow: hidden;
-}
-
-/* Animated rings background — same as login screen */
-#noEncontradoScreen .login-bg {
-  display: block;
-}
-
-/* Content container — same structure as login */
-.no-enc-content {
-  position: relative; z-index: 2;
-  display: flex; flex-direction: column; align-items: center;
-  padding: 40px 28px; width: 100%; max-width: 400px;
-  gap: 0;
-}
-.no-enc-hero {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 10px; margin-bottom: 28px; text-align: center;
-}
-.no-enc-emoji {
-  font-size: 52px; line-height: 1; margin-bottom: 4px;
-}
-.no-enc-title {
-  font-size: 26px; font-weight: 800; color: var(--text);
-  letter-spacing: -0.5px; line-height: 1.15;
-  text-align: center; margin: 0;
-}
-.no-enc-email-badge {
-  font-size: 13px; color: var(--text3); font-weight: 500;
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 20px; padding: 4px 14px; word-break: break-all;
-  text-align: center; margin-top: 4px;
-}
-.no-enc-cta-box {
-  width: 100%; display: flex; flex-direction: column;
-  align-items: center; gap: 12px;
-}
-.no-enc-instruction {
-  font-size: 14px; color: var(--text2); text-align: center;
-  line-height: 1.5; margin: 0 0 4px;
-}
-/* Pre-size Google button slot to avoid layout jump when iframe loads */
-#google-resignin-btn {
-  min-height: 48px;
-  display: flex; align-items: center; justify-content: center;
-  width: 100%;
-}
-.no-enc-or { display: flex; align-items: center; gap: 10px; width: 100%; margin: 4px 0; }
-.no-enc-or span { flex: 1; height: 1px; background: var(--border); }
-.no-enc-or em {
-  font-size: 12px; font-style: normal;
-  color: var(--text4); font-weight: 600; letter-spacing: 0.08em;
-}
-.no-enc-register-btn {
-  display: flex; align-items: center;
-  justify-content: center; gap: 6px;
-  width: 100%; padding: 13px 20px;
-  border-radius: 14px; border: 1.5px solid var(--border);
-  background: transparent; color: var(--text);
-  font-size: 15px; font-weight: 600; font-family: inherit;
-  cursor: pointer; transition: background 0.18s;
-}
-.no-enc-register-btn:active { background: var(--card); }
-
-/* ══════════════════════════════════════════════════════════════
-   WIZARD DE REGISTRO — paso a paso
-══════════════════════════════════════════════════════════════ */
-
-#registroScreen {
-  position: fixed; inset: 0; z-index: 100;
-  display: flex; flex-direction: column;
-  background: var(--bg);
-  overflow: hidden;
-  overscroll-behavior: none;
-  touch-action: pan-y;      /* only allow vertical touch, kills lateral drift */
-  width: 100%; height: 100%;
-}
-
-/* ── Header fijo ── */
-.wiz-header {
-  display: flex; align-items: center; gap: 12px;
-  padding: 6px 20px 6px 4px; min-height: 56px; flex-shrink: 0;
-  background: var(--bg); border-bottom: 1px solid var(--border2);
-  position: relative; z-index: 2;
-}
-.wiz-back-btn {
-  width: 44px; height: 44px; border-radius: 50%; border: none;
-  background: transparent; cursor: pointer; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s;
-}
-.wiz-back-btn:active { background: var(--chip-bg); }
-.wiz-back-btn .material-icons {
-  font-size: 24px !important;
-  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-}
-.wiz-progress-wrap { flex: 1; display: flex; flex-direction: column; gap: 5px; }
-.wiz-progress-bar {
-  height: 5px; background: var(--border); border-radius: 99px; overflow: hidden;
-}
-.wiz-progress-fill {
-  height: 100%; background: var(--accent); border-radius: 99px;
-  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 0%;
-}
-.wiz-step-label {
-  font-size: 10px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.7px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-}
-
-/* ── Viewport ── */
-.wiz-viewport {
-  flex: 1; position: relative;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
-/* ── Individual step ── */
-.wiz-step {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  padding: 0;
-  overflow: hidden;
-  visibility: hidden;
-  pointer-events: none;
-  background: var(--bg);
-  box-sizing: border-box;
-  width: 100%;
-}
-/* Inner scroll wrapper — has the padding and handles scroll */
-.wiz-step-inner {
-  flex: 1; min-height: 0;
-  display: flex; flex-direction: column;
-  padding: 24px 20px 32px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-  box-sizing: border-box;
-}
-.wiz-step.wiz-active {
-  visibility: visible;
-  pointer-events: auto;
-}
-
-/* ── Background emoji watermark ── */
-.wiz-bg-emoji {
-  position: absolute; bottom: -10px; right: -10px;
-  font-size: 160px; line-height: 1;
-  opacity: 0.06; pointer-events: none; user-select: none;
-  transform: rotate(-12deg);
-  z-index: 0;
-}
-
-/* ── Step content sits above bg emoji ── */
-.wiz-emoji, .wiz-title, .wiz-desc, .wiz-content, .wiz-actions {
-  position: relative; z-index: 1;
-}
-
-/* ── Emoji ── */
-.wiz-emoji {
-  font-size: 54px; line-height: 1; margin-bottom: 18px;
-  user-select: none;
-}
-
-/* ── Entry animations ── */
-@keyframes wiz-fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Content: invisible until step becomes active, then fades in once after slide completes */
-.wiz-step .wiz-step-inner {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: none;
-}
-.wiz-step.wiz-active .wiz-step-inner {
-  animation: wiz-content-in 0.28s cubic-bezier(0.4,0,0.2,1) 0.30s both;
-}
-@keyframes wiz-content-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Typography ── */
-.wiz-title {
-  font-size: 28px !important; font-weight: 900 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: -0.5px !important; line-height: 1.1 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  margin: 0 0 10px !important;
-}
-.wiz-desc {
-  font-size: 15px !important; font-weight: 400 !important;
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-  line-height: 1.65 !important; margin: 0 0 28px !important;
-}
-
-/* ── Content area ── */
-.wiz-content { display: flex; flex-direction: column; gap: 12px; }
-
-/* ── Actions area ── */
-.wiz-actions {
-  margin-top: auto;
-  padding-top: 24px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  display: flex; flex-direction: column; gap: 10px;
-  flex-shrink: 0;
-}
-
-/* ── Buttons ── */
-.wiz-btn-next, .wiz-btn-finish {
-  display: flex !important; align-items: center !important;
-  justify-content: center !important; gap: 8px !important;
-  width: 100% !important; padding: 18px 24px !important;
-  border-radius: 9999px !important; border: none !important;
-  background: linear-gradient(135deg, #ff3b3b 0%, #c41212 100%) !important;
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  font-size: 13px !important; font-weight: 900 !important;
-  text-transform: uppercase !important; letter-spacing: 0.1em !important;
-  cursor: pointer !important; -webkit-tap-highlight-color: transparent !important;
-  box-shadow: 0 8px 24px rgba(220,30,30,0.35) !important;
-  transition: transform 0.12s, box-shadow 0.12s !important;
-}
-.wiz-btn-next:active, .wiz-btn-finish:active {
-  transform: scale(0.97) !important;
-  box-shadow: 0 4px 12px rgba(220,30,30,0.25) !important;
-}
-.wiz-btn-next .material-icons,
-.wiz-btn-finish .material-icons {
-  font-size: 18px !important;
-  color: rgba(255,255,255,0.9) !important; -webkit-text-fill-color: rgba(255,255,255,0.9) !important;
-}
-.wiz-btn-skip {
-  background: transparent !important; border: none !important;
-  font-size: 12px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.06em !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  padding: 10px !important; cursor: pointer !important;
-  -webkit-tap-highlight-color: transparent !important;
-  text-decoration: underline; text-underline-offset: 3px;
-}
-
-/* Spinning icon for loading state */
-@keyframes wiz-spin { to { transform: rotate(360deg); } }
-.wiz-spin { display: inline-block !important; animation: wiz-spin 0.9s linear infinite !important; }
-
-/* ── Error toast at bottom ── */
-.wiz-error-toast {
-  position: absolute !important;
-  bottom: 20px; left: 16px; right: 16px;
-  background: var(--card) !important;
-  border: 1.5px solid var(--accent) !important;
-  border-radius: 14px !important; padding: 14px 16px !important;
-  font-size: 14px !important; font-weight: 600 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  z-index: 20 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.18) !important;
-  animation: wiz-fade-up 0.2s ease both;
-}
-
-/* ── Avatar / foto ── */
-.reg-foto-center {
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-  padding-top: 16px;
-}
-.reg-avatar {
-  width: 160px; height: 160px; border-radius: 36px; flex-shrink: 0;
-  background: var(--card2); border: 3px dashed var(--border);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; overflow: hidden; position: relative;
-  -webkit-tap-highlight-color: transparent; transition: border-color 0.2s, box-shadow 0.2s;
-}
-.reg-avatar:active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(220,30,30,0.12);
-}
-.reg-avatar:active { border-color: var(--accent); }
-.reg-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.reg-avatar-placeholder {
-  font-size: 52px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-}
-.reg-avatar-overlay {
-  position: absolute; inset: 0; background: rgba(0,0,0,0.45);
-  display: flex; align-items: center; justify-content: center;
-}
-.reg-avatar-overlay .material-icons {
-  font-size: 32px !important; color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-}
-.reg-foto-hint {
-  font-size: 13px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important;
-  text-align: center; margin: 0 !important;
-  transition: color 0.3s;
-}
-.reg-foto-hint-compliment {
-  font-size: 15px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  animation: compliment-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
-}
-@keyframes compliment-pop {
-  from { opacity: 0; transform: scale(0.8); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-/* ── Shared field labels ── */
-.reg-label {
-  font-size: 10px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.8px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  margin: 0 !important;
-}
-.reg-required { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; }
-
-/* ── Text inputs ── */
-.reg-input {
-  width: 100% !important; padding: 14px 16px !important;
-  background: var(--card) !important; border: 1.5px solid var(--border) !important;
-  border-radius: 14px !important; outline: none !important;
-  font-size: 16px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  -webkit-appearance: none !important; box-sizing: border-box !important;
-  font-family: inherit !important;
-  /* force correct colors even when browser autofills or overrides */
-  caret-color: var(--accent) !important;
-}
-.reg-input:-webkit-autofill,
-.reg-input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px var(--card) inset !important;
-  -webkit-text-fill-color: var(--text) !important;
-  caret-color: var(--accent) !important;
-}
-.reg-input:focus { border-color: var(--accent) !important; }
-.reg-input::placeholder {
-  color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important;
-}
-.wiz-big-input { font-size: 18px !important; padding: 16px 18px !important; }
-
-/* ── Selector buttons ── */
-.reg-selector-btn {
-  display: flex !important; align-items: center !important;
-  justify-content: space-between !important;
-  width: 100% !important; padding: 14px 16px !important;
-  border-radius: 14px !important; border: 1.5px solid var(--border) !important;
-  background: var(--card) !important;
-  font-size: 15px !important; font-weight: 500 !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  text-align: left !important; cursor: pointer !important;
-  -webkit-tap-highlight-color: transparent !important; box-sizing: border-box !important;
-  font-family: inherit !important;
-}
-.wiz-selector-btn { padding: 16px 18px !important; font-size: 16px !important; }
-.reg-selector-btn.has-value .reg-selector-val {
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-.reg-selector-btn:active { background: var(--card2) !important; }
-.reg-selector-val { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.reg-selector-ico {
-  font-size: 18px !important; color: var(--text3) !important;
-  -webkit-text-fill-color: var(--text3) !important; flex-shrink: 0; margin-left: 8px;
-}
-
-/* ── Phone row ── */
-.reg-phone-row { display: flex; gap: 10px; align-items: stretch; width: 100%; }
-.reg-codigo-btn { flex-shrink: 0 !important; width: 120px !important; min-width: 0 !important; }
-.reg-tel-input  { flex: 1 !important; width: 0 !important; min-width: 0 !important; }
-
-/* ── Wizard chips ── */
-.wiz-chips { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
-.wiz-chips .chip { font-size: 15px !important; padding: 11px 22px !important; }
-.wiz-chips-inline { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
-.wiz-chips-inline .chip { font-size: 13px !important; padding: 8px 16px !important; }
-
-/* ── Privacy box (paso 6) ── */
-.wiz-privacy-box {
-  display: flex; flex-direction: column; gap: 14px;
-  padding: 16px; margin-top: 4px;
-  background: var(--card); border-radius: 16px;
-  border: 1px solid var(--border2);
-}
-.wiz-privacy-title {
-  font-size: 11px !important; font-weight: 700 !important;
-  text-transform: uppercase !important; letter-spacing: 0.6px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  margin: 0 !important;
-}
-.wiz-privacy-row { display: flex; flex-direction: column; gap: 8px; }
-.wiz-privacy-q {
-  font-size: 14px !important; font-weight: 500 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-
-/* ── Fine print ── */
-.reg-note {
-  text-align: center; font-size: 12px !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  line-height: 1.5 !important; margin: 0 !important;
-}
-.reg-note strong { color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; }
-
-/* ══════════════════════════════════════════════════════════════
-   WIZARD — LOADING OVERLAY (full-screen)
-══════════════════════════════════════════════════════════════ */
-#wiz-loading-overlay {
-  position: absolute; inset: 0; z-index: 50;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--bg);
-  animation: wiz-overlay-in 0.35s cubic-bezier(0.4,0,0.2,1) both;
-}
-@keyframes wiz-overlay-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.wiz-loading-content {
-  display: flex; flex-direction: column; align-items: center; gap: 28px;
-  padding: 0 32px;
-}
-
-/* ── Rink rings ── */
-.wiz-loading-rink {
-  position: relative;
-  width: 160px; height: 160px;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.wiz-rink-ring {
-  position: absolute; border-radius: 50%;
-  border-style: solid; border-color: transparent;
-}
-.wiz-rink-ring-1 {
-  width: 160px; height: 160px;
-  border-width: 3px;
-  border-top-color: var(--accent);
-  border-right-color: var(--accent);
-  animation: wiz-spin-cw 1.1s linear infinite;
-  opacity: 0.9;
-}
-.wiz-rink-ring-2 {
-  width: 120px; height: 120px;
-  border-width: 3px;
-  border-bottom-color: var(--accent);
-  border-left-color: var(--accent);
-  animation: wiz-spin-ccw 1.4s linear infinite;
-  opacity: 0.55;
-}
-.wiz-rink-ring-3 {
-  width: 80px; height: 80px;
-  border-width: 2px;
-  border-top-color: var(--accent);
-  animation: wiz-spin-cw 0.9s linear infinite;
-  opacity: 0.3;
-}
-
-@keyframes wiz-spin-cw  { to { transform: rotate(360deg);  } }
-@keyframes wiz-spin-ccw { to { transform: rotate(-360deg); } }
-
-/* ── Skate emoji in the center ── */
-.wiz-skater {
-  position: relative; z-index: 2;
-  font-size: 44px; line-height: 1;
-  animation: wiz-skater-wobble 1.8s ease-in-out infinite;
-  user-select: none;
-}
-@keyframes wiz-skater-wobble {
-  0%,100% { transform: rotate(-8deg) scale(1);   }
-  25%      { transform: rotate( 0deg) scale(1.08); }
-  50%      { transform: rotate( 8deg) scale(1);   }
-  75%      { transform: rotate( 0deg) scale(0.95); }
-}
-
-/* ── Text ── */
-.wiz-loading-title {
-  font-size: 22px !important; font-weight: 900 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: -0.3px !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  margin: 0 !important; text-align: center;
-  animation: wiz-loading-pulse 2s ease-in-out infinite;
-}
-.wiz-loading-sub {
-  font-size: 14px !important; font-weight: 500 !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  margin: 0 !important; text-align: center;
-  min-height: 20px;
-  transition: opacity 0.4s;
-}
-@keyframes wiz-loading-pulse {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.6; }
-}
-
-/* ── Optional badge on step title ── */
-.wiz-optional-badge {
-  display: inline-block;
-  font-size: 11px !important; font-weight: 700 !important;
-  font-style: normal !important; text-transform: uppercase !important;
-  letter-spacing: 0.06em !important;
-  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  background: var(--chip-bg);
-  border: 1px solid var(--border);
-  border-radius: 99px; padding: 2px 10px;
-  vertical-align: middle; margin-left: 8px;
-  position: relative; top: -3px;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   WIZARD INTRO SCREEN
-══════════════════════════════════════════════════════════════ */
-.wiz-intro-screen {
-  position: absolute; inset: 0; z-index: 10;
-  display: flex; align-items: stretch; justify-content: center;
-  background: var(--bg);
-  overflow: hidden;
-  overscroll-behavior: none;
-  touch-action: pan-y;
-  width: 100%; height: 100%;
-}
-
-/* ── Decorative rings in background ── */
-.wiz-intro-bg {
-  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
-}
-.wiz-intro-bg-ring {
-  position: absolute; border-radius: 50%;
-  border: 2px solid var(--accent);
-  opacity: 0.07;
-}
-.wiz-intro-bg-ring-1 {
-  width: 480px; height: 480px;
-  top: -160px; right: -180px;
-  animation: intro-ring-pulse 4s ease-in-out infinite;
-}
-.wiz-intro-bg-ring-2 {
-  width: 320px; height: 320px;
-  top: -80px; right: -100px;
-  animation: intro-ring-pulse 4s ease-in-out 0.6s infinite;
-}
-.wiz-intro-bg-ring-3 {
-  width: 160px; height: 160px;
-  top: 0px; right: -20px;
-  animation: intro-ring-pulse 4s ease-in-out 1.2s infinite;
-}
-@keyframes intro-ring-pulse {
-  0%,100% { transform: scale(1);   opacity: 0.07; }
-  50%      { transform: scale(1.05); opacity: 0.13; }
-}
-
-/* ── Content ── */
-.wiz-intro-content {
-  position: relative; z-index: 1;
-  display: flex; flex-direction: column;
-  padding: 52px 28px 40px;
-  width: 100%; max-width: 420px;
-  gap: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-  box-sizing: border-box;
-}
-
-/* ── Logo / hero ── */
-.wiz-intro-logo {
-  font-size: 64px; line-height: 1; margin-bottom: 24px;
-  animation: intro-logo-in 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
-}
-@keyframes intro-logo-in {
-  from { opacity:0; transform: scale(0.4) rotate(-20deg); }
-  to   { opacity:1; transform: scale(1)   rotate(0deg);   }
-}
-
-/* ── Title ── */
-.wiz-intro-title {
-  font-size: 36px !important; font-weight: 900 !important;
-  font-style: italic !important; text-transform: uppercase !important;
-  letter-spacing: -1px !important; line-height: 1.05 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  margin: 0 0 16px !important;
-  animation: wiz-fade-up 0.4s cubic-bezier(0.4,0,0.2,1) 0.15s both;
-}
-.wiz-intro-title br { display: block; }
-
-/* ── Sub ── */
-.wiz-intro-sub {
-  font-size: 15px !important; font-weight: 400 !important;
-  line-height: 1.65 !important;
-  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
-  margin: 0 0 32px !important;
-  animation: wiz-fade-up 0.4s cubic-bezier(0.4,0,0.2,1) 0.25s both;
-}
-
-/* ── Step previews ── */
-.wiz-intro-steps {
-  display: flex; flex-direction: column; gap: 12px;
-  margin-bottom: 36px;
-  animation: wiz-fade-up 0.4s cubic-bezier(0.4,0,0.2,1) 0.35s both;
-}
-.wiz-intro-step {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px; border-radius: 14px;
-  background: var(--card); border: 1px solid var(--border2);
-  opacity: 0;
-  animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) both;
-}
-.wiz-intro-step-1 { animation-delay: 0.38s; }
-.wiz-intro-step-2 { animation-delay: 0.46s; }
-.wiz-intro-step-3 { animation-delay: 0.54s; }
-.wiz-intro-step-4 { animation-delay: 0.62s; }
-/* fill forward so they stay visible */
-.wiz-intro-step { animation-fill-mode: both; }
-
-.wiz-intro-step-ico { font-size: 24px; line-height: 1; flex-shrink: 0; }
-.wiz-intro-step-txt {
-  font-size: 14px !important; font-weight: 600 !important;
-  color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-}
-
-/* ── CTA button ── */
-.wiz-intro-btn {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  width: 100%; padding: 20px 24px;
-  border-radius: 9999px; border: none;
-  background: linear-gradient(135deg, #ff3b3b 0%, #c41212 100%);
-  color: #fff !important; -webkit-text-fill-color: #fff !important;
-  font-size: 15px !important; font-weight: 900 !important;
-  text-transform: uppercase !important; letter-spacing: 0.1em !important;
-  cursor: pointer; font-family: inherit;
-  box-shadow: 0 10px 28px rgba(220,30,30,0.38);
-  transition: transform 0.12s, box-shadow 0.12s;
-  animation: wiz-fade-up 0.4s cubic-bezier(0.4,0,0.2,1) 0.7s both;
-  margin-bottom: 12px;
-}
-.wiz-intro-btn:active {
-  transform: scale(0.97);
-  box-shadow: 0 5px 14px rgba(220,30,30,0.28);
-}
-.wiz-intro-btn .material-icons {
-  font-size: 20px !important;
-  color: rgba(255,255,255,0.9) !important;
-  -webkit-text-fill-color: rgba(255,255,255,0.9) !important;
+function fixGoogleButtonFlicker() {
+  // Called once on init — buttons rendered on-demand when their screen shows
+  // Listen for color scheme changes to re-render buttons
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    ['google-signin-btn', 'google-resignin-btn', 'wiz-google-btn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.innerHTML = ''; el.dataset.rendered = ''; }
+    });
+    // Re-render whichever button is currently visible
+    const loginVisible = document.getElementById('loginScreen')?.style.display !== 'none';
+    const noEncVisible = document.getElementById('noEncontradoScreen')?.style.display !== 'none';
+    const wizVisible   = document.getElementById('wiz-step-0')?.style.display !== 'none';
+    if (loginVisible) renderGoogleButton('google-signin-btn', 'signin_with');
+    if (noEncVisible) renderGoogleButton('google-resignin-btn', 'signin_with');
+    if (wizVisible)   renderGoogleButton('wiz-google-btn', 'continue_with');
+  });
+}
+
+function initGoogleAuth() {
+  fixGoogleButtonFlicker();
+  google.accounts.id.initialize({
+    client_id: CONFIG.GOOGLE_CLIENT_ID,
+    callback: onGoogleSignIn,
+    auto_select: false,
+  });
+
+
+  // Skip One Tap popup — use explicit login screen button only
+  // Show login screen directly (safety net still applies if auto_select resolves)
+  setTimeout(() => {
+    const loading = document.getElementById('loadingScreen');
+    if (loading && loading.style.display !== 'none') {
+      mostrarLoginScreen();
+    }
+  }, 1200);
+
+  // Pre-render the re-sign-in button early
+  preRenderResigninButton();
+}
+
+function onGoogleSignIn(response) {
+  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  accessToken = response.credential;
+  inicializarApp(payload.email);
+}
+
+function mostrarLoginScreen() {
+  const loginScr = document.getElementById('loginScreen');
+
+  // Show login screen hidden first
+  loginScr.style.opacity = '0';
+  loginScr.style.display = 'flex';
+
+  // Render the Google button
+  renderGoogleButton('google-signin-btn', 'signin_with');
+
+  // Wait for the button iframe to fully load, THEN hide loader and fade in
+  const btn = document.getElementById('google-signin-btn');
+  const fadeIn = () => {
+    detenerDerbyLoader();
+    document.getElementById('loadingScreen').style.display = 'none';
+    loginScr.style.transition = 'opacity 0.3s ease';
+    loginScr.style.opacity    = '1';
+    setTimeout(() => { loginScr.style.transition = ''; }, 310);
+  };
+
+  const iframe = btn?.querySelector('iframe');
+  if (iframe) {
+    // iframe already injected — wait for load or fallback
+    if (iframe.contentDocument?.readyState === 'complete') {
+      setTimeout(fadeIn, 50);
+    } else {
+      iframe.addEventListener('load', fadeIn, { once: true });
+      setTimeout(fadeIn, 1500); // fallback max wait
+    }
+  } else {
+    // iframe not yet injected — observe until it appears then wait for load
+    const obs = new MutationObserver(() => {
+      const f = btn?.querySelector('iframe');
+      if (!f) return;
+      obs.disconnect();
+      f.addEventListener('load', fadeIn, { once: true });
+      setTimeout(fadeIn, 1500); // fallback
+    });
+    if (btn) obs.observe(btn, { childList: true, subtree: true });
+    setTimeout(fadeIn, 2000); // absolute fallback
+  }
+}
+
+// ── API ───────────────────────────────────────────────────────
+async function gasCall(action, data = {}) {
+  let res;
+
+  if (action === 'subirArchivo') {
+    // POST with JSON body — base64 is too large for URL query params
+    const params = new URLSearchParams({ action, token: accessToken });
+    const url = CONFIG.GAS_URL + '?' + params.toString();
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tipoArchivo: data.tipoArchivo,
+        base64Data:  data.base64Data,
+        email:       data.email,
+      }),
+      redirect: 'follow',
+    });
+  } else {
+    const params = new URLSearchParams({ action, token: accessToken });
+    if (action === 'updateMyProfile') {
+      params.set('rowNumber', data.rowNumber);
+      // Let URLSearchParams handle encoding — don't double-encode
+      params.set('data', JSON.stringify(data.data));
+    } else {
+      Object.entries(data).forEach(([k, v]) => params.set(k, v));
+    }
+    const url = CONFIG.GAS_URL + '?' + params.toString();
+    res = await fetch(url, { redirect: 'follow' });
+  }
+
+  const text = await res.text();
+  let json;
+  try { json = JSON.parse(text); }
+  catch { throw new Error('Respuesta inválida: ' + text.substring(0, 200)); }
+  if (json.error) throw new Error(json.error);
+  return json;
+}
+
+// ── INICIALIZACIÓN ────────────────────────────────────────────
+async function inicializarApp(email) {
+  try {
+    document.getElementById('loadingScreen').style.display = 'flex';
+    document.getElementById('loginScreen').style.display   = 'none';
+    // Restart loader in case it was stopped by a previous screen transition
+    detenerDerbyLoader();
+    iniciarDerbyLoader();
+
+    const user = await gasCall('getCurrentUser', { email });
+    if (!user || !user.found) {
+      detenerDerbyLoader();
+      document.getElementById('loadingScreen').style.display = 'none';
+      mostrarNoEncontrado(email);
+      return;
+    }
+
+    CURRENT_USER = user;
+    document.getElementById('user-email').textContent = user.email;
+
+    const profile = await gasCall('getMyProfile', { rowNumber: user.rowNumber });
+    window.myProfile = profile;
+
+    configurarTodasLasSubidas();
+    renderTodo(profile);
+    aplicarPermisos();
+
+    detenerDerbyLoader();
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('appContent').style.display    = 'block';
+
+  } catch (err) {
+    console.error(err);
+    detenerDerbyLoader();
+    document.getElementById('loadingScreen').style.display = 'none';
+    mostrarLoginScreen();
+  }
+}
+
+
+// ── REGISTRO DESDE LOGIN ──────────────────────────────────────
+function mostrarRegistroDesdeLogin() {
+  window._registroDesdeLogin = true;
+  // Show registroScreen with step-0 (Google login step)
+  document.getElementById('loginScreen').style.display    = 'none';
+  document.getElementById('registroScreen').style.display = 'flex';
+  document.getElementById('wiz-intro').style.display      = 'none';
+  document.getElementById('wiz-step-0').style.display     = 'flex';
+  document.getElementById('wiz-header').style.display     = 'none';
+  document.getElementById('wiz-viewport').style.display   = 'none';
+
+  // Render Google sign-in button inside the wizard step
+  requestAnimationFrame(() => {
+    const wrap = document.getElementById('wiz-google-btn');
+    if (wrap && wrap.childElementCount === 0) {
+      renderGoogleButton('wiz-google-btn', 'continue_with');
+    }
+  });
+
+  // Add create-Google-account link dynamically
+  const note = document.querySelector('.wiz-step0-note');
+  if (note && !note.querySelector('a')) {
+    note.innerHTML = note.innerHTML.replace(
+      '<strong>google.com</strong>',
+      '<a href="https://accounts.google.com/signup" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:underline;">Crear cuenta de Google</a>'
+    );
+  }
+
+  // Push history state so back gesture returns to login
+  history.pushState({ wizStep0: true }, '');
+}
+
+function wizStep0Volver() {
+  document.getElementById('registroScreen').style.display = 'none';
+  document.getElementById('wiz-step-0').style.display     = 'none';
+  window._registroDesdeLogin = false;
+  mostrarLoginScreen();
+}
+
+function wizIntroVolver() {
+  // From intro: if we came via "Crear mi perfil" → go back to step-0
+  // Otherwise → go back to noEncontrado
+  if (window._registroDesdeLogin) {
+    document.getElementById('wiz-intro').style.display   = 'none';
+    document.getElementById('wiz-step-0').style.display  = 'flex';
+  } else {
+    document.getElementById('registroScreen').style.display    = 'none';
+    document.getElementById('noEncontradoScreen').style.display = 'flex';
+  }
+}
+
+// ── NO ENCONTRADO ─────────────────────────────────────────────
+
+// Called once on app init to pre-render the Google button before the screen is shown
+function preRenderResigninButton() {
+  const container = document.getElementById('google-resignin-btn');
+  if (!container || container.dataset.rendered === 'true') return;
+  renderGoogleButton('google-resignin-btn', 'signin_with');
+}
+
+function mostrarNoEncontrado(email) {
+  // If user came from "Crear mi perfil" on login screen, go straight to wizard
+  if (window._registroDesdeLogin) {
+    window._registroDesdeLogin = false;
+    mostrarRegistroWizard();
+    return;
+  }
+  const el = document.getElementById('no-enc-email');
+  if (el) el.textContent = email || '';
+
+  // Wire button before showing screen
+  document.getElementById('btn-ir-registro').onclick = () => {
+    document.getElementById('noEncontradoScreen').style.display = 'none';
+    mostrarRegistroWizard();
+  };
+
+  // Ensure button is rendered (pre-rendered on init, this is a no-op if already done)
+  preRenderResigninButton();
+
+  // Show screen with a fade-in so any async iframe load is invisible
+  const screen = document.getElementById('noEncontradoScreen');
+  screen.style.opacity = '0';
+  screen.style.display = 'flex';
+  // Small delay lets the iframe settle before fading in
+  setTimeout(() => {
+    screen.style.transition = 'opacity 0.25s ease';
+    screen.style.opacity    = '1';
+    setTimeout(() => { screen.style.transition = ''; }, 260);
+  }, 80);
+
+  // Push sentinel so back gesture is absorbed, not passed to OS
+  pushSentinel();
+}
+
+// ── WIZARD DE REGISTRO ────────────────────────────────────────
+
+const REG_PAISES  = ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'];
+const REG_CODIGOS = ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'];
+const REG_PRONOMBRES = ['Él', 'Ella', 'Elle', 'No definido'];
+const REG_ROLES      = ['Jammer', 'Bloquer', 'Blammer', 'Ref', 'Coach', 'Bench', 'No definido'];
+const REG_ROLES_JUG  = ['Jammer', 'Bloquer', 'Blammer', 'No definido'];
+const REG_ASISTENCIA = ['1 vez', '2 veces', '3 o más veces'];
+
+const WIZ_STEPS_BASE = [1,2,3,4,5,6,7,8,10,11];
+let wizStepSequence = [...WIZ_STEPS_BASE];
+let wizStep = 1;
+let cropTarget = 'app';
+
+const regData = {
+  nombre:'', pronombres:[], pais:'', codigoPais:'',
+  telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
+  nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
+  alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null,
+};
+
+function esJugadorx(rol) { return REG_ROLES_JUG.includes(rol); }
+
+function wizRecalcSequence() {
+  wizStepSequence = esJugadorx(regData.rolJugadorx)
+    ? [1,2,3,4,5,6,7,8,9,10,11]
+    : [1,2,3,4,5,6,7,8,10,11];
+}
+
+function wizPositionInSequence() { return wizStepSequence.indexOf(wizStep) + 1; }
+
+function mostrarRegistroWizard() {
+  wizStep = 1;
+  wizRecalcSequence();
+  Object.assign(regData, {
+    nombre:'', pronombres:[], pais:'', codigoPais:'',
+    telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
+    nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
+    alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null
+  });
+
+  ['reg-nombre','reg-telefono','reg-nombreDerby','reg-numero',
+   'reg-alergias','reg-dieta','reg-emergencia'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+
+  regResetAvatar();
+  regRenderChipsMulti('reg-pronombres-chips', REG_PRONOMBRES, [], v => { regData.pronombres = v; });
+  regRenderChips('reg-cumple-chips',     ['Sí','No'],     '', v => { regData.mostrarCumple = v; });
+  regRenderChips('reg-edad-chips',       ['Sí','No'],     '', v => { regData.mostrarEdad   = v; });
+  regRenderChips('reg-rol-chips',        REG_ROLES,       '', wizOnRolSelected);
+  regRenderChips('reg-asiste-chips',     REG_ASISTENCIA,  '', v => { regData.asisteSemana = v; });
+
+  wizSetVal('reg-pais-display',   'Seleccionar país…');
+  wizSetVal('reg-codigo-display', '+?');
+  wizSetVal('reg-fecha-display',  'Seleccionar fecha…');
+  ['reg-pais-btn','reg-codigo-btn','reg-fecha-btn'].forEach(id =>
+    document.getElementById(id)?.classList.remove('has-value'));
+
+  const fotoBtn = document.getElementById('wiz-btn-foto');
+  if (fotoBtn) fotoBtn.style.display = 'none';
+
+  wizHideError();
+
+  for (let i = 1; i <= 11; i++) {
+    const s = document.getElementById('wiz-step-' + i);
+    if (!s) continue;
+    s.classList.remove('wiz-active');
+    s.style.transition = s.style.transform = s.style.visibility = '';
+  }
+
+  document.getElementById('registroScreen').style.display = 'flex';
+
+  // Show intro, hide header+viewport until user taps Comenzar
+  const introEl   = document.getElementById('wiz-intro');
+  const headerEl  = document.getElementById('wiz-header');
+  const viewportEl = document.getElementById('wiz-viewport');
+  if (introEl)    introEl.style.display    = 'flex';
+  if (headerEl)   headerEl.style.display   = 'none';
+  if (viewportEl) viewportEl.style.display = 'none';
+
+  history.pushState({ wizSentinel: true }, '', location.pathname + '#_wiz');
+}
+
+// Called by "Comenzar" button on intro screen
+function wizIntroStart() {
+  const introEl    = document.getElementById('wiz-intro');
+  const headerEl   = document.getElementById('wiz-header');
+  const viewportEl = document.getElementById('wiz-viewport');
+
+  // Slide intro out upward
+  if (introEl) {
+    introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+    introEl.style.opacity    = '0';
+    introEl.style.transform  = 'translateY(-24px)';
+    setTimeout(() => {
+      introEl.style.display = 'none';
+      introEl.style.transition = introEl.style.transform = introEl.style.opacity = '';
+    }, 310);
+  }
+
+  // Show header + viewport
+  setTimeout(() => {
+    if (headerEl)   headerEl.style.display   = 'flex';
+    if (viewportEl) viewportEl.style.display = 'block';
+    wizUpdateHeader();
+    const s1 = document.getElementById('wiz-step-1');
+    if (s1) {
+      s1.classList.remove('wiz-animate');
+      s1.classList.add('wiz-active');
+      // Let the browser render the active state first, then animate content
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          s1.classList.add('wiz-animate');
+        });
+      });
+    }
+  }, 200);
+}
+
+function wizSetVal(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
+
+function wizOnRolSelected(val) {
+  regData.rolJugadorx = val;
+  regRenderChips('reg-rol-chips', REG_ROLES, val, wizOnRolSelected);
+  wizRecalcSequence();
+  wizUpdateHeader(); // update total count when sequence changes
+}
+
+function wizGoTo(next, forward = true) {
+  const DURATION = 280;
+  const prevEl = document.getElementById('wiz-step-' + wizStep);
+  const nextEl = document.getElementById('wiz-step-' + next);
+  if (!nextEl) return;
+
+  // Cancel any in-flight cleanup on prevEl from a previous transition
+  if (prevEl && prevEl._wizCleanup) {
+    clearTimeout(prevEl._wizCleanup);
+    prevEl._wizCleanup = null;
+    // Make sure prev is fully off-screen before we start
+    prevEl.classList.remove('wiz-active');
+    prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
+  }
+
+  // Position next step off-screen instantly (no transition yet)
+  nextEl.style.transition = 'none';
+  nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  // Make visible so transform is meaningful (CSS default is visibility:hidden)
+  nextEl.style.visibility = 'visible';
+  nextEl.classList.add('wiz-active');
+
+  requestAnimationFrame(() => {
+    const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
+
+    // Slide previous step out
+    if (prevEl) {
+      prevEl.style.transition = ease;
+      prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
+      // Use setTimeout as guaranteed cleanup — transitionend can be skipped
+      // if user taps quickly or browser throttles
+      prevEl._wizCleanup = setTimeout(() => {
+        prevEl._wizCleanup = null;
+        prevEl.classList.remove('wiz-active');
+        prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
+      }, DURATION + 20);
+    }
+
+    // Slide next step in
+    nextEl.style.transition = ease;
+    nextEl.style.transform  = 'translateX(0)';
+
+    // Fire content fade-in after slide completes
+    setTimeout(() => {
+      nextEl.classList.add('wiz-animate');
+    }, DURATION + 10);
+
+    // Focus inputs
+    setTimeout(() => {
+      if (next === 2) document.getElementById('reg-nombre')?.focus();
+      if (next === 5) document.getElementById('reg-telefono')?.focus();
+      if (next === 7) document.getElementById('reg-nombreDerby')?.focus();
+    }, DURATION + 60);
+  });
+
+  wizStep = next;
+  wizUpdateHeader();
+}
+
+function wizUpdateHeader() {
+  const pos   = wizPositionInSequence();
+  const total = wizStepSequence.length;
+  const fill  = document.getElementById('wiz-progress-fill');
+  const label = document.getElementById('wiz-step-label');
+  if (fill)  fill.style.width = (pos / total * 100) + '%';
+  if (label) label.textContent = 'Paso ' + pos + ' de ' + total;
+}
+
+function wizNext() {
+  wizHideError();
+
+  if (wizStep === 2) {
+    const val = document.getElementById('reg-nombre')?.value.trim();
+    if (!val) { wizShowError('Escribe cómo quieres que te llamemos ✍️'); return; }
+    regData.nombre = val;
+  }
+  if (wizStep === 4 && !regData.pais) {
+    wizShowError('Selecciona tu país de origen 🌎'); return;
+  }
+  if (wizStep === 5) {
+    if (!regData.codigoPais) { wizShowError('Selecciona el código de tu país 📱'); return; }
+    const tel = document.getElementById('reg-telefono')?.value.trim();
+    if (!tel) { wizShowError('Ingresa tu número de teléfono 📱'); return; }
+    regData.telefono = tel;
+  }
+  if (wizStep === 6) {
+    if (!regData.fechaNacimiento) { wizShowError('Ingresa tu fecha de nacimiento 🎂'); return; }
+    if (!regData.mostrarCumple)   { wizShowError('Indica si quieres compartir tu cumpleaños 🎉'); return; }
+    if (!regData.mostrarEdad)     { wizShowError('Indica si quieres compartir tu edad 🔢'); return; }
+  }
+  if (wizStep === 7) {
+    regData.nombreDerby = document.getElementById('reg-nombreDerby')?.value.trim() || '';
+    regData.numero      = document.getElementById('reg-numero')?.value.trim() || '';
+  }
+  if (wizStep === 8 && !regData.rolJugadorx) {
+    wizShowError('Selecciona tu rol en el equipo 🏅'); return;
+  }
+  if (wizStep === 9 && !regData.asisteSemana) {
+    wizShowError('Indica cuántas veces entrenas por semana 🏋️'); return;
+  }
+  if (wizStep === 10) {
+    regData.alergias = document.getElementById('reg-alergias')?.value.trim() || '';
+    regData.dieta    = document.getElementById('reg-dieta')?.value.trim() || '';
+  }
+
+  const idx = wizStepSequence.indexOf(wizStep);
+  if (idx < wizStepSequence.length - 1) wizGoTo(wizStepSequence[idx + 1], true);
+}
+
+function wizBack() {
+  wizHideError();
+  const idx = wizStepSequence.indexOf(wizStep);
+  if (idx > 0) {
+    wizGoTo(wizStepSequence[idx - 1], false);
+  } else {
+    // Back from step 1 → show intro screen again
+    const introEl    = document.getElementById('wiz-intro');
+    const headerEl   = document.getElementById('wiz-header');
+    const viewportEl = document.getElementById('wiz-viewport');
+    // Hide steps
+    const s1 = document.getElementById('wiz-step-1');
+    if (s1) { s1.classList.remove('wiz-active','wiz-animate'); }
+    if (headerEl)   headerEl.style.display   = 'none';
+    if (viewportEl) viewportEl.style.display = 'none';
+    if (introEl) {
+      introEl.style.display   = 'flex';
+      introEl.style.opacity   = '0';
+      introEl.style.transform = 'translateY(24px)';
+      requestAnimationFrame(() => {
+        introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+        introEl.style.opacity    = '1';
+        introEl.style.transform  = 'translateY(0)';
+        setTimeout(() => { introEl.style.transition = ''; }, 310);
+      });
+    }
+  }
+}
+
+function wizShowError(msg) {
+  const el = document.getElementById('reg-error');
+  if (!el) return;
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+function wizHideError() { const el = document.getElementById('reg-error'); if (el) el.style.display = 'none'; }
+function mostrarRegError(msg) { wizShowError(msg); }
+
+function regRenderChips(containerId, opciones, valorActual, onSelect) {
+  const el = document.getElementById(containerId); if (!el) return;
+  el.innerHTML = '';
+  opciones.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chip ' + (opt === valorActual ? 'chip-active' : 'chip-inactive');
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      onSelect(opt);
+      regRenderChips(containerId, opciones, opt, onSelect);
+    });
+    el.appendChild(btn);
+  });
+}
+
+function regRenderChipsMulti(containerId, opciones, valoresActuales, onSelect) {
+  const el = document.getElementById(containerId); if (!el) return;
+  let seleccionados = Array.isArray(valoresActuales) ? [...valoresActuales] : [];
+  const render = () => {
+    el.innerHTML = '';
+    opciones.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const activo = seleccionados.includes(opt);
+      btn.className = 'chip ' + (activo ? 'chip-active' : 'chip-inactive');
+      btn.textContent = opt;
+      btn.addEventListener('click', () => {
+        if (seleccionados.includes(opt)) {
+          seleccionados = seleccionados.filter(v => v !== opt);
+        } else {
+          seleccionados.push(opt);
+        }
+        onSelect([...seleccionados]);
+        render();
+      });
+      el.appendChild(btn);
+    });
+  };
+  render();
+}
+
+function regAbrirFoto() { document.getElementById('reg-foto-input').click(); }
+
+function regResetAvatar() {
+  const img = document.getElementById('reg-avatar-img');
+  const ph  = document.getElementById('reg-avatar-placeholder');
+  const ov  = document.getElementById('reg-avatar-overlay');
+  const ht  = document.getElementById('reg-foto-hint');
+  const btn = document.getElementById('wiz-btn-foto');
+  if (img) { img.src = ''; img.style.display = 'none'; }
+  if (ph)  ph.style.display = 'block';
+  if (ov)  ov.style.display = 'none';
+  if (ht) { ht.innerHTML = 'Toca para agregar'; ht.classList.remove('reg-foto-hint-compliment'); }
+  if (btn) btn.style.display = 'none';
+}
+
+function regRecibirFotoRecortada(base64DataUrl) {
+  regData.fotoBase64 = base64DataUrl;
+  const img = document.getElementById('reg-avatar-img');
+  const ph  = document.getElementById('reg-avatar-placeholder');
+  const ov  = document.getElementById('reg-avatar-overlay');
+  const ht  = document.getElementById('reg-foto-hint');
+  const btn = document.getElementById('wiz-btn-foto');
+  if (img) { img.src = base64DataUrl; img.style.display = 'block'; }
+  if (ph)  ph.style.display = 'none';
+  if (ov)  ov.style.display = 'flex';
+  // Show compliment text + sparkles
+  if (ht) {
+    ht.innerHTML = '✨ <strong>¡Qué bien que te ves!</strong> ✨';
+    ht.classList.add('reg-foto-hint-compliment');
+  }
+  if (btn) btn.style.display = 'flex';
+}
+
+function initRegistroListeners() {
+  document.getElementById('wiz-back-btn')?.addEventListener('click', wizBack);
+
+  const fi = document.getElementById('reg-foto-input');
+  if (fi) {
+    fi.addEventListener('click', () => { fi.value = ''; });
+    fi.addEventListener('change', e => {
+      const file = e.target.files[0]; if (!file) return;
+      if (file.size > 5*1024*1024) { alert('La imagen no puede superar 5 MB'); return; }
+      const r = new FileReader();
+      r.onload = ev => { cropTarget = 'registro'; abrirCropper(ev.target.result); };
+      r.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('reg-pais-btn')?.addEventListener('click', () => {
+    abrirBottomSheet('Nacionalidad', REG_PAISES, regData.pais, val => {
+      regData.pais = val; wizSetVal('reg-pais-display', val);
+      document.getElementById('reg-pais-btn').classList.add('has-value');
+    });
+  });
+
+  document.getElementById('reg-codigo-btn')?.addEventListener('click', () => {
+    abrirBottomSheet('Código de país', REG_CODIGOS, regData.codigoPais, val => {
+      regData.codigoPais = val; wizSetVal('reg-codigo-display', val);
+      document.getElementById('reg-codigo-btn').classList.add('has-value');
+    });
+  });
+
+  document.getElementById('reg-fecha-btn')?.addEventListener('click', () => {
+    abrirDatePicker(regData.fechaNacimiento, val => {
+      regData.fechaNacimiento = val;
+      const p = parseFecha(val);
+      const display = p ? `${String(p.day).padStart(2,'0')} ${MESES_CORTO[p.month]} ${p.year}` : val;
+      wizSetVal('reg-fecha-display', display);
+      document.getElementById('reg-fecha-btn').classList.add('has-value');
+    });
+  });
+
+  document.getElementById('reg-telefono')?.addEventListener('input', e => { regData.telefono = e.target.value; });
+}
+
+const WIZ_LOADING_MSGS = [
+  'Preparando todo para ti…', 'Guardando tu información…',
+  'Creando tu perfil de estrella…', '¡Ya casi está!',
+];
+
+function wizMostrarCargando() {
+  const overlay = document.getElementById('wiz-loading-overlay');
+  const sub     = document.getElementById('wiz-loading-sub');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  let idx = 0;
+  if (sub) sub.textContent = WIZ_LOADING_MSGS[0];
+  overlay._interval = setInterval(() => {
+    idx = (idx + 1) % WIZ_LOADING_MSGS.length;
+    if (sub) {
+      sub.style.opacity = '0';
+      setTimeout(() => { if (sub) { sub.textContent = WIZ_LOADING_MSGS[idx]; sub.style.opacity = '1'; } }, 400);
+    }
+  }, 2200);
+}
+
+function wizOcultarCargando() {
+  const overlay = document.getElementById('wiz-loading-overlay');
+  if (!overlay) return;
+  clearInterval(overlay._interval);
+  overlay.style.display = 'none';
+}
+
+// ── Confetti ─────────────────────────────────────────────────
+function lanzarConfetti() {
+  const COLORS = ['#ff3b3b','#ff9500','#ffcc00','#34c759','#30b0c7','#af52de','#ff2d55'];
+  const N = 90;
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
+  document.body.appendChild(container);
+  for (let i = 0; i < N; i++) {
+    const el = document.createElement('div');
+    const size = 7 + Math.random() * 8;
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const x = Math.random() * 100;
+    const rot = Math.random() * 360;
+    const delay = Math.random() * 0.6;
+    const dur = 1.8 + Math.random() * 1.2;
+    const isCircle = Math.random() > 0.5;
+    el.style.cssText = `
+      position:absolute;
+      left:${x}vw; top:-${size}px;
+      width:${size}px; height:${isCircle ? size : size * 0.5}px;
+      background:${color};
+      border-radius:${isCircle ? '50%' : '2px'};
+      opacity:1;
+      animation: confetti-fall ${dur}s ${delay}s cubic-bezier(0.25,0,0.5,1) forwards;
+      transform: rotate(${rot}deg);
+    `;
+    container.appendChild(el);
+  }
+  const style = document.createElement('style');
+  style.textContent = `@keyframes confetti-fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity:1; }
+    80%  { opacity:1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity:0; }
+  }`;
+  document.head.appendChild(style);
+  setTimeout(() => { container.remove(); style.remove(); }, 3500);
+}
+
+// ── Welcome dialog ────────────────────────────────────────────
+function mostrarBienvenida() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9998;
+    background:rgba(0,0,0,0.55);
+    display:flex;align-items:flex-end;justify-content:center;
+    padding-bottom:env(safe-area-inset-bottom);
+    animation: wiz-overlay-in 0.3s ease both;
+  `;
+  overlay.innerHTML = `
+    <div style="
+      background:var(--card);
+      border-radius:24px 24px 0 0;
+      padding:28px 24px 36px;
+      max-width:480px;width:100%;
+      display:flex;flex-direction:column;gap:16px;
+      animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) both;
+    ">
+      <div style="font-size:48px;text-align:center;line-height:1;">🎉</div>
+      <h2 style="
+        font-size:22px;font-weight:900;font-style:italic;text-transform:uppercase;
+        letter-spacing:-0.3px;color:var(--text);-webkit-text-fill-color:var(--text);
+        margin:0;text-align:center;
+      ">¡Bienvenidx al equipo!</h2>
+      <p style="
+        font-size:14px;font-weight:400;line-height:1.65;
+        color:var(--text2);-webkit-text-fill-color:var(--text2);
+        margin:0;text-align:center;
+      ">Recuerda que puedes actualizar o añadir información adicional en las secciones de tu perfil.<br><br>
+      También podrás consultar próximos entrenamientos, marcar asistencias, revisar tareas disponibles, la tabla de puntajes, información del equipo y mucho más.</p>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="
+        margin-top:4px;padding:18px;border-radius:9999px;border:none;
+        background:linear-gradient(135deg,#ff3b3b 0%,#c41212 100%);
+        color:#fff;-webkit-text-fill-color:#fff;
+        font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;
+        cursor:pointer;font-family:inherit;
+        box-shadow:0 8px 24px rgba(220,30,30,0.35);
+      ">¡Vamos! 🛼</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function submitRegistro() {
+  regData.contactoEmergencia = document.getElementById('reg-emergencia')?.value.trim() || '';
+  wizHideError();
+  const btnEl = document.getElementById('reg-submit');
+  if (btnEl) btnEl.disabled = true;
+  wizMostrarCargando();
+
+  try {
+    const params = new URLSearchParams({ action: 'registrarUsuario', token: accessToken });
+    const res = await fetch(CONFIG.GAS_URL + '?' + params.toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: regData.nombre.trim(), pronombres: Array.isArray(regData.pronombres) ? regData.pronombres.join(', ') : (regData.pronombres || ''),
+        pais: regData.pais, codigoPais: regData.codigoPais,
+        telefono: regData.telefono.trim(), fechaNacimiento: regData.fechaNacimiento,
+        mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
+        nombreDerby: regData.nombreDerby, numero: regData.numero,
+        rolJugadorx: regData.rolJugadorx, asisteSemana: regData.asisteSemana,
+        alergias: regData.alergias, dieta: regData.dieta,
+        contactoEmergencia: regData.contactoEmergencia,
+        fotoBase64: regData.fotoBase64 || null,
+      }),
+      redirect: 'follow',
+    });
+    const json = JSON.parse(await res.text());
+    if (json.error) throw new Error(json.error);
+
+    CURRENT_USER = { found: true, rowNumber: json.rowNumber, email: json.email, rolApp: 'Invitado' };
+    document.getElementById('user-email').textContent = json.email;
+
+    // Photo URL returned directly from registrarUsuario (uploaded atomically in GAS)
+    const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
+    if (json.fotoUrl) {
+      profile.fotoPerfil = json.fotoUrl;
+    }
+    window.myProfile = profile;
+    configurarTodasLasSubidas();
+    renderTodo(profile);
+    aplicarPermisos();
+    wizOcultarCargando();
+    document.getElementById('registroScreen').style.display = 'none';
+    document.getElementById('appContent').style.display    = 'block';
+    // First-time welcome
+    setTimeout(() => {
+      lanzarConfetti();
+      mostrarBienvenida();
+    }, 400);
+
+  } catch(err) {
+    wizOcultarCargando();
+    wizShowError(err.message || 'Algo salió mal. Intentá de nuevo 😅');
+    if (btnEl) btnEl.disabled = false;
+  }
+}
+
+
+// ── RENDER COMPLETO ───────────────────────────────────────────
+function renderTodo(profile) {
+  if (!profile) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+
+  set('p-nombreDerby',        profile.nombreDerby);
+  set('p-nombre',             profile.nombre);
+  set('p-nombreCivil',        profile.nombreCivil);
+  set('p-numero',             profile.numero);
+  set('p-pronombres',         profile.pronombres);
+  set('p-estado',             profile.estado);
+  set('p-rolJugadorx',        profile.rolJugadorx);
+  set('p-pagaCuota',          profile.pagaCuota);
+  set('p-alergias',           profile.alergias);
+  set('p-dieta',              profile.dieta);
+  set('p-pais',               profile.pais);
+  set('p-telefono',           profile.telefono);
+  set('p-grupoSanguineo',     profile.grupoSanguineo);
+  set('p-codigoPais',         profile.codigoPais);
+  set('p-asisteSemana',       profile.asisteSemana);
+  set('p-pruebaFisica',       profile.pruebaFisica);
+  set('p-aptoDeporte',        profile.aptoDeporte);
+  set('p-cedulaPasaporte',    profile.cedulaPasaporte);
+  set('p-email',              profile.email ? profile.email.replace(/@gmail\.com$/, '') : '');
+  set('p-mostrarCumple',      profile.mostrarCumple);
+  set('p-mostrarEdad',        profile.mostrarEdad);
+  set('p-tipoUsuario',        profile.tipoUsuario);
+  set('p-fechaNacimiento',    profile.fechaNacimiento);
+  initFechaTrigger();
+  set('p-contactoEmergencia', profile.contactoEmergencia);
+
+  // Stats
+  const mesEl  = document.getElementById('p-puntosMes');
+  const mesLbl = document.getElementById('label-puntosMes');
+  if (mesEl)  mesEl.textContent  = profile.puntosMes || '—';
+  if (mesLbl) mesLbl.textContent = 'Mes de ' + (profile.labelMes || '');
+  const trimEl  = document.getElementById('p-puntosTrim');
+  const trimLbl = document.getElementById('label-puntosTrim');
+  if (trimEl)  trimEl.textContent  = profile.puntosTrimestre || '—';
+  if (trimLbl) trimLbl.textContent = profile.labelTrimestre  || 'Trimestre';
+  const anioEl  = document.getElementById('p-puntosAnio');
+  const anioLbl = document.getElementById('label-puntosAnio');
+  if (anioEl)  anioEl.textContent  = profile.puntosAnio || '—';
+  if (anioLbl) anioLbl.textContent = 'Año ' + (profile.labelAnio || '');
+
+  // Hero
+  const heroNombre = document.getElementById('hero-nombre-derby');
+  if (heroNombre) heroNombre.textContent = profile.nombreDerby || '—';
+  const heroSub = document.getElementById('hero-sub');
+  if (heroSub) heroSub.textContent = (profile.numero ? '#' + profile.numero : '—') + ' · ' + (profile.rolJugadorx || '—');
+  const heroRol = document.getElementById('hero-rol');
+  if (heroRol) heroRol.textContent = profile.rolJugadorx || '—';
+  const heroPron = document.getElementById('hero-pronombres');
+  if (heroPron) heroPron.textContent = profile.pronombres || '—';
+
+  // Subtítulos de las filas del menú
+  actualizarSubtitulos(profile);
+
+  // Foto
+  renderFotoPerfil(normalizarDriveUrl(profile.fotoPerfil));
+  // Foto en sección generales
+  const secImg = document.getElementById('sec-img-foto');
+  if (secImg) {
+    const placeholder = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="100%" height="100%" fill="#2b2b2b"/></svg>');
+    secImg.src = normalizarDriveUrl(profile.fotoPerfil) || placeholder;
+  }
+
+  // Selects, chips, toggles
+  Object.keys(CHIPS_OPTIONS).forEach(key => {
+    const id     = 'p-' + key;
+    const config = CHIPS_OPTIONS[key];
+    const valor  = profile[key] || '';
+    if (config.ui === 'chips')       habilitarChips(id, valor);
+    if (config.ui === 'multiselect') habilitarMultiSelect(id, valor);
+    if (config.ui === 'select')      habilitarSelect(id, valor);
+    if (config.ui === 'toggle')      habilitarToggle(id, valor);
+  });
+
+  // Archivos
+  renderEstadoArchivo('adjPruebaFisica', profile.adjPruebaFisica);
+  renderEstadoArchivo('adjCedula',       profile.adjCedula);
+
+  // Email width
+  ajustarAnchoEmail();
+}
+
+function actualizarSubtitulos(profile) {
+  const sub = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  sub('sub-generales',   [profile.nombreDerby, profile.numero ? '#'+profile.numero : null, profile.rolJugadorx].filter(Boolean).join(' · ') || 'Nombre Derby, Número, Rol');
+  sub('sub-personales',  [profile.cedulaPasaporte, profile.pais, profile.fechaNacimiento].filter(Boolean).join(' · ') || 'Documento, Nacionalidad');
+  sub('sub-contacto',    [profile.email, profile.telefono ? (profile.codigoPais||'') + ' ' + profile.telefono : null].filter(Boolean).join(' · ') || 'Email, Teléfono');
+  sub('sub-salud',       [profile.grupoSanguineo, profile.contactoEmergencia].filter(Boolean).join(' · ') || 'Contacto de emergencia, Grupo sanguíneo');
+  sub('sub-rendimiento', [profile.estado, profile.asisteSemana].filter(Boolean).join(' · ') || 'Estado, Cuota, Asistencia');
+}
+
+function ajustarAnchoEmail() {
+  const emailEl = document.getElementById('p-email');
+  if (!emailEl) return;
+  const tmp = document.createElement('span');
+  tmp.style.cssText = 'position:absolute;visibility:hidden;font-size:16px;font-weight:400;white-space:pre;';
+  tmp.textContent = emailEl.value || ' ';
+  document.body.appendChild(tmp);
+  emailEl.style.width = (tmp.offsetWidth + 4) + 'px';
+  document.body.removeChild(tmp);
+}
+
+// ── NAVEGACIÓN ────────────────────────────────────────────────
+let vistaActual = 'home';
+
+function navegarSeccion(seccion) {
+  const home = document.getElementById('view-home');
+  const dest = document.getElementById('view-' + seccion);
+  if (!dest) return;
+
+  home.classList.add('slide-out');
+  dest.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      dest.classList.add('active');
+      home.classList.remove('active');
+    });
+  });
+  dest.addEventListener('transitionend', () => {
+    home.classList.remove('slide-out');
+    home.style.display = 'none';
+  }, { once: true });
+
+  vistaActual = seccion;
+  // No history manipulation needed — sentinel handles back gesture globally
+}
+
+function volverHome(fromPopState = false) {
+  // Cancelar edición si está activa
+  if (edicionActiva[vistaActual]) {
+    cancelarEdicionSeccion(vistaActual);
+  }
+
+  const home = document.getElementById('view-home');
+  const curr = document.getElementById('view-' + vistaActual);
+  if (!curr) return;
+
+  home.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      home.classList.add('active');
+      curr.classList.remove('active');
+    });
+  });
+  curr.addEventListener('transitionend', () => {
+    curr.style.display = 'none';
+  }, { once: true });
+
+  vistaActual = 'home';
+
+  // Clean up hash from URL
+  if (!fromPopState) {
+    history.replaceState({ seccion: 'home' }, '', location.pathname);
+  }
+}
+
+// ── Handle browser back gesture / button ──────────────────────
+// Strategy: always keep 2 history entries when at home so the OS back
+// gesture hits our popstate handler instead of closing the app/tab.
+//
+// Stack looks like:
+//   [entry-A: home]  ← current when at home (replaceState)
+//   [entry-B: home]  ← one behind it (pushState on load)
+//
+// When in a section: [entry-A: home] [entry-B: section]
+// Back gesture pops entry-B → popstate fires → we call volverHome()
+// then pushState to restore the buffer entry.
+
+// ── BACK GESTURE TRAP ────────────────────────────────────────
+// Strategy: keep a sentinel entry AHEAD of current position.
+// On popstate we immediately go(+1) to undo the pop, then handle
+// in-app navigation ourselves. Works on Android & iOS PWA.
+
+function pushSentinel() {
+  history.pushState({ sentinel: true }, '', location.pathname + '#_');
+}
+
+window.addEventListener('popstate', (e) => {
+  // Immediately reverse the back navigation so we stay in the PWA
+  history.go(1);
+
+  // Wizard open? handle wizard back
+  const regScr = document.getElementById('registroScreen');
+  if (regScr && regScr.style.display !== 'none') {
+    // Step-0 (login para registro)? volver al login principal
+    const step0 = document.getElementById('wiz-step-0');
+    if (step0 && step0.style.display !== 'none') {
+      wizStep0Volver();
+      return;
+    }
+    wizBack();
+    return;
+  }
+
+  // noEncontrado screen? go back to login
+  const noEncScr = document.getElementById('noEncontradoScreen');
+  if (noEncScr && noEncScr.style.display !== 'none') {
+    noEncScr.style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    return;
+  }
+
+  // In-app section? go back to home
+  if (vistaActual && vistaActual !== 'home') {
+    volverHome(true);
+    return;
+  }
+  // Already at home — silently absorbed, app stays open
+});
+
+// ── Block body scroll/bounce on mobile (iOS rubber-band + Android overscroll) ──
+document.addEventListener('touchmove', (e) => {
+  let el = e.target;
+  let scrollable = false;
+  while (el && el !== document.body) {
+    const style = window.getComputedStyle(el);
+    const overflowY = style.overflowY;
+    const canScroll = overflowY === 'auto' || overflowY === 'scroll';
+    if (canScroll) {
+      const hasOverflow = el.scrollHeight > el.clientHeight + 1; // +1 for rounding
+      const notAtTop    = el.scrollTop > 0;
+      const notAtBottom = el.scrollTop < el.scrollHeight - el.clientHeight - 1;
+      // Allow scroll only if there's real overflow AND we're not already at the boundary
+      if (hasOverflow && (notAtTop || notAtBottom)) {
+        scrollable = true;
+        break;
+      }
+    }
+    el = el.parentElement;
+  }
+  if (!scrollable) e.preventDefault();
+}, { passive: false });
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Base entry (no hash)
+  history.replaceState({ base: true }, '', location.pathname);
+  // Sentinel entry ahead — this is what gets popped on back gesture
+  pushSentinel();
+  // Registro form listeners
+  initRegistroListeners();
+});
+
+// ── EDICIÓN POR SECCIÓN ───────────────────────────────────────
+// Campos por sección
+const CAMPOS_SECCION = {
+  generales:   ['p-nombreDerby','p-numero','p-rolJugadorx','p-nombre','p-pronombres'],
+  personales:  ['p-nombreCivil','p-cedulaPasaporte','p-pais','p-fechaNacimiento','p-mostrarCumple','p-mostrarEdad','p-adjCedula'],
+  contacto:    ['p-email','p-codigoPais','p-telefono'],
+  salud:       ['p-contactoEmergencia','p-grupoSanguineo','p-alergias','p-dieta','p-aptoDeporte','p-adjPruebaFisica'],
+  rendimiento: ['p-estado','p-asisteSemana','p-pruebaFisica','p-tipoUsuario','p-pagaCuota'],
+};
+
+// Campos que solo Admin puede editar
+const SOLO_ADMIN = ['p-nombreCivil','p-nombre','p-estado','p-asisteSemana','p-pruebaFisica','p-aptoDeporte','p-tipoUsuario','p-email'];
+
+function toggleEdicionSeccion(seccion) {
+  if (edicionActiva[seccion]) {
+    cancelarEdicionSeccion(seccion);
+  } else {
+    activarEdicionSeccion(seccion);
+  }
+}
+
+function activarEdicionSeccion(seccion) {
+  edicionActiva[seccion] = true;
+  const view = document.getElementById('view-' + seccion);
+  view.classList.add('is-editing');
+
+  const role = CURRENT_USER.rolApp;
+  CAMPOS_SECCION[seccion].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const soloAdmin = SOLO_ADMIN.includes(id);
+    if (soloAdmin && role !== 'Admin') return;
+    el.disabled = false;
+    el.hidden   = false;
+  });
+  // Enable date picker trigger if in personales section
+  if (seccion === 'personales') {
+    const dt = document.querySelector('#view-personales .date-picker-trigger');
+    if (dt) dt.disabled = false;
+  }
+
+  // Re-render widgets en modo edición
+  Object.keys(CHIPS_OPTIONS).forEach(key => {
+    const id = 'p-' + key;
+    if (!CAMPOS_SECCION[seccion].includes(id)) return;
+    const config = CHIPS_OPTIONS[key];
+    const valor  = document.getElementById(id)?.value || window.myProfile[key] || '';
+    if (config.ui === 'chips')       habilitarChips(id, valor);
+    if (config.ui === 'multiselect') habilitarMultiSelect(id, valor);
+    if (config.ui === 'select')      habilitarSelect(id, valor);
+    if (config.ui === 'toggle')      habilitarToggle(id, valor);
+  });
+
+  // Avatar editable en sección generales
+  if (seccion === 'generales') setSecAvatarEditable(true);
+
+  // Mostrar flechas de select
+  mostrarFlechasSelect(seccion, true);
+
+  // Animate header action row in
+  const actionsRow = document.getElementById('header-actions-' + seccion);
+  if (actionsRow) {
+    actionsRow.style.display = 'flex';
+    requestAnimationFrame(() => actionsRow.classList.add('visible'));
+  }
+}
+
+function cancelarEdicionSeccion(seccion) {
+  edicionActiva[seccion] = false;
+  const view = document.getElementById('view-' + seccion);
+  view.classList.remove('is-editing');
+
+  // Re-render con datos originales
+  renderTodo(window.myProfile);
+
+  // Deshabilitar inputs
+  CAMPOS_SECCION[seccion].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = true;
+  });
+  // Disable date picker trigger
+  if (seccion === 'personales') {
+    const dt = document.querySelector('#view-personales .date-picker-trigger');
+    if (dt) { dt.disabled = true; dt.textContent = document.getElementById('p-fechaNacimiento')?.value || '—'; }
+  }
+
+  if (seccion === 'generales') setSecAvatarEditable(false);
+  mostrarFlechasSelect(seccion, false);
+
+  // Animate header action row out
+  const actionsRow = document.getElementById('header-actions-' + seccion);
+  if (actionsRow) {
+    actionsRow.classList.remove('visible');
+    setTimeout(() => { actionsRow.style.display = 'none'; }, 280);
+  }
+}
+
+async function guardarSeccion(seccion) {
+  const errorBox = document.getElementById('error-' + seccion);
+  if (errorBox) errorBox.style.display = 'none';
+
+  if (fotoSubiendo) {
+    if (errorBox) { errorBox.textContent = 'Esperando que la foto termine de subir...'; errorBox.style.display = 'block'; }
+    await new Promise(resolve => {
+      const iv = setInterval(() => { if (!fotoSubiendo) { clearInterval(iv); resolve(); } }, 100);
+    });
+    if (errorBox) errorBox.style.display = 'none';
+  }
+
+  const btnSave = document.getElementById('btn-hsave-' + seccion);
+  if (btnSave) { btnSave.disabled = true; btnSave.textContent = '…'; }
+
+  const v = id => document.getElementById(id)?.value || '';
+  const datos = recogerTodosLosDatos();
+
+  try {
+    await gasCall('updateMyProfile', {
+      rowNumber: CURRENT_USER.rowNumber,
+      data: datos,
+    });
+    Object.assign(window.myProfile, datos);
+    renderTodo(window.myProfile);
+    cancelarEdicionSeccion(seccion);
+  } catch (err) {
+    if (errorBox) { errorBox.textContent = err.message || 'Error al guardar'; errorBox.style.display = 'block'; }
+  } finally {
+    if (btnSave) { btnSave.disabled = false; btnSave.textContent = 'Guardar'; }
+  }
+}
+
+function recogerTodosLosDatos() {
+  const v = id => document.getElementById(id)?.value || '';
+  return {
+    nombreDerby:        v('p-nombreDerby'),
+    nombre:             v('p-nombre'),
+    nombreCivil:        v('p-nombreCivil'),
+    cedulaPasaporte:    v('p-cedulaPasaporte'),
+    numero:             v('p-numero'),
+    pronombres:         v('p-pronombres'),
+    estado:             v('p-estado'),
+    rolJugadorx:        v('p-rolJugadorx'),
+    pagaCuota:          v('p-pagaCuota'),
+    alergias:           v('p-alergias'),
+    dieta:              v('p-dieta'),
+    pais:               v('p-pais'),
+    codigoPais:         v('p-codigoPais'),
+    telefono:           v('p-telefono'),
+    grupoSanguineo:     v('p-grupoSanguineo'),
+    fechaNacimiento:    v('p-fechaNacimiento'),
+    contactoEmergencia: v('p-contactoEmergencia'),
+    mostrarCumple:      v('p-mostrarCumple'),
+    mostrarEdad:        v('p-mostrarEdad'),
+    email:              v('p-email').trim() + '@gmail.com',
+    asisteSemana:       v('p-asisteSemana'),
+    pruebaFisica:       v('p-pruebaFisica'),
+    aptoDeporte:        v('p-aptoDeporte'),
+    tipoUsuario:        v('p-tipoUsuario'),
+    fotoPerfil:         window.myProfile.fotoPerfil,
+    adjCedula:          window.myProfile.adjCedula,
+    adjPruebaFisica:    window.myProfile.adjPruebaFisica,
+  };
+}
+
+function mostrarFlechasSelect(seccion, mostrar) {
+  const selectIds = {
+    generales:   ['rolJugadorx'],
+    personales:  ['pais'],
+    contacto:    ['codigoPais'],
+    salud:       ['grupoSanguineo'],
+    rendimiento: ['estado','asisteSemana','pruebaFisica','tipoUsuario'],
+  };
+  (selectIds[seccion] || []).forEach(key => {
+    const arr = document.getElementById('arrow-' + key);
+    if (arr) arr.style.display = mostrar ? 'block' : 'none';
+  });
+}
+
+// ── PERMISOS ──────────────────────────────────────────────────
+function aplicarPermisos() {
+  const role = CURRENT_USER.rolApp;
+  document.querySelectorAll('[data-role]').forEach(el => {
+    const roles = el.dataset.role.split(' ');
+    const matches = roles.includes(role);
+    // Preserve display type
+    if (!matches) el.style.display = 'none';
+    else if (el.style.display === 'none') el.style.display = '';
+  });
+  // Ocultar fila rendimiento si no corresponde
+  const rowRend = document.getElementById('row-rendimiento');
+  if (rowRend) rowRend.style.display = (role === 'Admin' || role === 'SemiAdmin') ? 'flex' : 'none';
+}
+
+// ── CHIPS Y SELECTS ───────────────────────────────────────────
+const CHIPS_OPTIONS = {
+  pronombres:     { multi: true,  ui: 'multiselect', options: ['Él','Ella','Elle','No definido'] },
+  estado:         { multi: false, ui: 'select', options: ['Activx','No Activx','Satélite','Ausente','Técnico'] },
+  asisteSemana:   { multi: false, ui: 'select', options: ['1 vez','2 veces','3 o más veces','No aplica'] },
+  rolJugadorx:    { multi: false, ui: 'select', options: ['Jammer','Bloquer','Blammer','Ref','Coach','Coach/ref','Bench','No definido'] },
+  pagaCuota:      { multi: false, ui: 'toggle', options: ['Sí','No'] },
+  pruebaFisica:   { multi: false, ui: 'select', options: ['Realizada','No realizada'] },
+  aptoDeporte:    { multi: false, ui: 'toggle', options: ['Sí','No'] },
+  pais:           { multi: false, ui: 'select', options: ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'] },
+  codigoPais:     { multi: false, ui: 'select', options: ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'] },
+  grupoSanguineo: { multi: false, ui: 'select', options: ['A+','A-','AB+','AB-','B+','B-','O+','O-'] },
+  mostrarCumple:  { multi: false, ui: 'toggle', options: ['Sí','No'] },
+  mostrarEdad:    { multi: false, ui: 'toggle', options: ['Sí','No'] },
+  tipoUsuario:    { multi: false, ui: 'select', options: ['Admin','SemiAdmin','Invitado'] },
+};
+
+// Determina si alguna sección está en modo edición para este campo
+function isEditing(id) {
+  const seccion = Object.keys(CAMPOS_SECCION).find(s => CAMPOS_SECCION[s].includes(id));
+  return seccion ? edicionActiva[seccion] : false;
+}
+
+function habilitarChips(id, valorInicial = '') {
+  const input = document.getElementById(id);
+  if (!input) return;
+  const key    = id.replace(/^p-/, '');
+  const config = CHIPS_OPTIONS[key];
+  if (!config) return;
+  input.style.display = 'none';
+  const editing = isEditing(id);
+
+  // Buscar o crear wrapper en sec-row-body o directamente en parentNode
+  const container = input.closest('.sec-row-body') || input.parentNode;
+  let wrapper = container.querySelector('.chip-wrapper');
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.className = 'chip-wrapper';
+    input.parentNode.insertBefore(wrapper, input.nextSibling);
+  }
+  wrapper.innerHTML = '';
+  const selected = new Set(
+    valorInicial ? valorInicial.split(',').map(v => v.trim()).filter(Boolean) : []
+  );
+  config.options.forEach(opt => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.textContent = opt;
+    chip.className = 'chip ' + (selected.has(opt) ? 'chip-active' : 'chip-inactive');
+    if (!editing) chip.classList.add('opacity-50');
+    chip.addEventListener('click', () => {
+      if (!isEditing(id)) return;
+      if (config.multi) { selected.has(opt) ? selected.delete(opt) : selected.add(opt); }
+      else              { selected.clear(); selected.add(opt); }
+      input.value = Array.from(selected).join(',');
+      Array.from(wrapper.children).forEach(c => {
+        c.className = 'chip ' + (selected.has(c.textContent) ? 'chip-active' : 'chip-inactive');
+      });
+    });
+    wrapper.appendChild(chip);
+  });
+}
+
+function habilitarMultiSelect(id, valorInicial = '') {
+  const input = document.getElementById(id);
+  if (!input) return;
+  const key    = id.replace(/^p-/, '');
+  const config = CHIPS_OPTIONS[key];
+  if (!config) return;
+  input.style.display = 'none';
+  input.style.position = 'absolute';
+  input.style.visibility = 'hidden';
+  const editing = isEditing(id);
+
+  const container = input.closest('.sec-row-body') || input.parentNode;
+
+  // Remove old trigger if exists
+  const oldTrigger = container.querySelector('.multiselect-trigger');
+  if (oldTrigger) oldTrigger.remove();
+
+  // Build display value
+  const selected = new Set(
+    valorInicial ? valorInicial.split(',').map(v => v.trim()).filter(Boolean) : []
+  );
+  const displayVal = selected.size > 0 ? Array.from(selected).join(', ') : '—';
+
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'multiselect-trigger sec-input' + (editing ? ' multiselect-editable' : '');
+  trigger.disabled = !editing;
+
+  // Show value + chevron when editing
+  function updateTrigger() {
+    const val = input.value ? input.value.split(',').map(v=>v.trim()).filter(Boolean).join(', ') : '—';
+    if (editing) {
+      trigger.innerHTML = `<span class="ms-value">${val}</span><span class="material-icons ms-arrow">chevron_right</span>`;
+    } else {
+      trigger.textContent = val;
+    }
+  }
+  input.value = valorInicial;
+  updateTrigger();
+
+  container.appendChild(trigger);
+
+  trigger.addEventListener('click', () => {
+    if (!isEditing(id)) return;
+    const curSelected = new Set(
+      input.value ? input.value.split(',').map(v=>v.trim()).filter(Boolean) : []
+    );
+    abrirMultiSelectModal('Pronombres', config.options, curSelected, (newSelected) => {
+      input.value = Array.from(newSelected).join(',');
+      updateTrigger();
+    });
+  });
+}
+
+function abrirMultiSelectModal(label, options, curSelected, onConfirm) {
+  // Remove existing
+  const old = document.getElementById('multiselect-overlay');
+  if (old) old.remove();
+
+  const working = new Set(curSelected);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'multiselect-overlay';
+  overlay.className = 'bs-overlay';
+
+  const panel = document.createElement('div');
+  panel.className = 'bs-panel ms-panel';
+  panel.innerHTML = `
+    <div class="bs-handle"></div>
+    <div class="bs-title">${label}</div>
+    <div class="ms-options" id="ms-options-list"></div>
+    <div class="ms-footer">
+      <button class="btn-cancel ms-cancel-btn">Cancelar</button>
+      <button class="btn-save ms-confirm-btn">Listo</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(panel);
+
+  const optsList = panel.querySelector('#ms-options-list');
+  function renderOpts() {
+    optsList.innerHTML = '';
+    options.forEach(opt => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'ms-option-row' + (working.has(opt) ? ' ms-selected' : '');
+      row.innerHTML = `
+        <span class="ms-opt-label">${opt}</span>
+        <span class="material-icons ms-check">${working.has(opt) ? 'check_circle' : 'radio_button_unchecked'}</span>
+      `;
+      row.addEventListener('click', () => {
+        if (working.has(opt)) working.delete(opt); else working.add(opt);
+        row.className = 'ms-option-row' + (working.has(opt) ? ' ms-selected' : '');
+        row.querySelector('.ms-check').textContent = working.has(opt) ? 'check_circle' : 'radio_button_unchecked';
+      });
+      optsList.appendChild(row);
+    });
+  }
+  renderOpts();
+
+  function cerrar() {
+    overlay.classList.remove('active');
+    panel.classList.remove('active');
+    overlay.style.pointerEvents = 'none';
+    panel.style.pointerEvents   = 'none';
+    document.body.style.overflow = '';
+    const reg = document.getElementById('registroScreen');
+    if (reg) reg.style.overflowY = '';
+    setTimeout(() => { overlay.remove(); panel.remove(); }, 220);
+  }
+
+  overlay.addEventListener('click', cerrar);
+  panel.querySelector('.ms-cancel-btn').addEventListener('click', cerrar);
+  panel.querySelector('.ms-confirm-btn').addEventListener('click', () => {
+    onConfirm(working);
+    cerrar();
+  });
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('active');
+    panel.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    const _regScr = document.getElementById('registroScreen');
+    if (_regScr && _regScr.style.display !== 'none') _regScr.style.overflowY = 'hidden';
+  });
+}
+
+function habilitarSelect(id, valorInicial = '') {
+  const input = document.getElementById(id);
+  const key   = id.replace('p-', '');
+  const config = CHIPS_OPTIONS[key];
+  if (!config || !input) return;
+  const editing = isEditing(id);
+
+  // Label: buscar en sec-row-label o en label
+  const rowBody   = input.closest('.sec-row-body');
+  const labelEl   = rowBody ? rowBody.querySelector('.sec-row-label') : input.closest('.profile-field')?.querySelector('label');
+  const labelText = labelEl ? labelEl.textContent : key;
+
+  input.style.display = 'none';
+  input.style.position = 'absolute';
+  input.style.visibility = 'hidden';
+
+  let trigger = input.parentNode.querySelector('.custom-select-trigger');
+  if (trigger) trigger.remove();
+
+  trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'custom-select-trigger sec-input';
+  trigger.textContent = valorInicial || '—';
+  trigger.disabled = !editing;
+  input.value = valorInicial;
+  input.parentNode.insertBefore(trigger, input.nextSibling);
+
+  trigger.addEventListener('click', () => {
+    if (!isEditing(id)) return;
+    abrirBottomSheet(labelText, config.options, input.value, opcion => {
+      input.value = opcion;
+      trigger.textContent = opcion;
+    });
+  });
+}
+
+function habilitarToggle(id, valorInicial = '') {
+  const input = document.getElementById(id);
+  if (!input) return;
+  input.style.display = 'none';
+  const editing = isEditing(id);
+
+  // Buscar contenedor (sec-row-toggle o profile-field-toggle)
+  const container = input.parentNode;
+  let existing = container.querySelector('.toggle-wrap');
+  if (existing) existing.remove();
+
+  const isOn = (valorInicial === 'Sí');
+  const wrap = document.createElement('div');
+  wrap.className = 'toggle-wrap';
+  wrap.innerHTML = `
+    <button type="button" class="toggle-btn ${isOn ? 'toggle-on' : 'toggle-off'}" aria-pressed="${isOn}">
+      <span class="toggle-thumb"></span>
+    </button>
+  `;
+  input.value = valorInicial;
+  container.appendChild(wrap);
+
+  const btn = wrap.querySelector('.toggle-btn');
+  btn.disabled = !editing;
+  btn.addEventListener('click', () => {
+    if (!isEditing(id)) return;
+    const on = btn.classList.contains('toggle-off');
+    btn.classList.toggle('toggle-on', on);
+    btn.classList.toggle('toggle-off', !on);
+    btn.setAttribute('aria-pressed', on);
+    input.value = on ? 'Sí' : 'No';
+  });
+}
+
+// ── BOTTOM SHEET (selector modal centrado) ────────────────────
+function crearBottomSheet() {
+  if (document.getElementById('bs-overlay')) return;
+  const overlay = document.createElement('div'); overlay.className = 'bs-overlay'; overlay.id = 'bs-overlay';
+  overlay.addEventListener('click', cerrarBottomSheet);
+  const panel = document.createElement('div'); panel.className = 'bs-panel'; panel.id = 'bs-panel';
+  panel.innerHTML = `
+    <div class="bs-handle"></div>
+    <div class="bs-title" id="bs-title"></div>
+    <div class="bs-search-wrapper" id="bs-search-wrapper">
+      <input class="bs-search" id="bs-search" placeholder="Buscar..." autocomplete="off">
+    </div>
+    <div class="bs-options" id="bs-options"></div>
+  `;
+  document.body.appendChild(overlay);
+  document.body.appendChild(panel);
+}
+
+function abrirBottomSheet(label, options, valorActual, onSelect) {
+  if (_bsClosing) return; // still closing, ignore this tap
+  crearBottomSheet();
+  const overlay       = document.getElementById('bs-overlay');
+  const panel         = document.getElementById('bs-panel');
+  const title         = document.getElementById('bs-title');
+  const optsEl        = document.getElementById('bs-options');
+  const searchWrapper = document.getElementById('bs-search-wrapper');
+  title.textContent = label;
+  searchWrapper.style.display = options.length > 6 ? 'block' : 'none';
+
+  function renderOpciones(filtro = '') {
+    optsEl.innerHTML = '';
+    const filtradas = options.filter(o => o.toLowerCase().includes(filtro.toLowerCase()));
+    if (!filtradas.length) { optsEl.innerHTML = '<p class="bs-empty">Sin resultados</p>'; return; }
+    filtradas.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'bs-option' + (opt === valorActual ? ' selected' : '');
+      btn.textContent = opt;
+      btn.addEventListener('click', () => { onSelect(opt); cerrarBottomSheet(); });
+      optsEl.appendChild(btn);
+    });
+  }
+  renderOpciones();
+
+  const searchEl = document.getElementById('bs-search');
+  const nuevoSearch = searchEl.cloneNode(true);
+  searchEl.parentNode.replaceChild(nuevoSearch, searchEl);
+  nuevoSearch.value = '';
+  nuevoSearch.addEventListener('input', () => renderOpciones(nuevoSearch.value));
+
+  requestAnimationFrame(() => {
+    const sel = optsEl.querySelector('.selected');
+    if (sel) sel.scrollIntoView({ block: 'center' });
+  });
+
+  overlay.style.pointerEvents = '';
+  panel.style.pointerEvents   = '';
+  overlay.classList.add('active');
+  panel.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  const _regScr = document.getElementById('registroScreen');
+  if (_regScr && _regScr.style.display !== 'none') _regScr.style.overflowY = 'hidden';
+}
+
+let _bsClosing = false; // guard against immediate reopen after close
+
+function cerrarBottomSheet() {
+  const overlay = document.getElementById('bs-overlay');
+  const panel   = document.getElementById('bs-panel');
+  if (!overlay || !panel) return;
+  // Kill pointer-events immediately so taps below work right away
+  overlay.style.pointerEvents = 'none';
+  panel.style.pointerEvents   = 'none';
+  overlay.classList.remove('active');
+  panel.classList.remove('active');
+  document.body.style.overflow = '';
+  const reg = document.getElementById('registroScreen');
+  if (reg) reg.style.overflowY = '';
+  // Block reopening for 400ms — prevents the closing tap from firing the button below
+  _bsClosing = true;
+  setTimeout(() => { _bsClosing = false; }, 400);
+}
+
+// ── ARCHIVOS ──────────────────────────────────────────────────
+function configurarTodasLasSubidas() {
+  configurarUpload('p-adjPruebaFisica', 'prueba', 'adjPruebaFisica');
+  configurarUpload('p-adjCedula',       'cedula', 'adjCedula');
+  configurarUpload('p-fotoPerfil',      'foto',   'fotoPerfil');
+}
+
+function configurarUpload(inputId, tipoArchivo, campoDestino) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  // Fully reset input by replacing with fresh element (not cloneNode which can carry file state)
+  const nuevoInput = document.createElement('input');
+  nuevoInput.type   = 'file';
+  nuevoInput.id     = inputId;
+  nuevoInput.accept = 'image/*';
+  nuevoInput.style.display = 'none';
+  input.parentNode.replaceChild(nuevoInput, input);
+  let inputReal = nuevoInput;
+  inputReal.addEventListener('click', () => { inputReal.value = ''; });
+
+  const btnSubir = document.getElementById('btn-subir-' + campoDestino);
+  if (btnSubir) btnSubir.onclick = () => {
+    const pId = inputId; // e.g. 'p-adjPruebaFisica'
+    if (isEditing(pId) || campoDestino === 'fotoPerfil') inputReal.click();
+  };
+
+  inputReal.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:12px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:9999;white-space:nowrap;';
+      t.textContent = 'El archivo no puede superar 5 MB';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+      e.target.value = ''; return;
+    }
+    const reader = new FileReader();
+    reader.onload = async event => {
+      const base64 = event.target.result;
+      if (!base64) return;
+      if (campoDestino === 'fotoPerfil') { abrirCropper(base64); return; }
+      mostrarSubiendo(campoDestino);
+      try {
+        // GAS expects full data URL with prefix
+        const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo, email: CURRENT_USER.email });
+        window.myProfile[campoDestino] = result.url;
+        renderEstadoArchivo(campoDestino, result.url);
+        mostrarExito(campoDestino);
+      } catch(err) {
+        console.error('Error subiendo archivo:', err);
+        mostrarErrorUpload(campoDestino);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderEstadoArchivo(campo, url) {
+  const contenedor = document.getElementById('estado-' + campo);
+  if (!contenedor) return;
+  contenedor.innerHTML = '';
+  if (!url) {
+    contenedor.innerHTML = '<span class="file-status-vacio">Sin archivo</span>';
+    return;
+  }
+  const esImagen = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  let html = `<div class="file-status-ok"><a href="${url}" target="_blank" class="file-link">VER ARCHIVO</a></div>`;
+  if (esImagen) html += `<img src="${url}" class="file-preview" alt="Preview">`;
+  contenedor.innerHTML = html;
+}
+
+function mostrarSubiendo(campo) {
+  const el = document.getElementById('upload-status-' + campo);
+  if (el) el.innerHTML = '<span>Subiendo...</span>';
+}
+function mostrarExito(campo) {
+  const el = document.getElementById('upload-status-' + campo);
+  if (el) { el.innerHTML = '<span class="text-ok">✓ Subido</span>'; setTimeout(() => el.innerHTML = '', 3000); }
+}
+function mostrarErrorUpload(campo) {
+  const el = document.getElementById('upload-status-' + campo);
+  if (el) el.innerHTML = '<span class="text-error">Error al subir</span>';
+}
+
+// ── FOTO DE PERFIL ────────────────────────────────────────────
+function clickEditarFoto() {
+  // Foto always editable — no edit mode required
+  document.getElementById('p-fotoPerfil')?.click();
+}
+
+function abrirFotoSinEdicion() {
+  cropTarget = 'app';
+  document.getElementById('p-fotoPerfil')?.click();
+}
+
+function setSecAvatarEditable(editable) {
+  // The main avatar-container (in hero) is always clickable
+  // sec-row-avatar in generales section uses clickEditarFoto() which checks edit mode
+}
+
+function renderFotoPerfil(url) {
+  console.log('[renderFotoPerfil] url:', url);
+  const placeholder = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150"><rect width="100%" height="100%" fill="#2b2b2b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#888" font-size="20" font-family="Arial">Sin foto</text></svg>');
+  [document.getElementById('img-preview-foto'), document.getElementById('sec-img-foto')].forEach(img => {
+    if (!img) return;
+    img.onerror = (e) => { console.log('[renderFotoPerfil] img error, falling to placeholder. src was:', img.src); img.src = placeholder; };
+    img.src = url || placeholder;
+    console.log('[renderFotoPerfil] set img.src to:', img.src, 'element:', img.id);
+  });
+}
+
+function normalizarDriveUrl(url) {
+  if (!url) return '';
+  console.log('[normalizarDriveUrl] input:', url);
+  // Extract Drive file ID from any Drive URL format
+  let fileId = null;
+  const m1 = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m1?.[1]) fileId = m1[1];
+  const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (!fileId && m2?.[1]) fileId = m2[1];
+  if (!fileId) { console.log('[normalizarDriveUrl] no fileId found, returning raw:', url); return url; }
+  const result = 'https://lh3.googleusercontent.com/d/' + fileId + '=w500';
+  console.log('[normalizarDriveUrl] output:', result);
+  return result;
+}
+
+function abrirCropper(base64) {
+  const modal = document.getElementById('modal-crop');
+  const image = document.getElementById('crop-image');
+  modal.style.display = 'flex';
+  image.src = base64;
+  if (cropper) cropper.destroy();
+  cropper = new Cropper(image, {
+    aspectRatio: 1, viewMode: 1, dragMode: 'move',
+    responsive: true, restore: true, checkCrossOrigin: false,
+    modal: true, guides: true, center: true, highlight: true,
+    cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
+  });
+  const btnAplicar = document.getElementById('btn-aplicar-crop');
+  if (btnAplicar) { btnAplicar.disabled = false; btnAplicar.onclick = () => confirmarCrop(); }
+}
+
+function confirmarCrop() {
+  if (!cropper) return;
+  const btnAplicar = document.getElementById('btn-aplicar-crop');
+  if (btnAplicar) btnAplicar.disabled = true;
+  const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+  const base64DataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  document.getElementById('modal-crop').style.display = 'none';
+  cropper.destroy(); cropper = null;
+  if (cropTarget === 'registro') {
+    cropTarget = 'app';
+    regRecibirFotoRecortada(base64DataUrl);
+  } else {
+    subirImagenRecortada(base64DataUrl);
+  }
+}
+
+async function subirImagenRecortada(base64) {
+  mostrarCargandoFoto(true);
+  fotoSubiendo = true;
+  try {
+    const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo: 'foto', email: CURRENT_USER.email });
+    if (!result || !result.url) throw new Error('No se recibio URL');
+    window.myProfile.fotoPerfil = result.url;
+    renderFotoPerfil(normalizarDriveUrl(result.url));
+    await gasCall('updateMyProfile', {
+      rowNumber: CURRENT_USER.rowNumber,
+      data: { fotoPerfil: result.url },
+    });
+  } catch (e) {
+    console.error('Error subiendo foto:', e);
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:12px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:9999;';
+    t.textContent = 'Error al subir la foto. Intenta de nuevo.';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  } finally {
+    try { mostrarCargandoFoto(false); } catch(e) {}
+    fotoSubiendo = false;
+  }
+}
+
+function mostrarCargandoFoto(show) {
+  try {
+    let el = document.getElementById('foto-upload-blocker');
+    if (show) {
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'foto-upload-blocker';
+        el.innerHTML = '<div class="foto-blocker-inner"><div class="foto-blocker-spinner"></div><span>Cargando foto...</span></div>';
+        document.body.appendChild(el);
+      }
+      el.style.display = 'flex';
+      // Safety net: auto-remove after 15s in case cleanup fails
+      clearTimeout(el._safetyTimer);
+      el._safetyTimer = setTimeout(() => { el.style.display = 'none'; }, 15000);
+    } else {
+      if (el) {
+        clearTimeout(el._safetyTimer);
+        el.style.display = 'none';
+      }
+    }
+  } catch(e) { console.warn('mostrarCargandoFoto error:', e); }
+}
+
+function cancelarCrop() {
+  if (cropper) { cropper.destroy(); cropper = null; }
+  document.getElementById('modal-crop').style.display = 'none';
+}
+function rotarImagen() { if (cropper) cropper.rotate(90); }
+
+// ── EMAIL WIDTH ───────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const emailInput = document.getElementById('p-email');
+  if (emailInput) {
+    emailInput.addEventListener('input', () => {
+      emailInput.value = emailInput.value.replace(/@.*/, '');
+      ajustarAnchoEmail();
+    });
+  }
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const script = document.createElement('script');
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.onload = () => initGoogleAuth();
+  document.head.appendChild(script);
+});
+
+// ── DATE PICKER ───────────────────────────────────────────────
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESES_CORTO = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+let dpState = {
+  visible: false,
+  viewYear: 2000, viewMonth: 0,
+  selYear: null, selMonth: null, selDay: null,
+  yearMode: false,
+  monthMode: false,
+  onConfirm: null,
+};
+
+function parseFecha(str) {
+  // Accepts DD/MM/YYYY (primary), YYYY-MM-DD, or legacy M/D/YYYY
+  if (!str) return null;
+  const slash = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slash) {
+    // DD/MM/YYYY — day is first (our stored format)
+    return { day: parseInt(slash[1]), month: parseInt(slash[2])-1, year: parseInt(slash[3]) };
+  }
+  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) return { month: parseInt(iso[2])-1, day: parseInt(iso[3]), year: parseInt(iso[1]) };
+  return null;
+}
+
+function formatFecha(y, m, d) {
+  // Store as DD/MM/YYYY
+  const dd = String(d).padStart(2, '0');
+  const mm = String(m + 1).padStart(2, '0');
+  return `${dd}/${mm}/${y}`;
+}
+
+function formatFechaDisplay(y, m, d) {
+  return `${d} ${MESES_CORTO[m]} ${y}`;
+}
+
+function abrirDatePicker(valorActual, onConfirm) {
+  const parsed = parseFecha(valorActual);
+  // Always ensure valid numbers
+  dpState.viewYear  = (parsed && parsed.year)  ? parsed.year  : 1990;
+  dpState.viewMonth = (parsed && typeof parsed.month === 'number') ? parsed.month : 0;
+  dpState.selYear   = parsed ? parsed.year  : null;
+  dpState.selMonth  = (parsed && typeof parsed.month === 'number') ? parsed.month : null;
+  dpState.selDay    = parsed ? parsed.day   : null;
+  dpState.yearMode  = false;
+  dpState.monthMode = false;
+  dpState.onConfirm = onConfirm;
+  // Clear any previous error
+  const errEl = document.getElementById('dp-error');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+
+  renderDatePicker();
+  document.getElementById('date-picker-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarDatePicker() {
+  document.getElementById('date-picker-modal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function renderDatePicker() {
+  const { viewYear, viewMonth, selYear, selMonth, selDay, yearMode } = dpState;
+
+  // Guard: ensure month is always a valid 0-11 integer
+  const safeMonth = (Number.isInteger(viewMonth) && viewMonth >= 0 && viewMonth <= 11) ? viewMonth : 0;
+  const safeYear  = (Number.isInteger(viewYear)  && viewYear > 1900) ? viewYear : 1990;
+
+  // Header label
+  const lbl = document.getElementById('dp-selected-label');
+  if (lbl) {
+    if (Number.isInteger(selYear) && Number.isInteger(selMonth) && Number.isInteger(selDay)) {
+      lbl.textContent = `${selDay} ${MESES[selMonth]} ${selYear}`;
+    } else {
+      lbl.textContent = 'Sin seleccionar';
+    }
+  }
+
+  const monthEl = document.getElementById('dp-month-label');
+  const yearEl  = document.getElementById('dp-year-label');
+  if (monthEl) monthEl.textContent = MESES[safeMonth];
+  if (yearEl)  yearEl.textContent  = safeYear;
+
+  const gridWrap   = document.getElementById('dp-grid-wrap');
+  const yearGrid   = document.getElementById('dp-year-grid');
+  const monthGrid  = document.getElementById('dp-month-grid');
+
+  // Hide/show prev-next arrows in month/year mode
+  const navArrows = document.getElementById('dp-nav-arrows');
+  if (navArrows) navArrows.style.display = (yearMode || dpState.monthMode) ? 'none' : 'flex';
+
+  if (yearMode) {
+    gridWrap.style.display  = 'none';
+    yearGrid.style.display  = 'grid';
+    if (monthGrid) monthGrid.style.display = 'none';
+    renderYearGrid();
+  } else if (dpState.monthMode) {
+    gridWrap.style.display  = 'none';
+    yearGrid.style.display  = 'none';
+    if (monthGrid) { monthGrid.style.display = 'grid'; renderMonthGrid(); }
+  } else {
+    gridWrap.style.display  = 'block';
+    yearGrid.style.display  = 'none';
+    if (monthGrid) monthGrid.style.display = 'none';
+    renderDaysGrid();
+  }
+}
+
+function renderDaysGrid() {
+  const viewYear  = (Number.isInteger(dpState.viewYear) && dpState.viewYear > 1900) ? dpState.viewYear : 1990;
+  const viewMonth = (Number.isInteger(dpState.viewMonth) && dpState.viewMonth >= 0 && dpState.viewMonth <= 11) ? dpState.viewMonth : 0;
+  const { selYear, selMonth, selDay } = dpState;
+  const daysEl = document.getElementById('dp-days');
+  daysEl.innerHTML = '';
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const offset = (firstDay + 6) % 7; // Monday-first
+
+  const today = new Date();
+
+  for (let i = 0; i < offset; i++) {
+    const blank = document.createElement('div');
+    blank.className = 'dp-day dp-other-month';
+    daysEl.appendChild(blank);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'dp-day';
+    btn.textContent = d;
+    const isSelected = selYear === viewYear && selMonth === viewMonth && selDay === d;
+    const isToday = today.getFullYear() === viewYear && today.getMonth() === viewMonth && today.getDate() === d;
+    if (isSelected) btn.classList.add('dp-selected');
+    else if (isToday) btn.classList.add('dp-today');
+    btn.addEventListener('click', () => {
+      dpState.selYear = viewYear; dpState.selMonth = viewMonth; dpState.selDay = d;
+      renderDatePicker();
+    });
+    daysEl.appendChild(btn);
+  }
+}
+
+function renderYearGrid() {
+  const yearGrid = document.getElementById('dp-year-grid');
+  yearGrid.innerHTML = '';
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= 1920; y--) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'dp-year-btn' + (y === dpState.viewYear ? ' dp-year-selected' : '');
+    btn.textContent = y;
+    btn.addEventListener('click', () => {
+      dpState.viewYear  = y;
+      dpState.yearMode  = false;
+      dpState.monthMode = false;
+      if (typeof dpState.viewMonth !== 'number' || dpState.viewMonth < 0 || dpState.viewMonth > 11) {
+        dpState.viewMonth = 0;
+      }
+      animateDp(); renderDatePicker();
+    });
+    yearGrid.appendChild(btn);
+  }
+  // Scroll to selected
+  requestAnimationFrame(() => {
+    const sel = yearGrid.querySelector('.dp-year-selected');
+    if (sel) sel.scrollIntoView({ block: 'center' });
+  });
+}
+
+function animateDp() {
+  // Briefly fade out the grid so re-render feels animated
+  const grid = document.getElementById('dp-grid-wrap');
+  const yearG = document.getElementById('dp-year-grid');
+  const lbl = document.getElementById('dp-month-label');
+  [grid, yearG, lbl].forEach(el => { if (el) { el.style.opacity = '0'; el.style.transition = 'none'; } });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      [grid, yearG, lbl].forEach(el => { if (el) { el.style.opacity = ''; el.style.transition = ''; } });
+    });
+  });
+}
+
+function renderMonthGrid() {
+  const monthGrid = document.getElementById('dp-month-grid');
+  if (!monthGrid) return;
+  monthGrid.innerHTML = '';
+  MESES.forEach((nombre, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    const isCurrent = idx === dpState.viewMonth;
+    btn.className = 'dp-month-btn' + (isCurrent ? ' dp-month-selected' : '');
+    btn.textContent = nombre;
+    btn.addEventListener('click', () => {
+      dpState.viewMonth = idx;
+      dpState.monthMode = false;
+      animateDp(); renderDatePicker();
+    });
+    monthGrid.appendChild(btn);
+  });
+}
+
+// Wire up date picker events once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('dp-prev')?.addEventListener('click', () => {
+    dpState.viewMonth--;
+    if (dpState.viewMonth < 0) { dpState.viewMonth = 11; dpState.viewYear--; }
+    animateDp(); renderDatePicker();
+  });
+  document.getElementById('dp-next')?.addEventListener('click', () => {
+    dpState.viewMonth++;
+    if (dpState.viewMonth > 11) { dpState.viewMonth = 0; dpState.viewYear++; }
+    animateDp(); renderDatePicker();
+  });
+  // Use event delegation on the modal — labels get recreated by renderDatePicker
+  // so we can't attach listeners directly; listen on the stable modal container instead
+  const dpModal = document.getElementById('date-picker-modal');
+  if (dpModal) {
+    dpModal.addEventListener('click', (e) => {
+      const tgt = e.target;
+      if (tgt.id === 'dp-month-label' || tgt.closest('#dp-month-label')) {
+        e.preventDefault(); e.stopPropagation();
+        dpState.monthMode = !dpState.monthMode;
+        dpState.yearMode  = false;
+        animateDp(); renderDatePicker();
+      } else if (tgt.id === 'dp-year-label' || tgt.closest('#dp-year-label')) {
+        e.preventDefault(); e.stopPropagation();
+        dpState.yearMode  = !dpState.yearMode;
+        dpState.monthMode = false;
+        animateDp(); renderDatePicker();
+      }
+    });
+  }
+  document.getElementById('dp-cancel')?.addEventListener('click', cerrarDatePicker);
+  document.getElementById('date-picker-modal')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('date-picker-modal')) cerrarDatePicker();
+  });
+  document.getElementById('dp-ok')?.addEventListener('click', () => {
+    const errEl = document.getElementById('dp-error');
+    if (!dpState.selDay) {
+      if (errEl) {
+        errEl.textContent = 'Falta seleccionar el día';
+        errEl.style.display = 'block';
+        clearTimeout(errEl._t);
+        errEl._t = setTimeout(() => { errEl.style.display = 'none'; }, 3000);
+      }
+      return;
+    }
+    if (errEl) errEl.style.display = 'none';
+    const val = formatFecha(dpState.selYear, dpState.selMonth, dpState.selDay);
+    if (dpState.onConfirm) dpState.onConfirm(val);
+    cerrarDatePicker();
+  });
+});
+
+// Init date picker trigger for fechaNacimiento
+function initFechaTrigger() {
+  const input = document.getElementById('p-fechaNacimiento');
+  if (!input) return;
+  input.style.display = 'none';
+  input.style.position = 'absolute';
+  input.style.visibility = 'hidden';
+
+  const container = input.closest('.sec-row-body') || input.parentNode;
+  let trigger = container.querySelector('.date-picker-trigger');
+  if (!trigger) {
+    trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'date-picker-trigger';
+    // Build: [date text LEFT] [icon RIGHT]
+    const txtNode = document.createTextNode('—');
+    const icoSpan = document.createElement('span');
+    icoSpan.className = 'material-icons dp-trig-ico';
+    icoSpan.textContent = 'edit_calendar';
+    trigger.appendChild(txtNode);  // first = left
+    trigger.appendChild(icoSpan);  // second = right
+    container.appendChild(trigger);
+  }
+  // Refresh the text node (second child), icon span stays untouched
+  function refreshTriggerDisplay() {
+    const p = parseFecha(input.value);
+    const txt = p
+      ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}`
+      : (input.value || '—');
+    // Text node is first child, icon span is last
+    const textNode = trigger.childNodes[0]?.nodeType === Node.TEXT_NODE ? trigger.childNodes[0] : Array.from(trigger.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+    if (textNode) {
+      textNode.nodeValue = txt;
+    } else {
+      trigger.appendChild(document.createTextNode(txt));
+    }
+  }
+  refreshTriggerDisplay();
+  trigger.disabled = false;
+
+  trigger.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (!isEditing('p-fechaNacimiento')) return;
+    const currentVal = input.value || '';
+    abrirDatePicker(currentVal, val => {
+      input.value = val;
+      refreshTriggerDisplay();
+    });
+  });
 }
