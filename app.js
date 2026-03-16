@@ -261,8 +261,20 @@ function mostrarRegistroDesdeLogin() {
 function wizStep0Volver() {
   document.getElementById('registroScreen').style.display = 'none';
   document.getElementById('wiz-step-0').style.display     = 'none';
-  mostrarLoginScreen();
   window._registroDesdeLogin = false;
+  mostrarLoginScreen();
+}
+
+function wizIntroVolver() {
+  // From intro: if we came via "Crear mi perfil" → go back to step-0
+  // Otherwise → go back to noEncontrado
+  if (window._registroDesdeLogin) {
+    document.getElementById('wiz-intro').style.display   = 'none';
+    document.getElementById('wiz-step-0').style.display  = 'flex';
+  } else {
+    document.getElementById('registroScreen').style.display    = 'none';
+    document.getElementById('noEncontradoScreen').style.display = 'flex';
+  }
 }
 
 // ── NO ENCONTRADO ─────────────────────────────────────────────
@@ -1061,6 +1073,12 @@ window.addEventListener('popstate', (e) => {
   // Wizard open? handle wizard back
   const regScr = document.getElementById('registroScreen');
   if (regScr && regScr.style.display !== 'none') {
+    // Step-0 (login para registro)? volver al login principal
+    const step0 = document.getElementById('wiz-step-0');
+    if (step0 && step0.style.display !== 'none') {
+      wizStep0Volver();
+      return;
+    }
     wizBack();
     return;
   }
