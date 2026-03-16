@@ -23,7 +23,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
-// ── DERBY LOADER MESSAGES ─────────────────────────────────────
+// ── DERBY LOADER ─────────────────────────────────────────────
 const DERBY_MSGS = [
   'Cargando…',
   'Atando los patines…',
@@ -31,26 +31,137 @@ const DERBY_MSGS = [
   'Ajustando el casco…',
   'Entrando a la pista…',
 ];
-let _derbyMsgIdx = 0;
+
+// Particle system state
+let _derbyRaf      = null;
 let _derbyMsgTimer = null;
+let _derbyParticles = [];
+let _derbyCanvas   = null;
+let _derbyCtx      = null;
+
+// Skate positions tracked from CSS animation for particle spawn
+const PARTICLE_EMOJIS = ['⭐','✨','💫','🌟','✦','·','★'];
+const SKATE_DURATION  = 1800; // ms matches CSS animation
+const SKATE_OFFSET    = 900;  // ms half-cycle offset between skate-1 and skate-2
+
+function _derbySkateX(timeMs, delayMs, canvasW) {
+  // Mirrors the CSS left: -14% → 114% over SKATE_DURATION
+  const t = ((timeMs - delayMs) % SKATE_DURATION + SKATE_DURATION) % SKATE_DURATION;
+  const frac = t / SKATE_DURATION; // 0→1
+  return (frac * 1.28 - 0.14) * canvasW;
+}
+
+function _spawnParticle(x, y) {
+  const emoji = PARTICLE_EMOJIS[Math.floor(Math.random() * PARTICLE_EMOJIS.length)];
+  const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.9; // mostly upward, spread
+  const speed = 0.6 + Math.random() * 1.2;
+  const rotDir = Math.random() > 0.5 ? 1 : -1;
+  _derbyParticles.push({
+    emoji, x, y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    rot: Math.random() * 360,
+    rotSpeed: (30 + Math.random() * 90) * rotDir,
+    scale: 0,
+    scaleTarget: 0.7 + Math.random() * 0.6,
+    alpha: 1,
+    age: 0,
+    life: 700 + Math.random() * 400, // ms
+    size: 11 + Math.random() * 8,
+  });
+}
+
+let _derbyLastTime = 0;
+let _derbySpawnAccum = [0, 0]; // accumulator per skate
+
+function _derbyFrame(now) {
+  if (!_derbyCanvas || !_derbyCtx) return;
+  const dt = Math.min(now - (_derbyLastTime || now), 50);
+  _derbyLastTime = now;
+
+  const W = _derbyCanvas.width;
+  const H = _derbyCanvas.height;
+  _derbyCtx.clearRect(0, 0, W, H);
+
+  // Spawn particles from each skate position
+  const skateY = H * 0.5;
+  for (let s = 0; s < 2; s++) {
+    const delay = s === 1 ? SKATE_OFFSET : 0;
+    const sx = _derbySkateX(now, delay, W);
+    // Only spawn when skate is in the visible area (with fade margins)
+    if (sx > W * 0.18 && sx < W * 0.82) {
+      _derbySpawnAccum[s] += dt;
+      // Spawn rate: ~every 80ms
+      while (_derbySpawnAccum[s] > 80) {
+        _derbySpawnAccum[s] -= 80;
+        _spawnParticle(sx + (Math.random() - 0.5) * 8, skateY);
+      }
+    }
+  }
+
+  // Update + draw particles
+  _derbyParticles = _derbyParticles.filter(p => {
+    p.age += dt;
+    if (p.age > p.life) return false;
+    const progress = p.age / p.life; // 0→1
+
+    // Scale: 0→peak in first 20%, then stays
+    p.scale = p.scaleTarget * Math.min(1, progress / 0.2);
+    // Alpha: full until 60%, then fade out
+    p.alpha = progress < 0.6 ? 1 : 1 - (progress - 0.6) / 0.4;
+    // Position
+    p.x += p.vx * (dt / 16);
+    p.y += p.vy * (dt / 16);
+    p.vy += 0.015 * (dt / 16); // subtle gravity
+    p.rot += p.rotSpeed * (dt / 1000);
+
+    _derbyCtx.save();
+    _derbyCtx.globalAlpha = p.alpha;
+    _derbyCtx.translate(p.x, p.y);
+    _derbyCtx.rotate(p.rot * Math.PI / 180);
+    _derbyCtx.scale(p.scale, p.scale);
+    _derbyCtx.font = `${p.size}px serif`;
+    _derbyCtx.textAlign = 'center';
+    _derbyCtx.textBaseline = 'middle';
+    _derbyCtx.fillText(p.emoji, 0, 0);
+    _derbyCtx.restore();
+    return true;
+  });
+
+  _derbyRaf = requestAnimationFrame(_derbyFrame);
+}
+
 function iniciarDerbyLoader() {
+  // Messages
   const el = document.getElementById('derby-loader-text');
-  if (!el) return;
-  el.textContent = DERBY_MSGS[0];
-  _derbyMsgIdx = 0;
+  if (el) el.textContent = DERBY_MSGS[0];
+  let idx = 0;
   _derbyMsgTimer = setInterval(() => {
-    _derbyMsgIdx = (_derbyMsgIdx + 1) % DERBY_MSGS.length;
+    idx = (idx + 1) % DERBY_MSGS.length;
     if (el) {
       el.style.opacity = '0';
-      setTimeout(() => {
-        el.textContent  = DERBY_MSGS[_derbyMsgIdx];
-        el.style.opacity = '';
-      }, 300);
+      setTimeout(() => { if (el) { el.textContent = DERBY_MSGS[idx]; el.style.opacity = ''; } }, 300);
     }
   }, 2000);
+
+  // Canvas particle system
+  _derbyCanvas = document.getElementById('derby-canvas');
+  if (_derbyCanvas) {
+    const wrap = _derbyCanvas.parentElement;
+    _derbyCanvas.width  = wrap.offsetWidth  || 240;
+    _derbyCanvas.height = wrap.offsetHeight || 56;
+    _derbyCtx = _derbyCanvas.getContext('2d');
+    _derbyParticles = [];
+    _derbySpawnAccum = [0, 0];
+    _derbyLastTime = 0;
+    _derbyRaf = requestAnimationFrame(_derbyFrame);
+  }
 }
+
 function detenerDerbyLoader() {
   clearInterval(_derbyMsgTimer);
+  if (_derbyRaf) { cancelAnimationFrame(_derbyRaf); _derbyRaf = null; }
+  _derbyParticles = [];
 }
 
 // Start derby loader immediately
