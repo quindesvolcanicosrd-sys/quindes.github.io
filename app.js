@@ -107,7 +107,32 @@ function detenerDerbyLoader() {
 document.addEventListener('DOMContentLoaded', () => { iniciarDerbyLoader(); });
 
 // ── GOOGLE IDENTITY SERVICES ─────────────────────────────────
+// Fix Google button flicker: fade in iframe once it loads
+function fixGoogleButtonFlicker() {
+  const wraps = ['google-signin-btn', 'google-resignin-btn', 'wiz-google-btn'];
+  wraps.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const observer = new MutationObserver(() => {
+      const iframes = el.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        if (iframe.classList.contains('loaded')) return;
+        iframe.style.opacity = '0';
+        iframe.style.transition = 'opacity 0.25s ease';
+        const onLoad = () => {
+          iframe.style.opacity = '1';
+          iframe.classList.add('loaded');
+        };
+        if (iframe.complete || iframe.readyState === 'complete') onLoad();
+        else iframe.addEventListener('load', onLoad, { once: true });
+      });
+    });
+    observer.observe(el, { childList: true, subtree: true });
+  });
+}
+
 function initGoogleAuth() {
+  fixGoogleButtonFlicker();
   google.accounts.id.initialize({
     client_id: CONFIG.GOOGLE_CLIENT_ID,
     callback: onGoogleSignIn,
@@ -139,7 +164,7 @@ function mostrarLoginScreen() {
   // Render button while screen is still invisible to avoid flicker
   google.accounts.id.renderButton(
     document.getElementById('google-signin-btn'),
-    { theme: 'filled_black', size: 'large', width: 300, text: 'signin_with' }
+    { theme: 'outline', size: 'large', width: 300, text: 'signin_with', logo_alignment: 'center' }
   );
   detenerDerbyLoader();
   document.getElementById('loadingScreen').style.display = 'none';
@@ -248,11 +273,20 @@ function mostrarRegistroDesdeLogin() {
     const wrap = document.getElementById('wiz-google-btn');
     if (wrap && wrap.childElementCount === 0) {
       google.accounts.id.renderButton(wrap, {
-        type: 'standard', theme: 'outline', size: 'large',
-        text: 'continue_with', shape: 'rectangular', width: 280,
+        theme: 'outline', size: 'large', width: 280,
+        text: 'continue_with', logo_alignment: 'center',
       });
     }
   });
+
+  // Add create-Google-account link dynamically
+  const note = document.querySelector('.wiz-step0-note');
+  if (note && !note.querySelector('a')) {
+    note.innerHTML = note.innerHTML.replace(
+      '<strong>google.com</strong>',
+      '<a href="https://accounts.google.com/signup" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:underline;">Crear cuenta de Google</a>'
+    );
+  }
 
   // Push history state so back gesture returns to login
   history.pushState({ wizStep0: true }, '');
@@ -284,7 +318,8 @@ function preRenderResigninButton() {
   const container = document.getElementById('google-resignin-btn');
   if (!container || container.dataset.rendered) return;
   google.accounts.id.renderButton(container, {
-    theme: 'filled_black', size: 'large', width: 280, text: 'signin_with'
+    theme: 'outline', size: 'large', width: 280,
+    text: 'signin_with', logo_alignment: 'center',
   });
   container.dataset.rendered = 'true';
 }
