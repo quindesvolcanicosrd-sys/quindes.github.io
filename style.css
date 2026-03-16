@@ -2205,12 +2205,20 @@ input, button, select, textarea {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* applied via JS when step becomes active */
-.wiz-step.wiz-animate .wiz-emoji    { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.00s both; }
-.wiz-step.wiz-animate .wiz-title    { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.06s both; }
-.wiz-step.wiz-animate .wiz-desc     { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.12s both; }
-.wiz-step.wiz-animate .wiz-content  { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.18s both; }
-.wiz-step.wiz-animate .wiz-actions  { animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) 0.24s both; }
+/* Content is visible by default — only animates when .wiz-animate is applied after slide finishes */
+.wiz-step .wiz-emoji,
+.wiz-step .wiz-title,
+.wiz-step .wiz-desc,
+.wiz-step .wiz-content,
+.wiz-step .wiz-actions {
+  opacity: 1;
+  transform: none;
+}
+.wiz-step.wiz-animate .wiz-emoji   { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.00s both; }
+.wiz-step.wiz-animate .wiz-title   { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.05s both; }
+.wiz-step.wiz-animate .wiz-desc    { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.10s both; }
+.wiz-step.wiz-animate .wiz-content { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.15s both; }
+.wiz-step.wiz-animate .wiz-actions { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.20s both; }
 
 /* ── Typography ── */
 .wiz-title {
