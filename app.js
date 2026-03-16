@@ -23,6 +23,39 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
+// ── DERBY LOADER MESSAGES ─────────────────────────────────────
+const DERBY_MSGS = [
+  'Cargando…',
+  'Atando los patines…',
+  'Calentando motores…',
+  'Ajustando el casco…',
+  'Entrando a la pista…',
+];
+let _derbyMsgIdx = 0;
+let _derbyMsgTimer = null;
+function iniciarDerbyLoader() {
+  const el = document.getElementById('derby-loader-text');
+  if (!el) return;
+  el.textContent = DERBY_MSGS[0];
+  _derbyMsgIdx = 0;
+  _derbyMsgTimer = setInterval(() => {
+    _derbyMsgIdx = (_derbyMsgIdx + 1) % DERBY_MSGS.length;
+    if (el) {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent  = DERBY_MSGS[_derbyMsgIdx];
+        el.style.opacity = '';
+      }, 300);
+    }
+  }, 2000);
+}
+function detenerDerbyLoader() {
+  clearInterval(_derbyMsgTimer);
+}
+
+// Start derby loader immediately
+document.addEventListener('DOMContentLoaded', () => { iniciarDerbyLoader(); });
+
 // ── GOOGLE IDENTITY SERVICES ─────────────────────────────────
 function initGoogleAuth() {
   google.accounts.id.initialize({
@@ -57,6 +90,7 @@ function mostrarLoginScreen() {
     document.getElementById('google-signin-btn'),
     { theme: 'filled_black', size: 'large', width: 300, text: 'signin_with' }
   );
+  detenerDerbyLoader();
   document.getElementById('loadingScreen').style.display = 'none';
   // Fade in
   loginScr.style.opacity    = '0';
