@@ -1704,6 +1704,9 @@ function abrirDatePicker(valorActual, onConfirm) {
   dpState.yearMode  = false;
   dpState.monthMode = false;
   dpState.onConfirm = onConfirm;
+  // Clear any previous error
+  const errEl = document.getElementById('dp-error');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
 
   renderDatePicker();
   document.getElementById('date-picker-modal').classList.add('active');
@@ -1893,8 +1896,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === document.getElementById('date-picker-modal')) cerrarDatePicker();
   });
   document.getElementById('dp-ok')?.addEventListener('click', () => {
-    if (!dpState.selYear || dpState.selMonth === null || !dpState.selDay) return;
-    const val = formatFecha(dpState.selYear, dpState.selMonth, dpState.selDay);
+    const errEl = document.getElementById('dp-error');
+    const { selYear, selMonth, selDay } = dpState;
+    // Figure out what's missing
+    const noYear  = !selYear;
+    const noMonth = selMonth === null || selMonth === undefined;
+    const noDay   = !selDay;
+    if (noYear || noMonth || noDay) {
+      let msg = '';
+      if (noYear && noMonth)      msg = 'Falta seleccionar el año y el mes';
+      else if (noYear)            msg = 'Falta seleccionar el año';
+      else if (noMonth)           msg = 'Falta seleccionar el mes';
+      else if (noDay)             msg = 'Falta seleccionar el día';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      // Auto-hide after 3s
+      clearTimeout(errEl?._t);
+      if (errEl) errEl._t = setTimeout(() => { errEl.style.display = 'none'; }, 3000);
+      return;
+    }
+    if (errEl) errEl.style.display = 'none';
+    const val = formatFecha(selYear, selMonth, selDay);
     if (dpState.onConfirm) dpState.onConfirm(val);
     cerrarDatePicker();
   });
