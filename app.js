@@ -30,8 +30,27 @@ function initGoogleAuth() {
     callback: onGoogleSignIn,
     auto_select: true,
   });
-  google.accounts.id.prompt();
-  // Pre-render the re-sign-in button early so it's ready when noEncontrado screen appears
+
+  // Show One Tap — but if dismissed/skipped/unavailable, fall back to login screen
+  google.accounts.id.prompt(notification => {
+    const reason = notification.getSkippedReason?.() || notification.getDismissedReason?.();
+    const isNotDisplayed = notification.isNotDisplayed?.();
+    const isSkipped      = notification.isSkippedMoment?.();
+    const isDismissed    = notification.isDismissedMoment?.();
+    if (isNotDisplayed || isSkipped || isDismissed) {
+      mostrarLoginScreen();
+    }
+  });
+
+  // Safety net: if One Tap hasn't triggered onGoogleSignIn after 3.5s, show login screen
+  setTimeout(() => {
+    const loading = document.getElementById('loadingScreen');
+    if (loading && loading.style.display !== 'none') {
+      mostrarLoginScreen();
+    }
+  }, 3500);
+
+  // Pre-render the re-sign-in button early
   preRenderResigninButton();
 }
 
@@ -42,12 +61,21 @@ function onGoogleSignIn(response) {
 }
 
 function mostrarLoginScreen() {
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('loginScreen').style.display   = 'flex';
+  const loginScr = document.getElementById('loginScreen');
+  // Render button while screen is still invisible to avoid flicker
   google.accounts.id.renderButton(
     document.getElementById('google-signin-btn'),
-    { theme: 'filled_black', size: 'large', width: 280, text: 'signin_with' }
+    { theme: 'filled_black', size: 'large', width: 300, text: 'signin_with' }
   );
+  document.getElementById('loadingScreen').style.display = 'none';
+  // Fade in
+  loginScr.style.opacity    = '0';
+  loginScr.style.display    = 'flex';
+  setTimeout(() => {
+    loginScr.style.transition = 'opacity 0.3s ease';
+    loginScr.style.opacity    = '1';
+    setTimeout(() => { loginScr.style.transition = ''; }, 310);
+  }, 60);
 }
 
 // ── API ───────────────────────────────────────────────────────
