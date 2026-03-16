@@ -723,7 +723,6 @@ function renderTodo(profile) {
   set('p-fechaNacimiento',    profile.fechaNacimiento);
   initFechaTrigger();
   set('p-contactoEmergencia', profile.contactoEmergencia);
-  set('p-mayor18',            profile.mayor18);
 
   // Stats
   const mesEl  = document.getElementById('p-puntosMes');
@@ -929,7 +928,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // Campos por sección
 const CAMPOS_SECCION = {
   generales:   ['p-nombreDerby','p-numero','p-rolJugadorx','p-nombre','p-pronombres'],
-  personales:  ['p-nombreCivil','p-cedulaPasaporte','p-pais','p-fechaNacimiento','p-mostrarCumple','p-mostrarEdad','p-mayor18','p-adjCedula'],
+  personales:  ['p-nombreCivil','p-cedulaPasaporte','p-pais','p-fechaNacimiento','p-mostrarCumple','p-mostrarEdad','p-adjCedula'],
   contacto:    ['p-email','p-codigoPais','p-telefono'],
   salud:       ['p-contactoEmergencia','p-grupoSanguineo','p-alergias','p-dieta','p-aptoDeporte','p-adjPruebaFisica'],
   rendimiento: ['p-estado','p-asisteSemana','p-pruebaFisica','p-tipoUsuario','p-pagaCuota'],
@@ -1077,7 +1076,6 @@ function recogerTodosLosDatos() {
     contactoEmergencia: v('p-contactoEmergencia'),
     mostrarCumple:      v('p-mostrarCumple'),
     mostrarEdad:        v('p-mostrarEdad'),
-    mayor18:            v('p-mayor18'),
     email:              v('p-email').trim() + '@gmail.com',
     asisteSemana:       v('p-asisteSemana'),
     pruebaFisica:       v('p-pruebaFisica'),
@@ -1132,7 +1130,6 @@ const CHIPS_OPTIONS = {
   grupoSanguineo: { multi: false, ui: 'select', options: ['A+','A-','AB+','AB-','B+','B-','O+','O-'] },
   mostrarCumple:  { multi: false, ui: 'toggle', options: ['Sí','No'] },
   mostrarEdad:    { multi: false, ui: 'toggle', options: ['Sí','No'] },
-  mayor18:        { multi: false, ui: 'toggle', options: ['Sí','No'] },
   tipoUsuario:    { multi: false, ui: 'select', options: ['Admin','SemiAdmin','Invitado'] },
 };
 
