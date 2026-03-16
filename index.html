@@ -41,16 +41,16 @@
 <!-- NO ENCONTRADO — pantalla intermedia -->
 <div id="noEncontradoScreen" style="display:none;">
   <div class="login-card no-encontrado-card">
-    <span class="material-icons no-enc-icon">person_search</span>
-    <h2 class="no-enc-title">Correo no encontrado</h2>
+    <span class="material-icons no-enc-icon">person_off</span>
+    <h2 class="no-enc-title">Inicia sesión con otra cuenta</h2>
     <p class="no-enc-sub">
-      <strong id="no-enc-email"></strong><br>
-      no está registrado en el equipo todavía.
+      <strong id="no-enc-email"></strong>
+      La cuenta ingresada no está registrada.
     </p>
 
     <!-- Intentar con otra cuenta -->
     <div class="no-enc-divider-wrap">
-      <span class="no-enc-divider-label">¿Te equivocaste de cuenta?</span>
+      <span class="no-enc-divider-label">¿Iniciaste sesión con la cuenta correcta?</span>
     </div>
     <div id="google-resignin-btn"></div>
 
@@ -64,10 +64,6 @@
       <span class="material-icons" style="font-size:18px;margin-right:6px;">person_add</span>
       Crear mi perfil
     </button>
-    <p class="reg-note" style="margin-top:4px;">
-      Tu cuenta se creará como <strong>Invitada</strong>.<br>
-      Un admin podrá actualizar tu rol después.
-    </p>
   </div>
 </div>
 
@@ -93,7 +89,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">📸</div>
       <div class="wiz-emoji">📸</div>
       <h2 class="wiz-title">¡Ponele cara al nombre!</h2>
-      <p class="wiz-desc">Subí una foto para que todxs en el equipo puedan identificarte. Es opcional, podés hacerlo después también.</p>
+      <p class="wiz-desc">Sube una foto para que todxs en el equipo puedan identificarte. Es opcional, puedes hacerlo después también.</p>
       <div class="wiz-content">
         <div class="reg-foto-center">
           <div class="reg-avatar" id="reg-avatar" onclick="regAbrirFoto()">
@@ -103,7 +99,7 @@
               <span class="material-icons">photo_camera</span>
             </div>
           </div>
-          <p class="reg-foto-hint" id="reg-foto-hint">Toca para agregar</p>
+          <p class="reg-foto-hint" id="reg-foto-hint">Toca para agregar tu foto</p>
         </div>
         <input type="file" id="reg-foto-input" accept="image/*" style="display:none;">
       </div>
@@ -120,7 +116,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">✨</div>
       <div class="wiz-emoji">✨</div>
       <h2 class="wiz-title">¿Cómo te llamamos?</h2>
-      <p class="wiz-desc">Puede ser tu primer nombre, nickname o seudónimo… lo que más te represente y con lo que quieras ser conocidx en la app.</p>
+      <p class="wiz-desc">Puede ser tu primer nombre, nickname o seudónimo… lo que más te represente y con lo que quieras ser conocidx en el equipo.</p>
       <div class="wiz-content">
         <label class="reg-label">Tu nombre <span class="reg-required">*</span></label>
         <input id="reg-nombre" class="reg-input wiz-big-input" type="text"
@@ -138,7 +134,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">🏳️‍🌈</div>
       <div class="wiz-emoji">🏳️‍🌈</div>
       <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
-      <p class="wiz-desc">Elegí los pronombres con los que más te sentís cómödx y con los que querés que te identifiquen en el equipo. Totalmente opcional.</p>
+      <p class="wiz-desc">Elige los pronombres con los que más te identificas y con los que quieres que te reconozcan en el equipo. Es opcional.</p>
       <div class="wiz-content">
         <div id="reg-pronombres-chips" class="chip-wrapper wiz-chips"></div>
       </div>
@@ -152,7 +148,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">🌎</div>
       <div class="wiz-emoji">🌎</div>
       <h2 class="wiz-title">¿De dónde sos?</h2>
-      <p class="wiz-desc">Seleccioná tu país de origen, tu tierrita. El roller derby une a gente de todo el planeta y nos encanta saberlo.</p>
+      <p class="wiz-desc">Selecciona tu país de origen. El roller derby une a personas de todo el planeta y nos encanta saberlo.</p>
       <div class="wiz-content">
         <label class="reg-label">País de origen <span class="reg-required">*</span></label>
         <button type="button" id="reg-pais-btn" class="reg-selector-btn wiz-selector-btn">
@@ -170,7 +166,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">📱</div>
       <div class="wiz-emoji">📱</div>
       <h2 class="wiz-title">Tu número de contacto</h2>
-      <p class="wiz-desc">Seleccioná tu prefijo y escribí tu número. Prometemos que no te vamos a mandar spam ni amenazas… solo lo usamos para cosas del equipo 🙃</p>
+      <p class="wiz-desc">Selecciona tu prefijo y escribe tu número. Prometemos que no te enviaremos spam ni amenazas… solo lo usamos para comunicaciones del equipo 🙃</p>
       <div class="wiz-content">
         <label class="reg-label">Teléfono <span class="reg-required">*</span></label>
         <div class="reg-phone-row">
@@ -193,7 +189,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">🎂</div>
       <div class="wiz-emoji">🎂</div>
       <h2 class="wiz-title">¡Fecha de cumpleaños!</h2>
-      <p class="wiz-desc">Ingresá tu fecha de nacimiento. Después elegí qué querés que sea visible para el equipo — si preferís privacidad total, solo tus entrenadorxs verán esos datos.</p>
+      <p class="wiz-desc">Ingresa tu fecha de nacimiento. Luego elige qué quieres que sea visible para el equipo. Si prefieres privacidad total, solo tus entrenadorxs verán esos datos.</p>
       <div class="wiz-content">
         <label class="reg-label">Fecha de nacimiento <span class="reg-required">*</span></label>
         <button type="button" id="reg-fecha-btn" class="reg-selector-btn wiz-selector-btn">
@@ -222,7 +218,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">⭐</div>
       <div class="wiz-emoji">⭐</div>
       <h2 class="wiz-title">Datos Derby <span class="wiz-optional-badge">opcional</span></h2>
-      <p class="wiz-desc">Completá tu nombre y número derby. Si todavía no tenés uno o no sabés cuál poner, no te preocupes — podés completarlo más adelante.</p>
+      <p class="wiz-desc">Completa tu nombre y número derby. Si aún no tienes uno o no sabes cuál poner, no te preocupes — puedes completarlo más adelante.</p>
       <div class="wiz-content">
         <label class="reg-label">Nombre Derby</label>
         <input id="reg-nombreDerby" class="reg-input wiz-big-input" type="text"
@@ -244,7 +240,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">🏅</div>
       <div class="wiz-emoji">🏅</div>
       <h2 class="wiz-title">Tu rol en el equipo</h2>
-      <p class="wiz-desc">Seleccioná tu rol dentro del equipo. Si no estás segurx de cuál es, elegí <strong>"No definido"</strong> y podés cambiarlo después.</p>
+      <p class="wiz-desc">Selecciona tu rol dentro del equipo. Si no estás segurx de cuál es, elige <strong>"No definido"</strong> y puedes cambiarlo después.</p>
       <div class="wiz-content">
         <div id="reg-rol-chips" class="chip-wrapper wiz-chips"></div>
       </div>
@@ -257,8 +253,8 @@
     <div class="wiz-step" id="wiz-step-9">
       <div class="wiz-bg-emoji" aria-hidden="true">🏋️</div>
       <div class="wiz-emoji">🏋️</div>
-      <h2 class="wiz-title">¿Cuánto entrenás?</h2>
-      <p class="wiz-desc">¿Cuántas veces a la semana asistís a los entrenamientos? Esto nos ayuda a organizar mejor al equipo.</p>
+      <h2 class="wiz-title">¿Cuánto entrenas?</h2>
+      <p class="wiz-desc">¿Cuántas veces a la semana asistes a los entrenamientos? Esto nos ayuda a organizar mejor al equipo.</p>
       <div class="wiz-content">
         <div id="reg-asiste-chips" class="chip-wrapper wiz-chips"></div>
       </div>
@@ -272,7 +268,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">🩺</div>
       <div class="wiz-emoji">🩺</div>
       <h2 class="wiz-title">Tu salud nos importa <span class="wiz-optional-badge">opcional</span></h2>
-      <p class="wiz-desc">Contanos si tenés alergias a alimentos o medicamentos, o alguna condición de salud que debamos saber. Esta información es estrictamente confidencial y solo se usa para tu seguridad.</p>
+      <p class="wiz-desc">Cuéntanos si tienes alergias a alimentos o medicamentos, o alguna condición de salud que debamos conocer. Esta información es estrictamente confidencial y se usa solo para tu seguridad.</p>
       <div class="wiz-content">
         <label class="reg-label">Alergias o condiciones de salud</label>
         <input id="reg-alergias" class="reg-input" type="text"
@@ -294,7 +290,7 @@
       <div class="wiz-bg-emoji" aria-hidden="true">🆘</div>
       <div class="wiz-emoji">🆘</div>
       <h2 class="wiz-title">Contacto de emergencia <span class="wiz-optional-badge">opcional</span></h2>
-      <p class="wiz-desc">Completá los datos de alguien de confianza que podamos contactar en caso de emergencia. Nombre completo seguido de su número de teléfono.</p>
+      <p class="wiz-desc">Completa los datos de alguien de confianza que podamos contactar en caso de emergencia. Nombre completo seguido de su número de teléfono.</p>
       <div class="wiz-content">
         <label class="reg-label">Nombre y teléfono</label>
         <input id="reg-emergencia" class="reg-input" type="text"
@@ -306,7 +302,7 @@
           <span class="material-icons">check_circle</span> ¡Crear mi perfil!
         </button>
         <button class="wiz-btn-skip" onclick="regData.contactoEmergencia=''; submitRegistro()">Omitir y finalizar</button>
-        <p class="reg-note">Al crear tu perfil aceptás los <strong>términos y condiciones</strong> y el uso de tus datos personales.</p>
+        <p class="reg-note">Al crear tu perfil aceptas los <strong>términos y condiciones</strong> y el uso de tus datos personales.</p>
       </div>
     </div>
 
