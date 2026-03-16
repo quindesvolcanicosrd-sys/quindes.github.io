@@ -857,14 +857,26 @@
 
 <!-- Modal crop (shared by app + registro) -->
 <div id="modal-crop" style="display:none;">
-  <div class="modal-box">
-    <h3>Ajustar foto de perfil</h3>
-    <div style="background:#000;border-radius:10px;overflow:hidden;max-height:60vh;">
+  <div class="crop-sheet">
+    <!-- Handle -->
+    <div class="crop-handle"></div>
+    <!-- Title -->
+    <p class="crop-title">Ajusta tu foto</p>
+    <!-- Crop area -->
+    <div class="crop-area">
       <img id="crop-image" style="display:block;max-width:100%;">
     </div>
-    <div class="modal-actions">
-      <button onclick="cancelarCrop()"  class="modal-btn modal-btn-cancel">Cancelar</button>
-      <button onclick="confirmarCrop()" class="modal-btn modal-btn-confirm" id="btn-aplicar-crop">Aplicar</button>
+    <!-- Hint -->
+    <p class="crop-hint">Pellizca para hacer zoom · Arrastra para reencuadrar</p>
+    <!-- Actions -->
+    <div class="crop-actions">
+      <button onclick="cancelarCrop()" class="crop-btn-cancel">Cancelar</button>
+      <button onclick="rotarImagen()"  class="crop-btn-rotate">
+        <span class="material-icons">rotate_right</span>
+      </button>
+      <button onclick="confirmarCrop()" class="crop-btn-confirm" id="btn-aplicar-crop">
+        Usar foto
+      </button>
     </div>
   </div>
 </div>
