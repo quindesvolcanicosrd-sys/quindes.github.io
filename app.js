@@ -313,21 +313,12 @@ function mostrarRegistroDesdeLogin() {
   document.getElementById('wiz-header').style.display     = 'none';
   document.getElementById('wiz-viewport').style.display   = 'none';
 
-  // Render Google button
+  // Render Google button — reset if already rendered to clear cached account
   requestAnimationFrame(() => {
     const wrap = document.getElementById('wiz-google-btn');
-    if (wrap && wrap.childElementCount === 0) {
-      renderGoogleButton('wiz-google-btn', 'continue_with', true);
-    }
-    // Fade in Google button after 1s — same as login screen
-    const btn = document.getElementById('wiz-google-btn');
-    if (btn) {
-      btn.style.opacity    = '0';
-      btn.style.transition = 'none';
-      setTimeout(() => {
-        btn.style.transition = 'opacity 0.4s ease';
-        btn.style.opacity    = '1';
-      }, 1000);
+    if (wrap) {
+      // Always reset to clear any previously selected Google account
+      resetGoogleButton('wiz-google-btn', 'continue_with');
     }
   });
 
@@ -344,10 +335,26 @@ function mostrarRegistroDesdeLogin() {
   history.pushState({ wizStep0: true }, '');
 }
 
+function resetGoogleButton(id, text) {
+  // Clear Google cached selection and re-render the button fresh
+  try { google.accounts.id.disableAutoSelect(); } catch(e) {}
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  el.dataset.rendered = '';
+  el.style.opacity = '0';
+  renderGoogleButton(id, text, true);
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.4s ease';
+    el.style.opacity    = '1';
+  }, 600);
+}
+
 function wizStep0Volver() {
   document.getElementById('registroScreen').style.display = 'none';
   document.getElementById('wiz-step-0').style.display     = 'none';
   window._registroDesdeLogin = false;
+  wizOrigen = null;
   mostrarLoginScreen();
 }
 
@@ -392,8 +399,8 @@ function mostrarNoEncontrado(email) {
     mostrarRegistroWizard();
   };
 
-  // Ensure button is rendered (pre-rendered on init, this is a no-op if already done)
-  preRenderResigninButton();
+  // Reset the button to clear any previously selected Google account
+  resetGoogleButton('google-resignin-btn', 'signin_with');
 
   // Show screen immediately
   const screen = document.getElementById('noEncontradoScreen');
