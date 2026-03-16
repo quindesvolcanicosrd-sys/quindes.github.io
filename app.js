@@ -38,16 +38,53 @@ let _derbyCanvas   = null;
 let _derbyCtx      = null;
 let _derbyStart    = null;
 
-// ── Track geometry ────────────────────────────────────────────
-// Oval track: two straight sides + two semicircles
-// Returns { x, y, angle } for a given progress t ∈ [0,1) — anticlockwise
-function _derbyTrackPoint(t, cx, cy, rx, ry) {
-  // Parameterize: 0=right → top → left → bottom → right (anticlockwise)
-  const angle = -t * Math.PI * 2; // negative = anticlockwise
+// ── Derby track path ──────────────────────────────────────────
+// WFTDA flat track: ~60ft long x 25ft wide → ratio 2.4:1
+// Built as: two straight sides + two semicircular ends
+// Returns array of {x,y} points for a given canvas size
+function _buildTrackPath(cx, cy, W, H) {
+  // Straight section half-length and curve radius
+  const straightHalf = W * 0.28;   // half the straight side
+  const curveR       = H * 0.42;   // radius of the end curves
+  // Four key points: center of left curve, center of right curve
+  const lx = cx - straightHalf;
+  const rx = cx + straightHalf;
+  // Build smooth path as a series of points
+  const pts = [];
+  const steps = 80;
+  // Right semicircle (top → bottom, clockwise from top)
+  for (let i = 0; i <= steps / 2; i++) {
+    const a = -Math.PI / 2 + (Math.PI * i) / (steps / 2);
+    pts.push({ x: rx + curveR * Math.cos(a), y: cy + curveR * Math.sin(a) });
+  }
+  // Bottom straight (right → left)
+  for (let i = 1; i <= steps / 2; i++) {
+    const t = i / (steps / 2);
+    pts.push({ x: rx - t * straightHalf * 2, y: cy + curveR });
+  }
+  // Left semicircle (bottom → top, clockwise)
+  for (let i = 0; i <= steps / 2; i++) {
+    const a = Math.PI / 2 + (Math.PI * i) / (steps / 2);
+    pts.push({ x: lx + curveR * Math.cos(a), y: cy + curveR * Math.sin(a) });
+  }
+  // Top straight (left → right)
+  for (let i = 1; i <= steps / 2; i++) {
+    const t = i / (steps / 2);
+    pts.push({ x: lx + t * straightHalf * 2, y: cy - curveR });
+  }
+  return pts;
+}
+
+// Get point at fractional position along the path (0–1, anticlockwise)
+function _trackPointAt(pts, t) {
+  const n   = pts.length;
+  const idx = ((t % 1) + 1) % 1 * n;
+  const i0  = Math.floor(idx) % n;
+  const i1  = (i0 + 1) % n;
+  const f   = idx - Math.floor(idx);
   return {
-    x: cx + rx * Math.cos(angle),
-    y: cy + ry * Math.sin(angle),
-    angle: angle,
+    x: pts[i0].x + (pts[i1].x - pts[i0].x) * f,
+    y: pts[i0].y + (pts[i1].y - pts[i0].y) * f,
   };
 }
 
@@ -55,95 +92,102 @@ function _derbyDraw(timestamp) {
   if (!_derbyCanvas || !_derbyCtx) return;
   if (!_derbyStart) _derbyStart = timestamp;
   const elapsed = timestamp - _derbyStart;
-
-  const W  = _derbyCanvas.width;
-  const H  = _derbyCanvas.height;
-  const cx = W / 2;
-  const cy = H / 2;
-  const rx = W * 0.42;   // horizontal radius
-  const ry = H * 0.36;   // vertical radius
   const ctx = _derbyCtx;
 
-  ctx.clearRect(0, 0, W, H);
+  const W  = _derbyCanvas.width  / (window.devicePixelRatio || 1);
+  const H  = _derbyCanvas.height / (window.devicePixelRatio || 1);
+  const cx = W / 2;
+  const cy = H / 2;
 
-  // ── 1. Draw track outline ──────────────────────────────────
-  // Outer oval
-  const trackW = Math.max(3, W * 0.055);
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx + trackW * 0.5, ry + trackW * 0.5, 0, 0, Math.PI * 2);
-  ctx.ellipse(cx, cy, rx - trackW * 0.5, ry - trackW * 0.5, 0, 0, Math.PI * 2, true);
-  // Use CSS accent color — read from body
-  const accentColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#e53e3e';
-  ctx.fillStyle = accentColor.replace(')', ', 0.08)').replace('rgb(', 'rgba(').replace('#', '') ;
-  // Simpler approach: just use rgba directly
-  ctx.fillStyle = 'rgba(220, 30, 30, 0.07)';
-  ctx.fill('evenodd');
+  ctx.clearRect(0, 0, _derbyCanvas.width, _derbyCanvas.height);
 
-  // Track center line (dashed)
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-  ctx.setLineDash([4, 8]);
-  ctx.strokeStyle = 'rgba(220, 30, 30, 0.18)';
+  const pts = _buildTrackPath(cx, cy, W, H);
+
+  // ── 1. Draw track fill ────────────────────────────────────
+  // Outer track (slightly wider)
+  const outerPts = _buildTrackPath(cx, cy, W * 1.08, H * 1.08);
+  // Inner area
+  const innerPts = _buildTrackPath(cx, cy, W * 0.82, H * 0.82);
+
+  function tracePath(pathPts) {
+    ctx.beginPath();
+    ctx.moveTo(pathPts[0].x, pathPts[0].y);
+    for (let i = 1; i < pathPts.length; i++) ctx.lineTo(pathPts[i].x, pathPts[i].y);
+    ctx.closePath();
+  }
+
+  // Track band fill
+  tracePath(outerPts);
+  ctx.fillStyle = 'rgba(220, 30, 30, 0.06)';
+  ctx.fill();
+
+  // Outer border
+  tracePath(outerPts);
+  ctx.strokeStyle = 'rgba(220, 30, 30, 0.30)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Inner border
+  tracePath(innerPts);
+  ctx.strokeStyle = 'rgba(220, 30, 30, 0.20)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Center dashed line
+  tracePath(pts);
+  ctx.setLineDash([5, 9]);
+  ctx.strokeStyle = 'rgba(220, 30, 30, 0.15)';
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Track border ovals
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx + trackW * 0.5, ry + trackW * 0.5, 0, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(220, 30, 30, 0.28)';
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx - trackW * 0.5, ry - trackW * 0.5, 0, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(220, 30, 30, 0.28)';
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-
-  // ── 2. Star position ──────────────────────────────────────
-  const SPEED    = 0.00022; // revolutions per ms
+  // ── 2. Comet trail ───────────────────────────────────────
+  const SPEED   = 0.00018; // laps per ms
   const progress = (elapsed * SPEED) % 1;
-  const starPos  = _derbyTrackPoint(progress, cx, cy, rx, ry);
+  const TAIL    = 55;
 
-  // ── 3. Draw trailing comet tail ───────────────────────────
-  const TAIL_STEPS = 48;
-  for (let i = TAIL_STEPS; i >= 0; i--) {
-    const tOffset = i / TAIL_STEPS * 0.18; // tail spans 18% of track
-    const tp = _derbyTrackPoint((progress + tOffset) % 1, cx, cy, rx, ry);
-    const alpha = (1 - i / TAIL_STEPS) * 0.85;
-    const radius = (1 - i / TAIL_STEPS) * 3.5 + 0.5;
-    const grad = ctx.createRadialGradient(tp.x, tp.y, 0, tp.x, tp.y, radius * 2);
-    grad.addColorStop(0, `rgba(255, 80, 80, ${alpha})`);
-    grad.addColorStop(1, `rgba(220, 30, 30, 0)`);
+  for (let i = TAIL; i >= 0; i--) {
+    const tOffset = (i / TAIL) * 0.20;
+    // Anticlockwise: subtract offset (higher t = further behind)
+    const tp = _trackPointAt(pts, (progress - tOffset + 1) % 1);
+    const frac  = 1 - i / TAIL;         // 0=tail end, 1=star
+    const alpha = frac * frac * 0.9;    // quadratic fade
+    const r     = frac * 3.5 + 0.3;
+    const g = ctx.createRadialGradient(tp.x, tp.y, 0, tp.x, tp.y, r * 2.5);
+    g.addColorStop(0, `rgba(255,100,80,${alpha})`);
+    g.addColorStop(1, `rgba(220,30,30,0)`);
     ctx.beginPath();
-    ctx.arc(tp.x, tp.y, radius * 2, 0, Math.PI * 2);
-    ctx.fillStyle = grad;
+    ctx.arc(tp.x, tp.y, r * 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = g;
     ctx.fill();
   }
 
-  // ── 4. Draw star emoji ────────────────────────────────────
-  const starSize = Math.max(14, W * 0.075);
-  // Subtle pulse
-  const pulse = 1 + Math.sin(elapsed * 0.004) * 0.08;
+  // ── 3. Star — bouncy + spinning ──────────────────────────
+  const starPos  = _trackPointAt(pts, progress);
+  // Bounce: up/down oscillation, faster on straights
+  const bounce   = Math.abs(Math.sin(elapsed * 0.009)) * 4;
+  // Spin
+  const spin     = elapsed * 0.004;
+  // Pulse scale
+  const pulse    = 1 + Math.sin(elapsed * 0.005) * 0.12;
+  const starSize = Math.max(12, W * 0.072);
+
   ctx.save();
-  ctx.translate(starPos.x, starPos.y);
+  ctx.translate(starPos.x, starPos.y - bounce);
+  ctx.rotate(spin);
   ctx.scale(pulse, pulse);
+  ctx.shadowColor = 'rgba(255,120,60,0.95)';
+  ctx.shadowBlur  = 12;
   ctx.font = `${starSize}px serif`;
-  ctx.textAlign = 'center';
+  ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
-  // Glow
-  ctx.shadowColor = 'rgba(255, 80, 80, 0.9)';
-  ctx.shadowBlur  = 10;
   ctx.fillText('⭐', 0, 0);
-  ctx.shadowBlur  = 0;
   ctx.restore();
 
   _derbyRaf = requestAnimationFrame(_derbyDraw);
 }
 
 function iniciarDerbyLoader() {
-  // Messages
   const el = document.getElementById('derby-loader-text');
   if (el) el.textContent = DERBY_MSGS[0];
   let idx = 0;
@@ -155,20 +199,20 @@ function iniciarDerbyLoader() {
     }
   }, 2000);
 
-  // Canvas setup
   _derbyCanvas = document.getElementById('derby-canvas');
   if (!_derbyCanvas) return;
-  // Responsive size
   const dpr  = window.devicePixelRatio || 1;
-  const size = Math.min(window.innerWidth * 0.62, 220);
-  _derbyCanvas.width  = size * dpr;
-  _derbyCanvas.height = size * 0.55 * dpr;
-  _derbyCanvas.style.width  = size + 'px';
-  _derbyCanvas.style.height = (size * 0.55) + 'px';
+  // Mobile-friendly size: ~70vw wide, 2.4:1 ratio
+  const W    = Math.min(window.innerWidth * 0.70, 200);
+  const H    = W / 2.4;
+  _derbyCanvas.width  = W * dpr;
+  _derbyCanvas.height = H * dpr;
+  _derbyCanvas.style.width  = W + 'px';
+  _derbyCanvas.style.height = H + 'px';
   _derbyCtx = _derbyCanvas.getContext('2d');
   _derbyCtx.scale(dpr, dpr);
   _derbyStart = null;
-  _derbyRaf = requestAnimationFrame(_derbyDraw);
+  _derbyRaf   = requestAnimationFrame(_derbyDraw);
 }
 
 function detenerDerbyLoader() {
