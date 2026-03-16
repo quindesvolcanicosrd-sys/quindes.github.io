@@ -195,40 +195,29 @@ function onGoogleSignIn(response) {
 function mostrarLoginScreen() {
   const loginScr = document.getElementById('loginScreen');
 
-  // Show login screen hidden first
-  loginScr.style.opacity = '0';
-  loginScr.style.display = 'flex';
-
-  // Render the Google button — suppress its own reveal, we control timing
+  // Render button hidden — it will fade in after 2s
   renderGoogleButton('google-signin-btn', 'signin_with', true);
 
-  // Wait for the button iframe to fully load, THEN hide loader and fade in
-  const btn = document.getElementById('google-signin-btn');
-  const fadeIn = () => {
-    detenerDerbyLoader();
-    document.getElementById('loadingScreen').style.display = 'none';
+  // Show login screen immediately
+  detenerDerbyLoader();
+  document.getElementById('loadingScreen').style.display = 'none';
+  loginScr.style.opacity    = '0';
+  loginScr.style.display    = 'flex';
+  setTimeout(() => {
     loginScr.style.transition = 'opacity 0.3s ease';
     loginScr.style.opacity    = '1';
     setTimeout(() => { loginScr.style.transition = ''; }, 310);
-  };
+  }, 60);
 
-  // Wait for iframe to load + extra settle time, then fade in
-  const waitAndFadeIn = () => setTimeout(fadeIn, 350);
-
-  const iframe = btn?.querySelector('iframe');
-  if (iframe) {
-    iframe.addEventListener('load', waitAndFadeIn, { once: true });
-    setTimeout(fadeIn, 2500); // absolute fallback
-  } else {
-    const obs = new MutationObserver(() => {
-      const f = btn?.querySelector('iframe');
-      if (!f) return;
-      obs.disconnect();
-      f.addEventListener('load', waitAndFadeIn, { once: true });
-      setTimeout(fadeIn, 2500); // absolute fallback
-    });
-    if (btn) obs.observe(btn, { childList: true, subtree: true });
-    setTimeout(fadeIn, 2500); // absolute fallback
+  // Fade in the Google button after 2s (hides the render glitch)
+  const btn = document.getElementById('google-signin-btn');
+  if (btn) {
+    btn.style.opacity    = '0';
+    btn.style.transition = 'none';
+    setTimeout(() => {
+      btn.style.transition = 'opacity 0.4s ease';
+      btn.style.opacity    = '1';
+    }, 2000);
   }
 }
 
