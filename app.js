@@ -796,6 +796,7 @@ async function submitRegistro() {
         rolJugadorx: regData.rolJugadorx, asisteSemana: regData.asisteSemana,
         alergias: regData.alergias, dieta: regData.dieta,
         contactoEmergencia: regData.contactoEmergencia,
+        fotoBase64: regData.fotoBase64 || null,
       }),
       redirect: 'follow',
     });
@@ -805,26 +806,10 @@ async function submitRegistro() {
     CURRENT_USER = { found: true, rowNumber: json.rowNumber, email: json.email, rolApp: 'Invitado' };
     document.getElementById('user-email').textContent = json.email;
 
-    if (regData.fotoBase64) {
-      try {
-        const fr = await gasCall('subirArchivo', { base64Data: regData.fotoBase64, tipoArchivo: 'foto', email: json.email });
-        if (fr && fr.url) {
-          window._regFotoUrl = fr.url;
-        } else {
-          console.warn('subirArchivo no devolvió URL:', fr);
-          window._regFotoUrl = null;
-        }
-      } catch(e) {
-        console.warn('Error subiendo foto en wizard (no crítico):', e.message);
-        window._regFotoUrl = null;
-      }
-    }
-
+    // Photo URL returned directly from registrarUsuario (uploaded atomically in GAS)
     const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
-    if (window._regFotoUrl) {
-      profile.fotoPerfil = window._regFotoUrl;
-      try { await gasCall('updateMyProfile', { rowNumber: json.rowNumber, data: { fotoPerfil: window._regFotoUrl } }); } catch(e) {}
-      window._regFotoUrl = null;
+    if (json.fotoUrl) {
+      profile.fotoPerfil = json.fotoUrl;
     }
     window.myProfile = profile;
     configurarTodasLasSubidas();
