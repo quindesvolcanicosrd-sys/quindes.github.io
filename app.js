@@ -43,17 +43,27 @@ function _derbyNextIcon() {
   do { next = Math.floor(Math.random() * DERBY_ICON_COUNT); }
   while (next === _derbyActiveIdx);
 
-  // Remove active from current
-  const prev = document.getElementById('di-' + _derbyActiveIdx);
-  if (prev) prev.classList.remove('di-active');
+  // Clear all states
+  for (let i = 0; i < DERBY_ICON_COUNT; i++) {
+    const ic = document.getElementById('di-' + i);
+    if (ic) ic.classList.remove('di-active', 'di-near');
+  }
 
-  // Add active to next
+  // Set new active
   _derbyActiveIdx = next;
   const curr = document.getElementById('di-' + _derbyActiveIdx);
   if (curr) curr.classList.add('di-active');
 
-  // Random interval between 600ms and 1600ms for organic feel
-  const wait = 600 + Math.random() * 1000;
+  // Mark neighbors (left and right) as di-near so they get pulled in
+  const leftIdx  = (_derbyActiveIdx - 1 + DERBY_ICON_COUNT) % DERBY_ICON_COUNT;
+  const rightIdx = (_derbyActiveIdx + 1) % DERBY_ICON_COUNT;
+  const leftEl   = document.getElementById('di-' + leftIdx);
+  const rightEl  = document.getElementById('di-' + rightIdx);
+  if (leftEl)  leftEl.classList.add('di-near');
+  if (rightEl) rightEl.classList.add('di-near');
+
+  // Random interval 600–1500ms
+  const wait = 600 + Math.random() * 900;
   _derbyIconTimer = setTimeout(_derbyNextIcon, wait);
 }
 
@@ -70,11 +80,14 @@ function iniciarDerbyLoader() {
     }
   }, 2200);
 
-  // Icons — start with index 0 active
+  // Icons — start with index 0 active, neighbors pulled in
   _derbyActiveIdx = 0;
   for (let i = 0; i < DERBY_ICON_COUNT; i++) {
     const ic = document.getElementById('di-' + i);
-    if (ic) ic.classList.toggle('di-active', i === 0);
+    if (!ic) continue;
+    ic.classList.remove('di-active','di-near');
+    if (i === 0) ic.classList.add('di-active');
+    if (i === 1 || i === DERBY_ICON_COUNT - 1) ic.classList.add('di-near');
   }
   // First switch after a short delay
   _derbyIconTimer = setTimeout(_derbyNextIcon, 900);
@@ -180,6 +193,7 @@ async function inicializarApp(email) {
 
     const user = await gasCall('getCurrentUser', { email });
     if (!user || !user.found) {
+      detenerDerbyLoader();
       document.getElementById('loadingScreen').style.display = 'none';
       mostrarNoEncontrado(email);
       return;
@@ -195,11 +209,13 @@ async function inicializarApp(email) {
     renderTodo(profile);
     aplicarPermisos();
 
+    detenerDerbyLoader();
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('appContent').style.display    = 'block';
 
   } catch (err) {
     console.error(err);
+    detenerDerbyLoader();
     document.getElementById('loadingScreen').style.display = 'none';
     mostrarLoginScreen();
   }
