@@ -2187,16 +2187,22 @@ input, button, select, textarea {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
   padding: 28px 24px 32px;
-  overflow-x: hidden;        /* never scroll sideways */
-  overflow-y: auto;          /* scroll only when content taller than step */
-  overscroll-behavior-y: contain; /* stop scroll chaining to body */
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;          /* no scroll by default */
   /* hidden by default — JS moves and shows them */
   visibility: hidden;
   pointer-events: none;
   background: var(--bg);
   box-sizing: border-box;
   width: 100%;
+}
+/* Inner scroll wrapper — only this scrolls, and only when needed */
+.wiz-step-inner {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .wiz-step.wiz-active {
   visibility: visible;
