@@ -243,7 +243,16 @@ function wizIntroStart() {
     if (viewportEl) viewportEl.style.display = 'block';
     wizUpdateHeader();
     const s1 = document.getElementById('wiz-step-1');
-    if (s1) { s1.classList.add('wiz-active'); setTimeout(() => s1.classList.add('wiz-animate'), 60); }
+    if (s1) {
+      s1.classList.remove('wiz-animate');
+      s1.classList.add('wiz-active');
+      // Let the browser render the active state first, then animate content
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          s1.classList.add('wiz-animate');
+        });
+      });
+    }
   }, 200);
 }
 
@@ -257,35 +266,48 @@ function wizOnRolSelected(val) {
 }
 
 function wizGoTo(next, forward = true) {
-  const DURATION = 300;
+  const DURATION = 280;
   const prevEl = document.getElementById('wiz-step-' + wizStep);
   const nextEl = document.getElementById('wiz-step-' + next);
   if (!nextEl) return;
 
+  // ── Strip any lingering animate class from next step BEFORE making it visible
+  // Use a unique data attribute timestamp so CSS always sees a "new" animation
+  nextEl.classList.remove('wiz-animate');
   nextEl.style.transition = 'none';
   nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-30%)';
-  nextEl.classList.remove('wiz-animate');
   nextEl.style.visibility = 'visible';
-  void nextEl.offsetHeight;
 
-  const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
-  if (prevEl) {
-    prevEl.style.transition = ease;
-    prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
-    prevEl.addEventListener('transitionend', () => {
-      prevEl.classList.remove('wiz-active');
-      prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
-    }, { once: true });
-  }
-  nextEl.style.transition = ease;
-  nextEl.style.transform  = 'translateX(0)';
-  nextEl.classList.add('wiz-active');
-  setTimeout(() => nextEl.classList.add('wiz-animate'), 80);
-  setTimeout(() => {
-    if (next === 2) document.getElementById('reg-nombre')?.focus();
-    if (next === 5) document.getElementById('reg-telefono')?.focus();
-    if (next === 7) document.getElementById('reg-nombreDerby')?.focus();
-  }, DURATION + 60);
+  // Let the browser paint the off-screen position WITHOUT blocking the main thread.
+  // requestAnimationFrame fires after paint, so no reflow freeze.
+  requestAnimationFrame(() => {
+    const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
+
+    if (prevEl) {
+      prevEl.style.transition = ease;
+      prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
+      prevEl.addEventListener('transitionend', () => {
+        prevEl.classList.remove('wiz-active', 'wiz-animate');
+        prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
+      }, { once: true });
+    }
+
+    nextEl.style.transition = ease;
+    nextEl.style.transform  = 'translateX(0)';
+    nextEl.classList.add('wiz-active');
+
+    // Fire content animations AFTER the slide finishes — no overlap, no freeze
+    setTimeout(() => {
+      nextEl.classList.add('wiz-animate');
+    }, DURATION + 10);
+
+    // Focus inputs after everything settles
+    setTimeout(() => {
+      if (next === 2) document.getElementById('reg-nombre')?.focus();
+      if (next === 5) document.getElementById('reg-telefono')?.focus();
+      if (next === 7) document.getElementById('reg-nombreDerby')?.focus();
+    }, DURATION + 60);
+  });
 
   wizStep = next;
   wizUpdateHeader();
