@@ -114,16 +114,17 @@ function getGoogleBtnTheme() {
 }
 
 // Render a single Google button by id, with flicker prevention
-function renderGoogleButton(id, text) {
+function renderGoogleButton(id, text, suppressReveal) {
   const el = document.getElementById(id);
   if (!el) return;
-  if (el.dataset.rendered === 'true') return; // already rendered, skip
+  if (el.dataset.rendered === 'true') return;
   el.dataset.rendered = 'true';
   el.style.opacity = '0';
   const theme = getGoogleBtnTheme();
   google.accounts.id.renderButton(el, {
     theme, size: 'large', width: 300, text, logo_alignment: 'center',
   });
+  if (suppressReveal) return; // caller handles the reveal
   // Fade in once the iframe loads
   const reveal = () => {
     el.style.transition = 'opacity 0.25s ease';
@@ -132,15 +133,14 @@ function renderGoogleButton(id, text) {
   const iframe = el.querySelector('iframe');
   if (iframe) {
     iframe.addEventListener('load', reveal, { once: true });
-    setTimeout(reveal, 800); // fallback
+    setTimeout(reveal, 800);
   } else {
-    // iframe not injected yet — wait for it
     const obs = new MutationObserver(() => {
       const f = el.querySelector('iframe');
       if (!f) return;
       obs.disconnect();
       f.addEventListener('load', reveal, { once: true });
-      setTimeout(reveal, 800); // fallback
+      setTimeout(reveal, 800);
     });
     obs.observe(el, { childList: true, subtree: true });
   }
@@ -199,8 +199,8 @@ function mostrarLoginScreen() {
   loginScr.style.opacity = '0';
   loginScr.style.display = 'flex';
 
-  // Render the Google button
-  renderGoogleButton('google-signin-btn', 'signin_with');
+  // Render the Google button — suppress its own reveal, we control timing
+  renderGoogleButton('google-signin-btn', 'signin_with', true);
 
   // Wait for the button iframe to fully load, THEN hide loader and fade in
   const btn = document.getElementById('google-signin-btn');
@@ -212,26 +212,23 @@ function mostrarLoginScreen() {
     setTimeout(() => { loginScr.style.transition = ''; }, 310);
   };
 
+  // Wait for iframe to load + extra settle time, then fade in
+  const waitAndFadeIn = () => setTimeout(fadeIn, 350);
+
   const iframe = btn?.querySelector('iframe');
   if (iframe) {
-    // iframe already injected — wait for load or fallback
-    if (iframe.contentDocument?.readyState === 'complete') {
-      setTimeout(fadeIn, 50);
-    } else {
-      iframe.addEventListener('load', fadeIn, { once: true });
-      setTimeout(fadeIn, 1500); // fallback max wait
-    }
+    iframe.addEventListener('load', waitAndFadeIn, { once: true });
+    setTimeout(fadeIn, 2500); // absolute fallback
   } else {
-    // iframe not yet injected — observe until it appears then wait for load
     const obs = new MutationObserver(() => {
       const f = btn?.querySelector('iframe');
       if (!f) return;
       obs.disconnect();
-      f.addEventListener('load', fadeIn, { once: true });
-      setTimeout(fadeIn, 1500); // fallback
+      f.addEventListener('load', waitAndFadeIn, { once: true });
+      setTimeout(fadeIn, 2500); // absolute fallback
     });
     if (btn) obs.observe(btn, { childList: true, subtree: true });
-    setTimeout(fadeIn, 2000); // absolute fallback
+    setTimeout(fadeIn, 2500); // absolute fallback
   }
 }
 
