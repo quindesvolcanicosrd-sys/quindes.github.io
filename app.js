@@ -1776,6 +1776,11 @@ async function subirImagenRecortada(base64) {
     if (!result || !result.url) throw new Error('No se recibió URL de la foto');
     window.myProfile.fotoPerfil = result.url;
     renderFotoPerfil(normalizarDriveUrl(result.url));
+    // Guardar URL en la planilla (col AA)
+    await gasCall('updateMyProfile', {
+      rowNumber: CURRENT_USER.rowNumber,
+      data: { fotoPerfil: result.url },
+    });
   } catch (e) {
     console.error('Error subiendo foto:', e);
     // Show error in a non-blocking way — no alert that could cause blank screen
