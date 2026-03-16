@@ -232,6 +232,16 @@ async function inicializarApp(email) {
 }
 
 
+// ── REGISTRO DESDE LOGIN ──────────────────────────────────────
+function mostrarRegistroDesdeLogin() {
+  // Go directly to registration wizard without needing to sign in first
+  // The user needs to sign in with Google first to get their email
+  // Show a prompt to sign in, then redirect to wizard
+  mostrarLoginScreen();
+  // Override: after sign-in, if not found, go straight to wizard
+  window._registroDesdeLogin = true;
+}
+
 // ── NO ENCONTRADO ─────────────────────────────────────────────
 
 // Called once on app init to pre-render the Google button before the screen is shown
@@ -245,6 +255,12 @@ function preRenderResigninButton() {
 }
 
 function mostrarNoEncontrado(email) {
+  // If user came from "Crear mi perfil" on login screen, go straight to wizard
+  if (window._registroDesdeLogin) {
+    window._registroDesdeLogin = false;
+    mostrarRegistroWizard();
+    return;
+  }
   const el = document.getElementById('no-enc-email');
   if (el) el.textContent = email || '';
 
