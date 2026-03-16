@@ -808,8 +808,16 @@ async function submitRegistro() {
     if (regData.fotoBase64) {
       try {
         const fr = await gasCall('subirArchivo', { base64Data: regData.fotoBase64, tipoArchivo: 'foto', email: json.email });
-        window._regFotoUrl = fr.url;
-      } catch(e) { window._regFotoUrl = null; }
+        if (fr && fr.url) {
+          window._regFotoUrl = fr.url;
+        } else {
+          console.warn('subirArchivo no devolvió URL:', fr);
+          window._regFotoUrl = null;
+        }
+      } catch(e) {
+        console.warn('Error subiendo foto en wizard (no crítico):', e.message);
+        window._regFotoUrl = null;
+      }
     }
 
     const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
@@ -1642,7 +1650,14 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
   inputReal.addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { alert('El archivo no puede superar 5MB'); e.target.value = ''; return; }
+    if (file.size > 5 * 1024 * 1024) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:12px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:9999;white-space:nowrap;';
+      t.textContent = 'El archivo no puede superar 5 MB';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+      e.target.value = ''; return;
+    }
     const reader = new FileReader();
     reader.onload = async event => {
       const base64 = event.target.result;
@@ -1755,35 +1770,53 @@ function confirmarCrop() {
 }
 
 async function subirImagenRecortada(base64) {
-  // Block entire UI while uploading photo
   mostrarCargandoFoto(true);
   fotoSubiendo = true;
   try {
     const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo: 'foto', email: CURRENT_USER.email });
+    if (!result || !result.url) throw new Error('No se recibió URL de la foto');
     window.myProfile.fotoPerfil = result.url;
     renderFotoPerfil(normalizarDriveUrl(result.url));
   } catch (e) {
     console.error('Error subiendo foto:', e);
-    alert('Error al subir la foto. Intenta de nuevo.');
+    // Show error in a non-blocking way — no alert that could cause blank screen
+    wizShowError?.('Error al subir la foto. Intenta de nuevo.');
+    // If wizShowError not available (in profile view), use a toast
+    if (typeof wizShowError === 'undefined') {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:12px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:9999;';
+      t.textContent = 'Error al subir la foto. Intenta de nuevo.';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
   } finally {
-    mostrarCargandoFoto(false);
+    // Always clean up — never leave the UI blocked
+    try { mostrarCargandoFoto(false); } catch(e) {}
     fotoSubiendo = false;
   }
 }
 
 function mostrarCargandoFoto(show) {
-  let el = document.getElementById('foto-upload-blocker');
-  if (show) {
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'foto-upload-blocker';
-      el.innerHTML = '<div class="foto-blocker-inner"><div class="foto-blocker-spinner"></div><span>Cargando foto...</span></div>';
-      document.body.appendChild(el);
+  try {
+    let el = document.getElementById('foto-upload-blocker');
+    if (show) {
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'foto-upload-blocker';
+        el.innerHTML = '<div class="foto-blocker-inner"><div class="foto-blocker-spinner"></div><span>Cargando foto...</span></div>';
+        document.body.appendChild(el);
+      }
+      el.style.display = 'flex';
+      // Safety net: auto-remove after 15s in case cleanup fails
+      clearTimeout(el._safetyTimer);
+      el._safetyTimer = setTimeout(() => { el.style.display = 'none'; }, 15000);
+    } else {
+      if (el) {
+        clearTimeout(el._safetyTimer);
+        el.style.display = 'none';
+      }
     }
-    el.style.display = 'flex';
-  } else {
-    if (el) el.style.display = 'none';
-  }
+  } catch(e) { console.warn('mostrarCargandoFoto error:', e); }
 }
 
 function cancelarCrop() {
