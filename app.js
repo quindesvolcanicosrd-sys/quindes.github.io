@@ -1942,7 +1942,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (errEl) errEl.style.display = 'none';
-    const val = formatFecha(selYear, selMonth, selDay);
+    const val = formatFecha(dpState.selYear, dpState.selMonth, dpState.selDay);
     if (dpState.onConfirm) dpState.onConfirm(val);
     cerrarDatePicker();
   });
