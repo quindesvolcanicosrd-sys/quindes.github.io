@@ -9,8 +9,6 @@ const CONFIG = {
 
 let CURRENT_USER   = null;
 let accessToken    = null;
-let driveAccessToken = null;
-let driveTokenClient = null;
 let fotoSubiendo   = false;
 let cropper;
 
@@ -116,17 +114,6 @@ function initGoogleAuth() {
     auto_select: false,
   });
 
-  // OAuth2 token client for Drive uploads
-  driveTokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CONFIG.GOOGLE_CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/drive.file',
-    callback: (response) => {
-      if (response.access_token) {
-        driveAccessToken = response.access_token;
-        setTimeout(() => { driveAccessToken = null; }, 55 * 60 * 1000);
-      }
-    },
-  });
 
   // Skip One Tap popup — use explicit login screen button only
   // Show login screen directly (safety net still applies if auto_select resolves)
@@ -1787,64 +1774,14 @@ async function subirImagenRecortada(base64) {
   mostrarCargandoFoto(true);
   fotoSubiendo = true;
   try {
-    const token = await obtenerDriveToken();
-    if (!token) throw new Error('No se pudo obtener acceso a Drive');
-
-    const folderId = '1qzNyTPZvL1t3dkh6lT4Nl6sqnCcjieKB';
-    const fileName = 'foto_' + CURRENT_USER.email;
-    const [meta, b64] = base64.split(',');
-    const mimeType = meta.match(/:(.*?);/)[1];
-    const byteChars = atob(b64);
-    const byteArr = new Uint8Array(byteChars.length);
-    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
-    const blob = new Blob([byteArr], { type: mimeType });
-
-    // Delete existing file
-    const searchRes = await fetch(
-      'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent("name='" + fileName + "' and '" + folderId + "' in parents and trashed=false") + '&fields=files(id)',
-      { headers: { Authorization: 'Bearer ' + token } }
-    );
-    const searchJson = await searchRes.json();
-    for (const f of (searchJson.files || [])) {
-      await fetch('https://www.googleapis.com/drive/v3/files/' + f.id, {
-        method: 'DELETE', headers: { Authorization: 'Bearer ' + token },
-      });
-    }
-
-    // Upload multipart
-    const boundary = 'quindes_' + Date.now();
-    const metaJson = JSON.stringify({ name: fileName, parents: [folderId] });
-    const enc = new TextEncoder();
-    const part1 = enc.encode('--' + boundary + '\r\nContent-Type: application/json\r\n\r\n' + metaJson + '\r\n--' + boundary + '\r\nContent-Type: ' + mimeType + '\r\n\r\n');
-    const part2 = enc.encode('\r\n--' + boundary + '--');
-    const uploadRes = await fetch(
-      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
-      {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'multipart/related; boundary=' + boundary },
-        body: new Blob([part1, blob, part2]),
-      }
-    );
-    const uploadJson = await uploadRes.json();
-    if (!uploadJson.id) throw new Error('Drive upload falló: ' + JSON.stringify(uploadJson));
-
-    // Make public
-    await fetch('https://www.googleapis.com/drive/v3/files/' + uploadJson.id + '/permissions', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role: 'reader', type: 'anyone' }),
-    });
-
-    const fileUrl = 'https://drive.google.com/thumbnail?id=' + uploadJson.id + '&sz=w500';
-    window.myProfile.fotoPerfil = fileUrl;
-    renderFotoPerfil(normalizarDriveUrl(fileUrl));
-
-    // Save URL to spreadsheet
+    const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo: 'foto', email: CURRENT_USER.email });
+    if (!result || !result.url) throw new Error('No se recibio URL');
+    window.myProfile.fotoPerfil = result.url;
+    renderFotoPerfil(normalizarDriveUrl(result.url));
     await gasCall('updateMyProfile', {
       rowNumber: CURRENT_USER.rowNumber,
-      data: { fotoPerfil: fileUrl },
+      data: { fotoPerfil: result.url },
     });
-
   } catch (e) {
     console.error('Error subiendo foto:', e);
     const t = document.createElement('div');
@@ -1856,23 +1793,6 @@ async function subirImagenRecortada(base64) {
     try { mostrarCargandoFoto(false); } catch(e) {}
     fotoSubiendo = false;
   }
-}
-
-function obtenerDriveToken() {
-  return new Promise((resolve) => {
-    if (driveAccessToken) { resolve(driveAccessToken); return; }
-    if (!driveTokenClient) { resolve(null); return; }
-    driveTokenClient.callback = (response) => {
-      if (response.access_token) {
-        driveAccessToken = response.access_token;
-        setTimeout(() => { driveAccessToken = null; }, 55 * 60 * 1000);
-        resolve(response.access_token);
-      } else {
-        resolve(null);
-      }
-    };
-    driveTokenClient.requestAccessToken({ prompt: '' });
-  });
 }
 
 function mostrarCargandoFoto(show) {
