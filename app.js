@@ -190,6 +190,9 @@ async function inicializarApp(email) {
   try {
     document.getElementById('loadingScreen').style.display = 'flex';
     document.getElementById('loginScreen').style.display   = 'none';
+    // Restart loader in case it was stopped by a previous screen transition
+    detenerDerbyLoader();
+    iniciarDerbyLoader();
 
     const user = await gasCall('getCurrentUser', { email });
     if (!user || !user.found) {
