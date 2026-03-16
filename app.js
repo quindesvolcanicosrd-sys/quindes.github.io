@@ -32,103 +32,114 @@ const DERBY_MSGS = [
   'Entrando a la pista…',
 ];
 
-// Particle system state
 let _derbyRaf      = null;
 let _derbyMsgTimer = null;
-let _derbyParticles = [];
 let _derbyCanvas   = null;
 let _derbyCtx      = null;
+let _derbyStart    = null;
 
-// Skate positions tracked from CSS animation for particle spawn
-const PARTICLE_EMOJIS = ['⭐','✨','💫','🌟','✦','·','★'];
-const SKATE_DURATION  = 1800; // ms matches CSS animation
-const SKATE_OFFSET    = 900;  // ms half-cycle offset between skate-1 and skate-2
-
-function _derbySkateX(timeMs, delayMs, canvasW) {
-  // Mirrors the CSS left: -14% → 114% over SKATE_DURATION
-  const t = ((timeMs - delayMs) % SKATE_DURATION + SKATE_DURATION) % SKATE_DURATION;
-  const frac = t / SKATE_DURATION; // 0→1
-  return (frac * 1.28 - 0.14) * canvasW;
+// ── Track geometry ────────────────────────────────────────────
+// Oval track: two straight sides + two semicircles
+// Returns { x, y, angle } for a given progress t ∈ [0,1) — anticlockwise
+function _derbyTrackPoint(t, cx, cy, rx, ry) {
+  // Parameterize: 0=right → top → left → bottom → right (anticlockwise)
+  const angle = -t * Math.PI * 2; // negative = anticlockwise
+  return {
+    x: cx + rx * Math.cos(angle),
+    y: cy + ry * Math.sin(angle),
+    angle: angle,
+  };
 }
 
-function _spawnParticle(x, y) {
-  const emoji = PARTICLE_EMOJIS[Math.floor(Math.random() * PARTICLE_EMOJIS.length)];
-  const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.9; // mostly upward, spread
-  const speed = 0.6 + Math.random() * 1.2;
-  const rotDir = Math.random() > 0.5 ? 1 : -1;
-  _derbyParticles.push({
-    emoji, x, y,
-    vx: Math.cos(angle) * speed,
-    vy: Math.sin(angle) * speed,
-    rot: Math.random() * 360,
-    rotSpeed: (30 + Math.random() * 90) * rotDir,
-    scale: 0,
-    scaleTarget: 0.7 + Math.random() * 0.6,
-    alpha: 1,
-    age: 0,
-    life: 700 + Math.random() * 400, // ms
-    size: 11 + Math.random() * 8,
-  });
-}
-
-let _derbyLastTime = 0;
-let _derbySpawnAccum = [0, 0]; // accumulator per skate
-
-function _derbyFrame(now) {
+function _derbyDraw(timestamp) {
   if (!_derbyCanvas || !_derbyCtx) return;
-  const dt = Math.min(now - (_derbyLastTime || now), 50);
-  _derbyLastTime = now;
+  if (!_derbyStart) _derbyStart = timestamp;
+  const elapsed = timestamp - _derbyStart;
 
-  const W = _derbyCanvas.width;
-  const H = _derbyCanvas.height;
-  _derbyCtx.clearRect(0, 0, W, H);
+  const W  = _derbyCanvas.width;
+  const H  = _derbyCanvas.height;
+  const cx = W / 2;
+  const cy = H / 2;
+  const rx = W * 0.42;   // horizontal radius
+  const ry = H * 0.36;   // vertical radius
+  const ctx = _derbyCtx;
 
-  // Spawn particles from each skate position
-  const skateY = H * 0.5;
-  for (let s = 0; s < 2; s++) {
-    const delay = s === 1 ? SKATE_OFFSET : 0;
-    const sx = _derbySkateX(now, delay, W);
-    // Only spawn when skate is in the visible area (with fade margins)
-    if (sx > W * 0.18 && sx < W * 0.82) {
-      _derbySpawnAccum[s] += dt;
-      // Spawn rate: ~every 80ms
-      while (_derbySpawnAccum[s] > 80) {
-        _derbySpawnAccum[s] -= 80;
-        _spawnParticle(sx + (Math.random() - 0.5) * 8, skateY);
-      }
-    }
+  ctx.clearRect(0, 0, W, H);
+
+  // ── 1. Draw track outline ──────────────────────────────────
+  // Outer oval
+  const trackW = Math.max(3, W * 0.055);
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx + trackW * 0.5, ry + trackW * 0.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy, rx - trackW * 0.5, ry - trackW * 0.5, 0, 0, Math.PI * 2, true);
+  // Use CSS accent color — read from body
+  const accentColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#e53e3e';
+  ctx.fillStyle = accentColor.replace(')', ', 0.08)').replace('rgb(', 'rgba(').replace('#', '') ;
+  // Simpler approach: just use rgba directly
+  ctx.fillStyle = 'rgba(220, 30, 30, 0.07)';
+  ctx.fill('evenodd');
+
+  // Track center line (dashed)
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  ctx.setLineDash([4, 8]);
+  ctx.strokeStyle = 'rgba(220, 30, 30, 0.18)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Track border ovals
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx + trackW * 0.5, ry + trackW * 0.5, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(220, 30, 30, 0.28)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx - trackW * 0.5, ry - trackW * 0.5, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(220, 30, 30, 0.28)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // ── 2. Star position ──────────────────────────────────────
+  const SPEED    = 0.00022; // revolutions per ms
+  const progress = (elapsed * SPEED) % 1;
+  const starPos  = _derbyTrackPoint(progress, cx, cy, rx, ry);
+
+  // ── 3. Draw trailing comet tail ───────────────────────────
+  const TAIL_STEPS = 48;
+  for (let i = TAIL_STEPS; i >= 0; i--) {
+    const tOffset = i / TAIL_STEPS * 0.18; // tail spans 18% of track
+    const tp = _derbyTrackPoint((progress + tOffset) % 1, cx, cy, rx, ry);
+    const alpha = (1 - i / TAIL_STEPS) * 0.85;
+    const radius = (1 - i / TAIL_STEPS) * 3.5 + 0.5;
+    const grad = ctx.createRadialGradient(tp.x, tp.y, 0, tp.x, tp.y, radius * 2);
+    grad.addColorStop(0, `rgba(255, 80, 80, ${alpha})`);
+    grad.addColorStop(1, `rgba(220, 30, 30, 0)`);
+    ctx.beginPath();
+    ctx.arc(tp.x, tp.y, radius * 2, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
   }
 
-  // Update + draw particles
-  _derbyParticles = _derbyParticles.filter(p => {
-    p.age += dt;
-    if (p.age > p.life) return false;
-    const progress = p.age / p.life; // 0→1
+  // ── 4. Draw star emoji ────────────────────────────────────
+  const starSize = Math.max(14, W * 0.075);
+  // Subtle pulse
+  const pulse = 1 + Math.sin(elapsed * 0.004) * 0.08;
+  ctx.save();
+  ctx.translate(starPos.x, starPos.y);
+  ctx.scale(pulse, pulse);
+  ctx.font = `${starSize}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Glow
+  ctx.shadowColor = 'rgba(255, 80, 80, 0.9)';
+  ctx.shadowBlur  = 10;
+  ctx.fillText('⭐', 0, 0);
+  ctx.shadowBlur  = 0;
+  ctx.restore();
 
-    // Scale: 0→peak in first 20%, then stays
-    p.scale = p.scaleTarget * Math.min(1, progress / 0.2);
-    // Alpha: full until 60%, then fade out
-    p.alpha = progress < 0.6 ? 1 : 1 - (progress - 0.6) / 0.4;
-    // Position
-    p.x += p.vx * (dt / 16);
-    p.y += p.vy * (dt / 16);
-    p.vy += 0.015 * (dt / 16); // subtle gravity
-    p.rot += p.rotSpeed * (dt / 1000);
-
-    _derbyCtx.save();
-    _derbyCtx.globalAlpha = p.alpha;
-    _derbyCtx.translate(p.x, p.y);
-    _derbyCtx.rotate(p.rot * Math.PI / 180);
-    _derbyCtx.scale(p.scale, p.scale);
-    _derbyCtx.font = `${p.size}px serif`;
-    _derbyCtx.textAlign = 'center';
-    _derbyCtx.textBaseline = 'middle';
-    _derbyCtx.fillText(p.emoji, 0, 0);
-    _derbyCtx.restore();
-    return true;
-  });
-
-  _derbyRaf = requestAnimationFrame(_derbyFrame);
+  _derbyRaf = requestAnimationFrame(_derbyDraw);
 }
 
 function iniciarDerbyLoader() {
@@ -144,24 +155,28 @@ function iniciarDerbyLoader() {
     }
   }, 2000);
 
-  // Canvas particle system
+  // Canvas setup
   _derbyCanvas = document.getElementById('derby-canvas');
-  if (_derbyCanvas) {
-    const wrap = _derbyCanvas.parentElement;
-    _derbyCanvas.width  = wrap.offsetWidth  || 240;
-    _derbyCanvas.height = wrap.offsetHeight || 56;
-    _derbyCtx = _derbyCanvas.getContext('2d');
-    _derbyParticles = [];
-    _derbySpawnAccum = [0, 0];
-    _derbyLastTime = 0;
-    _derbyRaf = requestAnimationFrame(_derbyFrame);
-  }
+  if (!_derbyCanvas) return;
+  // Responsive size
+  const dpr  = window.devicePixelRatio || 1;
+  const size = Math.min(window.innerWidth * 0.62, 220);
+  _derbyCanvas.width  = size * dpr;
+  _derbyCanvas.height = size * 0.55 * dpr;
+  _derbyCanvas.style.width  = size + 'px';
+  _derbyCanvas.style.height = (size * 0.55) + 'px';
+  _derbyCtx = _derbyCanvas.getContext('2d');
+  _derbyCtx.scale(dpr, dpr);
+  _derbyStart = null;
+  _derbyRaf = requestAnimationFrame(_derbyDraw);
 }
 
 function detenerDerbyLoader() {
   clearInterval(_derbyMsgTimer);
   if (_derbyRaf) { cancelAnimationFrame(_derbyRaf); _derbyRaf = null; }
-  _derbyParticles = [];
+  if (_derbyCtx && _derbyCanvas) {
+    _derbyCtx.clearRect(0, 0, _derbyCanvas.width, _derbyCanvas.height);
+  }
 }
 
 // Start derby loader immediately
