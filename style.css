@@ -782,20 +782,6 @@ input[type="file"] { display: none !important; }
 .login-google-btn-wrap {
   display: flex; justify-content: center; align-items: center;
   min-height: 48px; width: 100%;
-  /* Prevent flicker when Google iframe loads */
-  contain: layout;
-}
-/* Force Google Sign-In button iframe to render at consistent size */
-.login-google-btn-wrap iframe,
-#google-resignin-btn iframe,
-#wiz-google-btn iframe {
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-.login-google-btn-wrap iframe.loaded,
-#google-resignin-btn iframe.loaded,
-#wiz-google-btn iframe.loaded {
-  opacity: 1;
 }
 .login-divider {
   display: flex;
