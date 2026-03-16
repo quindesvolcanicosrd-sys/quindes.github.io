@@ -28,27 +28,17 @@ function initGoogleAuth() {
   google.accounts.id.initialize({
     client_id: CONFIG.GOOGLE_CLIENT_ID,
     callback: onGoogleSignIn,
-    auto_select: true,
+    auto_select: false,
   });
 
-  // Show One Tap — but if dismissed/skipped/unavailable, fall back to login screen
-  google.accounts.id.prompt(notification => {
-    const reason = notification.getSkippedReason?.() || notification.getDismissedReason?.();
-    const isNotDisplayed = notification.isNotDisplayed?.();
-    const isSkipped      = notification.isSkippedMoment?.();
-    const isDismissed    = notification.isDismissedMoment?.();
-    if (isNotDisplayed || isSkipped || isDismissed) {
-      mostrarLoginScreen();
-    }
-  });
-
-  // Safety net: if One Tap hasn't triggered onGoogleSignIn after 3.5s, show login screen
+  // Skip One Tap popup — use explicit login screen button only
+  // Show login screen directly (safety net still applies if auto_select resolves)
   setTimeout(() => {
     const loading = document.getElementById('loadingScreen');
     if (loading && loading.style.display !== 'none') {
       mostrarLoginScreen();
     }
-  }, 3500);
+  }, 1200);
 
   // Pre-render the re-sign-in button early
   preRenderResigninButton();
