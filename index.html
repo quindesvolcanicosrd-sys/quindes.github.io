@@ -72,30 +72,26 @@
 
 <!-- NO ENCONTRADO — pantalla intermedia -->
 <div id="noEncontradoScreen" style="display:none;">
-  <div class="login-card no-encontrado-card">
-    <span class="material-icons no-enc-icon">person_off</span>
-    <h2 class="no-enc-title">Inicia sesión con otra cuenta</h2>
-    <p class="no-enc-sub">
-      <strong id="no-enc-email"></strong>
-      La cuenta ingresada no está registrada.
-    </p>
-
-    <!-- Intentar con otra cuenta -->
-    <div class="no-enc-divider-wrap">
-      <span class="no-enc-divider-label">¿Iniciaste sesión con la cuenta correcta?</span>
+  <!-- Animated background rings — same as login -->
+  <div class="login-bg">
+    <span class="login-bg-ring login-bg-ring-1"></span>
+    <span class="login-bg-ring login-bg-ring-2"></span>
+  </div>
+  <div class="no-enc-content">
+    <div class="no-enc-hero">
+      <div class="no-enc-emoji">🤔</div>
+      <h2 class="no-enc-title">Cuenta no registrada</h2>
+      <span class="no-enc-email-badge" id="no-enc-email"></span>
     </div>
-    <div id="google-resignin-btn"></div>
-
-    <!-- Separador -->
-    <div class="no-enc-or">
-      <span></span><em>o</em><span></span>
+    <div class="no-enc-cta-box">
+      <p class="no-enc-instruction">¿Iniciaste sesión con la cuenta correcta? Intentá con otra:</p>
+      <div id="google-resignin-btn"></div>
+      <div class="no-enc-or"><span></span><em>o</em><span></span></div>
+      <button id="btn-ir-registro" class="no-enc-register-btn">
+        <span class="material-icons" style="font-size:18px;">person_add</span>
+        Crear mi perfil
+      </button>
     </div>
-
-    <!-- Crear perfil nuevo -->
-    <button id="btn-ir-registro" class="btn-save no-enc-register-btn">
-      <span class="material-icons" style="font-size:18px;margin-right:6px;">person_add</span>
-      Crear mi perfil
-    </button>
   </div>
 </div>
 
