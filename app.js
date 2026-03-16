@@ -108,24 +108,53 @@ document.addEventListener('DOMContentLoaded', () => { iniciarDerbyLoader(); });
 
 // ── GOOGLE IDENTITY SERVICES ─────────────────────────────────
 // Fix Google button flicker: fade in iframe once it loads
+// Detect current color scheme for Google button theme
+function getGoogleBtnTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'filled_black' : 'outline';
+}
+
+// Re-render all Google buttons (needed when color scheme changes or screen shows)
+function renderAllGoogleButtons() {
+  const theme = getGoogleBtnTheme();
+  const configs = [
+    { id: 'google-signin-btn',    text: 'signin_with'   },
+    { id: 'google-resignin-btn',  text: 'signin_with'   },
+    { id: 'wiz-google-btn',       text: 'continue_with' },
+  ];
+  configs.forEach(({ id, text }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
+    google.accounts.id.renderButton(el, {
+      theme, size: 'large', width: 300,
+      text, logo_alignment: 'center',
+    });
+  });
+}
+
 function fixGoogleButtonFlicker() {
+  // Hide all Google button containers until their iframe fully loads
   const wraps = ['google-signin-btn', 'google-resignin-btn', 'wiz-google-btn'];
   wraps.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
+    // Start invisible
+    el.style.opacity = '0';
+    el.style.transition = 'opacity 0.3s ease';
     const observer = new MutationObserver(() => {
-      const iframes = el.querySelectorAll('iframe');
-      iframes.forEach(iframe => {
-        if (iframe.classList.contains('loaded')) return;
-        iframe.style.opacity = '0';
-        iframe.style.transition = 'opacity 0.25s ease';
-        const onLoad = () => {
-          iframe.style.opacity = '1';
-          iframe.classList.add('loaded');
-        };
-        if (iframe.complete || iframe.readyState === 'complete') onLoad();
-        else iframe.addEventListener('load', onLoad, { once: true });
-      });
+      const iframe = el.querySelector('iframe');
+      if (!iframe) return;
+      const reveal = () => {
+        requestAnimationFrame(() => {
+          el.style.opacity = '1';
+        });
+      };
+      // iframe may already be loaded
+      if (iframe.contentWindow) {
+        setTimeout(reveal, 80);
+      }
+      iframe.addEventListener('load', reveal, { once: true });
+      observer.disconnect();
     });
     observer.observe(el, { childList: true, subtree: true });
   });
@@ -133,6 +162,10 @@ function fixGoogleButtonFlicker() {
 
 function initGoogleAuth() {
   fixGoogleButtonFlicker();
+  // Re-render Google buttons if user switches dark/light mode
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    renderAllGoogleButtons();
+  });
   google.accounts.id.initialize({
     client_id: CONFIG.GOOGLE_CLIENT_ID,
     callback: onGoogleSignIn,
@@ -162,10 +195,7 @@ function onGoogleSignIn(response) {
 function mostrarLoginScreen() {
   const loginScr = document.getElementById('loginScreen');
   // Render button while screen is still invisible to avoid flicker
-  google.accounts.id.renderButton(
-    document.getElementById('google-signin-btn'),
-    { theme: 'outline', size: 'large', width: 300, text: 'signin_with', logo_alignment: 'center' }
-  );
+  renderAllGoogleButtons();
   detenerDerbyLoader();
   document.getElementById('loadingScreen').style.display = 'none';
   // Fade in
@@ -272,10 +302,7 @@ function mostrarRegistroDesdeLogin() {
   requestAnimationFrame(() => {
     const wrap = document.getElementById('wiz-google-btn');
     if (wrap && wrap.childElementCount === 0) {
-      google.accounts.id.renderButton(wrap, {
-        theme: 'outline', size: 'large', width: 280,
-        text: 'continue_with', logo_alignment: 'center',
-      });
+      renderAllGoogleButtons();
     }
   });
 
@@ -317,10 +344,7 @@ function wizIntroVolver() {
 function preRenderResigninButton() {
   const container = document.getElementById('google-resignin-btn');
   if (!container || container.dataset.rendered) return;
-  google.accounts.id.renderButton(container, {
-    theme: 'outline', size: 'large', width: 280,
-    text: 'signin_with', logo_alignment: 'center',
-  });
+  renderAllGoogleButtons();
   container.dataset.rendered = 'true';
 }
 
