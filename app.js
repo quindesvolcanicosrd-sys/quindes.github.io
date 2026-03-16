@@ -208,12 +208,43 @@ function mostrarRegistroWizard() {
   }
 
   document.getElementById('registroScreen').style.display = 'flex';
-  wizUpdateHeader();
 
-  const s1 = document.getElementById('wiz-step-1');
-  if (s1) { s1.classList.add('wiz-active'); setTimeout(() => s1.classList.add('wiz-animate'), 60); }
+  // Show intro, hide header+viewport until user taps Comenzar
+  const introEl   = document.getElementById('wiz-intro');
+  const headerEl  = document.getElementById('wiz-header');
+  const viewportEl = document.getElementById('wiz-viewport');
+  if (introEl)    introEl.style.display    = 'flex';
+  if (headerEl)   headerEl.style.display   = 'none';
+  if (viewportEl) viewportEl.style.display = 'none';
 
   history.pushState({ wizSentinel: true }, '', location.pathname + '#_wiz');
+}
+
+// Called by "Comenzar" button on intro screen
+function wizIntroStart() {
+  const introEl    = document.getElementById('wiz-intro');
+  const headerEl   = document.getElementById('wiz-header');
+  const viewportEl = document.getElementById('wiz-viewport');
+
+  // Slide intro out upward
+  if (introEl) {
+    introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+    introEl.style.opacity    = '0';
+    introEl.style.transform  = 'translateY(-24px)';
+    setTimeout(() => {
+      introEl.style.display = 'none';
+      introEl.style.transition = introEl.style.transform = introEl.style.opacity = '';
+    }, 310);
+  }
+
+  // Show header + viewport
+  setTimeout(() => {
+    if (headerEl)   headerEl.style.display   = 'flex';
+    if (viewportEl) viewportEl.style.display = 'block';
+    wizUpdateHeader();
+    const s1 = document.getElementById('wiz-step-1');
+    if (s1) { s1.classList.add('wiz-active'); setTimeout(() => s1.classList.add('wiz-animate'), 60); }
+  }, 200);
 }
 
 function wizSetVal(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
@@ -316,9 +347,26 @@ function wizBack() {
   if (idx > 0) {
     wizGoTo(wizStepSequence[idx - 1], false);
   } else {
-    document.getElementById('registroScreen').style.display = 'none';
-    document.getElementById('noEncontradoScreen').style.display = 'flex';
-    if (history.state && history.state.wizSentinel) history.back();
+    // Back from step 1 → show intro screen again
+    const introEl    = document.getElementById('wiz-intro');
+    const headerEl   = document.getElementById('wiz-header');
+    const viewportEl = document.getElementById('wiz-viewport');
+    // Hide steps
+    const s1 = document.getElementById('wiz-step-1');
+    if (s1) { s1.classList.remove('wiz-active','wiz-animate'); }
+    if (headerEl)   headerEl.style.display   = 'none';
+    if (viewportEl) viewportEl.style.display = 'none';
+    if (introEl) {
+      introEl.style.display   = 'flex';
+      introEl.style.opacity   = '0';
+      introEl.style.transform = 'translateY(24px)';
+      requestAnimationFrame(() => {
+        introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+        introEl.style.opacity    = '1';
+        introEl.style.transform  = 'translateY(0)';
+        setTimeout(() => { introEl.style.transition = ''; }, 310);
+      });
+    }
   }
 }
 
