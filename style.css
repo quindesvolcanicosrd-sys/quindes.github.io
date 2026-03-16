@@ -1211,6 +1211,17 @@ input[type="file"] { display: none !important; }
   border: 1.5px solid var(--accent);
   color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
 }
+.dp-error {
+  margin: 0 12px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,59,48,0.12);
+  border: 1px solid rgba(255,59,48,0.3);
+  font-size: 13px !important; font-weight: 600 !important;
+  color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
+  text-align: center;
+  animation: wiz-fade-up 0.2s ease both;
+}
 .dp-footer {
   display: flex; justify-content: flex-end; gap: 8px;
   padding: 8px 16px 20px;
