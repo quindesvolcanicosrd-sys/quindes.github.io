@@ -43,28 +43,33 @@ function _derbyNextIcon() {
   do { next = Math.floor(Math.random() * DERBY_ICON_COUNT); }
   while (next === _derbyActiveIdx);
 
-  // Clear all states
+  // ── Phase 1: shrink current — all icons go small (the "pause") ──
   for (let i = 0; i < DERBY_ICON_COUNT; i++) {
     const ic = document.getElementById('di-' + i);
     if (ic) ic.classList.remove('di-active', 'di-near');
   }
 
-  // Set new active
-  _derbyActiveIdx = next;
-  const curr = document.getElementById('di-' + _derbyActiveIdx);
-  if (curr) curr.classList.add('di-active');
+  // ── Phase 2: after short pause, grow the next one ──
+  const PAUSE = 110; // ms — the beat where everything is small
+  _derbyIconTimer = setTimeout(() => {
 
-  // Mark neighbors (left and right) as di-near so they get pulled in
-  const leftIdx  = (_derbyActiveIdx - 1 + DERBY_ICON_COUNT) % DERBY_ICON_COUNT;
-  const rightIdx = (_derbyActiveIdx + 1) % DERBY_ICON_COUNT;
-  const leftEl   = document.getElementById('di-' + leftIdx);
-  const rightEl  = document.getElementById('di-' + rightIdx);
-  if (leftEl)  leftEl.classList.add('di-near');
-  if (rightEl) rightEl.classList.add('di-near');
+    _derbyActiveIdx = next;
+    const curr = document.getElementById('di-' + _derbyActiveIdx);
+    if (curr) curr.classList.add('di-active');
 
-  // Random interval 600–1500ms
-  const wait = 600 + Math.random() * 900;
-  _derbyIconTimer = setTimeout(_derbyNextIcon, wait);
+    // Neighbors get pulled in
+    const leftIdx  = (_derbyActiveIdx - 1 + DERBY_ICON_COUNT) % DERBY_ICON_COUNT;
+    const rightIdx = (_derbyActiveIdx + 1) % DERBY_ICON_COUNT;
+    const leftEl   = document.getElementById('di-' + leftIdx);
+    const rightEl  = document.getElementById('di-' + rightIdx);
+    if (leftEl)  leftEl.classList.add('di-near');
+    if (rightEl) rightEl.classList.add('di-near');
+
+    // Random hold 700–1500ms before next cycle
+    const wait = 700 + Math.random() * 800;
+    _derbyIconTimer = setTimeout(_derbyNextIcon, wait);
+
+  }, PAUSE);
 }
 
 function iniciarDerbyLoader() {
