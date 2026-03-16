@@ -2154,6 +2154,11 @@ input, button, select, textarea {
   display: flex; align-items: center; justify-content: center;
   background: var(--bg); z-index: 100; padding: 24px;
 }
+/* Pre-size Google button slot to avoid layout jump when iframe loads */
+#google-resignin-btn {
+  min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
 .no-encontrado-card { gap: 14px !important; max-width: 340px !important; }
 .no-enc-icon {
   font-size: 52px !important; color: var(--text3) !important;
