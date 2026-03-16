@@ -209,7 +209,7 @@ function mostrarLoginScreen() {
     setTimeout(() => { loginScr.style.transition = ''; }, 310);
   }, 60);
 
-  // Fade in the Google button after 2s (hides the render glitch)
+  // Fade in the Google button after 1s (hides the render glitch)
   const btn = document.getElementById('google-signin-btn');
   if (btn) {
     btn.style.opacity    = '0';
@@ -217,7 +217,7 @@ function mostrarLoginScreen() {
     setTimeout(() => {
       btn.style.transition = 'opacity 0.4s ease';
       btn.style.opacity    = '1';
-    }, 2000);
+    }, 1000);
   }
 }
 
