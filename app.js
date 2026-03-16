@@ -234,12 +234,25 @@ async function inicializarApp(email) {
 
 // ── REGISTRO DESDE LOGIN ──────────────────────────────────────
 function mostrarRegistroDesdeLogin() {
-  // Go directly to registration wizard without needing to sign in first
-  // The user needs to sign in with Google first to get their email
-  // Show a prompt to sign in, then redirect to wizard
-  mostrarLoginScreen();
-  // Override: after sign-in, if not found, go straight to wizard
+  // Set flag so after Google sign-in, if not registered, go straight to wizard
   window._registroDesdeLogin = true;
+
+  // Transform the login screen to show registration context
+  const instruccion = document.querySelector('.login-instruction');
+  const disclaimer  = document.querySelector('.login-disclaimer');
+  const divider     = document.querySelector('.login-divider');
+  const registerBtn = document.querySelector('.login-register-btn');
+  const sub         = document.querySelector('.login-sub');
+
+  if (sub)         sub.textContent = '¡Bienvenidx al equipo!';
+  if (instruccion) instruccion.innerHTML = '<span class="login-instruction-icon">📋</span>Primero necesitamos identificarte. Iniciá sesión con tu cuenta de Google para crear tu perfil.';
+  if (disclaimer)  disclaimer.innerHTML  = 'Solo se admiten cuentas de Google.<br>Si no tenés una, podés crear una en <strong>google.com</strong>.';
+  if (divider)     divider.style.display = 'none';
+  if (registerBtn) registerBtn.style.display = 'none';
+
+  // Scroll to google button smoothly
+  const btn = document.getElementById('google-signin-btn');
+  if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // ── NO ENCONTRADO ─────────────────────────────────────────────
