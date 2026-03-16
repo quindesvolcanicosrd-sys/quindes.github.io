@@ -454,7 +454,7 @@ function regResetAvatar() {
   if (img) { img.src = ''; img.style.display = 'none'; }
   if (ph)  ph.style.display = 'block';
   if (ov)  ov.style.display = 'none';
-  if (ht)  ht.textContent   = 'Toca para agregar';
+  if (ht) { ht.innerHTML = 'Toca para agregar'; ht.classList.remove('reg-foto-hint-compliment'); }
   if (btn) btn.style.display = 'none';
 }
 
@@ -468,7 +468,11 @@ function regRecibirFotoRecortada(base64DataUrl) {
   if (img) { img.src = base64DataUrl; img.style.display = 'block'; }
   if (ph)  ph.style.display = 'none';
   if (ov)  ov.style.display = 'flex';
-  if (ht)  ht.textContent   = 'Toca para cambiar';
+  // Show compliment text + sparkles
+  if (ht) {
+    ht.innerHTML = '✨ <strong>¡Qué bien que te ves!</strong> ✨';
+    ht.classList.add('reg-foto-hint-compliment');
+  }
   if (btn) btn.style.display = 'flex';
 }
 
@@ -1585,9 +1589,8 @@ function abrirCropper(base64) {
 function confirmarCrop() {
   if (!cropper) return;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
-  if (btnAplicar) { btnAplicar.disabled = true; btnAplicar.textContent = 'Procesando...'; }
+  if (btnAplicar) btnAplicar.disabled = true;
   const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-  // GAS expects full data URL: "data:image/jpeg;base64,..."
   const base64DataUrl = canvas.toDataURL('image/jpeg', 0.85);
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
