@@ -140,7 +140,7 @@ function mostrarNoEncontrado(email) {
 
 const REG_PAISES  = ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'];
 const REG_CODIGOS = ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'];
-const REG_PRONOMBRES = ['Él / su', 'Ella / su', 'Elle / su', 'Prefiero no decir'];
+const REG_PRONOMBRES = ['Él', 'Ella', 'Elle', 'No definido'];
 const REG_ROLES      = ['Jammer', 'Bloquer', 'Blammer', 'Ref', 'Coach', 'Bench', 'No definido'];
 const REG_ROLES_JUG  = ['Jammer', 'Bloquer', 'Blammer', 'No definido'];
 const REG_ASISTENCIA = ['1 vez', '2 veces', '3 o más veces'];
@@ -151,7 +151,7 @@ let wizStep = 1;
 let cropTarget = 'app';
 
 const regData = {
-  nombre:'', pronombres:'', pais:'', codigoPais:'',
+  nombre:'', pronombres:[], pais:'', codigoPais:'',
   telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
   nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
   alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null,
@@ -171,7 +171,7 @@ function mostrarRegistroWizard() {
   wizStep = 1;
   wizRecalcSequence();
   Object.assign(regData, {
-    nombre:'', pronombres:'', pais:'', codigoPais:'',
+    nombre:'', pronombres:[], pais:'', codigoPais:'',
     telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
     nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
     alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null
@@ -183,7 +183,7 @@ function mostrarRegistroWizard() {
   });
 
   regResetAvatar();
-  regRenderChips('reg-pronombres-chips', REG_PRONOMBRES, '', v => { regData.pronombres = v; });
+  regRenderChipsMulti('reg-pronombres-chips', REG_PRONOMBRES, [], v => { regData.pronombres = v; });
   regRenderChips('reg-cumple-chips',     ['Sí','No'],     '', v => { regData.mostrarCumple = v; });
   regRenderChips('reg-edad-chips',       ['Sí','No'],     '', v => { regData.mostrarEdad   = v; });
   regRenderChips('reg-rol-chips',        REG_ROLES,       '', wizOnRolSelected);
@@ -274,32 +274,32 @@ function wizNext() {
 
   if (wizStep === 2) {
     const val = document.getElementById('reg-nombre')?.value.trim();
-    if (!val) { wizShowError('Escribí cómo querés que te llamemos ✍️'); return; }
+    if (!val) { wizShowError('Escribe cómo quieres que te llamemos ✍️'); return; }
     regData.nombre = val;
   }
   if (wizStep === 4 && !regData.pais) {
-    wizShowError('Seleccioná tu país de origen 🌎'); return;
+    wizShowError('Selecciona tu país de origen 🌎'); return;
   }
   if (wizStep === 5) {
-    if (!regData.codigoPais) { wizShowError('Seleccioná el código de tu país 📱'); return; }
+    if (!regData.codigoPais) { wizShowError('Selecciona el código de tu país 📱'); return; }
     const tel = document.getElementById('reg-telefono')?.value.trim();
-    if (!tel) { wizShowError('Ingresá tu número de teléfono 📱'); return; }
+    if (!tel) { wizShowError('Ingresa tu número de teléfono 📱'); return; }
     regData.telefono = tel;
   }
   if (wizStep === 6) {
-    if (!regData.fechaNacimiento) { wizShowError('Ingresá tu fecha de nacimiento 🎂'); return; }
-    if (!regData.mostrarCumple)   { wizShowError('Indicá si querés compartir tu cumpleaños 🎉'); return; }
-    if (!regData.mostrarEdad)     { wizShowError('Indicá si querés compartir tu edad 🔢'); return; }
+    if (!regData.fechaNacimiento) { wizShowError('Ingresa tu fecha de nacimiento 🎂'); return; }
+    if (!regData.mostrarCumple)   { wizShowError('Indica si quieres compartir tu cumpleaños 🎉'); return; }
+    if (!regData.mostrarEdad)     { wizShowError('Indica si quieres compartir tu edad 🔢'); return; }
   }
   if (wizStep === 7) {
     regData.nombreDerby = document.getElementById('reg-nombreDerby')?.value.trim() || '';
     regData.numero      = document.getElementById('reg-numero')?.value.trim() || '';
   }
   if (wizStep === 8 && !regData.rolJugadorx) {
-    wizShowError('Seleccioná tu rol en el equipo 🏅'); return;
+    wizShowError('Selecciona tu rol en el equipo 🏅'); return;
   }
   if (wizStep === 9 && !regData.asisteSemana) {
-    wizShowError('Indicá cuántas veces entrenás por semana 🏋️'); return;
+    wizShowError('Indica cuántas veces entrenas por semana 🏋️'); return;
   }
   if (wizStep === 10) {
     regData.alergias = document.getElementById('reg-alergias')?.value.trim() || '';
@@ -340,9 +340,38 @@ function regRenderChips(containerId, opciones, valorActual, onSelect) {
     btn.type = 'button';
     btn.className = 'chip ' + (opt === valorActual ? 'chip-active' : 'chip-inactive');
     btn.textContent = opt;
-    btn.addEventListener('click', () => onSelect(opt));
+    btn.addEventListener('click', () => {
+      onSelect(opt);
+      regRenderChips(containerId, opciones, opt, onSelect);
+    });
     el.appendChild(btn);
   });
+}
+
+function regRenderChipsMulti(containerId, opciones, valoresActuales, onSelect) {
+  const el = document.getElementById(containerId); if (!el) return;
+  let seleccionados = Array.isArray(valoresActuales) ? [...valoresActuales] : [];
+  const render = () => {
+    el.innerHTML = '';
+    opciones.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const activo = seleccionados.includes(opt);
+      btn.className = 'chip ' + (activo ? 'chip-active' : 'chip-inactive');
+      btn.textContent = opt;
+      btn.addEventListener('click', () => {
+        if (seleccionados.includes(opt)) {
+          seleccionados = seleccionados.filter(v => v !== opt);
+        } else {
+          seleccionados.push(opt);
+        }
+        onSelect([...seleccionados]);
+        render();
+      });
+      el.appendChild(btn);
+    });
+  };
+  render();
 }
 
 function regAbrirFoto() { document.getElementById('reg-foto-input').click(); }
@@ -417,8 +446,8 @@ function initRegistroListeners() {
 }
 
 const WIZ_LOADING_MSGS = [
-  'Preparando todo para vos…', 'Guardando tu información…',
-  'Armando tu perfil de estrella…', '¡Ya casi está!',
+  'Preparando todo para ti…', 'Guardando tu información…',
+  'Creando tu perfil de estrella…', '¡Ya casi está!',
 ];
 
 function wizMostrarCargando() {
@@ -442,6 +471,89 @@ function wizOcultarCargando() {
   if (!overlay) return;
   clearInterval(overlay._interval);
   overlay.style.display = 'none';
+}
+
+// ── Confetti ─────────────────────────────────────────────────
+function lanzarConfetti() {
+  const COLORS = ['#ff3b3b','#ff9500','#ffcc00','#34c759','#30b0c7','#af52de','#ff2d55'];
+  const N = 90;
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
+  document.body.appendChild(container);
+  for (let i = 0; i < N; i++) {
+    const el = document.createElement('div');
+    const size = 7 + Math.random() * 8;
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const x = Math.random() * 100;
+    const rot = Math.random() * 360;
+    const delay = Math.random() * 0.6;
+    const dur = 1.8 + Math.random() * 1.2;
+    const isCircle = Math.random() > 0.5;
+    el.style.cssText = `
+      position:absolute;
+      left:${x}vw; top:-${size}px;
+      width:${size}px; height:${isCircle ? size : size * 0.5}px;
+      background:${color};
+      border-radius:${isCircle ? '50%' : '2px'};
+      opacity:1;
+      animation: confetti-fall ${dur}s ${delay}s cubic-bezier(0.25,0,0.5,1) forwards;
+      transform: rotate(${rot}deg);
+    `;
+    container.appendChild(el);
+  }
+  const style = document.createElement('style');
+  style.textContent = `@keyframes confetti-fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity:1; }
+    80%  { opacity:1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity:0; }
+  }`;
+  document.head.appendChild(style);
+  setTimeout(() => { container.remove(); style.remove(); }, 3500);
+}
+
+// ── Welcome dialog ────────────────────────────────────────────
+function mostrarBienvenida() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9998;
+    background:rgba(0,0,0,0.55);
+    display:flex;align-items:flex-end;justify-content:center;
+    padding-bottom:env(safe-area-inset-bottom);
+    animation: wiz-overlay-in 0.3s ease both;
+  `;
+  overlay.innerHTML = `
+    <div style="
+      background:var(--card);
+      border-radius:24px 24px 0 0;
+      padding:28px 24px 36px;
+      max-width:480px;width:100%;
+      display:flex;flex-direction:column;gap:16px;
+      animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) both;
+    ">
+      <div style="font-size:48px;text-align:center;line-height:1;">🎉</div>
+      <h2 style="
+        font-size:22px;font-weight:900;font-style:italic;text-transform:uppercase;
+        letter-spacing:-0.3px;color:var(--text);-webkit-text-fill-color:var(--text);
+        margin:0;text-align:center;
+      ">¡Bienvenidx al equipo!</h2>
+      <p style="
+        font-size:14px;font-weight:400;line-height:1.65;
+        color:var(--text2);-webkit-text-fill-color:var(--text2);
+        margin:0;text-align:center;
+      ">Recuerda que puedes actualizar o añadir información adicional en las secciones de tu perfil.<br><br>
+      También podrás consultar próximos entrenamientos, marcar asistencias, revisar tareas disponibles, la tabla de puntajes, información del equipo y mucho más.</p>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="
+        margin-top:4px;padding:18px;border-radius:9999px;border:none;
+        background:linear-gradient(135deg,#ff3b3b 0%,#c41212 100%);
+        color:#fff;-webkit-text-fill-color:#fff;
+        font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;
+        cursor:pointer;font-family:inherit;
+        box-shadow:0 8px 24px rgba(220,30,30,0.35);
+      ">¡Vamos! 🛼</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
 async function submitRegistro() {
@@ -494,6 +606,11 @@ async function submitRegistro() {
     wizOcultarCargando();
     document.getElementById('registroScreen').style.display = 'none';
     document.getElementById('appContent').style.display    = 'block';
+    // First-time welcome
+    setTimeout(() => {
+      lanzarConfetti();
+      mostrarBienvenida();
+    }, 400);
 
   } catch(err) {
     wizOcultarCargando();
