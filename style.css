@@ -93,23 +93,89 @@ html, body {
    DERBY LOADER
 ══════════════════════════════════════════════════════════════ */
 .derby-loader {
-  margin-top: 24px;
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  margin-top: 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
 }
-.derby-canvas {
-  display: block;
-  /* size set by JS */
+
+/* ── Parade track ── */
+.derby-parade-wrap {
+  position: relative;
+  width: 160px; height: 52px;
+  overflow: hidden;
 }
+
+/* Soft fade on both sides */
+.derby-fade-l,
+.derby-fade-r {
+  position: absolute; top: 0; bottom: 0; width: 36px; z-index: 2;
+  pointer-events: none;
+}
+.derby-fade-l { left:  0; background: linear-gradient(to right, var(--bg), transparent); }
+.derby-fade-r { right: 0; background: linear-gradient(to left,  var(--bg), transparent); }
+
+/* ── Each emoji ── */
+.derby-parade-item {
+  position: absolute;
+  top: 50%; left: 50%;
+  font-size: 26px; line-height: 1;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  animation: derby-parade 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Stagger so only one is visible at a time */
+.dp-1 { animation-delay:  0s;   }
+.dp-2 { animation-delay: -0.8s; }
+.dp-3 { animation-delay: -1.6s; }
+
+/*
+  Keyframe breakdown:
+  0%   → enters from the right (off-screen)
+  40%  → reaches the center (scale up + wobble)
+  60%  → still at center (hold the scale)
+  100% → exits left (off-screen)
+*/
+@keyframes derby-parade {
+  0% {
+    transform: translate(120px, -50%) scale(0.7);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  40% {
+    transform: translate(-50%, -54%) scale(1.28) rotate(-8deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -46%) scale(1.32) rotate(6deg);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-50%, -50%) scale(1.25) rotate(-3deg);
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-120px, -50%) scale(0.7);
+    opacity: 0;
+  }
+}
+
+/* ── Label ── */
 .derby-loader-text {
   font-size: 11px !important; font-weight: 700 !important;
   text-transform: uppercase !important; letter-spacing: 0.12em !important;
   color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important;
   margin: 0 !important; text-align: center;
+  transition: opacity 0.3s;
   animation: derby-text-pulse 2s ease-in-out infinite;
 }
 @keyframes derby-text-pulse {
   0%,100% { opacity: 0.4; }
-  50%      { opacity: 1; }
+  50%      { opacity: 1;   }
 }
 
 /* ── UNAUTHORIZED ── */
