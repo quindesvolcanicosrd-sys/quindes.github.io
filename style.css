@@ -2186,23 +2186,24 @@ input, button, select, textarea {
 .wiz-step {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
-  padding: 28px 24px 32px;
-  overflow: hidden;          /* no scroll by default */
-  /* hidden by default — JS moves and shows them */
+  padding: 0;
+  overflow: hidden;
   visibility: hidden;
   pointer-events: none;
   background: var(--bg);
   box-sizing: border-box;
   width: 100%;
 }
-/* Inner scroll wrapper — only this scrolls, and only when needed */
+/* Inner scroll wrapper — has the padding and handles scroll */
 .wiz-step-inner {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
+  padding: 24px 24px 32px;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
 }
 .wiz-step.wiz-active {
   visibility: visible;
@@ -2235,20 +2236,19 @@ input, button, select, textarea {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Content is visible by default — only animates when .wiz-animate is applied after slide finishes */
-.wiz-step .wiz-emoji,
-.wiz-step .wiz-title,
-.wiz-step .wiz-desc,
-.wiz-step .wiz-content,
-.wiz-step .wiz-actions {
-  opacity: 1;
-  transform: none;
+/* Content: invisible until step becomes active, then fades in once after slide completes */
+.wiz-step .wiz-step-inner {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: none;
 }
-.wiz-step.wiz-animate .wiz-emoji   { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.00s both; }
-.wiz-step.wiz-animate .wiz-title   { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.05s both; }
-.wiz-step.wiz-animate .wiz-desc    { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.10s both; }
-.wiz-step.wiz-animate .wiz-content { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.15s both; }
-.wiz-step.wiz-animate .wiz-actions { animation: wiz-fade-up 0.30s cubic-bezier(0.4,0,0.2,1) 0.20s both; }
+.wiz-step.wiz-active .wiz-step-inner {
+  animation: wiz-content-in 0.28s cubic-bezier(0.4,0,0.2,1) 0.30s both;
+}
+@keyframes wiz-content-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 /* ── Typography ── */
 .wiz-title {
@@ -2269,7 +2269,9 @@ input, button, select, textarea {
 
 /* ── Actions area ── */
 .wiz-actions {
-  margin-top: auto; padding-top: 28px;
+  margin-top: auto;
+  padding-top: 24px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   display: flex; flex-direction: column; gap: 10px;
   flex-shrink: 0;
 }
