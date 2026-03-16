@@ -487,6 +487,10 @@ function mostrarRegistroWizard() {
 
   document.getElementById('registroScreen').style.display = 'flex';
 
+  // Hide step-0 (login screen for new users) if it was showing
+  const step0 = document.getElementById('wiz-step-0');
+  if (step0) step0.style.display = 'none';
+
   // Show intro, hide header+viewport until user taps Comenzar
   const introEl   = document.getElementById('wiz-intro');
   const headerEl  = document.getElementById('wiz-header');
