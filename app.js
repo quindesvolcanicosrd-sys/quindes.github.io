@@ -1815,16 +1815,8 @@ async function subirImagenRecortada(base64) {
     const boundary = 'quindes_' + Date.now();
     const metaJson = JSON.stringify({ name: fileName, parents: [folderId] });
     const enc = new TextEncoder();
-    const part1 = enc.encode('--' + boundary + '
-Content-Type: application/json
-
-' + metaJson + '
---' + boundary + '
-Content-Type: ' + mimeType + '
-
-');
-    const part2 = enc.encode('
---' + boundary + '--');
+    const part1 = enc.encode('--' + boundary + '\r\nContent-Type: application/json\r\n\r\n' + metaJson + '\r\n--' + boundary + '\r\nContent-Type: ' + mimeType + '\r\n\r\n');
+    const part2 = enc.encode('\r\n--' + boundary + '--');
     const uploadRes = await fetch(
       'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
       {
