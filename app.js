@@ -31,6 +31,8 @@ function initGoogleAuth() {
     auto_select: true,
   });
   google.accounts.id.prompt();
+  // Pre-render the re-sign-in button early so it's ready when noEncontrado screen appears
+  preRenderResigninButton();
 }
 
 function onGoogleSignIn(response) {
@@ -122,18 +124,42 @@ async function inicializarApp(email) {
 
 // ── NO ENCONTRADO ─────────────────────────────────────────────
 
+// Called once on app init to pre-render the Google button before the screen is shown
+function preRenderResigninButton() {
+  const container = document.getElementById('google-resignin-btn');
+  if (!container || container.dataset.rendered) return;
+  google.accounts.id.renderButton(container, {
+    theme: 'filled_black', size: 'large', width: 280, text: 'signin_with'
+  });
+  container.dataset.rendered = 'true';
+}
+
 function mostrarNoEncontrado(email) {
   const el = document.getElementById('no-enc-email');
   if (el) el.textContent = email || '';
-  document.getElementById('noEncontradoScreen').style.display = 'flex';
-  google.accounts.id.renderButton(
-    document.getElementById('google-resignin-btn'),
-    { theme: 'filled_black', size: 'large', width: 280, text: 'signin_with' }
-  );
+
+  // Wire button before showing screen
   document.getElementById('btn-ir-registro').onclick = () => {
     document.getElementById('noEncontradoScreen').style.display = 'none';
     mostrarRegistroWizard();
   };
+
+  // Ensure button is rendered (pre-rendered on init, this is a no-op if already done)
+  preRenderResigninButton();
+
+  // Show screen with a fade-in so any async iframe load is invisible
+  const screen = document.getElementById('noEncontradoScreen');
+  screen.style.opacity = '0';
+  screen.style.display = 'flex';
+  // Small delay lets the iframe settle before fading in
+  setTimeout(() => {
+    screen.style.transition = 'opacity 0.25s ease';
+    screen.style.opacity    = '1';
+    setTimeout(() => { screen.style.transition = ''; }, 260);
+  }, 80);
+
+  // Push sentinel so back gesture is absorbed, not passed to OS
+  pushSentinel();
 }
 
 // ── WIZARD DE REGISTRO ────────────────────────────────────────
@@ -875,7 +901,7 @@ function pushSentinel() {
 }
 
 window.addEventListener('popstate', (e) => {
-  // Immediately reverse the back navigation
+  // Immediately reverse the back navigation so we stay in the PWA
   history.go(1);
 
   // Wizard open? handle wizard back
@@ -885,11 +911,20 @@ window.addEventListener('popstate', (e) => {
     return;
   }
 
-  // Now handle in-app back
+  // noEncontrado screen? go back to login
+  const noEncScr = document.getElementById('noEncontradoScreen');
+  if (noEncScr && noEncScr.style.display !== 'none') {
+    noEncScr.style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    return;
+  }
+
+  // In-app section? go back to home
   if (vistaActual && vistaActual !== 'home') {
     volverHome(true);
+    return;
   }
-  // else: already at home, back gesture silently absorbed
+  // Already at home — silently absorbed, app stays open
 });
 
 // ── Block body scroll/bounce on mobile (iOS rubber-band + Android overscroll) ──
