@@ -94,74 +94,39 @@ html, body {
 ══════════════════════════════════════════════════════════════ */
 .derby-loader {
   margin-top: 20px;
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
 }
 
-/* ── Parade track ── */
-.derby-parade-wrap {
-  position: relative;
-  width: 160px; height: 52px;
-  overflow: hidden;
+/* Row of 4 icons always visible */
+.derby-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 }
 
-/* Soft fade on both sides */
-.derby-fade-l,
-.derby-fade-r {
-  position: absolute; top: 0; bottom: 0; width: 36px; z-index: 2;
-  pointer-events: none;
-}
-.derby-fade-l { left:  0; background: linear-gradient(to right, var(--bg), transparent); }
-.derby-fade-r { right: 0; background: linear-gradient(to left,  var(--bg), transparent); }
-
-/* ── Each emoji ── */
-.derby-parade-item {
-  position: absolute;
-  top: 50%; left: 50%;
-  font-size: 26px; line-height: 1;
-  transform: translate(-50%, -50%);
+.derby-icon {
+  font-size: 22px;
+  line-height: 1;
   user-select: none;
-  animation: derby-parade 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  display: block;
+  /* Default: small + dim */
+  opacity: 0.4;
+  transform: scale(0.6);
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity   0.35s ease,
+    filter    0.35s ease;
+  filter: none;
 }
 
-/* Stagger so only one is visible at a time */
-.dp-1 { animation-delay:  0s;   }
-.dp-2 { animation-delay: -0.8s; }
-.dp-3 { animation-delay: -1.6s; }
-
-/*
-  Keyframe breakdown:
-  0%   → enters from the right (off-screen)
-  40%  → reaches the center (scale up + wobble)
-  60%  → still at center (hold the scale)
-  100% → exits left (off-screen)
-*/
-@keyframes derby-parade {
-  0% {
-    transform: translate(120px, -50%) scale(0.7);
-    opacity: 0;
-  }
-  8% {
-    opacity: 1;
-  }
-  40% {
-    transform: translate(-50%, -54%) scale(1.28) rotate(-8deg);
-    opacity: 1;
-  }
-  50% {
-    transform: translate(-50%, -46%) scale(1.32) rotate(6deg);
-    opacity: 1;
-  }
-  60% {
-    transform: translate(-50%, -50%) scale(1.25) rotate(-3deg);
-    opacity: 1;
-  }
-  92% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-120px, -50%) scale(0.7);
-    opacity: 0;
-  }
+/* Active icon: full size, full opacity, glow */
+.derby-icon.di-active {
+  opacity: 1;
+  transform: scale(1.18);
+  filter:
+    drop-shadow(0 0 6px rgba(255,200,0,0.9))
+    drop-shadow(0 0 14px rgba(255,150,0,0.6));
 }
 
 /* ── Label ── */
