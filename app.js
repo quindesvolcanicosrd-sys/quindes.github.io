@@ -638,7 +638,7 @@ async function submitRegistro() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nombre: regData.nombre.trim(), pronombres: regData.pronombres,
+        nombre: regData.nombre.trim(), pronombres: Array.isArray(regData.pronombres) ? regData.pronombres.join(', ') : (regData.pronombres || ''),
         pais: regData.pais, codigoPais: regData.codigoPais,
         telefono: regData.telefono.trim(), fechaNacimiento: regData.fechaNacimiento,
         mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
