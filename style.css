@@ -102,7 +102,9 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 18px;
+  /* gap animates via CSS transition on the container */
+  transition: gap 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .derby-icon {
@@ -110,23 +112,34 @@ html, body {
   line-height: 1;
   user-select: none;
   display: block;
-  /* Default: small + dim */
-  opacity: 0.4;
-  transform: scale(0.6);
+  opacity: 0.38;
+  transform: scale(0.58);
   transition:
-    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity   0.35s ease,
-    filter    0.35s ease;
+    transform  0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity    0.35s ease,
+    filter     0.35s ease,
+    margin     0.4s  cubic-bezier(0.34, 1.56, 0.64, 1);
   filter: none;
+  margin: 0;
 }
 
-/* Active icon: full size, full opacity, glow */
+/* Active icon: bigger, full opacity, glow */
 .derby-icon.di-active {
   opacity: 1;
-  transform: scale(1.18);
+  transform: scale(1.45);
   filter:
-    drop-shadow(0 0 6px rgba(255,200,0,0.9))
-    drop-shadow(0 0 14px rgba(255,150,0,0.6));
+    drop-shadow(0 0 7px rgba(255,210,0,0.95))
+    drop-shadow(0 0 18px rgba(255,140,0,0.55));
+}
+
+/* Neighbors pulled in toward the active icon */
+.derby-icon.di-active + .derby-icon,
+.derby-icon.di-near {
+  margin-left: -4px;
+}
+.derby-icon.di-active {
+  margin-left: -4px;
+  margin-right: -4px;
 }
 
 /* ── Label ── */
