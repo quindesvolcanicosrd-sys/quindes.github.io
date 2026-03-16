@@ -460,36 +460,48 @@ function wizGoTo(next, forward = true) {
   const nextEl = document.getElementById('wiz-step-' + next);
   if (!nextEl) return;
 
-  // ── Strip any lingering animate class from next step BEFORE making it visible
-  // Use a unique data attribute timestamp so CSS always sees a "new" animation
+  // Cancel any in-flight cleanup on prevEl from a previous transition
+  if (prevEl && prevEl._wizCleanup) {
+    clearTimeout(prevEl._wizCleanup);
+    prevEl._wizCleanup = null;
+    // Make sure prev is fully off-screen before we start
+    prevEl.classList.remove('wiz-active');
+    prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
+  }
+
+  // Position next step off-screen instantly (no transition yet)
   nextEl.style.transition = 'none';
   nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  // Make visible so transform is meaningful (CSS default is visibility:hidden)
   nextEl.style.visibility = 'visible';
+  nextEl.classList.add('wiz-active');
 
-  // Let the browser paint the off-screen position WITHOUT blocking the main thread.
-  // requestAnimationFrame fires after paint, so no reflow freeze.
   requestAnimationFrame(() => {
     const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
 
+    // Slide previous step out
     if (prevEl) {
       prevEl.style.transition = ease;
       prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
-      prevEl.addEventListener('transitionend', () => {
+      // Use setTimeout as guaranteed cleanup — transitionend can be skipped
+      // if user taps quickly or browser throttles
+      prevEl._wizCleanup = setTimeout(() => {
+        prevEl._wizCleanup = null;
         prevEl.classList.remove('wiz-active');
         prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
-      }, { once: true });
+      }, DURATION + 20);
     }
 
+    // Slide next step in
     nextEl.style.transition = ease;
     nextEl.style.transform  = 'translateX(0)';
-    nextEl.classList.add('wiz-active');
 
-    // Fire content animations AFTER the slide finishes — no overlap, no freeze
+    // Fire content fade-in after slide completes
     setTimeout(() => {
       nextEl.classList.add('wiz-animate');
     }, DURATION + 10);
 
-    // Focus inputs after everything settles
+    // Focus inputs
     setTimeout(() => {
       if (next === 2) document.getElementById('reg-nombre')?.focus();
       if (next === 5) document.getElementById('reg-telefono')?.focus();
