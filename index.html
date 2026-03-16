@@ -29,16 +29,14 @@
   <!-- Derby loader -->
   <div class="derby-loader">
     <div class="derby-track-wrap">
-      <div class="derby-track">
-        <span class="derby-skater">🛼</span>
-      </div>
-      <div class="derby-sparks">
-        <span class="derby-spark ds-1">⭐</span>
-        <span class="derby-spark ds-2">✨</span>
-        <span class="derby-spark ds-3">💥</span>
-        <span class="derby-spark ds-4">⭐</span>
-        <span class="derby-spark ds-5">✨</span>
-      </div>
+      <!-- Fade edges -->
+      <div class="derby-fade-left"></div>
+      <div class="derby-fade-right"></div>
+      <!-- Two skates -->
+      <span class="derby-skate derby-skate-1">🛼</span>
+      <span class="derby-skate derby-skate-2">🛼</span>
+      <!-- Particle canvas — JS draws sparks here -->
+      <canvas class="derby-canvas" id="derby-canvas"></canvas>
     </div>
     <p class="derby-loader-text" id="derby-loader-text">Cargando…</p>
   </div>
