@@ -2321,50 +2321,58 @@ function initFechaTrigger() {
 }
 
 
+
 // ── INSTALL PWA BANNER ────────────────────────────────────────
 
-let deferredInstallPrompt = null; // captured beforeinstallprompt event
-
-// Capture Chrome's native install prompt before it fires
+let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
 });
 
-function mostrarInstallBannerSiCorresponde() {
-  // Already installed as PWA — skip
-  const isStandalone =
-    window.navigator.standalone === true ||
+function detectarEntorno() {
+  const ua = navigator.userAgent;
+
+  const isIOS        = /iPhone|iPad|iPod/i.test(ua);
+  const isAndroid    = /Android/i.test(ua);
+  const isIPad       = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  // Browser detection
+  const isSamsungBrowser = /SamsungBrowser/i.test(ua);
+  const isChrome         = /Chrome|CriOS/i.test(ua) && !/Edg|OPR|Opera|SamsungBrowser/i.test(ua);
+  const isSafari         = /Safari/i.test(ua) && !/Chrome|CriOS|FxiOS|OPR|SamsungBrowser/i.test(ua);
+  const isFirefox        = /Firefox|FxiOS/i.test(ua);
+  const isOpera          = /OPR|Opera/i.test(ua);
+  const isEdge           = /Edg\//i.test(ua);
+  const isMiui           = /XiaoMi|MIUI/i.test(ua);
+
+  // WebView detection (WhatsApp, Instagram, Telegram, etc.)
+  const isWebView = (isIOS && !/Safari/i.test(ua) && /AppleWebKit/i.test(ua)) ||
+                    /wv|WebView/i.test(ua) ||
+                    /FBAN|FBAV|Instagram|Twitter|Line|Snapchat/i.test(ua);
+
+  // Standalone = already installed
+  const isStandalone = window.navigator.standalone === true ||
     window.matchMedia('(display-mode: standalone)').matches ||
     window.matchMedia('(display-mode: fullscreen)').matches;
-  if (isStandalone) return;
+
+  return { isIOS, isAndroid, isIPad, isSamsungBrowser, isChrome, isSafari,
+           isFirefox, isOpera, isEdge, isMiui, isWebView, isStandalone };
+}
+
+function mostrarInstallBannerSiCorresponde() {
+  const env = detectarEntorno();
+
+  // Already installed
+  if (env.isStandalone) return;
 
   // Only on mobile/tablet
-  if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) return;
+  if (!env.isIOS && !env.isAndroid) return;
 
-  // Show every time (we want users to install)
+  buildInstallBanner(env);
+}
 
-  const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  const ua        = navigator.userAgent;
-
-  // Detect browser
-  const isChrome  = /Chrome|CriOS/i.test(ua) && !/Edg|OPR|Opera/i.test(ua);
-  const isSafari  = /Safari/i.test(ua) && !/Chrome|CriOS|FxiOS|OPR/i.test(ua);
-  const isFirefox = /Firefox|FxiOS/i.test(ua);
-  const isOpera   = /OPR|Opera/i.test(ua);
-  const isEdge    = /Edg\//i.test(ua);
-  const isSamsungBrowser = /SamsungBrowser/i.test(ua);
-
-  // Determine support level
-  let mode; // 'native' | 'manual' | 'unsupported'
-  if (isAndroid && (isChrome || isSamsungBrowser)) mode = 'native';
-  else if (isAndroid) mode = 'unsupported';
-  else if (isIOS && isSafari) mode = 'manual';
-  else if (isIOS) mode = 'unsupported'; // Chrome/Firefox on iOS can't install
-
-  if (!mode) return;
-
+function buildInstallBanner(env) {
   const overlay = document.createElement('div');
   overlay.id = 'install-banner';
   overlay.style.cssText = [
@@ -2374,133 +2382,164 @@ function mostrarInstallBannerSiCorresponde() {
     'opacity:0;transition:opacity 0.3s ease;',
   ].join('');
 
-  let content = '';
+  let title = 'Instala la app';
+  let subtitle = '';
+  let body = '';
 
-  if (mode === 'native') {
-    // Android Chrome — can use native prompt or manual steps
-    content = `
-      <div style="width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 20px;"></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-        <img src="icons/icon-192x192.png" style="width:48px;height:48px;border-radius:14px;flex-shrink:0;">
-        <div>
-          <div style="font-size:18px;font-weight:800;color:var(--text);">Instala la app</div>
-          <div style="font-size:13px;color:var(--text3);">Android · Chrome</div>
-        </div>
+  // ── CASO 1: WebView (abierto desde WhatsApp, Instagram, etc.) ──
+  if (env.isWebView) {
+    const browserName = env.isIOS ? 'Safari' : 'Chrome';
+    subtitle = 'Abre en ' + browserName;
+    body = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:22px;">⚠️</span>
+        <p style="font-size:14px;color:var(--text2);margin:0;line-height:1.5;">
+          Esta página se abrió dentro de otra app. Para instalar Quindes, ábrela directamente en <strong style="color:var(--text);">${browserName}</strong>.
+        </p>
       </div>
-      <p style="font-size:14px;color:var(--text2);margin:0 0 20px;line-height:1.5;">
-        Agrega Quindes Volcánicos a tu pantalla de inicio para una experiencia completa, sin barras del navegador.
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+        <span class="material-icons" style="font-size:16px;color:var(--text4);flex-shrink:0;">link</span>
+        <span style="font-size:13px;color:var(--text3);word-break:break-all;">quindesvolcanicosrd-sys.github.io/quindes.github.io/</span>
+      </div>
+      ${stepsHtml([
+        { ico: env.isIOS ? '⬆️' : '⋮', txt: env.isIOS
+            ? 'Toca el ícono de compartir y selecciona <strong>"Abrir en Safari"</strong>'
+            : 'Toca los <strong>tres puntos</strong> o el ícono de compartir y elige <strong>"Abrir en Chrome"</strong>' },
+        { ico: '📋', txt: 'O copia la dirección y pégala en ' + browserName },
+      ])}
+      <button onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
+        <span class="material-icons" style="font-size:18px;">content_copy</span>
+        Copiar enlace
+      </button>`;
+
+  // ── CASO 2: iOS Safari ──
+  } else if (env.isIOS && env.isSafari) {
+    subtitle = env.isIPad ? 'iPad · Safari' : 'iPhone · Safari';
+    const shareStep = env.isIPad
+      ? 'Toca el ícono de <strong>compartir</strong> <span style="font-size:16px;">⬆️</span> en la barra superior derecha'
+      : 'Toca el ícono de <strong>compartir</strong> <span style="font-size:16px;">⬆️</span> en la barra inferior de Safari';
+    body = `
+      <p style="font-size:14px;color:var(--text2);margin:0 0 16px;line-height:1.5;">
+        Agrega la app a tu pantalla de inicio para usarla sin el navegador.
       </p>
-      <button id="install-native-btn" style="
-        width:100%;padding:14px;border-radius:14px;border:none;
-        background:var(--accent);color:#fff;font-size:15px;font-weight:700;
-        font-family:inherit;cursor:pointer;margin-bottom:12px;
-        display:flex;align-items:center;justify-content:center;gap:8px;
-      ">
-        <span class="material-icons" style="font-size:20px;">add_to_home_screen</span>
+      ${stepsHtml([
+        { ico: '⬆️', txt: shareStep },
+        { ico: '📜', txt: 'Desplázate en el menú y toca <strong>"Agregar a pantalla de inicio"</strong>' },
+        { ico: '✅', txt: 'Toca <strong>"Agregar"</strong> para confirmar' },
+        { ico: '🛼', txt: '¡Listo! Abre la app desde tu pantalla de inicio' },
+      ])}
+      <button onclick="cerrarInstallBanner()" style="${btnStyle('var(--accent)')}">Entendido</button>`;
+
+  // ── CASO 3: iOS pero NO Safari (Chrome, Firefox, etc.) ──
+  } else if (env.isIOS && !env.isSafari) {
+    subtitle = 'iPhone / iPad · Requiere Safari';
+    body = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:22px;">⚠️</span>
+        <p style="font-size:14px;color:var(--text2);margin:0;line-height:1.5;">
+          En iPhone e iPad, la instalación solo funciona desde <strong style="color:var(--text);">Safari</strong>. Tu navegador actual no lo permite.
+        </p>
+      </div>
+      ${stepsHtml([
+        { ico: '🔍', txt: 'Abre <strong>Safari</strong> en tu dispositivo' },
+        { ico: '📋', txt: 'Pega esta dirección: <strong>quindesvolcanicosrd-sys.github.io/quindes.github.io/</strong>' },
+        { ico: '⬆️', txt: 'Toca compartir → <strong>"Agregar a pantalla de inicio"</strong>' },
+      ])}
+      <button onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
+        <span class="material-icons" style="font-size:18px;">content_copy</span>
+        Copiar enlace para Safari
+      </button>`;
+
+  // ── CASO 4: Android Chrome / Pixel / Xiaomi / Poco + Chrome (con prompt nativo) ──
+  } else if (env.isAndroid && env.isChrome && deferredInstallPrompt) {
+    subtitle = 'Android · Chrome';
+    body = `
+      <p style="font-size:14px;color:var(--text2);margin:0 0 20px;line-height:1.5;">
+        Instala la app en tu teléfono para usarla sin el navegador, como una app nativa.
+      </p>
+      <button id="install-native-btn" style="${btnStyle('var(--accent)')}">
+        <span class="material-icons" style="font-size:18px;">add_to_home_screen</span>
         Instalar ahora
       </button>
-      <div style="margin-bottom:16px;">
-        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text4);margin-bottom:10px;">O hazlo manualmente:</div>
-        ${[
-          { ico: '⋮',  txt: 'Toca el menú de <strong>tres puntos</strong> (esquina superior derecha)' },
-          { ico: '📲', txt: 'Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a pantalla de inicio"</strong>' },
-          { ico: '✅', txt: 'Toca <strong>"Instalar"</strong> para confirmar' },
-        ].map(s => `
-          <div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);">
-            <div style="width:30px;height:30px;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">${s.ico}</div>
-            <div style="font-size:13px;color:var(--text2);line-height:1.5;padding-top:5px;">${s.txt}</div>
-          </div>`).join('')}
-      </div>
-    `;
-  } else if (mode === 'manual') {
-    // iOS Safari
-    content = `
-      <div style="width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 20px;"></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-        <img src="icons/icon-192x192.png" style="width:48px;height:48px;border-radius:14px;flex-shrink:0;">
-        <div>
-          <div style="font-size:18px;font-weight:800;color:var(--text);">Instala la app</div>
-          <div style="font-size:13px;color:var(--text3);">iPhone / iPad · Safari</div>
-        </div>
-      </div>
+      <div style="margin:16px 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text4);">O manualmente:</div>
+      ${stepsHtml([
+        { ico: '⋮',  txt: 'Toca el menú de <strong>tres puntos</strong> (esquina superior derecha)' },
+        { ico: '📲', txt: 'Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a pantalla de inicio"</strong>' },
+        { ico: '✅', txt: 'Toca <strong>"Instalar"</strong> para confirmar' },
+      ])}`;
+
+  // ── CASO 5: Android Chrome sin prompt (ya se mostró o no aplica) ──
+  } else if (env.isAndroid && env.isChrome) {
+    subtitle = 'Android · Chrome';
+    body = `
       <p style="font-size:14px;color:var(--text2);margin:0 0 16px;line-height:1.5;">
-        Agrega Quindes Volcánicos a tu pantalla de inicio para una experiencia completa.
+        Instala la app desde el menú de Chrome.
       </p>
-      <div style="margin-bottom:16px;">
-        ${[
-          { ico: '⬆️', txt: 'Toca el botón de <strong>compartir</strong> en la barra inferior de Safari' },
-          { ico: '➕', txt: 'Desplázate y selecciona <strong>"Agregar a pantalla de inicio"</strong>' },
-          { ico: '🛼', txt: '¡Listo! La app aparecerá en tu pantalla de inicio' },
-        ].map(s => `
-          <div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);">
-            <div style="width:30px;height:30px;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">${s.ico}</div>
-            <div style="font-size:13px;color:var(--text2);line-height:1.5;padding-top:5px;">${s.txt}</div>
-          </div>`).join('')}
-      </div>
-      <button onclick="cerrarInstallBanner()" style="
-        width:100%;padding:14px;border-radius:14px;border:none;
-        background:var(--accent);color:#fff;font-size:15px;font-weight:700;
-        font-family:inherit;cursor:pointer;margin-bottom:8px;
-      ">Entendido</button>
-      <button onclick="cerrarInstallBanner()" style="
-        width:100%;padding:12px;border-radius:14px;border:none;
-        background:transparent;color:var(--text3);font-size:14px;
-        font-family:inherit;cursor:pointer;
-      ">Continuar en el navegador</button>
-    `;
-  } else if (mode === 'unsupported') {
-    // Unsupported browser — tell them to use Chrome or Safari
-    const recommendedBrowser = isIOS ? 'Safari' : 'Chrome';
-    const recommendedLink    = isIOS
-      ? null
-      : 'https://play.google.com/store/apps/details?id=com.android.chrome';
-    content = `
-      <div style="width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 20px;"></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-        <img src="icons/icon-192x192.png" style="width:48px;height:48px;border-radius:14px;flex-shrink:0;">
-        <div>
-          <div style="font-size:18px;font-weight:800;color:var(--text);">Instala la app</div>
-          <div style="font-size:13px;color:var(--accent);">Navegador no compatible</div>
-        </div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;">
-        <p style="font-size:14px;color:var(--text2);margin:0 0 12px;line-height:1.5;">
-          Tu navegador actual no permite instalar la app. Para instalarla, abre esta página en
-          <strong style="color:var(--text);">${recommendedBrowser}</strong>.
+      ${stepsHtml([
+        { ico: '⋮',  txt: 'Toca el menú de <strong>tres puntos</strong> (esquina superior derecha)' },
+        { ico: '📲', txt: 'Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a pantalla de inicio"</strong>' },
+        { ico: '✅', txt: 'Toca <strong>"Instalar"</strong> para confirmar' },
+        { ico: '🛼', txt: '¡Listo! Abre la app desde tu pantalla de inicio' },
+      ])}
+      <button onclick="cerrarInstallBanner()" style="${btnStyle('var(--accent)')}">Entendido</button>`;
+
+  // ── CASO 6: Samsung Browser ──
+  } else if (env.isAndroid && env.isSamsungBrowser) {
+    subtitle = 'Android · Samsung Internet';
+    body = `
+      <p style="font-size:14px;color:var(--text2);margin:0 0 16px;line-height:1.5;">
+        Instala la app desde el menú de Samsung Internet.
+      </p>
+      ${stepsHtml([
+        { ico: '☰',  txt: 'Toca el ícono de <strong>menú</strong> (tres líneas, esquina inferior derecha)' },
+        { ico: '➕', txt: 'Selecciona <strong>"Añadir página a"</strong> → <strong>"Pantalla de inicio"</strong>' },
+        { ico: '✅', txt: 'Toca <strong>"Añadir"</strong> para confirmar' },
+        { ico: '🛼', txt: '¡Listo! Abre la app desde tu pantalla de inicio' },
+      ])}
+      <button onclick="cerrarInstallBanner()" style="${btnStyle('var(--accent)')}">Entendido</button>`;
+
+  // ── CASO 7: Android con browser no compatible (Firefox, Opera, etc.) ──
+  } else if (env.isAndroid) {
+    subtitle = 'Requiere Chrome';
+    body = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:22px;">⚠️</span>
+        <p style="font-size:14px;color:var(--text2);margin:0;line-height:1.5;">
+          Tu navegador actual no permite instalar la app. Necesitas abrirla en <strong style="color:var(--text);">Chrome</strong>.
         </p>
-        <div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg);border-radius:10px;font-size:13px;color:var(--text3);word-break:break-all;">
-          <span class="material-icons" style="font-size:16px;flex-shrink:0;">link</span>
-          quindesvolcanicosrd-sys.github.io/quindes.github.io/
-        </div>
       </div>
-      ${recommendedLink ? `
-      <a href="${recommendedLink}" target="_blank" rel="noopener" style="
-        display:flex;align-items:center;justify-content:center;gap:8px;
-        width:100%;padding:14px;border-radius:14px;border:none;
-        background:var(--accent);color:#fff;font-size:15px;font-weight:700;
-        font-family:inherit;cursor:pointer;margin-bottom:8px;text-decoration:none;
-        box-sizing:border-box;
-      ">
-        <span class="material-icons" style="font-size:20px;">open_in_new</span>
+      ${stepsHtml([
+        { ico: '🔍', txt: 'Abre <strong>Chrome</strong> en tu teléfono' },
+        { ico: '📋', txt: 'Pega esta dirección: <strong>quindesvolcanicosrd-sys.github.io/quindes.github.io/</strong>' },
+      ])}
+      <button onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
+        <span class="material-icons" style="font-size:18px;">content_copy</span>
+        Copiar enlace para Chrome
+      </button>
+      <a href="https://play.google.com/store/apps/details?id=com.android.chrome" target="_blank" rel="noopener" style="${btnStyle('transparent','var(--text3)','1.5px solid var(--border)')}text-decoration:none;">
+        <span class="material-icons" style="font-size:18px;">open_in_new</span>
         Descargar Chrome
-      </a>` : ''}
-      <button onclick="cerrarInstallBanner()" style="
-        width:100%;padding:12px;border-radius:14px;border:none;
-        background:transparent;color:var(--text3);font-size:14px;
-        font-family:inherit;cursor:pointer;
-      ">Continuar en el navegador</button>
-    `;
+      </a>`;
   }
 
   overlay.innerHTML = `
     <div style="
       background:var(--bg);border-radius:24px 24px 0 0;
-      padding:24px 24px 40px;width:100%;max-width:480px;
+      padding:24px 24px 44px;width:100%;max-width:480px;
       max-height:90vh;overflow-y:auto;
       box-shadow:0 -8px 40px rgba(0,0,0,0.3);
       box-sizing:border-box;
-    ">${content}
-      <p onclick="confirmarContinuarSinInstalar()" style="text-align:center;font-size:12px;color:var(--text4);margin-top:20px;cursor:pointer;text-decoration:underline;padding-bottom:4px;">Continuar sin instalar</p>
+    ">
+      <div style="width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 20px;"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <img src="icons/icon-192x192.png" style="width:48px;height:48px;border-radius:14px;flex-shrink:0;">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--text);">${title}</div>
+          <div style="font-size:13px;color:var(--text3);">${subtitle}</div>
+        </div>
+      </div>
+      ${body}
+      <p onclick="confirmarContinuarSinInstalar()" style="text-align:center;font-size:12px;color:var(--text4);margin-top:20px;cursor:pointer;text-decoration:underline;">Continuar sin instalar</p>
     </div>
   `;
 
@@ -2515,12 +2554,39 @@ function mostrarInstallBannerSiCorresponde() {
         deferredInstallPrompt.prompt();
         const { outcome } = await deferredInstallPrompt.userChoice;
         deferredInstallPrompt = null;
-        cerrarInstallBanner();
+        if (outcome === 'accepted') cerrarInstallBanner();
       }
     });
   }
+}
 
-  // Tapping overlay does NOT close — user must explicitly choose
+function stepsHtml(steps) {
+  return '<div style="margin-bottom:16px;">' + steps.map(s => `
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="width:30px;height:30px;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">${s.ico}</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.5;padding-top:5px;">${s.txt}</div>
+    </div>`).join('') + '</div>';
+}
+
+function btnStyle(bg, color, border) {
+  color  = color  || '#fff';
+  border = border || 'none';
+  return `
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:14px;border-radius:14px;border:${border};
+    background:${bg};color:${color};font-size:15px;font-weight:700;
+    font-family:inherit;cursor:pointer;margin-top:8px;box-sizing:border-box;
+  `;
+}
+
+function copiarURL() {
+  const url = 'https://quindesvolcanicosrd-sys.github.io/quindes.github.io/';
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('#install-banner button');
+    if (btn) { const t = btn.textContent; btn.textContent = '¡Copiado!'; setTimeout(() => { btn.textContent = t; }, 2000); }
+  }).catch(() => {
+    prompt('Copia esta dirección:', url);
+  });
 }
 
 function cerrarInstallBanner() {
