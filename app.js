@@ -105,7 +105,10 @@ function detenerDerbyLoader() {
 }
 
 // Start derby loader immediately
-document.addEventListener('DOMContentLoaded', () => { iniciarDerbyLoader(); });
+document.addEventListener('DOMContentLoaded', () => {
+  iniciarDerbyLoader();
+  mostrarInstallBannerSiCorresponde();
+});
 
 // ── GOOGLE IDENTITY SERVICES ─────────────────────────────────
 // Fix Google button flicker: fade in iframe once it loads
@@ -2315,4 +2318,109 @@ function initFechaTrigger() {
       refreshTriggerDisplay();
     });
   });
+}
+
+// ── INSTALL PWA BANNER ────────────────────────────────────────
+
+function mostrarInstallBannerSiCorresponde() {
+  // Already installed as PWA — don't show banner
+  const isStandalone =
+    window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: fullscreen)').matches;
+  if (isStandalone) return;
+
+  // Only show on mobile/tablet
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (!isMobile) return;
+
+  // Only show once per session
+  if (sessionStorage.getItem('installBannerShown')) return;
+  sessionStorage.setItem('installBannerShown', '1');
+
+  const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+
+  // Build modal
+  const overlay = document.createElement('div');
+  overlay.id = 'install-banner';
+  overlay.style.cssText = [
+    'position:fixed;inset:0;z-index:99999;',
+    'background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);',
+    'display:flex;align-items:flex-end;justify-content:center;',
+    'opacity:0;transition:opacity 0.3s ease;',
+  ].join('');
+
+  const steps = isIOS ? [
+    { ico: '🌐', txt: 'Abre esta página en <strong>Safari</strong> (no en Chrome ni otro browser)' },
+    { ico: '⬆️', txt: 'Toca el botón de <strong>compartir</strong> en la barra inferior de Safari' },
+    { ico: '➕', txt: 'Selecciona <strong>"Agregar a pantalla de inicio"</strong>' },
+    { ico: '🛼', txt: '¡Listo! La app aparecerá en tu pantalla de inicio' },
+  ] : [
+    { ico: '⋮',  txt: 'Toca el menú de <strong>tres puntos</strong> en la esquina superior derecha de Chrome' },
+    { ico: '📲', txt: 'Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a pantalla de inicio"</strong>' },
+    { ico: '✅', txt: 'Confirma tocando <strong>"Instalar"</strong>' },
+    { ico: '🛼', txt: '¡Listo! La app aparecerá en tu pantalla de inicio' },
+  ];
+
+  const stepsHtml = steps.map((s, i) => `
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:10px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${s.ico}</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.5;padding-top:6px;">${s.txt}</div>
+    </div>
+  `).join('');
+
+  overlay.innerHTML = `
+    <div style="
+      background:var(--bg);border-radius:24px 24px 0 0;
+      padding:24px 24px 40px;width:100%;max-width:480px;
+      max-height:90vh;overflow-y:auto;
+      box-shadow:0 -8px 40px rgba(0,0,0,0.3);
+    ">
+      <div style="width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 20px;"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+        <img src="icons/icon-192x192.png" style="width:48px;height:48px;border-radius:14px;">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--text);">Instala la app</div>
+          <div style="font-size:13px;color:var(--text3);">${isIOS ? 'iPhone / iPad' : 'Android'}</div>
+        </div>
+      </div>
+      <p style="font-size:14px;color:var(--text2);margin:12px 0 16px;line-height:1.5;">
+        Agrega Quindes Volcánicos a tu pantalla de inicio para una experiencia completa, sin barras del browser.
+      </p>
+      <div style="margin-bottom:20px;">${stepsHtml}</div>
+      ${isIOS ? `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--text3);display:flex;gap:8px;margin-bottom:20px;">
+        <span>⚠️</span>
+        <span>En iPhone e iPad, la instalación solo funciona desde <strong style="color:var(--text);">Safari</strong>.</span>
+      </div>` : ''}
+      <button onclick="cerrarInstallBanner()" style="
+        width:100%;padding:14px;border-radius:14px;border:none;
+        background:var(--accent);color:#fff;font-size:15px;font-weight:700;
+        font-family:inherit;cursor:pointer;
+      ">Entendido</button>
+      <button onclick="cerrarInstallBanner()" style="
+        width:100%;padding:12px;border-radius:14px;border:none;
+        background:transparent;color:var(--text3);font-size:14px;
+        font-family:inherit;cursor:pointer;margin-top:8px;
+      ">Continuar en el navegador</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Fade in after short delay
+  setTimeout(() => { overlay.style.opacity = '1'; }, 100);
+
+  // Close on overlay tap
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) cerrarInstallBanner();
+  });
+}
+
+function cerrarInstallBanner() {
+  const el = document.getElementById('install-banner');
+  if (!el) return;
+  el.style.opacity = '0';
+  setTimeout(() => el.remove(), 300);
 }
