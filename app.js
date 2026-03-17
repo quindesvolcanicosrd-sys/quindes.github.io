@@ -2525,40 +2525,66 @@ function buildInstallBanner(env) {
   } else if (env.isAndroid && env.isChrome && deferredInstallPrompt) {
     subtitle = 'Android · Chrome';
     body = `
-      <p style="font-size:14px;color:var(--text2);margin:0 0 20px;line-height:1.5;">
-        Toca el botón para instalar la app en tu teléfono con un solo paso.
-      </p>
+      <div style="display:flex;flex-direction:column;gap:0;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;font-weight:900;color:var(--text);">⋮</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;">Abre el menú</div>
+            <div style="font-size:13px;color:var(--text3);">Toca los tres puntos (esquina superior derecha)</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;">📲</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;">Agregar a pantalla principal</div>
+            <div style="font-size:13px;color:var(--text3);">Selecciona esta opción en el menú</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;">
+          <div style="width:44px;height:44px;border-radius:12px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;">
+            <img src="icons/icon-192x192.png" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;">Instalar Quindes</div>
+            <div style="font-size:13px;color:var(--text3);">Toca "Instalar" en el diálogo que aparece</div>
+          </div>
+        </div>
+      </div> + `
       <button id="install-native-btn" style="
         display:flex;align-items:center;justify-content:center;gap:10px;
-        width:100%;padding:18px;border-radius:16px;border:none;
-        background:var(--accent);color:#fff;font-size:17px;font-weight:800;
+        width:100%;padding:16px;border-radius:16px;border:none;
+        background:var(--accent);color:#fff;font-size:16px;font-weight:800;
         font-family:inherit;cursor:pointer;box-sizing:border-box;
-        box-shadow:0 4px 20px rgba(var(--accent-rgb,220,38,38),0.35);
-      ">
-        📲
-        Instalar Quindes
-      </button>
-      <p style="font-size:12px;color:var(--text4);text-align:center;margin:10px 0 0;">
-        Se abrirá el instalador del sistema con un toque
-      </p>`;
+      ">📲 Instalar ahora</button>`;
 
   // ── CASO 5: Android Chrome sin prompt (ya se mostró o no aplica) ──
   } else if (env.isAndroid && env.isChrome) {
     subtitle = 'Android · Chrome';
     body = `
-      <p style="font-size:14px;color:var(--text2);margin:0 0 20px;line-height:1.6;">
-        Toca los <strong style="color:var(--text);">tres puntos</strong> (⋮) en la esquina superior derecha de Chrome,
-        luego selecciona <strong style="color:var(--text);">"Instalar aplicación"</strong>
-        o <strong style="color:var(--text);">"Añadir a pantalla de inicio"</strong>.
-      </p>
-      <div style="
-        background:var(--card);border:1px solid var(--border);border-radius:14px;
-        padding:14px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:center;
-      ">
-        <span style="font-size:28px;">⋮</span>
-        <span style="font-size:13px;color:var(--text3);line-height:1.5;">
-          El menú está arriba a la derecha en Chrome.
-        </span>
+      <div style="display:flex;flex-direction:column;gap:0;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;font-weight:900;color:var(--text);">⋮</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;">Abre el menú</div>
+            <div style="font-size:13px;color:var(--text3);">Toca los tres puntos (esquina superior derecha)</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;">📲</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;">Agregar a pantalla principal</div>
+            <div style="font-size:13px;color:var(--text3);">Selecciona esta opción en el menú</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;">
+          <div style="width:44px;height:44px;border-radius:12px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;">
+            <img src="icons/icon-192x192.png" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;">Instalar Quindes</div>
+            <div style="font-size:13px;color:var(--text3);">Toca "Instalar" en el diálogo que aparece</div>
+          </div>
+        </div>
       </div>`;
 
   // ── CASO 6: Samsung Browser ──
