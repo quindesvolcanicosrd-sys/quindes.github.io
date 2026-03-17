@@ -267,9 +267,9 @@ async function gasCall(action, data = {}) {
 // ── INICIALIZACIÓN ────────────────────────────────────────────
 async function inicializarApp(email) {
   try {
-    document.getElementById('loadingScreen').style.display = 'flex';
-    document.getElementById('loginScreen').style.display   = 'none';
-    // Restart loader in case it was stopped by a previous screen transition
+    document.getElementById('loadingScreen').style.display  = 'flex';
+    document.getElementById('loginScreen').style.display    = 'none';
+    document.getElementById('registroScreen').style.display = 'none';
     detenerDerbyLoader();
     iniciarDerbyLoader();
 
@@ -278,6 +278,16 @@ async function inicializarApp(email) {
       detenerDerbyLoader();
       document.getElementById('loadingScreen').style.display = 'none';
       mostrarNoEncontrado(email);
+      return;
+    }
+
+    // Si venía del flujo "Crear mi perfil" pero la cuenta ya existe — mostrar mensaje
+    if (wizOrigen === 'login') {
+      wizOrigen = null;
+      window._registroDesdeLogin = false;
+      detenerDerbyLoader();
+      document.getElementById('loadingScreen').style.display = 'none';
+      mostrarCuentaYaRegistrada(email, user);
       return;
     }
 
@@ -305,6 +315,66 @@ async function inicializarApp(email) {
 
 
 // ── REGISTRO DESDE LOGIN ──────────────────────────────────────
+function mostrarCuentaYaRegistrada(email, user) {
+  // Show a friendly screen when user tries to "create" but already has an account
+  const overlay = document.createElement('div');
+  overlay.id = 'ya-registrada-screen';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:32px;';
+
+  // Reuse login-bg rings
+  overlay.innerHTML = `
+    <div class="login-bg" style="display:block;">
+      <span class="login-bg-ring login-bg-ring-1"></span>
+      <span class="login-bg-ring login-bg-ring-2"></span>
+    </div>
+    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:360px;text-align:center;">
+      <div style="font-size:52px;margin-bottom:16px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.1s both;">🛼</div>
+      <h2 style="font-size:24px;font-weight:800;color:var(--text);margin:0 0 10px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.2s both;">¡Ya tienes una cuenta!</h2>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:0 0 8px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.3s both;">
+        La cuenta <strong style="color:var(--text);">${email}</strong> ya está registrada en el equipo.
+      </p>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:0 0 28px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.35s both;">
+        Ingresando con tu cuenta…
+      </p>
+      <div style="animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.45s both;width:100%;">
+        <div class="derby-loader" style="margin:0 auto 24px;">
+          <div class="derby-icons">
+            <span class="derby-icon">🛼</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // After 2s continue loading the app normally
+  setTimeout(() => {
+    overlay.style.transition = 'opacity 0.3s ease';
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+      // Now load the app with the found user
+      CURRENT_USER = user;
+      document.getElementById('loadingScreen').style.display = 'flex';
+      iniciarDerbyLoader();
+      gasCall('getMyProfile', { rowNumber: user.rowNumber }).then(profile => {
+        window.myProfile = profile;
+        configurarTodasLasSubidas();
+        renderTodo(profile);
+        aplicarPermisos();
+        detenerDerbyLoader();
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('appContent').style.display    = 'block';
+        document.getElementById('user-email').textContent = user.email;
+      }).catch(err => {
+        console.error(err);
+        mostrarLoginScreen();
+      });
+    }, 300);
+  }, 2200);
+}
+
 function mostrarRegistroDesdeLogin() {
   window._registroDesdeLogin = true;
   wizOrigen = 'login';
