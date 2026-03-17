@@ -2389,7 +2389,7 @@ function mostrarInstallBannerSiCorresponde() {
 function buildBlockedBrowser(env) {
   const isIOS = env.isIOS;
   const recommended = isIOS ? 'Safari' : 'Chrome';
-  const url = 'https://www.quindesvolcanicos.com/app';
+  const url = 'https://app.quindesvolcanicos.com';
 
   const overlay = document.createElement('div');
   overlay.id = 'install-banner';
@@ -2469,7 +2469,7 @@ function buildInstallBanner(env) {
       </div>
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
         🔗
-        <span style="font-size:13px;color:var(--text3);word-break:break-all;">www.quindesvolcanicos.com/app</span>
+        <span style="font-size:13px;color:var(--text3);word-break:break-all;">app.quindesvolcanicos.com</span>
       </div>
       ${stepsHtml([
         { ico: env.isIOS ? '⬆️' : '⋮', txt: env.isIOS
@@ -2516,7 +2516,7 @@ function buildInstallBanner(env) {
       </div>
       ${stepsHtml([
         { ico: '🔍', txt: 'Abre <strong>Safari</strong> en tu dispositivo' },
-        { ico: '📋', txt: 'Pega esta dirección: <strong>www.quindesvolcanicos.com/app</strong>' },
+        { ico: '📋', txt: 'Pega esta dirección: <strong>app.quindesvolcanicos.com</strong>' },
         { ico: '⬆️', txt: 'Toca compartir → <strong>"Agregar a pantalla de inicio"</strong>' },
       ])}
       <button id="btn-copiar-url" onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
@@ -2622,7 +2622,7 @@ function buildInstallBanner(env) {
       </div>
       ${stepsHtml([
         { ico: '🔍', txt: 'Abre <strong>Chrome</strong> en tu teléfono' },
-        { ico: '📋', txt: 'Pega esta dirección: <strong>www.quindesvolcanicos.com/app</strong>' },
+        { ico: '📋', txt: 'Pega esta dirección: <strong>app.quindesvolcanicos.com</strong>' },
       ])}
       <button onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
         📋
