@@ -332,7 +332,7 @@ function mostrarRegistroDesdeLogin() {
     link.href = 'https://accounts.google.com/signup';
     link.target = '_blank';
     link.rel = 'noopener';
-    link.textContent = '→ Crear cuenta de Google';
+    link.textContent = 'Crear cuenta de Google';
     link.style.cssText = 'display:block;margin-top:8px;color:var(--accent);font-weight:700;font-size:13px;text-decoration:underline;';
     note.appendChild(link);
   }
