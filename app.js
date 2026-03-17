@@ -2414,7 +2414,7 @@ function buildBlockedBrowser(env) {
         font-family:inherit;cursor:pointer;box-sizing:border-box;margin-bottom:12px;
         transition:background 0.3s ease;
       ">
-        <span class="material-icons" style="font-size:20px;">content_copy</span>
+        📋
         Copiar enlace
       </button>
       ${!isIOS ? `
@@ -2427,7 +2427,7 @@ function buildBlockedBrowser(env) {
            color:var(--text);font-size:15px;font-weight:600;
            font-family:inherit;cursor:pointer;box-sizing:border-box;text-decoration:none;
          ">
-        <span class="material-icons" style="font-size:18px;">open_in_new</span>
+        ↗️
         Descargar Chrome
       </a>` : `
       <p style="font-size:13px;color:var(--text4);margin-top:8px;">
@@ -2465,7 +2465,7 @@ function buildInstallBanner(env) {
         </p>
       </div>
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
-        <span class="material-icons" style="font-size:16px;color:var(--text4);flex-shrink:0;">link</span>
+        🔗
         <span style="font-size:13px;color:var(--text3);word-break:break-all;">quindesvolcanicosrd-sys.github.io/quindes.github.io/</span>
       </div>
       ${stepsHtml([
@@ -2475,7 +2475,7 @@ function buildInstallBanner(env) {
         { ico: '📋', txt: 'O copia la dirección y pégala en ' + browserName },
       ])}
       <button onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
-        <span class="material-icons" style="font-size:18px;">content_copy</span>
+        📋
         Copiar enlace
       </button>`;
 
@@ -2517,7 +2517,7 @@ function buildInstallBanner(env) {
         { ico: '⬆️', txt: 'Toca compartir → <strong>"Agregar a pantalla de inicio"</strong>' },
       ])}
       <button id="btn-copiar-url" onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
-        <span class="material-icons" style="font-size:18px;">content_copy</span>
+        📋
         Copiar enlace para Safari
       </button>`;
 
@@ -2535,7 +2535,7 @@ function buildInstallBanner(env) {
         font-family:inherit;cursor:pointer;box-sizing:border-box;
         box-shadow:0 4px 20px rgba(var(--accent-rgb,220,38,38),0.35);
       ">
-        <span class="material-icons" style="font-size:22px;">add_to_home_screen</span>
+        📲
         Instalar Quindes
       </button>
       <p style="font-size:12px;color:var(--text4);text-align:center;margin:10px 0 0;">
@@ -2596,11 +2596,11 @@ function buildInstallBanner(env) {
         { ico: '📋', txt: 'Pega esta dirección: <strong>quindesvolcanicosrd-sys.github.io/quindes.github.io/</strong>' },
       ])}
       <button onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
-        <span class="material-icons" style="font-size:18px;">content_copy</span>
+        📋
         Copiar enlace para Chrome
       </button>
       <a href="https://play.google.com/store/apps/details?id=com.android.chrome" target="_blank" rel="noopener" style="${btnStyle('transparent','var(--text3)','1.5px solid var(--border)')}text-decoration:none;">
-        <span class="material-icons" style="font-size:18px;">open_in_new</span>
+        ↗️
         Descargar Chrome
       </a>`;
   }
@@ -2667,10 +2667,10 @@ function copiarURL() {
   const btn = document.getElementById('btn-copiar-url');
   navigator.clipboard.writeText(url).then(() => {
     if (btn) {
-      btn.innerHTML = '<span class="material-icons" style="font-size:20px;">check_circle</span> ¡Enlace copiado!';
+      btn.innerHTML = '✅ ¡Enlace copiado!';
       btn.style.background = 'var(--ok, #16a34a)';
       setTimeout(() => {
-        btn.innerHTML = '<span class="material-icons" style="font-size:20px;">content_copy</span> Copiar enlace';
+        btn.innerHTML = '📋 Copiar enlace';
         btn.style.background = 'var(--accent)';
       }, 3000);
     }
