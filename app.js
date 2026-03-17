@@ -325,13 +325,16 @@ function mostrarRegistroDesdeLogin() {
     }
   });
 
-  // Add create-Google-account link dynamically
+  // Add create-Google-account link as a separate line below the note
   const note = document.querySelector('.wiz-step0-note');
   if (note && !note.querySelector('a')) {
-    note.innerHTML = note.innerHTML.replace(
-      '<strong>google.com</strong>',
-      '<a href="https://accounts.google.com/signup" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:underline;">Crear cuenta de Google</a>'
-    );
+    const link = document.createElement('a');
+    link.href = 'https://accounts.google.com/signup';
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = '→ Crear cuenta de Google';
+    link.style.cssText = 'display:block;margin-top:8px;color:var(--accent);font-weight:700;font-size:13px;text-decoration:underline;';
+    note.appendChild(link);
   }
 
   // Push history state so back gesture returns to login
@@ -2689,7 +2692,7 @@ function btnStyle(bg, color, border) {
 }
 
 function copiarURL() {
-  const url = 'https://www.quindesvolcanicos.com/app';
+  const url = 'https://app.quindesvolcanicos.com';
   const btn = document.getElementById('btn-copiar-url');
   navigator.clipboard.writeText(url).then(() => {
     if (btn) {
