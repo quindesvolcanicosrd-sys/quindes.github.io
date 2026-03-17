@@ -2407,11 +2407,12 @@ function buildBlockedBrowser(env) {
         <strong style="color:var(--text);">${recommended}</strong>.
         Tu navegador actual no es compatible.
       </p>
-      <button onclick="copiarURL()" style="
+      <button id="btn-copiar-url" onclick="copiarURL()" style="
         display:flex;align-items:center;justify-content:center;gap:8px;
         width:100%;padding:16px;border-radius:16px;border:none;
         background:var(--accent);color:#fff;font-size:16px;font-weight:700;
         font-family:inherit;cursor:pointer;box-sizing:border-box;margin-bottom:12px;
+        transition:background 0.3s ease;
       ">
         <span class="material-icons" style="font-size:20px;">content_copy</span>
         Copiar enlace
@@ -2481,20 +2482,24 @@ function buildInstallBanner(env) {
   // ── CASO 2: iOS Safari ──
   } else if (env.isIOS && env.isSafari) {
     subtitle = env.isIPad ? 'iPad · Safari' : 'iPhone · Safari';
-    const shareStep = env.isIPad
-      ? 'Toca el ícono de <strong>compartir</strong> <span style="font-size:16px;">⬆️</span> en la barra superior derecha'
-      : 'Toca el ícono de <strong>compartir</strong> <span style="font-size:16px;">⬆️</span> en la barra inferior de Safari';
+    const shareIcon = env.isIPad
+      ? 'el ícono ⬆️ en la <strong>barra superior derecha</strong>'
+      : 'el ícono ⬆️ en la <strong>barra inferior</strong>';
     body = `
-      <p style="font-size:14px;color:var(--text2);margin:0 0 16px;line-height:1.5;">
-        Agrega la app a tu pantalla de inicio para usarla sin el navegador.
+      <p style="font-size:14px;color:var(--text2);margin:0 0 20px;line-height:1.6;">
+        Toca ${shareIcon} de Safari, luego selecciona
+        <strong style="color:var(--text);">"Agregar a pantalla de inicio"</strong>
+        y toca <strong style="color:var(--text);">"Agregar"</strong>.
       </p>
-      ${stepsHtml([
-        { ico: '⬆️', txt: shareStep },
-        { ico: '📜', txt: 'Desplázate en el menú y toca <strong>"Agregar a pantalla de inicio"</strong>' },
-        { ico: '✅', txt: 'Toca <strong>"Agregar"</strong> para confirmar' },
-        { ico: '🛼', txt: '¡Listo! Abre la app desde tu pantalla de inicio' },
-      ])}
-      <button onclick="cerrarInstallBanner()" style="${btnStyle('var(--accent)')}">Entendido</button>`;
+      <div style="
+        background:var(--card);border:1px solid var(--border);border-radius:14px;
+        padding:14px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:center;
+      ">
+        <span style="font-size:28px;">${env.isIPad ? '↗️' : '⬆️'}</span>
+        <span style="font-size:13px;color:var(--text3);line-height:1.5;">
+          El ícono de compartir está ${env.isIPad ? 'arriba a la derecha' : 'abajo en el centro'} de Safari.
+        </span>
+      </div>`;
 
   // ── CASO 3: iOS pero NO Safari (Chrome, Firefox, etc.) ──
   } else if (env.isIOS && !env.isSafari) {
@@ -2511,7 +2516,7 @@ function buildInstallBanner(env) {
         { ico: '📋', txt: 'Pega esta dirección: <strong>quindesvolcanicosrd-sys.github.io/quindes.github.io/</strong>' },
         { ico: '⬆️', txt: 'Toca compartir → <strong>"Agregar a pantalla de inicio"</strong>' },
       ])}
-      <button onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
+      <button id="btn-copiar-url" onclick="copiarURL()" style="${btnStyle('var(--accent)')}">
         <span class="material-icons" style="font-size:18px;">content_copy</span>
         Copiar enlace para Safari
       </button>`;
@@ -2541,31 +2546,40 @@ function buildInstallBanner(env) {
   } else if (env.isAndroid && env.isChrome) {
     subtitle = 'Android · Chrome';
     body = `
-      <p style="font-size:14px;color:var(--text2);margin:0 0 16px;line-height:1.5;">
-        Instala la app desde el menú de Chrome.
+      <p style="font-size:14px;color:var(--text2);margin:0 0 20px;line-height:1.6;">
+        Toca los <strong style="color:var(--text);">tres puntos</strong> (⋮) en la esquina superior derecha de Chrome,
+        luego selecciona <strong style="color:var(--text);">"Instalar aplicación"</strong>
+        o <strong style="color:var(--text);">"Añadir a pantalla de inicio"</strong>.
       </p>
-      ${stepsHtml([
-        { ico: '⋮',  txt: 'Toca el menú de <strong>tres puntos</strong> (esquina superior derecha)' },
-        { ico: '📲', txt: 'Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a pantalla de inicio"</strong>' },
-        { ico: '✅', txt: 'Toca <strong>"Instalar"</strong> para confirmar' },
-        { ico: '🛼', txt: '¡Listo! Abre la app desde tu pantalla de inicio' },
-      ])}
-      <button onclick="cerrarInstallBanner()" style="${btnStyle('var(--accent)')}">Entendido</button>`;
+      <div style="
+        background:var(--card);border:1px solid var(--border);border-radius:14px;
+        padding:14px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:center;
+      ">
+        <span style="font-size:28px;">⋮</span>
+        <span style="font-size:13px;color:var(--text3);line-height:1.5;">
+          El menú está arriba a la derecha en Chrome.
+        </span>
+      </div>`;
 
   // ── CASO 6: Samsung Browser ──
   } else if (env.isAndroid && env.isSamsungBrowser) {
     subtitle = 'Android · Samsung Internet';
     body = `
-      <p style="font-size:14px;color:var(--text2);margin:0 0 16px;line-height:1.5;">
-        Instala la app desde el menú de Samsung Internet.
+      <p style="font-size:14px;color:var(--text2);margin:0 0 20px;line-height:1.6;">
+        Toca el ícono de <strong style="color:var(--text);">menú</strong> (☰) en la esquina inferior derecha,
+        luego selecciona <strong style="color:var(--text);">"Añadir página a"</strong> →
+        <strong style="color:var(--text);">"Pantalla de inicio"</strong> y toca
+        <strong style="color:var(--text);">"Añadir"</strong>.
       </p>
-      ${stepsHtml([
-        { ico: '☰',  txt: 'Toca el ícono de <strong>menú</strong> (tres líneas, esquina inferior derecha)' },
-        { ico: '➕', txt: 'Selecciona <strong>"Añadir página a"</strong> → <strong>"Pantalla de inicio"</strong>' },
-        { ico: '✅', txt: 'Toca <strong>"Añadir"</strong> para confirmar' },
-        { ico: '🛼', txt: '¡Listo! Abre la app desde tu pantalla de inicio' },
-      ])}
-      <button onclick="cerrarInstallBanner()" style="${btnStyle('var(--accent)')}">Entendido</button>`;
+      <div style="
+        background:var(--card);border:1px solid var(--border);border-radius:14px;
+        padding:14px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:center;
+      ">
+        <span style="font-size:28px;">☰</span>
+        <span style="font-size:13px;color:var(--text3);line-height:1.5;">
+          El menú está abajo a la derecha en Samsung Internet.
+        </span>
+      </div>`;
 
   // ── CASO 7: Android con browser no compatible (Firefox, Opera, etc.) ──
   } else if (env.isAndroid) {
@@ -2608,7 +2622,7 @@ function buildInstallBanner(env) {
         </div>
       </div>
       ${body}
-      <p onclick="confirmarContinuarSinInstalar()" style="text-align:center;font-size:12px;color:var(--text4);margin-top:20px;cursor:pointer;text-decoration:underline;">Continuar sin instalar</p>
+      <p onclick="confirmarContinuarSinInstalar()" style="text-align:center;font-size:12px;color:var(--text4);margin-top:20px;cursor:pointer;text-decoration:underline;padding-bottom:4px;">Continuar sin instalar</p>
     </div>
   `;
 
@@ -2650,9 +2664,16 @@ function btnStyle(bg, color, border) {
 
 function copiarURL() {
   const url = 'https://quindesvolcanicosrd-sys.github.io/quindes.github.io/';
+  const btn = document.getElementById('btn-copiar-url');
   navigator.clipboard.writeText(url).then(() => {
-    const btn = document.querySelector('#install-banner button');
-    if (btn) { const t = btn.textContent; btn.textContent = '¡Copiado!'; setTimeout(() => { btn.textContent = t; }, 2000); }
+    if (btn) {
+      btn.innerHTML = '<span class="material-icons" style="font-size:20px;">check_circle</span> ¡Enlace copiado!';
+      btn.style.background = 'var(--ok, #16a34a)';
+      setTimeout(() => {
+        btn.innerHTML = '<span class="material-icons" style="font-size:20px;">content_copy</span> Copiar enlace';
+        btn.style.background = 'var(--accent)';
+      }, 3000);
+    }
   }).catch(() => {
     prompt('Copia esta dirección:', url);
   });
