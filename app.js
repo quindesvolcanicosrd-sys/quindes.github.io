@@ -2549,7 +2549,7 @@ function buildInstallBanner(env) {
             <div style="font-size:13px;color:var(--text3);">Toca "Instalar" en el diálogo que aparece</div>
           </div>
         </div>
-      </div> + `
+      </div>
       <button id="install-native-btn" style="
         display:flex;align-items:center;justify-content:center;gap:10px;
         width:100%;padding:16px;border-radius:16px;border:none;
