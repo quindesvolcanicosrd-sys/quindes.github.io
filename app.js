@@ -2363,13 +2363,79 @@ function detectarEntorno() {
 function mostrarInstallBannerSiCorresponde() {
   const env = detectarEntorno();
 
-  // Already installed
+  // Already installed as PWA — no banner needed
   if (env.isStandalone) return;
 
-  // Only on mobile/tablet
+  // Desktop — no banner
   if (!env.isIOS && !env.isAndroid) return;
 
+  // Incompatible browser — block app entirely, force Chrome/Safari
+  const compatible =
+    (env.isAndroid && (env.isChrome || env.isSamsungBrowser)) ||
+    (env.isIOS && env.isSafari) ||
+    env.isWebView; // webview handled separately inside banner
+
+  if (!compatible) {
+    buildBlockedBrowser(env);
+    return;
+  }
+
   buildInstallBanner(env);
+}
+
+function buildBlockedBrowser(env) {
+  const isIOS = env.isIOS;
+  const recommended = isIOS ? 'Safari' : 'Chrome';
+  const url = 'https://quindesvolcanicosrd-sys.github.io/quindes.github.io/';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'install-banner';
+  overlay.style.cssText = [
+    'position:fixed;inset:0;z-index:99999;',
+    'background:var(--bg);',
+    'display:flex;align-items:center;justify-content:center;padding:24px;',
+  ].join('');
+
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:360px;text-align:center;">
+      <img src="icons/icon-192x192.png" style="width:72px;height:72px;border-radius:20px;margin-bottom:20px;">
+      <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 10px;line-height:1.2;">
+        Abre en ${recommended}
+      </h2>
+      <p style="font-size:15px;color:var(--text2);line-height:1.6;margin:0 0 28px;">
+        Para usar e instalar Quindes Volcánicos necesitas abrirla en
+        <strong style="color:var(--text);">${recommended}</strong>.
+        Tu navegador actual no es compatible.
+      </p>
+      <button onclick="copiarURL()" style="
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        width:100%;padding:16px;border-radius:16px;border:none;
+        background:var(--accent);color:#fff;font-size:16px;font-weight:700;
+        font-family:inherit;cursor:pointer;box-sizing:border-box;margin-bottom:12px;
+      ">
+        <span class="material-icons" style="font-size:20px;">content_copy</span>
+        Copiar enlace
+      </button>
+      ${!isIOS ? `
+      <a href="https://play.google.com/store/apps/details?id=com.android.chrome"
+         target="_blank" rel="noopener"
+         style="
+           display:flex;align-items:center;justify-content:center;gap:8px;
+           width:100%;padding:14px;border-radius:16px;
+           border:1.5px solid var(--border);background:transparent;
+           color:var(--text);font-size:15px;font-weight:600;
+           font-family:inherit;cursor:pointer;box-sizing:border-box;text-decoration:none;
+         ">
+        <span class="material-icons" style="font-size:18px;">open_in_new</span>
+        Descargar Chrome
+      </a>` : `
+      <p style="font-size:13px;color:var(--text4);margin-top:8px;">
+        Safari viene preinstalado en tu iPhone/iPad.
+      </p>`}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
 }
 
 function buildInstallBanner(env) {
