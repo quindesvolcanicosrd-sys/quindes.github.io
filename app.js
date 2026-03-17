@@ -2450,23 +2450,26 @@ function buildInstallBanner(env) {
         Copiar enlace para Safari
       </button>`;
 
-  // ── CASO 4: Android Chrome / Pixel / Xiaomi / Poco + Chrome (con prompt nativo) ──
+  // ── CASO 4: Android Chrome con prompt nativo disponible ──
   } else if (env.isAndroid && env.isChrome && deferredInstallPrompt) {
     subtitle = 'Android · Chrome';
     body = `
       <p style="font-size:14px;color:var(--text2);margin:0 0 20px;line-height:1.5;">
-        Instala la app en tu teléfono para usarla sin el navegador, como una app nativa.
+        Toca el botón para instalar la app en tu teléfono con un solo paso.
       </p>
-      <button id="install-native-btn" style="${btnStyle('var(--accent)')}">
-        <span class="material-icons" style="font-size:18px;">add_to_home_screen</span>
-        Instalar ahora
+      <button id="install-native-btn" style="
+        display:flex;align-items:center;justify-content:center;gap:10px;
+        width:100%;padding:18px;border-radius:16px;border:none;
+        background:var(--accent);color:#fff;font-size:17px;font-weight:800;
+        font-family:inherit;cursor:pointer;box-sizing:border-box;
+        box-shadow:0 4px 20px rgba(var(--accent-rgb,220,38,38),0.35);
+      ">
+        <span class="material-icons" style="font-size:22px;">add_to_home_screen</span>
+        Instalar Quindes
       </button>
-      <div style="margin:16px 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text4);">O manualmente:</div>
-      ${stepsHtml([
-        { ico: '⋮',  txt: 'Toca el menú de <strong>tres puntos</strong> (esquina superior derecha)' },
-        { ico: '📲', txt: 'Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a pantalla de inicio"</strong>' },
-        { ico: '✅', txt: 'Toca <strong>"Instalar"</strong> para confirmar' },
-      ])}`;
+      <p style="font-size:12px;color:var(--text4);text-align:center;margin:10px 0 0;">
+        Se abrirá el instalador del sistema con un toque
+      </p>`;
 
   // ── CASO 5: Android Chrome sin prompt (ya se mostró o no aplica) ──
   } else if (env.isAndroid && env.isChrome) {
