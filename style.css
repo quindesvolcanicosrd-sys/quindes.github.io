@@ -269,18 +269,25 @@ input[type="file"] { display: none !important; }
   flex-direction: column !important;
   align-items: stretch !important;
   height: auto !important;
-  /* Sin padding propio — todo el espacio viene de header-row-top */
   padding: env(safe-area-inset-top, 0px) 0 0 0 !important;
   gap: 0 !important;
   border-bottom: none !important;
 }
 .header-row-top {
-  display: flex; align-items: center; gap: 4px;
+  display: flex;
+  /* flex-end ancla el contenido desde abajo — título siempre a la misma
+     altura vertical sin importar si hay botón atrás o no */
+  align-items: flex-end;
+  gap: 4px;
   min-height: 60px;
-  /* mismo padding que home-header-row para alineación exacta */
-  padding: 10px 12px 14px 18px;
+  padding: 0 12px 14px 8px;
 }
 .header-row-top .app-header-title { flex: 1; }
+/* Botón atrás: alineado al fondo también, con su propio padding bottom
+   para que el ícono quede centrado visualmente con el texto del título */
+.header-row-top .header-back {
+  margin-bottom: -4px; /* compensa la diferencia de tamaño ícono vs texto */
+}
 .header-row-actions {
   overflow: hidden; max-height: 0; opacity: 0;
   transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease, padding 0.25s ease;
