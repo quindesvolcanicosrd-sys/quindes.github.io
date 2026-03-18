@@ -223,6 +223,15 @@ input[type="file"] { display: none !important; }
   overflow-y: scroll; overflow-x: hidden;
   overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
 }
+/* Safe-area fill — same bg color so the gap above the header is invisible */
+#appContent::before {
+  content: '';
+  position: fixed; top: 0; left: 0; right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 100;
+  pointer-events: none;
+}
 .app-view.active { display: flex; transform: translateX(0); }
 .app-view.slide-out { transform: translateX(-30%); }
 
@@ -250,8 +259,9 @@ input[type="file"] { display: none !important; }
 }
 .header-row-top {
   display: flex; align-items: center; gap: 4px;
-  min-height: 52px;
-  padding-bottom: 10px;
+  min-height: 56px;
+  padding-top: 4px;
+  padding-bottom: 12px;
 }
 .header-row-top .app-header-title { flex: 1; }
 .header-row-actions {
