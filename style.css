@@ -905,15 +905,13 @@ input[type="file"] { display: none !important; }
 .toggle-wrap { display: flex; align-items: center; flex-shrink: 0; }
 .toggle-btn {
   position: relative; width: 52px; height: 30px;
-  border-radius: 9999px; border: none; cursor: default;
+  border-radius: 9999px; border: none; cursor: pointer;
   transition: background 0.25s ease; padding: 0;
   -webkit-tap-highlight-color: transparent; flex-shrink: 0;
   outline: none;
 }
-.toggle-btn:not(:disabled) { cursor: pointer; }
 .toggle-off {
-  background: var(--chip-bg);
-  box-shadow: inset 0 0 0 1.5px var(--border);
+  background: var(--border);
 }
 .toggle-on  { background: var(--accent); box-shadow: none; }
 .toggle-thumb {
@@ -921,12 +919,11 @@ input[type="file"] { display: none !important; }
   background: #fff; border-radius: 9999px;
   top: 50%; transform: translateY(-50%);
   transition: left 0.22s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 .toggle-off .toggle-thumb { left: 3px; }
 .toggle-on  .toggle-thumb { left: calc(100% - 27px); }
 .toggle-text { display: none; }
-.toggle-btn:disabled { opacity: 0.4; }
 
 /* ══════════════════════════════════════════════════
    NAVEGACIÓN POR VISTAS
@@ -3298,4 +3295,23 @@ input, button, select, textarea {
   color: var(--text4);
   font-size: 20px;
   flex-shrink: 0;
+}
+
+/* ── File status badges ──────────────────────────────────────── */
+.file-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.2px;
+}
+.file-badge-ok {
+  background: rgba(37,99,235,0.12);
+  color: #2563eb;
+}
+.file-badge-missing {
+  background: rgba(220,38,38,0.1);
+  color: var(--accent);
+}
+@media (prefers-color-scheme: dark) {
+  .file-badge-ok { background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .file-badge-missing { background: rgba(239,68,68,0.15); color: #f87171; }
 }
