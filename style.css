@@ -246,10 +246,12 @@ input[type="file"] { display: none !important; }
   height: auto !important;
   padding: env(safe-area-inset-top, 0px) 12px 0 8px !important;
   gap: 0 !important;
+  border-bottom: none !important;
 }
 .header-row-top {
   display: flex; align-items: center; gap: 4px;
   min-height: 52px;
+  padding-bottom: 10px;
 }
 .header-row-top .app-header-title { flex: 1; }
 .header-row-actions {
@@ -495,25 +497,29 @@ input[type="file"] { display: none !important; }
 /* ══ FILE STATUS BADGES ══ */
 .file-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 5px 14px; border-radius: 9999px;
+  padding: 6px 14px; border-radius: 9999px;
   font-size: 12px !important; font-weight: 700 !important;
   font-style: normal !important; text-transform: none !important;
-  letter-spacing: 0.2px; margin-top: 4px;
+  letter-spacing: 0.2px; margin-top: 2px;
+  /* Ensure badge colors are never overridden by parent */
+  -webkit-text-fill-color: currentColor;
 }
 .file-badge-ok {
-  background: rgba(34,197,94,0.12);
-  color: #16a34a !important; -webkit-text-fill-color: #16a34a !important;
-  border: 1px solid rgba(34,197,94,0.25);
+  background: rgba(34,197,94,0.16) !important;
+  color: #22c55e !important; -webkit-text-fill-color: #22c55e !important;
+  border: 1.5px solid rgba(34,197,94,0.35) !important;
 }
 .file-badge-missing {
-  background: rgba(239,68,68,0.10);
+  background: rgba(239,68,68,0.14) !important;
   color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  border: 1px solid rgba(239,68,68,0.20);
+  border: 1.5px solid rgba(239,68,68,0.30) !important;
 }
 @media (prefers-color-scheme: light) {
-  .file-badge-ok    { background: rgba(22,163,74,0.10); color: #15803d !important; -webkit-text-fill-color: #15803d !important; border-color: rgba(22,163,74,0.22); }
-  .file-badge-missing { background: rgba(220,38,38,0.08); color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; border-color: rgba(220,38,38,0.18); }
+  .file-badge-ok    { background: rgba(22,163,74,0.12) !important; color: #15803d !important; -webkit-text-fill-color: #15803d !important; border-color: rgba(22,163,74,0.30) !important; }
+  .file-badge-missing { background: rgba(220,38,38,0.10) !important; color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; border-color: rgba(220,38,38,0.25) !important; }
 }
+/* sec-val containing a badge: allow it to shrink to badge height */
+.sec-val:has(.file-badge) { min-height: 0; }
 
 /* ══ FILE PAGE VIEW — usa app-view, solo estilos de contenido ══ */
 .file-page-preview {
