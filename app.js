@@ -26,14 +26,11 @@ if ('serviceWorker' in navigator) {
 
 // ── DERBY LOADER ─────────────────────────────────────────────
 const DERBY_MSGS = [
-  'Buscando protecciones…',
+  'Cargando…',
   'Atando los patines…',
+  'Calentando motores…',
   'Ajustando el casco…',
-  '¡5 segundos!',
-  'Entrando a pista…',
-  'Ignorando arbitrxs…',
-  'Cumpliendo penalizaciones…',
-  'Reingresando a pista…',
+  'Entrando a la pista…',
 ];
 
 let _derbyMsgTimer  = null;
@@ -77,15 +74,16 @@ function _derbyNextIcon() {
 }
 
 function iniciarDerbyLoader() {
-  // Messages
+  // Messages — shuffle a copy so they play in random order without repeats
+  const shuffled = [...DERBY_MSGS].sort(() => Math.random() - 0.5);
   const el = document.getElementById('derby-loader-text');
-  if (el) el.textContent = DERBY_MSGS[0];
+  if (el) el.textContent = shuffled[0];
   let idx = 0;
   _derbyMsgTimer = setInterval(() => {
-    idx = (idx + 1) % DERBY_MSGS.length;
+    idx = (idx + 1) % shuffled.length;
     if (el) {
       el.style.opacity = '0';
-      setTimeout(() => { if (el) { el.textContent = DERBY_MSGS[idx]; el.style.opacity = ''; } }, 300);
+      setTimeout(() => { if (el) { el.textContent = shuffled[idx]; el.style.opacity = ''; } }, 300);
     }
   }, 2200);
 
