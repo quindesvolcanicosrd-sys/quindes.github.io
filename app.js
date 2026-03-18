@@ -316,31 +316,32 @@ async function inicializarApp(email) {
 
 // ── REGISTRO DESDE LOGIN ──────────────────────────────────────
 function mostrarCuentaYaRegistrada(email, user) {
-  // Show a friendly screen when user tries to "create" but already has an account
   const overlay = document.createElement('div');
   overlay.id = 'ya-registrada-screen';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:32px;';
 
-  // Reuse login-bg rings
   overlay.innerHTML = `
     <div class="login-bg" style="display:block;">
       <span class="login-bg-ring login-bg-ring-1"></span>
       <span class="login-bg-ring login-bg-ring-2"></span>
     </div>
     <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:360px;text-align:center;">
-      <div style="font-size:52px;margin-bottom:16px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.1s both;">🛼</div>
+      <img src="icons/splash-512x512.png" alt="Quindes"
+           style="width:88px;height:88px;border-radius:22px;object-fit:contain;margin-bottom:20px;
+                  animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.1s both;">
       <h2 style="font-size:24px;font-weight:800;color:var(--text);margin:0 0 10px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.2s both;">¡Ya tienes una cuenta!</h2>
-      <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:0 0 8px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.3s both;">
-        La cuenta <strong style="color:var(--text);">${email}</strong> ya está registrada en el equipo.
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:0 0 28px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.3s both;">
+        La cuenta <strong style="color:var(--text);">${email}</strong> ya está registrada. Ingresando…
       </p>
-      <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:0 0 28px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.35s both;">
-        Ingresando con tu cuenta…
-      </p>
-      <div style="animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.45s both;width:100%;">
-        <div class="derby-loader" style="margin:0 auto 24px;">
-          <div class="derby-icons">
-            <span class="derby-icon">🛼</span>
+      <div style="animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.4s both;width:100%;">
+        <div class="derby-loader">
+          <div class="derby-icons" id="ya-reg-icons">
+            <span class="derby-icon di-active" id="ya-di-0">🛼</span>
+            <span class="derby-icon di-near"   id="ya-di-1">⭐</span>
+            <span class="derby-icon"           id="ya-di-2">💥</span>
+            <span class="derby-icon di-near"   id="ya-di-3">🏆</span>
           </div>
+          <p class="derby-loader-text" id="ya-reg-msg">${DERBY_MSGS[0]}</p>
         </div>
       </div>
     </div>
@@ -348,8 +349,38 @@ function mostrarCuentaYaRegistrada(email, user) {
 
   document.body.appendChild(overlay);
 
+  // Run the message cycle for this screen
+  let msgIdx = 0;
+  const msgTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % DERBY_MSGS.length;
+    const el = document.getElementById('ya-reg-msg');
+    if (el) {
+      el.style.opacity = '0';
+      setTimeout(() => { if (el) { el.textContent = DERBY_MSGS[msgIdx]; el.style.opacity = ''; } }, 300);
+    }
+  }, 2200);
+
+  // Run icon animation cycle
+  let iconIdx = 0;
+  const iconIds = ['ya-di-0','ya-di-1','ya-di-2','ya-di-3'];
+  const iconTimer = setInterval(() => {
+    iconIds.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('di-active','di-near');
+      const diff = (i - iconIdx + 4) % 4;
+      if (diff === 0) el.classList.add('di-active');
+      else if (diff === 1 || diff === 3) el.classList.add('di-near');
+    });
+    iconIdx = (iconIdx + 1) % 4;
+  }, 900);
+
+  document.body.appendChild(overlay);
+
   // After 2s continue loading the app normally
   setTimeout(() => {
+    clearInterval(msgTimer);
+    clearInterval(iconTimer);
     overlay.style.transition = 'opacity 0.3s ease';
     overlay.style.opacity = '0';
     setTimeout(() => {
