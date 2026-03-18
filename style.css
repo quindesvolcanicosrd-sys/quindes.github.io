@@ -1133,6 +1133,13 @@ input[type="file"] { display: none !important; }
   padding: 16px 18px;
   border-bottom: 1px solid var(--border3);
   min-height: 68px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+  user-select: none;
+}
+.sec-row:active {
+  background: var(--card) !important;
 }
 .sec-row:last-child { border-bottom: none; }
 .sec-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -3042,8 +3049,10 @@ input, button, select, textarea {
   background: var(--card) !important;
 }
 /* Chevron on every tappable row */
-.sec-row-tappable .sec-row-arrow {
+.sec-row-tappable .sec-row-arrow,
+.sec-row .sec-row-arrow {
   display: flex !important;
+  color: var(--text4);
 }
 
 /* Edit field overlay */
@@ -3067,9 +3076,17 @@ input, button, select, textarea {
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   box-sizing: border-box;
+  /* Float above keyboard on mobile */
+  position: relative;
 }
 .edit-field-sheet.visible {
   transform: translateY(0);
+}
+/* When keyboard is open, sheet moves up */
+@supports (height: 100dvh) {
+  .edit-field-overlay {
+    height: 100dvh;
+  }
 }
 
 .edit-field-handle {
@@ -3144,3 +3161,95 @@ input, button, select, textarea {
 .toast-guardado.visible {
   opacity: 1; transform: translateX(-50%) translateY(0);
 }
+
+/* ── Searchable selector ─────────────────────────────────────── */
+.edit-field-sheet-tall {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+}
+.edit-search-wrap {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 10px 14px; margin-bottom: 12px;
+}
+.edit-search-ico { font-size: 20px; color: var(--text4); flex-shrink: 0; }
+.edit-search-input {
+  flex: 1; border: none; background: transparent;
+  font-size: 15px; color: var(--text); font-family: inherit; outline: none;
+}
+.edit-search-list {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 0;
+}
+.edit-search-item {
+  display: flex; align-items: center; padding: 14px 4px;
+  border-bottom: 1px solid var(--border3);
+  font-size: 15px; color: var(--text); cursor: pointer;
+  transition: background 0.1s; gap: 8px;
+}
+.edit-search-item:active { background: var(--card); }
+.edit-search-item.active { color: var(--accent); font-weight: 600; }
+.edit-search-item:last-child { border-bottom: none; }
+
+/* ── Chips grid for selects ──────────────────────────────────── */
+.edit-chips-grid {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+
+/* ── File page overlay ───────────────────────────────────────── */
+.file-page-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  opacity: 0; transition: opacity 0.25s;
+}
+.file-page-overlay.visible { opacity: 1; }
+.file-page-sheet { display: flex; flex-direction: column; height: 100%; }
+.file-page-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.file-page-back {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: none; background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text);
+}
+.file-page-back .material-icons { font-size: 20px; }
+.file-page-title { font-size: 17px; font-weight: 700; color: var(--text); }
+.file-page-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; padding: 32px 24px;
+}
+.file-page-view-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 15px; border-radius: 14px;
+  border: 1.5px solid var(--accent); color: var(--accent);
+  font-size: 15px; font-weight: 600; font-family: inherit;
+  text-decoration: none; background: transparent;
+  box-sizing: border-box;
+}
+.file-page-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--text4); font-size: 14px;
+}
+.file-page-empty .material-icons { font-size: 48px; }
+.file-page-upload-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 15px; border-radius: 14px;
+  background: var(--accent); color: #fff;
+  font-size: 15px; font-weight: 700; font-family: inherit;
+  cursor: pointer; box-sizing: border-box;
+}
+.file-page-upload-btn .material-icons { font-size: 20px; }
+
+/* ── Toggle row tappable ─────────────────────────────────────── */
+.sec-row-toggle[onclick] {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+.sec-row-toggle[onclick]:active { background: var(--card); }
