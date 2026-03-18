@@ -1734,15 +1734,9 @@ function abrirEditSheet(fieldKey, opciones) {
     // Open date picker directly — no sheet needed
     const cleanVal = (currentVal === EMPTY || !currentVal) ? '' : String(currentVal);
     document.body.removeChild(overlay);
-    abrirDatePicker(cleanVal, async (fecha) => {
-      window.myProfile[fieldKey] = fecha;
-      const datos = recogerTodosLosDatos();
-      datos[fieldKey] = fecha;
-      try {
-        await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
-        renderTodo(window.myProfile);
-      } catch(e) { console.error(e); }
-    });
+    // Guardamos el fieldKey en dpState para que dp-ok pueda hacer el save
+    abrirDatePicker(cleanVal, null);
+    dpState._fieldKey = fieldKey;
     return;
   }
 
@@ -2472,6 +2466,13 @@ function abrirDatePicker(valorActual, onConfirm) {
 function cerrarDatePicker() {
   document.getElementById('date-picker-modal').classList.remove('active');
   document.body.style.overflow = '';
+  // Restaurar estado de bloqueo y botones
+  const dpModal = document.getElementById('date-picker-modal');
+  if (dpModal) dpModal._saving = false;
+  const okBtn  = document.getElementById('dp-ok');
+  const canBtn = document.getElementById('dp-cancel');
+  if (okBtn)  { okBtn.disabled  = false; okBtn.textContent  = 'Guardar'; }
+  if (canBtn) { canBtn.disabled = false; }
 }
 
 function renderDatePicker() {
@@ -2641,10 +2642,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.getElementById('dp-cancel')?.addEventListener('click', cerrarDatePicker);
   document.getElementById('date-picker-modal')?.addEventListener('click', e => {
-    if (e.target === document.getElementById('date-picker-modal')) cerrarDatePicker();
+    const dpModal = document.getElementById('date-picker-modal');
+    if (dpModal?._saving) return; // bloqueado mientras guarda
+    if (e.target === dpModal) cerrarDatePicker();
   });
-  document.getElementById('dp-ok')?.addEventListener('click', () => {
-    const errEl = document.getElementById('dp-error');
+  document.getElementById('dp-ok')?.addEventListener('click', async () => {
+    const errEl  = document.getElementById('dp-error');
+    const okBtn  = document.getElementById('dp-ok');
+    const canBtn = document.getElementById('dp-cancel');
+
+    // Validar que se eligió un día
     if (!dpState.selDay) {
       if (errEl) {
         errEl.textContent = 'Falta seleccionar el día';
@@ -2655,7 +2662,45 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (errEl) errEl.style.display = 'none';
+
     const val = formatFecha(dpState.selYear, dpState.selMonth, dpState.selDay);
+
+    // Si hay un fieldKey guardado (flujo tap-to-edit), guardamos nosotros
+    if (dpState._fieldKey) {
+      const fieldKey = dpState._fieldKey;
+      dpState._fieldKey = null;
+
+      // Bloquear UI
+      if (okBtn)  { okBtn.disabled  = true; okBtn.textContent  = 'Guardando…'; }
+      if (canBtn) { canBtn.disabled = true; }
+      // Bloquear taps fuera del modal (overlay no cierra)
+      const dpModal = document.getElementById('date-picker-modal');
+      if (dpModal) dpModal._saving = true;
+
+      try {
+        window.myProfile[fieldKey] = val;
+        const datos = recogerTodosLosDatos();
+        datos[fieldKey] = val;
+        await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+        cerrarDatePicker();
+        renderTodo(window.myProfile);
+      } catch(e) {
+        console.error(e);
+        // Restaurar botones en caso de error
+        if (okBtn)  { okBtn.disabled  = false; okBtn.textContent  = 'Guardar'; }
+        if (canBtn) { canBtn.disabled = false; }
+        if (dpModal) dpModal._saving = false;
+        if (errEl) {
+          errEl.textContent = 'Error al guardar. Intenta de nuevo.';
+          errEl.style.display = 'block';
+          clearTimeout(errEl._t);
+          errEl._t = setTimeout(() => { errEl.style.display = 'none'; }, 3500);
+        }
+      }
+      return;
+    }
+
+    // Flujo antiguo (wizard registro): llamar onConfirm y cerrar
     if (dpState.onConfirm) dpState.onConfirm(val);
     cerrarDatePicker();
   });
