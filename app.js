@@ -1115,18 +1115,20 @@ async function submitRegistro() {
 // ── RENDER COMPLETO ───────────────────────────────────────────
 function renderTodo(profile) {
   if (!profile) return;
-  const EMPTY = 'No hay datos ingresados';
+  const EMPTY = 'No hay datos';
   const set = (id, val) => {
     const el = document.getElementById(id);
     if (!el) return;
     const isEmpty = !val || val.toString().trim() === '';
-    if (isEmpty) {
-      el.value = EMPTY;
-      el.classList.add('sec-input-empty');
+    const text = isEmpty ? EMPTY : val.toString();
+    // Works for both <span> and <input>
+    if (el.tagName === 'INPUT') {
+      el.value = text;
     } else {
-      el.value = val;
-      el.classList.remove('sec-input-empty');
+      el.textContent = text;
     }
+    if (isEmpty) el.classList.add('sec-input-empty');
+    else el.classList.remove('sec-input-empty');
   };
 
   set('p-nombreDerby',        profile.nombreDerby);
@@ -1147,13 +1149,17 @@ function renderTodo(profile) {
   set('p-pruebaFisica',       profile.pruebaFisica);
   set('p-aptoDeporte',        profile.aptoDeporte);
   set('p-cedulaPasaporte',    profile.cedulaPasaporte);
-  set('p-email',              profile.email ? profile.email.replace(/@gmail\.com$/, '') : '');
+  set('p-email',              profile.email || '');
   set('p-mostrarCumple',      profile.mostrarCumple);
   set('p-mostrarEdad',        profile.mostrarEdad);
   set('p-tipoUsuario',        profile.tipoUsuario);
   set('p-fechaNacimiento',    profile.fechaNacimiento);
   initFechaTrigger();
   set('p-contactoEmergencia', profile.contactoEmergencia);
+
+  // File fields
+  set('p-adjCedula',       profile.adjCedula ? 'Archivo subido ✓' : '');
+  set('p-adjPruebaFisica', profile.adjPruebaFisica ? 'Archivo subido ✓' : '');
 
   // Stats
   const mesEl  = document.getElementById('p-puntosMes');
@@ -1431,10 +1437,13 @@ async function toggleCampoInline(fieldKey) {
   window.myProfile[fieldKey] = newVal;
 
   // Update toggle UI
+  // Update display
   const togEl = document.getElementById('p-' + fieldKey);
-  if (togEl) togEl.value = newVal;
-
-  // Re-render toggle visual
+  if (togEl) {
+    if (togEl.tagName === 'INPUT') togEl.value = newVal;
+    else togEl.textContent = newVal;
+  }
+  // Re-render toggle visual if widget exists
   const config = CHIPS_OPTIONS[fieldKey];
   if (config?.ui === 'toggle') {
     habilitarToggle('p-' + fieldKey, newVal);
@@ -1728,6 +1737,40 @@ async function confirmarEditarCampo() {
     if (btn) { btn.disabled = false; btn.textContent = 'Guardar'; }
     alert('Error al guardar: ' + (err.message || err));
   }
+}
+
+function recogerTodosLosDatos() {
+  // Returns a copy of myProfile with all current values
+  // Used as base when saving a single field
+  return {
+    nombreDerby:        window.myProfile.nombreDerby        || '',
+    nombre:             window.myProfile.nombre             || '',
+    nombreCivil:        window.myProfile.nombreCivil        || '',
+    cedulaPasaporte:    window.myProfile.cedulaPasaporte    || '',
+    numero:             window.myProfile.numero             || '',
+    pronombres:         window.myProfile.pronombres         || '',
+    estado:             window.myProfile.estado             || '',
+    rolJugadorx:        window.myProfile.rolJugadorx        || '',
+    pagaCuota:          window.myProfile.pagaCuota          || '',
+    alergias:           window.myProfile.alergias           || '',
+    dieta:              window.myProfile.dieta              || '',
+    pais:               window.myProfile.pais               || '',
+    codigoPais:         window.myProfile.codigoPais         || '',
+    telefono:           window.myProfile.telefono           || '',
+    grupoSanguineo:     window.myProfile.grupoSanguineo     || '',
+    fechaNacimiento:    window.myProfile.fechaNacimiento    || '',
+    contactoEmergencia: window.myProfile.contactoEmergencia || '',
+    mostrarCumple:      window.myProfile.mostrarCumple      || '',
+    mostrarEdad:        window.myProfile.mostrarEdad        || '',
+    email:              window.myProfile.email              || '',
+    asisteSemana:       window.myProfile.asisteSemana       || '',
+    pruebaFisica:       window.myProfile.pruebaFisica       || '',
+    aptoDeporte:        window.myProfile.aptoDeporte        || '',
+    tipoUsuario:        window.myProfile.tipoUsuario        || '',
+    fotoPerfil:         window.myProfile.fotoPerfil         || '',
+    adjCedula:          window.myProfile.adjCedula          || '',
+    adjPruebaFisica:    window.myProfile.adjPruebaFisica    || '',
+  };
 }
 
 function mostrarToastGuardado() {
