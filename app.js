@@ -1286,8 +1286,15 @@ function renderTodo(profile) {
 
 function actualizarSubtitulos(profile) {
   const sub = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+  // Formatear fecha para el subtítulo
+  const fechaSub = (() => {
+    const p = parseFecha(profile.fechaNacimiento);
+    return p ? `${p.day} ${MESES[p.month]} ${p.year}` : profile.fechaNacimiento;
+  })();
+
   sub('sub-generales',   [profile.nombreDerby, profile.numero ? '#'+profile.numero : null, profile.rolJugadorx].filter(Boolean).join(' · ') || 'Nombre Derby, Número, Rol');
-  sub('sub-personales',  [profile.cedulaPasaporte, profile.pais, profile.fechaNacimiento].filter(Boolean).join(' · ') || 'Documento, Nacionalidad');
+  sub('sub-personales',  [profile.cedulaPasaporte, profile.pais, fechaSub].filter(Boolean).join(' · ') || 'Documento, Nacionalidad');
   sub('sub-contacto',    [profile.email, profile.telefono ? (profile.codigoPais||'') + ' ' + profile.telefono : null].filter(Boolean).join(' · ') || 'Email, Teléfono');
   sub('sub-salud',       [profile.grupoSanguineo, profile.contactoEmergencia].filter(Boolean).join(' · ') || 'Contacto de emergencia, Grupo sanguíneo');
   sub('sub-rendimiento', [profile.estado, profile.asisteSemana].filter(Boolean).join(' · ') || 'Estado, Cuota, Asistencia');
@@ -2431,12 +2438,30 @@ let dpState = {
 
 function parseFecha(str) {
   if (!str) return null;
-  const slash = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (slash) {
-    return { day: parseInt(slash[1]), month: parseInt(slash[2])-1, year: parseInt(slash[3]) };
-  }
+
+  // Formato ISO: YYYY-MM-DD
   const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (iso) return { month: parseInt(iso[2])-1, day: parseInt(iso[3]), year: parseInt(iso[1]) };
+
+  // Formato con barras: puede ser DD/MM/YYYY (nuestro formato) o M/D/YYYY (Google Sheets)
+  const slash = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slash) {
+    const a = parseInt(slash[1]);
+    const b = parseInt(slash[2]);
+    const year = parseInt(slash[3]);
+    // Si el segundo número es > 12, no puede ser mes → formato M/D/YYYY (Google Sheets)
+    // Si el primer número es > 12, no puede ser día en pos 1 → formato DD/MM/YYYY ya fue
+    // Regla: si b > 12, es M/D/YYYY (a=mes, b=día). Si a > 12, es DD/MM/YYYY (a=día, b=mes).
+    // Si ambos ≤ 12, asumimos DD/MM/YYYY (nuestro formato canónico).
+    if (b > 12) {
+      // Google Sheets M/D/YYYY — a=mes, b=día
+      return { day: b, month: a - 1, year };
+    } else {
+      // Nuestro formato DD/MM/YYYY — a=día, b=mes
+      return { day: a, month: b - 1, year };
+    }
+  }
+
   return null;
 }
 
