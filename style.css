@@ -3029,3 +3029,118 @@ input, button, select, textarea {
   color: rgba(255,255,255,0.9) !important;
   -webkit-text-fill-color: rgba(255,255,255,0.9) !important;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   TAP-TO-EDIT BOTTOM SHEET
+══════════════════════════════════════════════════════════════ */
+
+.sec-row-tappable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sec-row-tappable:active {
+  background: var(--card) !important;
+}
+/* Chevron on every tappable row */
+.sec-row-tappable .sec-row-arrow {
+  display: flex !important;
+}
+
+/* Edit field overlay */
+.edit-field-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0); 
+  display: flex; align-items: flex-end; justify-content: center;
+  transition: background 0.3s ease;
+}
+.edit-field-overlay.visible {
+  background: rgba(0,0,0,0.5);
+}
+
+/* Bottom sheet */
+.edit-field-sheet {
+  width: 100%; max-width: 520px;
+  background: var(--bg);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px 40px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.25);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-sizing: border-box;
+}
+.edit-field-sheet.visible {
+  transform: translateY(0);
+}
+
+.edit-field-handle {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: var(--border); margin: 0 auto 16px;
+}
+.edit-field-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.edit-field-label {
+  font-size: 17px; font-weight: 700; color: var(--text);
+}
+.edit-field-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text3);
+}
+.edit-field-close .material-icons { font-size: 18px; }
+
+.edit-field-body {
+  margin-bottom: 20px;
+}
+.edit-field-input {
+  width: 100%; padding: 14px 16px;
+  border-radius: 14px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--text);
+  font-size: 16px; font-family: inherit;
+  box-sizing: border-box; outline: none;
+  transition: border-color 0.2s;
+}
+.edit-field-input:focus {
+  border-color: var(--accent);
+}
+
+/* Chips inside edit sheet */
+.edit-chips-multi { display: flex; flex-wrap: wrap; gap: 8px; }
+.edit-chip-btn {
+  padding: 8px 16px; border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card); color: var(--text);
+  font-size: 14px; font-weight: 500; font-family: inherit;
+  cursor: pointer; transition: all 0.15s;
+}
+.edit-chip-btn.active {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff; font-weight: 700;
+}
+
+.edit-field-save {
+  width: 100%; padding: 15px;
+  border-radius: 14px; border: none;
+  background: var(--accent); color: #fff;
+  font-size: 16px; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.edit-field-save:disabled { opacity: 0.5; }
+
+/* Toast */
+.toast-guardado {
+  position: fixed; bottom: 32px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text); color: var(--bg);
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+  opacity: 0; transition: opacity 0.25s, transform 0.25s;
+  z-index: 9999; white-space: nowrap;
+}
+.toast-guardado .material-icons { font-size: 16px; color: #22c55e; }
+.toast-guardado.visible {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
