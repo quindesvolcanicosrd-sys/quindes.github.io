@@ -223,14 +223,21 @@ input[type="file"] { display: none !important; }
   overflow-y: scroll; overflow-x: hidden;
   overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
 }
-/* Safe-area fill — same bg color so the gap above the header is invisible */
-#appContent::before {
+/* Safe-area fill — covers the gap between status bar and sticky header.
+   Uses a fixed overlay on #appContent itself so it stays above scrolling content. */
+#appContent {
+  /* already has width/height/position from below, just add the overlay via box */
+}
+/* Sticky header already has padding-top: env(safe-area-inset-top).
+   We paint the same background behind it using a fixed pseudo on body. */
+body::before {
   content: '';
   position: fixed; top: 0; left: 0; right: 0;
   height: env(safe-area-inset-top, 0px);
   background: var(--bg);
-  z-index: 100;
+  z-index: 9999;
   pointer-events: none;
+  display: block;
 }
 .app-view.active { display: flex; transform: translateX(0); }
 .app-view.slide-out { transform: translateX(-30%); }
@@ -239,11 +246,12 @@ input[type="file"] { display: none !important; }
    Absorbs safe-area-inset-top so there's no gap between status bar and nav */
 .app-header {
   position: sticky; top: 0; z-index: 50;
-  /* Safe-area padding built into header height */
   padding-top: env(safe-area-inset-top, 0px);
   min-height: calc(60px + env(safe-area-inset-top, 0px));
   display: flex; align-items: flex-end; justify-content: space-between;
-  padding-left: 20px; padding-right: 20px; padding-bottom: 0;
+  /* Left padding matches section headers: 8px (container) + 44px (back btn) + 4px (gap) = 56px
+     Home has no back button so we add 56px left indent to align titles */
+  padding-left: 56px; padding-right: 20px; padding-bottom: 12px;
   background: var(--bg);
   border-bottom: none; box-shadow: none;
   flex-shrink: 0;
@@ -643,7 +651,7 @@ input[type="file"] { display: none !important; }
 .app-view.is-editing .date-picker-trigger .dp-trig-ico { display: block !important; }
 
 /* ══ HOME: DANGER ZONE ══ */
-.home-danger-zone { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; margin-top: 8px; }
+.home-danger-zone { display: flex; flex-direction: column; gap: 10px; padding: 0; margin-top: 8px; }
 .home-btn-signout, .home-btn-delete { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; border: none; transition: opacity 0.15s; }
 .home-btn-signout { background: var(--card); color: var(--text); border: 1.5px solid var(--border) !important; }
 .home-btn-delete  { background: transparent; color: var(--accent); border: 1.5px solid var(--accent) !important; }
@@ -842,6 +850,12 @@ input[type="file"] { display: none !important; }
 .wiz-privacy-q { font-size: 14px !important; font-weight: 500 !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important; }
 .reg-note { text-align: center; font-size: 12px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; line-height: 1.5 !important; margin: 0 !important; }
 .reg-note strong { color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; }
+
+/* ══ COLOR SCHEME: informa al sistema el esquema de colores ══ */
+/* Hace que la nav bar del teléfono y otros elementos del sistema
+   adopten el esquema claro/oscuro correcto */
+:root { color-scheme: dark; }
+@media (prefers-color-scheme: light) { :root { color-scheme: light; } }
 
 /* ══ FONT: Be Vietnam Pro everywhere ══ */
 * { font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif; }
