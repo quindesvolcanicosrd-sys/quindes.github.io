@@ -291,6 +291,16 @@ async function inicializarApp(email) {
       return;
     }
 
+    // Si venía de "no encontrado" y ahora entró con una cuenta que sí existe
+    if (wizOrigen === 'noEncontrado') {
+      wizOrigen = null;
+      detenerDerbyLoader();
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('noEncontradoScreen').style.display = 'none';
+      mostrarCuentaYaRegistrada(email, user);
+      return;
+    }
+
     CURRENT_USER = user;
     document.getElementById('user-email').textContent = user.email;
 
@@ -494,6 +504,9 @@ function mostrarNoEncontrado(email) {
     mostrarRegistroWizard();
     return;
   }
+  // Track that we're in noEncontrado flow — so if user logs in with existing account
+  // we show the ya-registrada screen instead of the generic loader
+  wizOrigen = 'noEncontrado';
   const el = document.getElementById('no-enc-email');
   if (el) el.textContent = email || '';
 
