@@ -3253,3 +3253,49 @@ input, button, select, textarea {
   transition: background 0.12s;
 }
 .sec-row-toggle[onclick]:active { background: var(--card); }
+
+/* ── Value display spans (replaced disabled inputs) ─────────── */
+.sec-val {
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 400;
+  line-height: 1.4;
+  display: block;
+  padding: 0;
+  min-height: 20px;
+}
+.sec-val-bold {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+.sec-val.sec-input-empty {
+  color: var(--text4);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Make the whole sec-row feel tappable */
+.sec-row-tappable,
+.sec-row-tappable * {
+  pointer-events: none;
+}
+.sec-row-tappable {
+  pointer-events: all !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.06);
+  user-select: none;
+  transition: background 0.1s;
+}
+.sec-row-tappable:active {
+  background: var(--card) !important;
+}
+
+/* Chevron always visible on tappable rows */
+.sec-row-tappable > .sec-row-arrow,
+.sec-row-tappable > span.material-icons {
+  pointer-events: none;
+  color: var(--text4);
+  font-size: 20px;
+  flex-shrink: 0;
+}
