@@ -257,13 +257,6 @@ input[type="file"] { display: none !important; }
   flex-shrink: 0;
   flex-direction: column;
 }
-/* Row inside home header — same as header-row-top in sections */
-.app-header .home-header-row {
-  display: flex; align-items: center;
-  padding: 10px 20px 14px 8px;
-  min-height: 60px;
-  gap: 4px;
-}
 /* Section headers use stacked layout */
 .app-header-section {
   flex-direction: column !important;
