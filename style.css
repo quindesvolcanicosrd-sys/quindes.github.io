@@ -283,10 +283,11 @@ input[type="file"] { display: none !important; }
   padding: 0 12px 14px 8px;
 }
 .header-row-top .app-header-title { flex: 1; }
-/* Botón atrás: alineado al fondo también, con su propio padding bottom
-   para que el ícono quede centrado visualmente con el texto del título */
+/* Botón atrás: se alinea al fondo igual que el título,
+   pero lo subimos para que el ícono quede centrado con el texto */
 .header-row-top .header-back {
-  margin-bottom: -4px; /* compensa la diferencia de tamaño ícono vs texto */
+  margin-bottom: 0;
+  align-self: center;
 }
 .header-row-actions {
   overflow: hidden; max-height: 0; opacity: 0;
