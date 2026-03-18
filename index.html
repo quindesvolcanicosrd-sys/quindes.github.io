@@ -461,6 +461,38 @@
         </div>
         <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
       </div>
+      <!-- Estadísticas -->
+      <div class="stats-card">
+        <div class="stats-card-title">Estadísticas</div>
+        <div class="stats-card-grid">
+          <div class="stats-card-item">
+            <span class="material-icons stats-card-ico">calendar_today</span>
+            <span class="stats-card-lbl" id="label-puntosMes">Mes</span>
+            <span class="stats-card-val" id="p-puntosMes">—</span>
+          </div>
+          <div class="stats-card-item">
+            <span class="material-icons stats-card-ico">date_range</span>
+            <span class="stats-card-lbl" id="label-puntosTrim">Trimestre</span>
+            <span class="stats-card-val" id="p-puntosTrim">—</span>
+          </div>
+          <div class="stats-card-item">
+            <span class="material-icons stats-card-ico">emoji_events</span>
+            <span class="stats-card-lbl" id="label-puntosAnio">Año</span>
+            <span class="stats-card-val" id="p-puntosAnio">—</span>
+          </div>
+          <div class="stats-card-item">
+            <span class="material-icons stats-card-ico">roller_skating</span>
+            <span class="stats-card-lbl">Horas patinadas</span>
+            <span class="stats-card-val" id="p-horasPatinadas">—</span>
+          </div>
+          <div class="stats-card-item">
+            <span class="material-icons stats-card-ico">percent</span>
+            <span class="stats-card-lbl">Asistencia anual</span>
+            <span class="stats-card-val" id="p-asistenciaAnual">—</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Settings list -->
       <div class="settings-group">
         <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
@@ -534,25 +566,7 @@
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
-      <div class="sec-group sec-stats-group">
-        <div class="sec-stat-row">
-          <div class="sec-stat">
-            <span class="material-icons sec-stat-ico">calendar_today</span>
-            <span class="sec-stat-lbl" id="label-puntosMes">Mes</span>
-            <span class="sec-stat-val" id="p-puntosMes">—</span>
-          </div>
-          <div class="sec-stat">
-            <span class="material-icons sec-stat-ico">date_range</span>
-            <span class="sec-stat-lbl" id="label-puntosTrim">Trimestre</span>
-            <span class="sec-stat-val" id="p-puntosTrim">—</span>
-          </div>
-          <div class="sec-stat">
-            <span class="material-icons sec-stat-ico">emoji_events</span>
-            <span class="sec-stat-lbl" id="label-puntosAnio">Año</span>
-            <span class="sec-stat-val" id="p-puntosAnio">—</span>
-          </div>
-        </div>
-      </div>
+
       <div class="sec-group">
         <div class="sec-row sec-row-tappable" onclick="editarCampo('nombreDerby', {label:'Nombre Derby', tipo:'text'})">
           <div class="sec-row-body">
