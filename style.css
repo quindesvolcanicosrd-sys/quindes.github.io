@@ -271,7 +271,7 @@ input[type="file"] { display: none !important; }
   align-items: center; /* centrado vertical simple */
   gap: 4px;
   min-height: 60px;
-  padding: 10px 12px 14px 8px;
+  padding: 16px 12px 14px 8px;
 }
 .header-row-top .app-header-title { flex: 1; }
 /* Sin overrides en header-back — hereda align-items:center del padre */
