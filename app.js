@@ -1158,9 +1158,19 @@ function renderTodo(profile) {
   initFechaTrigger();
   set('p-contactoEmergencia', profile.contactoEmergencia);
 
-  // File fields
-  set('p-adjCedula',       profile.adjCedula ? 'Archivo subido ✓' : '');
-  set('p-adjPruebaFisica', profile.adjPruebaFisica ? 'Archivo subido ✓' : '');
+  // File fields — colored badge
+  const setFileBadge = (id, url) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (url) {
+      el.innerHTML = '<span class="file-badge file-badge-ok">Archivo cargado</span>';
+    } else {
+      el.innerHTML = '<span class="file-badge file-badge-missing">Archivo no cargado</span>';
+    }
+    el.classList.remove('sec-input-empty');
+  };
+  setFileBadge('p-adjCedula',       profile.adjCedula);
+  setFileBadge('p-adjPruebaFisica', profile.adjPruebaFisica);
 
   // Stats
   const mesEl  = document.getElementById('p-puntosMes');
@@ -1316,6 +1326,20 @@ window.addEventListener('popstate', (e) => {
   // Immediately reverse the back navigation so we stay in the PWA
   history.go(1);
 
+  // Edit field sheet open? close it
+  const editOverlay = document.querySelector('.edit-field-overlay');
+  if (editOverlay) {
+    cerrarEditarCampo();
+    return;
+  }
+
+  // File page overlay open? close it
+  const fileOverlay = document.querySelector('.file-page-overlay');
+  if (fileOverlay) {
+    fileOverlay.remove();
+    return;
+  }
+
   // Crop modal open? close it
   const cropModal = document.getElementById('modal-crop');
   if (cropModal && cropModal.style.display !== 'none') {
@@ -1437,17 +1461,13 @@ async function toggleCampoInline(fieldKey) {
   const newVal  = current === 'Sí' ? 'No' : 'Sí';
   window.myProfile[fieldKey] = newVal;
 
-  // Update toggle UI
-  // Update display
+  // Animate toggle visually — find the .toggle-btn near this field
   const togEl = document.getElementById('p-' + fieldKey);
-  if (togEl) {
-    if (togEl.tagName === 'INPUT') togEl.value = newVal;
-    else togEl.textContent = newVal;
-  }
-  // Re-render toggle visual if widget exists
-  const config = CHIPS_OPTIONS[fieldKey];
-  if (config?.ui === 'toggle') {
-    habilitarToggle('p-' + fieldKey, newVal);
+  const btn = togEl?.parentNode?.querySelector('.toggle-btn');
+  if (btn) {
+    btn.classList.toggle('toggle-on',  newVal === 'Sí');
+    btn.classList.toggle('toggle-off', newVal !== 'Sí');
+    btn.setAttribute('aria-pressed', String(newVal === 'Sí'));
   }
 
   // Save
@@ -1485,19 +1505,19 @@ function abrirPaginaArchivo(fieldKey, opciones) {
         ${currentUrl ? `
           <a href="${currentUrl}" target="_blank" rel="noopener" class="file-page-view-btn">
             <span class="material-icons">open_in_new</span>
-            Ver archivo subido
+            Ver en Google Drive
           </a>` : `
           <div class="file-page-empty">
-            <span class="material-icons">upload_file</span>
+            <span class="material-icons">insert_drive_file</span>
             <p>No hay archivo subido</p>
           </div>`}
         <label class="file-page-upload-btn">
-          <span class="material-icons">upload</span>
+          <span class="material-icons">${currentUrl ? 'swap_horiz' : 'upload'}</span>
           ${currentUrl ? 'Reemplazar archivo' : 'Subir archivo'}
           <input type="file" accept=".pdf,image/*" style="display:none;"
             onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
         </label>
-        <div id="file-page-status" style="font-size:13px;color:var(--text3);text-align:center;min-height:20px;"></div>
+        <div id="file-page-status" style="font-size:13px;color:var(--text3);text-align:center;min-height:24px;margin-top:4px;"></div>
       </div>
     </div>
   `;
@@ -1633,19 +1653,20 @@ function abrirEditSheet(fieldKey, opciones) {
   let getValue;
 
   if (tipo === 'text' || tipo === 'tel') {
-    const cleanVal = currentVal === EMPTY ? '' : currentVal;
+    const cleanVal = (currentVal === EMPTY || !currentVal) ? '' : String(currentVal);
     body.innerHTML = `<input id="edit-field-input" class="edit-field-input"
       type="${tipo === 'tel' ? 'tel' : 'text'}"
       value="${cleanVal.replace(/"/g,'&quot;')}"
       placeholder="${label}…" autocomplete="off">`;
     const input = document.getElementById('edit-field-input');
 
-    // Move sheet up when keyboard opens
+    // Move sheet up when keyboard opens — smooth transition
     const sheet = document.getElementById('edit-field-sheet');
     if (window.visualViewport) {
       const onVVResize = () => {
         const gap = window.innerHeight - window.visualViewport.height;
-        sheet.style.marginBottom = gap > 50 ? gap + 'px' : '0';
+        sheet.style.transition = 'margin-bottom 0.3s cubic-bezier(0.4,0,0.2,1)';
+        sheet.style.marginBottom = gap > 50 ? (gap + 8) + 'px' : '0';
       };
       window.visualViewport.addEventListener('resize', onVVResize);
       overlay._vvListener = onVVResize;
@@ -1674,12 +1695,20 @@ function abrirEditSheet(fieldKey, opciones) {
     getValue = () => Array.from(body.querySelectorAll('.edit-chip-btn.active')).map(b => b.textContent.trim()).join(', ');
 
   } else if (tipo === 'fecha') {
-    const cleanVal = currentVal === EMPTY ? '' : currentVal;
-    body.innerHTML = `<input id="edit-field-input" class="edit-field-input" type="text"
-      value="${cleanVal}" placeholder="DD/MM/AAAA" autocomplete="off" readonly>`;
-    const input = document.getElementById('edit-field-input');
-    abrirDatePicker(cleanVal, (fecha) => { input.value = fecha; });
-    getValue = () => document.getElementById('edit-field-input')?.value.trim() || '';
+    const cleanVal = (currentVal === EMPTY || !currentVal) ? '' : String(currentVal);
+    body.innerHTML = `<div id="edit-fecha-display" style="
+      font-size:16px;color:var(--text);padding:12px 0;text-align:center;min-height:40px;
+    ">${cleanVal || 'Toca para seleccionar'}</div>`;
+    let fechaSeleccionada = cleanVal;
+    // Open date picker immediately
+    setTimeout(() => {
+      abrirDatePicker(cleanVal, (fecha) => {
+        fechaSeleccionada = fecha;
+        const disp = document.getElementById('edit-fecha-display');
+        if (disp) disp.textContent = fecha;
+      });
+    }, 100);
+    getValue = () => fechaSeleccionada;
   }
 
   overlay._getValue = getValue;
@@ -2066,15 +2095,8 @@ function habilitarToggle(id, valorInicial = '') {
   container.appendChild(wrap);
 
   const btn = wrap.querySelector('.toggle-btn');
-  btn.disabled = !editing;
-  btn.addEventListener('click', () => {
-    if (!isEditing(id)) return;
-    const on = btn.classList.contains('toggle-off');
-    btn.classList.toggle('toggle-on', on);
-    btn.classList.toggle('toggle-off', !on);
-    btn.setAttribute('aria-pressed', on);
-    input.value = on ? 'Sí' : 'No';
-  });
+  btn.disabled = false; // always tappable — editarCampo handles the save
+  // Don't add click listener here — tap on the row triggers editarCampo(toggle)
 }
 
 // ── BOTTOM SHEET (selector modal centrado) ────────────────────
