@@ -1390,121 +1390,160 @@ const CAMPOS_SECCION = {
 // Campos que solo Admin puede editar
 const SOLO_ADMIN = ['p-nombreCivil','p-nombre','p-estado','p-asisteSemana','p-pruebaFisica','p-aptoDeporte','p-tipoUsuario','p-email'];
 
-function toggleEdicionSeccion(seccion) {
-  if (edicionActiva[seccion]) {
-    cancelarEdicionSeccion(seccion);
-  } else {
-    activarEdicionSeccion(seccion);
+// ── TAP-TO-EDIT SYSTEM ────────────────────────────────────────
+// Legacy stubs — kept so HTML onclick attrs don't break
+function toggleEdicionSeccion(seccion) {}
+function guardarSeccion(seccion) {}
+
+// Open a bottom-sheet editor for a single field
+function editarCampo(fieldKey, opciones) {
+  const EMPTY = 'No hay datos ingresados';
+  const config = CHIPS_OPTIONS[fieldKey];
+  const currentVal = window.myProfile[fieldKey] || '';
+  const label = opciones?.label || fieldKey;
+  const tipo  = opciones?.tipo  || (config ? config.ui : 'text');
+
+  // Build sheet
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-field-overlay';
+  overlay.innerHTML = `
+    <div class="edit-field-sheet" id="edit-field-sheet">
+      <div class="edit-field-handle"></div>
+      <div class="edit-field-header">
+        <span class="edit-field-label">${label}</span>
+        <button class="edit-field-close" onclick="cerrarEditarCampo()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="edit-field-body" id="edit-field-body"></div>
+      <div class="edit-field-actions">
+        <button class="edit-field-save" id="edit-field-save-btn" onclick="confirmarEditarCampo()">Guardar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  pushSentinel();
+
+  const body = document.getElementById('edit-field-body');
+  let getValue;
+
+  if (tipo === 'text' || tipo === 'tel') {
+    const cleanVal = currentVal === EMPTY ? '' : currentVal;
+    body.innerHTML = `<input id="edit-field-input" class="edit-field-input" type="${tipo === 'tel' ? 'tel' : 'text'}" value="${cleanVal}" placeholder="${label}…" autocomplete="off">`;
+    const input = document.getElementById('edit-field-input');
+    setTimeout(() => { input.focus(); input.select(); }, 100);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') confirmarEditarCampo(); });
+    getValue = () => input.value.trim();
+
+  } else if (tipo === 'select') {
+    body.innerHTML = `<div id="edit-field-select-wrap"></div>`;
+    const wrap = document.getElementById('edit-field-select-wrap');
+    // Render chips as selection
+    const opts = config.options;
+    let selected = currentVal;
+    wrap.innerHTML = opts.map(o => `
+      <button class="edit-chip-btn ${o === selected ? 'active' : ''}" onclick="editChipSelect(this, '${o}')">
+        ${o}
+      </button>`).join('');
+    getValue = () => wrap.querySelector('.edit-chip-btn.active')?.textContent.trim() || '';
+
+  } else if (tipo === 'multiselect') {
+    body.innerHTML = `<div id="edit-field-select-wrap" class="edit-chips-multi"></div>`;
+    const wrap = document.getElementById('edit-field-select-wrap');
+    const opts = config.options;
+    let selectedArr = currentVal ? currentVal.split(',').map(s => s.trim()) : [];
+    wrap.innerHTML = opts.map(o => `
+      <button class="edit-chip-btn ${selectedArr.includes(o) ? 'active' : ''}" onclick="editChipToggle(this)">
+        ${o}
+      </button>`).join('');
+    getValue = () => Array.from(wrap.querySelectorAll('.edit-chip-btn.active')).map(b => b.textContent.trim()).join(', ');
+
+  } else if (tipo === 'fecha') {
+    const cleanVal = currentVal === EMPTY ? '' : currentVal;
+    body.innerHTML = `<input id="edit-field-input" class="edit-field-input" type="text" value="${cleanVal}" placeholder="DD/MM/AAAA" autocomplete="off" readonly>`;
+    const input = document.getElementById('edit-field-input');
+    // Reuse existing date picker
+    abrirDatePicker(cleanVal, (fecha) => { input.value = fecha; });
+    getValue = () => document.getElementById('edit-field-input')?.value.trim() || '';
   }
+
+  // Store getValue for confirm
+  overlay._getValue = getValue;
+  overlay._fieldKey = fieldKey;
+
+  // Animate in
+  requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+    document.getElementById('edit-field-sheet')?.classList.add('visible');
+  });
+
+  // Close on overlay tap
+  overlay.addEventListener('click', e => { if (e.target === overlay) cerrarEditarCampo(); });
 }
 
-function activarEdicionSeccion(seccion) {
-  edicionActiva[seccion] = true;
-  const view = document.getElementById('view-' + seccion);
-  view.classList.add('is-editing');
-
-  const role = CURRENT_USER.rolApp;
-  CAMPOS_SECCION[seccion].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const soloAdmin = SOLO_ADMIN.includes(id);
-    if (soloAdmin && role !== 'Admin') return;
-    el.disabled = false;
-    el.hidden   = false;
-  });
-  // Enable date picker trigger if in personales section
-  if (seccion === 'personales') {
-    const dt = document.querySelector('#view-personales .date-picker-trigger');
-    if (dt) dt.disabled = false;
-  }
-
-  // Re-render widgets en modo edición
-  Object.keys(CHIPS_OPTIONS).forEach(key => {
-    const id = 'p-' + key;
-    if (!CAMPOS_SECCION[seccion].includes(id)) return;
-    const config = CHIPS_OPTIONS[key];
-    const valor  = document.getElementById(id)?.value || window.myProfile[key] || '';
-    if (config.ui === 'chips')       habilitarChips(id, valor);
-    if (config.ui === 'multiselect') habilitarMultiSelect(id, valor);
-    if (config.ui === 'select')      habilitarSelect(id, valor);
-    if (config.ui === 'toggle')      habilitarToggle(id, valor);
-  });
-
-  // Avatar editable en sección generales
-  if (seccion === 'generales') setSecAvatarEditable(true);
-
-  // Mostrar flechas de select
-  mostrarFlechasSelect(seccion, true);
-
-  // Animate header action row in
-  const actionsRow = document.getElementById('header-actions-' + seccion);
-  if (actionsRow) {
-    actionsRow.style.display = 'flex';
-    requestAnimationFrame(() => actionsRow.classList.add('visible'));
-  }
+function editChipSelect(btn, val) {
+  btn.closest('.edit-field-body').querySelectorAll('.edit-chip-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
-function cancelarEdicionSeccion(seccion) {
-  edicionActiva[seccion] = false;
-  const view = document.getElementById('view-' + seccion);
-  view.classList.remove('is-editing');
-
-  // Re-render con datos originales
-  renderTodo(window.myProfile);
-
-  // Deshabilitar inputs
-  CAMPOS_SECCION[seccion].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.disabled = true;
-  });
-  // Disable date picker trigger
-  if (seccion === 'personales') {
-    const dt = document.querySelector('#view-personales .date-picker-trigger');
-    if (dt) { dt.disabled = true; dt.textContent = document.getElementById('p-fechaNacimiento')?.value || '—'; }
-  }
-
-  if (seccion === 'generales') setSecAvatarEditable(false);
-  mostrarFlechasSelect(seccion, false);
-
-  // Animate header action row out
-  const actionsRow = document.getElementById('header-actions-' + seccion);
-  if (actionsRow) {
-    actionsRow.classList.remove('visible');
-    setTimeout(() => { actionsRow.style.display = 'none'; }, 280);
-  }
+function editChipToggle(btn) {
+  btn.classList.toggle('active');
 }
 
-async function guardarSeccion(seccion) {
-  const errorBox = document.getElementById('error-' + seccion);
-  if (errorBox) errorBox.style.display = 'none';
+function cerrarEditarCampo() {
+  const overlay = document.querySelector('.edit-field-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('visible');
+  document.getElementById('edit-field-sheet')?.classList.remove('visible');
+  setTimeout(() => overlay.remove(), 300);
+}
 
-  if (fotoSubiendo) {
-    if (errorBox) { errorBox.textContent = 'Esperando que la foto termine de subir...'; errorBox.style.display = 'block'; }
-    await new Promise(resolve => {
-      const iv = setInterval(() => { if (!fotoSubiendo) { clearInterval(iv); resolve(); } }, 100);
-    });
-    if (errorBox) errorBox.style.display = 'none';
-  }
+async function confirmarEditarCampo() {
+  const overlay = document.querySelector('.edit-field-overlay');
+  if (!overlay) return;
+  const fieldKey = overlay._fieldKey;
+  const getValue = overlay._getValue;
+  if (!getValue) return;
 
-  const btnSave = document.getElementById('btn-hsave-' + seccion);
-  if (btnSave) { btnSave.disabled = true; btnSave.textContent = '…'; }
-
-  const v = id => { const val = document.getElementById(id)?.value || ''; return val === 'No hay datos ingresados' ? '' : val; };
-  const datos = recogerTodosLosDatos();
+  const newVal = getValue();
+  const btn = document.getElementById('edit-field-save-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
 
   try {
+    // Save only this field
+    const datos = recogerTodosLosDatos();
+    datos[fieldKey] = newVal;
     await gasCall('updateMyProfile', {
       rowNumber: CURRENT_USER.rowNumber,
       data: datos,
     });
-    Object.assign(window.myProfile, datos);
+    window.myProfile[fieldKey] = newVal;
+    // Update the input in the view
+    const el = document.getElementById('p-' + fieldKey);
+    if (el) {
+      const EMPTY = 'No hay datos ingresados';
+      if (!newVal) { el.value = EMPTY; el.classList.add('sec-input-empty'); }
+      else         { el.value = newVal; el.classList.remove('sec-input-empty'); }
+    }
     renderTodo(window.myProfile);
-    cancelarEdicionSeccion(seccion);
+    cerrarEditarCampo();
+    mostrarToastGuardado();
   } catch (err) {
-    if (errorBox) { errorBox.textContent = err.message || 'Error al guardar'; errorBox.style.display = 'block'; }
-  } finally {
-    if (btnSave) { btnSave.disabled = false; btnSave.textContent = 'Guardar'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Guardar'; }
+    alert('Error al guardar: ' + (err.message || err));
   }
+}
+
+function mostrarToastGuardado() {
+  const t = document.createElement('div');
+  t.className = 'toast-guardado';
+  t.innerHTML = '<span class="material-icons">check_circle</span> Guardado';
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('visible'));
+  setTimeout(() => {
+    t.classList.remove('visible');
+    setTimeout(() => t.remove(), 300);
+  }, 2000);
 }
 
 function recogerTodosLosDatos() {
