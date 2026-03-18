@@ -1207,6 +1207,11 @@ function renderTodo(profile) {
   set('p-mostrarEdad',        profile.mostrarEdad);
   set('p-tipoUsuario',        profile.tipoUsuario);
   set('p-fechaNacimiento',    profile.fechaNacimiento);
+  // Guardamos la fecha en un atributo data para que initFechaTrigger
+  // la lea de forma limpia, sin depender de textContent (que puede
+  // contener el texto del trigger + ícono mezclados)
+  const fechaEl = document.getElementById('p-fechaNacimiento');
+  if (fechaEl) fechaEl.dataset.fecha = profile.fechaNacimiento || '';
   initFechaTrigger();
   set('p-contactoEmergencia', profile.contactoEmergencia);
 
@@ -2682,6 +2687,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const datos = recogerTodosLosDatos();
         datos[fieldKey] = val;
         await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+        // Actualizar data-fecha antes de cerrar para que refreshTriggerDisplay
+        // lea el valor correcto en el renderTodo siguiente
+        const fechaSpan = document.getElementById('p-fechaNacimiento');
+        if (fechaSpan) fechaSpan.dataset.fecha = val;
         cerrarDatePicker();
         renderTodo(window.myProfile);
       } catch(e) {
@@ -2731,9 +2740,10 @@ function initFechaTrigger() {
     container.appendChild(trigger);
   }
 
-  // ── FIX: leer valor desde textContent (span) O value (input) ──
+  // ── Lee siempre desde data-fecha (fuente limpia, no contaminada
+  //    por el textContent del trigger ni por el ícono) ──
   function getStoredValue() {
-    return input.value || input.textContent || '';
+    return input.dataset.fecha || input.value || '';
   }
 
   function refreshTriggerDisplay() {
