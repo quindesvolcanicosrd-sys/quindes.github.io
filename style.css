@@ -61,12 +61,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   overscroll-behavior: none;
-  margin: 0;
-  /* ── FIX: sin padding-top — el header absorbe el safe-area ── */
-  padding-top: 0;
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
+  margin: 0; padding: 0;
   -webkit-text-size-adjust: 100%;
   touch-action: pan-y;
 }
@@ -176,6 +171,10 @@ input[type="file"] { display: none !important; }
 .bs-empty { text-align: center; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; font-size: 14px !important; padding: 32px 0; }
 
 /* ══ LOGIN ══ */
+/* All full-screen fixed views need to extend into safe-area zones */
+#loginScreen, #unauthorized, #loadingScreen, #noEncontradoScreen, #registroScreen {
+  background: var(--bg);
+}
 #loginScreen, #unauthorized { position: fixed; inset: 0; display: flex; align-items: stretch; justify-content: center; background: var(--bg); z-index: 100; overflow: hidden; }
 .login-bg { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .login-bg-ring { position: absolute; border-radius: 50%; border: 2px solid var(--accent); opacity: 0.07; }
@@ -213,6 +212,7 @@ input[type="file"] { display: none !important; }
   width: 100%; height: 100dvh;
   position: relative; overflow: hidden; overscroll-behavior: none;
   padding-top: 0;
+  background: var(--bg);
 }
 .app-view {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -223,22 +223,8 @@ input[type="file"] { display: none !important; }
   overflow-y: scroll; overflow-x: hidden;
   overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
 }
-/* Safe-area fill — covers the gap between status bar and sticky header.
-   Uses a fixed overlay on #appContent itself so it stays above scrolling content. */
-#appContent {
-  /* already has width/height/position from below, just add the overlay via box */
-}
-/* Sticky header already has padding-top: env(safe-area-inset-top).
-   We paint the same background behind it using a fixed pseudo on body. */
-body::before {
-  content: '';
-  position: fixed; top: 0; left: 0; right: 0;
-  height: env(safe-area-inset-top, 0px);
-  background: var(--bg);
-  z-index: 9999;
-  pointer-events: none;
-  display: block;
-}
+/* Safe-area: el header absorbe env(safe-area-inset-top) con padding-top.
+   El fondo del body cubre el espacio restante con el mismo color. */
 .app-view.active { display: flex; transform: translateX(0); }
 .app-view.slide-out { transform: translateX(-30%); }
 
@@ -246,15 +232,22 @@ body::before {
    Absorbs safe-area-inset-top so there's no gap between status bar and nav */
 .app-header {
   position: sticky; top: 0; z-index: 50;
+  /* Safe-area absorbed here — same as app-header-section */
   padding-top: env(safe-area-inset-top, 0px);
-  min-height: calc(60px + env(safe-area-inset-top, 0px));
-  display: flex; align-items: flex-end; justify-content: space-between;
-  /* Left padding matches section headers: 8px (container) + 44px (back btn) + 4px (gap) = 56px
-     Home has no back button so we add 56px left indent to align titles */
-  padding-left: 56px; padding-right: 20px; padding-bottom: 12px;
+  display: flex; align-items: stretch; justify-content: space-between;
+  padding-left: 0; padding-right: 0; padding-bottom: 0;
   background: var(--bg);
   border-bottom: none; box-shadow: none;
   flex-shrink: 0;
+  /* Home header también usa column layout para compartir height con section headers */
+  flex-direction: column;
+}
+/* Row inside home header — same as header-row-top in sections */
+.app-header .home-header-row {
+  display: flex; align-items: center;
+  padding: 4px 20px 12px 20px;
+  min-height: 56px;
+  gap: 4px;
 }
 /* Section headers use stacked layout */
 .app-header-section {
