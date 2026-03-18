@@ -172,6 +172,8 @@ function fixGoogleButtonFlicker() {
 // ── CERRAR SESIÓN ─────────────────────────────────────────────
 function cerrarSesion() {
   try { google.accounts.id.disableAutoSelect(); } catch(e) {}
+  // Limpiar sesión guardada
+  try { localStorage.removeItem('quindes_email'); } catch(e) {}
   // Reset all state
   CURRENT_USER = null;
   window.myProfile = null;
@@ -222,21 +224,40 @@ async function ejecutarBorrarPerfil() {
 
 function initGoogleAuth() {
   fixGoogleButtonFlicker();
+
+  // Intentar sesión guardada antes de mostrar el login
+  const savedEmail = localStorage.getItem('quindes_email');
+
   google.accounts.id.initialize({
     client_id: CONFIG.GOOGLE_CLIENT_ID,
     callback: onGoogleSignIn,
-    auto_select: false,
+    // auto_select: true permite que Google reautentique silenciosamente
+    // si el usuario ya inició sesión antes en este dispositivo
+    auto_select: true,
+    // cancel_on_tap_outside: false para no interrumpir el flujo silencioso
+    cancel_on_tap_outside: false,
   });
 
-
-  // Skip One Tap popup — use explicit login screen button only
-  // Show login screen directly (safety net still applies if auto_select resolves)
-  setTimeout(() => {
-    const loading = document.getElementById('loadingScreen');
-    if (loading && loading.style.display !== 'none') {
-      mostrarLoginScreen();
-    }
-  }, 1200);
+  // Si hay email guardado, intentar reautenticación silenciosa
+  // Google llamará al callback onGoogleSignIn automáticamente si puede
+  if (savedEmail) {
+    // Dar tiempo a Google para reautenticar silenciosamente
+    // Si no lo hace en 2.5s, mostrar login
+    setTimeout(() => {
+      const loading = document.getElementById('loadingScreen');
+      if (loading && loading.style.display !== 'none') {
+        mostrarLoginScreen();
+      }
+    }, 2500);
+  } else {
+    // Sin sesión guardada — mostrar login rápido
+    setTimeout(() => {
+      const loading = document.getElementById('loadingScreen');
+      if (loading && loading.style.display !== 'none') {
+        mostrarLoginScreen();
+      }
+    }, 1200);
+  }
 
   // Pre-render the re-sign-in button early
   preRenderResigninButton();
@@ -245,6 +266,8 @@ function initGoogleAuth() {
 function onGoogleSignIn(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   accessToken = response.credential;
+  // Guardar email para reautenticación silenciosa en próximas aperturas
+  try { localStorage.setItem('quindes_email', payload.email); } catch(e) {}
   inicializarApp(payload.email);
 }
 
