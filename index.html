@@ -501,10 +501,20 @@
           <span class="settings-row-arrow"></span>
         </div>
       </div>
+      <!-- Sign out + Delete -->
+      <div class="home-danger-zone">
+        <button class="home-btn-signout" onclick="cerrarSesion()">
+          <span class="material-icons">logout</span>
+          Cerrar sesión
+        </button>
+        <button class="home-btn-delete" onclick="confirmarBorrarPerfil()">
+          <span class="material-icons">delete_forever</span>
+          Borrar perfil
+        </button>
+      </div>
       <div style="height:32px;"></div>
     </div>
   </div>
-
   <!-- ═══════════════════════════════════════════════
        VISTA SECCIÓN GENERALES
   ═══════════════════════════════════════════════ -->
@@ -785,32 +795,30 @@
             <span class="sec-row-label">Estado</span>
             <span id="p-estado" class="sec-val"></span>
           </div>
-          
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('asisteSemana', {label:'Asiste por semana', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Asiste por semana</span>
             <span id="p-asisteSemana" class="sec-val"></span>
           </div>
-          
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('pruebaFisica', {label:'Prueba física', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Prueba física (estado)</span>
             <span id="p-pruebaFisica" class="sec-val"></span>
           </div>
-          
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('tipoUsuario', {label:'Tipo de usuario', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Tipo de usuario</span>
             <span id="p-tipoUsuario" class="sec-val"></span>
           </div>
-          
-        </div>
-      
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
+      </div>
       <div class="sec-group">
         <div class="sec-row-toggle" onclick="editarCampo('pagaCuota', {label:'Paga cuota', tipo:'toggle'})" style="cursor:pointer;">
           <span class="sec-toggle-label">Paga cuota</span>
