@@ -286,8 +286,8 @@ input[type="file"] { display: none !important; }
 /* Botón atrás: se alinea al fondo igual que el título,
    pero lo subimos para que el ícono quede centrado con el texto */
 .header-row-top .header-back {
-  margin-bottom: 0;
-  align-self: center;
+  align-self: flex-end;
+  margin-bottom: 7px;
 }
 .header-row-actions {
   overflow: hidden; max-height: 0; opacity: 0;
