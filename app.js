@@ -1297,6 +1297,13 @@ window.addEventListener('popstate', (e) => {
   // Immediately reverse the back navigation so we stay in the PWA
   history.go(1);
 
+  // Crop modal open? close it
+  const cropModal = document.getElementById('modal-crop');
+  if (cropModal && cropModal.style.display !== 'none') {
+    cancelarCrop();
+    return;
+  }
+
   // Wizard open? handle wizard back
   const regScr = document.getElementById('registroScreen');
   if (regScr && regScr.style.display !== 'none') {
@@ -2026,6 +2033,7 @@ function abrirCropper(base64) {
   const modal = document.getElementById('modal-crop');
   const image = document.getElementById('crop-image');
   modal.style.display = 'flex';
+  pushSentinel(); // so back gesture closes the modal
   image.src = base64;
   if (cropper) cropper.destroy();
   cropper = new Cropper(image, {
