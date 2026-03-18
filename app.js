@@ -2740,7 +2740,7 @@ function initFechaTrigger() {
     const rawVal = getStoredValue();
     const p = parseFecha(rawVal);
     const txt = p
-      ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}`
+      ? `${p.day} ${MESES[p.month]} ${p.year}`
       : (rawVal && rawVal !== 'No hay datos' ? rawVal : '—');
     const textNode = trigger.childNodes[0]?.nodeType === Node.TEXT_NODE
       ? trigger.childNodes[0]
