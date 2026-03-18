@@ -514,15 +514,9 @@
       <div class="header-row-top">
         <button class="header-back" id="btn-back-generales" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Datos Generales</span>
-        <button class="header-edit-btn" id="btn-edit-generales" onclick="toggleEdicionSeccion('generales')">
-          <span class="material-icons">edit</span>
-        </button>
+        
       </div>
-      <div class="header-row-actions" id="header-actions-generales" style="display:none;">
-        <button class="header-cancel-btn" id="btn-hcancel-generales" onclick="toggleEdicionSeccion('generales')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-generales"   onclick="guardarSeccion('generales')">Guardar</button>
-      </div>
-    </header>
+</header>
     <div class="app-scroll">
       <div id="error-generales" class="error-box" style="display:none;"></div>
       <div class="sec-group">
@@ -558,43 +552,39 @@
         </div>
       </div>
       <div class="sec-group">
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('nombreDerby', {label:'Nombre Derby', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Nombre Derby</span>
             <input id="p-nombreDerby" class="sec-input sec-input-bold" disabled>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('numero', {label:'Número Derby', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Número Derby</span>
             <input id="p-numero" class="sec-input" disabled>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('rolJugadorx', {label:'Posición / Rol', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Posición / Rol</span>
             <input id="p-rolJugadorx" class="sec-input" disabled>
           </div>
           <span class="material-icons sec-select-arrow" id="arrow-rolJugadorx" style="display:none;">chevron_right</span>
         </div>
-        <div class="sec-row" data-role="Admin SemiAdmin">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('nombre', {label:'Nombre en la app', tipo:'text'})" data-role="Admin SemiAdmin">
           <div class="sec-row-body">
             <span class="sec-row-label">Nombre en la app</span>
             <input id="p-nombre" class="sec-input sec-input-normal" disabled>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('pronombres', {label:'Pronombres', tipo:'multiselect'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Pronombres</span>
             <input id="p-pronombres" class="sec-input" disabled style="display:none;">
           </div>
         </div>
       </div>
-      <div class="sec-save-wrap" id="save-generales" style="display:none;">
-        <button class="btn-save" onclick="guardarSeccion('generales')">Guardar cambios</button>
-        <button class="btn-cancel" onclick="toggleEdicionSeccion('generales')">Cancelar</button>
-      </div>
-      <div style="height:32px;"></div>
+<div style="height:32px;"></div>
     </div>
   </div>
 
@@ -606,31 +596,25 @@
       <div class="header-row-top">
         <button class="header-back" id="btn-back-personales" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Datos Personales</span>
-        <button class="header-edit-btn" id="btn-edit-personales" onclick="toggleEdicionSeccion('personales')">
-          <span class="material-icons">edit</span>
-        </button>
+        
       </div>
-      <div class="header-row-actions" id="header-actions-personales" style="display:none;">
-        <button class="header-cancel-btn" id="btn-hcancel-personales" onclick="toggleEdicionSeccion('personales')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-personales"   onclick="guardarSeccion('personales')">Guardar</button>
-      </div>
-    </header>
+</header>
     <div class="app-scroll">
       <div id="error-personales" class="error-box" style="display:none;"></div>
       <div class="sec-group">
-        <div class="sec-row" data-role="Admin">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('nombreCivil', {label:'Nombre civil', tipo:'text'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Nombre civil</span>
             <input id="p-nombreCivil" class="sec-input sec-input-normal" disabled>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('cedulaPasaporte', {label:'Número de documento', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Número de documento</span>
             <input id="p-cedulaPasaporte" class="sec-input sec-input-normal" disabled>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('mostrarCumple', {label:'¿Mostrar cumpleaños?', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Documento de identidad</span>
             <div id="estado-adjCedula" class="sec-file-status"></div>
@@ -641,14 +625,14 @@
             </div>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('pais', {label:'Nacionalidad', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Nacionalidad</span>
             <input id="p-pais" class="sec-input" disabled>
           </div>
           <span class="material-icons sec-select-arrow" id="arrow-pais" style="display:none;">chevron_right</span>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('fechaNacimiento', {label:'Fecha de nacimiento', tipo:'fecha'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Fecha de nacimiento</span>
             <input id="p-fechaNacimiento" class="sec-input sec-input-normal" disabled>
@@ -666,11 +650,7 @@
         </div>
 
       </div>
-      <div class="sec-save-wrap" id="save-personales" style="display:none;">
-        <button class="btn-save" onclick="guardarSeccion('personales')">Guardar cambios</button>
-        <button class="btn-cancel" onclick="toggleEdicionSeccion('personales')">Cancelar</button>
-      </div>
-      <div style="height:32px;"></div>
+<div style="height:32px;"></div>
     </div>
   </div>
 
@@ -682,15 +662,9 @@
       <div class="header-row-top">
         <button class="header-back" id="btn-back-contacto" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Contacto</span>
-        <button class="header-edit-btn" id="btn-edit-contacto" onclick="toggleEdicionSeccion('contacto')">
-          <span class="material-icons">edit</span>
-        </button>
+        
       </div>
-      <div class="header-row-actions" id="header-actions-contacto" style="display:none;">
-        <button class="header-cancel-btn" id="btn-hcancel-contacto" onclick="toggleEdicionSeccion('contacto')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-contacto"   onclick="guardarSeccion('contacto')">Guardar</button>
-      </div>
-    </header>
+</header>
     <div class="app-scroll">
       <div id="error-contacto" class="error-box" style="display:none;"></div>
       <div class="sec-group">
@@ -703,25 +677,21 @@
             </div>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('codigoPais', {label:'Código de país', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Código de país</span>
             <input id="p-codigoPais" class="sec-input" disabled>
           </div>
           <span class="material-icons sec-select-arrow" id="arrow-codigoPais" style="display:none;">chevron_right</span>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('telefono', {label:'Teléfono', tipo:'tel'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Teléfono</span>
             <input id="p-telefono" class="sec-input sec-input-normal" disabled>
           </div>
         </div>
       </div>
-      <div class="sec-save-wrap" id="save-contacto" style="display:none;">
-        <button class="btn-save" onclick="guardarSeccion('contacto')">Guardar cambios</button>
-        <button class="btn-cancel" onclick="toggleEdicionSeccion('contacto')">Cancelar</button>
-      </div>
-      <div style="height:32px;"></div>
+<div style="height:32px;"></div>
     </div>
   </div>
 
@@ -733,38 +703,32 @@
       <div class="header-row-top">
         <button class="header-back" id="btn-back-salud" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Salud y Emergencia</span>
-        <button class="header-edit-btn" id="btn-edit-salud" onclick="toggleEdicionSeccion('salud')">
-          <span class="material-icons">edit</span>
-        </button>
+        
       </div>
-      <div class="header-row-actions" id="header-actions-salud" style="display:none;">
-        <button class="header-cancel-btn" id="btn-hcancel-salud" onclick="toggleEdicionSeccion('salud')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-salud"   onclick="guardarSeccion('salud')">Guardar</button>
-      </div>
-    </header>
+</header>
     <div class="app-scroll">
       <div id="error-salud" class="error-box" style="display:none;"></div>
       <div class="sec-group">
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('contactoEmergencia', {label:'Contacto de emergencia', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Contacto de emergencia</span>
             <input id="p-contactoEmergencia" class="sec-input sec-input-normal" disabled>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('grupoSanguineo', {label:'Grupo sanguíneo', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Grupo sanguíneo</span>
             <input id="p-grupoSanguineo" class="sec-input" disabled>
           </div>
           <span class="material-icons sec-select-arrow" id="arrow-grupoSanguineo" style="display:none;">chevron_right</span>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('alergias', {label:'Alergias', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Alergias</span>
             <input id="p-alergias" class="sec-input sec-input-normal" disabled>
           </div>
         </div>
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('dieta', {label:'Dieta', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Dieta</span>
             <input id="p-dieta" class="sec-input sec-input-normal" disabled>
@@ -790,11 +754,7 @@
           </div>
         </div>
       </div>
-      <div class="sec-save-wrap" id="save-salud" style="display:none;">
-        <button class="btn-save" onclick="guardarSeccion('salud')">Guardar cambios</button>
-        <button class="btn-cancel" onclick="toggleEdicionSeccion('salud')">Cancelar</button>
-      </div>
-      <div style="height:32px;"></div>
+<div style="height:32px;"></div>
     </div>
   </div>
 
@@ -806,40 +766,34 @@
       <div class="header-row-top">
         <button class="header-back" id="btn-back-rendimiento" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Estado y Rendimiento</span>
-        <button class="header-edit-btn" id="btn-edit-rendimiento" onclick="toggleEdicionSeccion('rendimiento')">
-          <span class="material-icons">edit</span>
-        </button>
+        
       </div>
-      <div class="header-row-actions" id="header-actions-rendimiento" style="display:none;">
-        <button class="header-cancel-btn" id="btn-hcancel-rendimiento" onclick="toggleEdicionSeccion('rendimiento')">Cancelar</button>
-        <button class="header-save-btn"   id="btn-hsave-rendimiento"   onclick="guardarSeccion('rendimiento')">Guardar</button>
-      </div>
-    </header>
+</header>
     <div class="app-scroll">
       <div id="error-rendimiento" class="error-box" style="display:none;"></div>
       <div class="sec-group">
-        <div class="sec-row" data-role="Admin">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('estado', {label:'Estado', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Estado</span>
             <input id="p-estado" class="sec-input" disabled>
           </div>
           <span class="material-icons sec-select-arrow" id="arrow-estado" style="display:none;">chevron_right</span>
         </div>
-        <div class="sec-row" data-role="Admin">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('asisteSemana', {label:'Asiste por semana', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Asiste por semana</span>
             <input id="p-asisteSemana" class="sec-input" disabled>
           </div>
           <span class="material-icons sec-select-arrow" id="arrow-asisteSemana" style="display:none;">chevron_right</span>
         </div>
-        <div class="sec-row" data-role="Admin">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('pruebaFisica', {label:'Prueba física', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Prueba física (estado)</span>
             <input id="p-pruebaFisica" class="sec-input" disabled>
           </div>
           <span class="material-icons sec-select-arrow" id="arrow-pruebaFisica" style="display:none;">chevron_right</span>
         </div>
-        <div class="sec-row" data-role="Admin">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('tipoUsuario', {label:'Tipo de usuario', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Tipo de usuario</span>
             <input id="p-tipoUsuario" class="sec-input" disabled>
@@ -853,11 +807,7 @@
           <input id="p-pagaCuota" style="display:none;">
         </div>
       </div>
-      <div class="sec-save-wrap" id="save-rendimiento" style="display:none;">
-        <button class="btn-save" onclick="guardarSeccion('rendimiento')">Guardar cambios</button>
-        <button class="btn-cancel" onclick="toggleEdicionSeccion('rendimiento')">Cancelar</button>
-      </div>
-      <div style="height:32px;"></div>
+<div style="height:32px;"></div>
     </div>
   </div>
 </div><!-- /appContent -->
