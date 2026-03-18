@@ -1388,10 +1388,11 @@ window.addEventListener('popstate', (e) => {
     return;
   }
 
-  // File page overlay open? close it
-  const fileOverlay = document.querySelector('.file-page-overlay');
-  if (fileOverlay) {
-    fileOverlay.remove();
+  // File page view open? close it with animation
+  const filePageView = document.querySelector('.file-page-view');
+  if (filePageView) {
+    const prevView = document.getElementById('view-' + vistaActual);
+    cerrarFilePage(filePageView, prevView);
     return;
   }
 
@@ -1526,14 +1527,25 @@ async function toggleCampoInline(fieldKey) {
 }
 
 // ── FILE PAGE ─────────────────────────────────────────────────
-function abrirPaginaArchivo(fieldKey, opciones) {
-  const label    = opciones?.label || fieldKey;
-  const fileId   = 'p-' + fieldKey;
-  const btnId    = 'btn-subir-' + fileId;
-  const statusId = 'estado-' + fileId;
+function cerrarFilePage(view, prevView) {
+  if (!view) return;
+  if (prevView) {
+    prevView.style.display = 'flex';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        prevView.classList.add('active');
+        view.classList.remove('active');
+      });
+    });
+    view.addEventListener('transitionend', () => { view.remove(); }, { once: true });
+  } else {
+    view.remove();
+  }
+}
 
-  const overlay = document.createElement('div');
-  overlay.className = 'file-page-overlay';
+function abrirPaginaArchivo(fieldKey, opciones) {
+  const label  = opciones?.label || fieldKey;
+  const fileId = 'p-' + fieldKey;
   const currentUrl = window.myProfile[fieldKey] || '';
   let thumbUrl = '';
   if (currentUrl) {
@@ -1542,50 +1554,78 @@ function abrirPaginaArchivo(fieldKey, opciones) {
     else thumbUrl = currentUrl;
   }
 
-  overlay.innerHTML = `
-    <div class="file-page-sheet">
-      <div class="file-page-header">
-        <button class="file-page-back" onclick="this.closest('.file-page-overlay').remove()">
+  // Usar el mismo sistema de nav que las secciones
+  const view = document.createElement('div');
+  view.className = 'app-view file-page-view';
+  view.innerHTML = `
+    <header class="app-header app-header-section">
+      <div class="header-row-top">
+        <button class="header-back file-page-back-btn">
           <span class="material-icons">arrow_back</span>
         </button>
-        <span class="file-page-title">${label}</span>
+        <span class="app-header-title">${label}</span>
       </div>
-      <div class="file-page-body">
-        ${currentUrl ? `
-          <div class="file-page-preview">
-            <img src="${thumbUrl}" class="file-page-img" alt="Vista previa"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-            <div class="file-page-doc-icon" style="display:none;">
-              <span class="material-icons">insert_drive_file</span>
-              <span>Archivo subido</span>
-            </div>
-          </div>
-          <a href="${currentUrl}" target="_blank" rel="noopener" class="file-page-btn file-page-btn-primary">
-            <span class="material-icons">open_in_new</span>
-            Ver en Google Drive
-          </a>
-          <label class="file-page-btn file-page-btn-secondary">
-            <span class="material-icons">swap_horiz</span>
-            Reemplazar archivo
-            <input type="file" accept=".pdf,image/*" style="display:none;"
-              onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
-          </label>` : `
-          <div class="file-page-empty">
+    </header>
+    <div class="app-scroll">
+      ${currentUrl ? `
+        <div class="file-page-preview">
+          <img src="${thumbUrl}" class="file-page-img" alt="Vista previa"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="file-page-doc-icon" style="display:none;">
             <span class="material-icons">insert_drive_file</span>
-            <p>No hay archivo subido</p>
+            <span>Archivo subido</span>
           </div>
-          <label class="file-page-btn file-page-btn-primary">
-            <span class="material-icons">upload</span>
-            Subir archivo
-            <input type="file" accept=".pdf,image/*" style="display:none;"
-              onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
-          </label>`}
-        <div id="file-page-status" style="font-size:13px;color:var(--text3);text-align:center;min-height:24px;margin-top:8px;"></div>
-      </div>
+        </div>
+        <a href="${currentUrl}" target="_blank" rel="noopener" class="file-page-btn file-page-btn-primary">
+          <span class="material-icons">open_in_new</span>
+          Ver en Google Drive
+        </a>
+        <label class="file-page-btn file-page-btn-replace">
+          <span class="material-icons">swap_horiz</span>
+          Reemplazar archivo
+          <input type="file" accept=".pdf,image/*" style="display:none;"
+            onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
+        </label>` : `
+        <div class="file-page-empty">
+          <span class="material-icons">insert_drive_file</span>
+          <p>No hay archivo subido todavía</p>
+        </div>
+        <label class="file-page-btn file-page-btn-primary">
+          <span class="material-icons">upload</span>
+          Subir archivo
+          <input type="file" accept=".pdf,image/*" style="display:none;"
+            onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
+        </label>`}
+      <div id="file-page-status" class="file-page-status-msg"></div>
+      <div style="height:32px;"></div>
     </div>
   `;
-  document.body.appendChild(overlay);
-  requestAnimationFrame(() => overlay.classList.add('visible'));
+
+  document.getElementById('appContent').appendChild(view);
+
+  // Animación igual que navegarSeccion
+  const currView = document.getElementById('view-' + vistaActual);
+  if (currView) currView.classList.add('slide-out');
+  view.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      view.classList.add('active');
+      if (currView) currView.classList.remove('active');
+    });
+  });
+  if (currView) {
+    currView.addEventListener('transitionend', () => {
+      currView.classList.remove('slide-out');
+      currView.style.display = 'none';
+    }, { once: true });
+  }
+
+  // Botón atrás con animación inversa
+  view.querySelector('.file-page-back-btn').addEventListener('click', () => {
+    cerrarFilePage(view, currView);
+  });
+
+  pushSentinel();
 }
 
 async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
