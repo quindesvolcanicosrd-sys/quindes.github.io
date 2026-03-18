@@ -1115,7 +1115,19 @@ async function submitRegistro() {
 // ── RENDER COMPLETO ───────────────────────────────────────────
 function renderTodo(profile) {
   if (!profile) return;
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  const EMPTY = 'No hay datos ingresados';
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isEmpty = !val || val.toString().trim() === '';
+    if (isEmpty) {
+      el.value = EMPTY;
+      el.classList.add('sec-input-empty');
+    } else {
+      el.value = val;
+      el.classList.remove('sec-input-empty');
+    }
+  };
 
   set('p-nombreDerby',        profile.nombreDerby);
   set('p-nombre',             profile.nombre);
@@ -1477,7 +1489,7 @@ async function guardarSeccion(seccion) {
   const btnSave = document.getElementById('btn-hsave-' + seccion);
   if (btnSave) { btnSave.disabled = true; btnSave.textContent = '…'; }
 
-  const v = id => document.getElementById(id)?.value || '';
+  const v = id => { const val = document.getElementById(id)?.value || ''; return val === 'No hay datos ingresados' ? '' : val; };
   const datos = recogerTodosLosDatos();
 
   try {
@@ -1496,7 +1508,7 @@ async function guardarSeccion(seccion) {
 }
 
 function recogerTodosLosDatos() {
-  const v = id => document.getElementById(id)?.value || '';
+  const v = id => { const val = document.getElementById(id)?.value || ''; return val === 'No hay datos ingresados' ? '' : val; };
   return {
     nombreDerby:        v('p-nombreDerby'),
     nombre:             v('p-nombre'),
