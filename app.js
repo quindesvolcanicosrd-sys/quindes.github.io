@@ -1391,19 +1391,214 @@ const CAMPOS_SECCION = {
 const SOLO_ADMIN = ['p-nombreCivil','p-nombre','p-estado','p-asisteSemana','p-pruebaFisica','p-aptoDeporte','p-tipoUsuario','p-email'];
 
 // ── TAP-TO-EDIT SYSTEM ────────────────────────────────────────
-// Legacy stubs — kept so HTML onclick attrs don't break
+// Legacy stubs
 function toggleEdicionSeccion(seccion) {}
 function guardarSeccion(seccion) {}
 
-// Open a bottom-sheet editor for a single field
-function editarCampo(fieldKey, opciones) {
-  const EMPTY = 'No hay datos ingresados';
-  const config = CHIPS_OPTIONS[fieldKey];
-  const currentVal = window.myProfile[fieldKey] || '';
-  const label = opciones?.label || fieldKey;
-  const tipo  = opciones?.tipo  || (config ? config.ui : 'text');
+// Fields that use searchable list
+const SEARCH_FIELDS = ['pais', 'codigoPais'];
 
-  // Build sheet
+// Open appropriate editor based on field type
+function editarCampo(fieldKey, opciones) {
+  const tipo = opciones?.tipo || 'text';
+
+  // Toggles — handle inline, no dialog
+  if (tipo === 'toggle') {
+    toggleCampoInline(fieldKey);
+    return;
+  }
+
+  // File fields — navigate to file page
+  if (tipo === 'archivo') {
+    abrirPaginaArchivo(fieldKey, opciones);
+    return;
+  }
+
+  // Searchable list (pais, codigoPais)
+  if (SEARCH_FIELDS.includes(fieldKey)) {
+    abrirSelectorConBusqueda(fieldKey, opciones);
+    return;
+  }
+
+  // Text / tel / fecha / select / multiselect — bottom sheet
+  abrirEditSheet(fieldKey, opciones);
+}
+
+// ── TOGGLE INLINE ─────────────────────────────────────────────
+async function toggleCampoInline(fieldKey) {
+  const current = window.myProfile[fieldKey];
+  const newVal  = current === 'Sí' ? 'No' : 'Sí';
+  window.myProfile[fieldKey] = newVal;
+
+  // Update toggle UI
+  const togEl = document.getElementById('p-' + fieldKey);
+  if (togEl) togEl.value = newVal;
+
+  // Re-render toggle visual
+  const config = CHIPS_OPTIONS[fieldKey];
+  if (config?.ui === 'toggle') {
+    habilitarToggle('p-' + fieldKey, newVal);
+  }
+
+  // Save
+  try {
+    const datos = recogerTodosLosDatos();
+    datos[fieldKey] = newVal;
+    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+    mostrarToastGuardado();
+  } catch(e) {
+    window.myProfile[fieldKey] = current; // revert
+    console.error(e);
+  }
+}
+
+// ── FILE PAGE ─────────────────────────────────────────────────
+function abrirPaginaArchivo(fieldKey, opciones) {
+  const label    = opciones?.label || fieldKey;
+  const fileId   = 'p-' + fieldKey;
+  const btnId    = 'btn-subir-' + fileId;
+  const statusId = 'estado-' + fileId;
+
+  // Show a full-screen overlay for file management
+  const overlay = document.createElement('div');
+  overlay.className = 'file-page-overlay';
+  const currentUrl = window.myProfile[fieldKey] || '';
+  overlay.innerHTML = `
+    <div class="file-page-sheet">
+      <div class="file-page-header">
+        <button class="file-page-back" onclick="this.closest('.file-page-overlay').remove()">
+          <span class="material-icons">arrow_back</span>
+        </button>
+        <span class="file-page-title">${label}</span>
+      </div>
+      <div class="file-page-body">
+        ${currentUrl ? `
+          <a href="${currentUrl}" target="_blank" rel="noopener" class="file-page-view-btn">
+            <span class="material-icons">open_in_new</span>
+            Ver archivo subido
+          </a>` : `
+          <div class="file-page-empty">
+            <span class="material-icons">upload_file</span>
+            <p>No hay archivo subido</p>
+          </div>`}
+        <label class="file-page-upload-btn">
+          <span class="material-icons">upload</span>
+          ${currentUrl ? 'Reemplazar archivo' : 'Subir archivo'}
+          <input type="file" accept=".pdf,image/*" style="display:none;"
+            onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
+        </label>
+        <div id="file-page-status" style="font-size:13px;color:var(--text3);text-align:center;min-height:20px;"></div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('visible'));
+}
+
+async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('file-page-status');
+  if (status) status.textContent = 'Subiendo…';
+  try {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const result = await gasCall('subirArchivo', {
+        base64Data: e.target.result,
+        tipoArchivo: fieldKey,
+        email: CURRENT_USER.email,
+      });
+      if (!result?.url) throw new Error('No se recibió URL');
+      window.myProfile[fieldKey] = result.url;
+      const datos = recogerTodosLosDatos();
+      datos[fieldKey] = result.url;
+      await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+      if (status) status.textContent = '✅ Archivo subido correctamente';
+      mostrarToastGuardado();
+    };
+    reader.readAsDataURL(file);
+  } catch(e) {
+    if (status) status.textContent = 'Error: ' + (e.message || e);
+  }
+}
+
+// ── SEARCHABLE SELECTOR ───────────────────────────────────────
+function abrirSelectorConBusqueda(fieldKey, opciones) {
+  const label   = opciones?.label || fieldKey;
+  const config  = CHIPS_OPTIONS[fieldKey];
+  const options = config?.options || [];
+  const current = window.myProfile[fieldKey] || '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-field-overlay';
+  overlay.innerHTML = `
+    <div class="edit-field-sheet edit-field-sheet-tall" id="edit-field-sheet">
+      <div class="edit-field-handle"></div>
+      <div class="edit-field-header">
+        <span class="edit-field-label">${label}</span>
+        <button class="edit-field-close" onclick="cerrarEditarCampo()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="edit-search-wrap">
+        <span class="material-icons edit-search-ico">search</span>
+        <input id="edit-search-input" class="edit-search-input" type="text" placeholder="Buscar…" autocomplete="off">
+      </div>
+      <div class="edit-search-list" id="edit-search-list"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay._fieldKey = fieldKey;
+
+  const renderList = (filter) => {
+    const list = document.getElementById('edit-search-list');
+    const filtered = filter
+      ? options.filter(o => o.toLowerCase().includes(filter.toLowerCase()))
+      : options;
+    list.innerHTML = filtered.map(o => `
+      <div class="edit-search-item ${o === current ? 'active' : ''}"
+           onclick="seleccionarOpcionBusqueda('${fieldKey}', this, '${o.replace(/'/g,"\'")}')">
+        ${o}
+        ${o === current ? '<span class="material-icons" style="font-size:18px;margin-left:auto;color:var(--accent);">check</span>' : ''}
+      </div>`).join('');
+  };
+
+  renderList('');
+  requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+    document.getElementById('edit-field-sheet')?.classList.add('visible');
+  });
+
+  document.getElementById('edit-search-input')?.addEventListener('input', e => renderList(e.target.value));
+  overlay.addEventListener('click', e => { if (e.target === overlay) cerrarEditarCampo(); });
+}
+
+async function seleccionarOpcionBusqueda(fieldKey, el, value) {
+  // Visual feedback
+  el.closest('.edit-search-list').querySelectorAll('.edit-search-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+
+  try {
+    window.myProfile[fieldKey] = value;
+    const datos = recogerTodosLosDatos();
+    datos[fieldKey] = value;
+    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+    renderTodo(window.myProfile);
+    cerrarEditarCampo();
+    mostrarToastGuardado();
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ── BOTTOM SHEET EDITOR ───────────────────────────────────────
+function abrirEditSheet(fieldKey, opciones) {
+  const EMPTY   = 'No hay datos ingresados';
+  const config  = CHIPS_OPTIONS[fieldKey];
+  const currentVal = window.myProfile[fieldKey] || '';
+  const label   = opciones?.label || fieldKey;
+  const tipo    = opciones?.tipo  || (config ? config.ui : 'text');
+
   const overlay = document.createElement('div');
   overlay.className = 'edit-field-overlay';
   overlay.innerHTML = `
@@ -1429,59 +1624,66 @@ function editarCampo(fieldKey, opciones) {
 
   if (tipo === 'text' || tipo === 'tel') {
     const cleanVal = currentVal === EMPTY ? '' : currentVal;
-    body.innerHTML = `<input id="edit-field-input" class="edit-field-input" type="${tipo === 'tel' ? 'tel' : 'text'}" value="${cleanVal}" placeholder="${label}…" autocomplete="off">`;
+    body.innerHTML = `<input id="edit-field-input" class="edit-field-input"
+      type="${tipo === 'tel' ? 'tel' : 'text'}"
+      value="${cleanVal.replace(/"/g,'&quot;')}"
+      placeholder="${label}…" autocomplete="off">`;
     const input = document.getElementById('edit-field-input');
-    setTimeout(() => { input.focus(); input.select(); }, 100);
+
+    // Move sheet up when keyboard opens
+    const sheet = document.getElementById('edit-field-sheet');
+    if (window.visualViewport) {
+      const onVVResize = () => {
+        const gap = window.innerHeight - window.visualViewport.height;
+        sheet.style.marginBottom = gap > 50 ? gap + 'px' : '0';
+      };
+      window.visualViewport.addEventListener('resize', onVVResize);
+      overlay._vvListener = onVVResize;
+    }
+
+    setTimeout(() => { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }, 150);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') confirmarEditarCampo(); });
     getValue = () => input.value.trim();
 
   } else if (tipo === 'select') {
-    body.innerHTML = `<div id="edit-field-select-wrap"></div>`;
-    const wrap = document.getElementById('edit-field-select-wrap');
-    // Render chips as selection
     const opts = config.options;
     let selected = currentVal;
-    wrap.innerHTML = opts.map(o => `
-      <button class="edit-chip-btn ${o === selected ? 'active' : ''}" onclick="editChipSelect(this, '${o}')">
+    body.innerHTML = `<div class="edit-chips-grid">${opts.map(o => `
+      <button class="edit-chip-btn ${o === selected ? 'active' : ''}" onclick="editChipSelect(this)">
         ${o}
-      </button>`).join('');
-    getValue = () => wrap.querySelector('.edit-chip-btn.active')?.textContent.trim() || '';
+      </button>`).join('')}</div>`;
+    getValue = () => body.querySelector('.edit-chip-btn.active')?.textContent.trim() || '';
 
   } else if (tipo === 'multiselect') {
-    body.innerHTML = `<div id="edit-field-select-wrap" class="edit-chips-multi"></div>`;
-    const wrap = document.getElementById('edit-field-select-wrap');
     const opts = config.options;
-    let selectedArr = currentVal ? currentVal.split(',').map(s => s.trim()) : [];
-    wrap.innerHTML = opts.map(o => `
+    const selectedArr = currentVal ? currentVal.split(',').map(s => s.trim()) : [];
+    body.innerHTML = `<div class="edit-chips-multi">${opts.map(o => `
       <button class="edit-chip-btn ${selectedArr.includes(o) ? 'active' : ''}" onclick="editChipToggle(this)">
         ${o}
-      </button>`).join('');
-    getValue = () => Array.from(wrap.querySelectorAll('.edit-chip-btn.active')).map(b => b.textContent.trim()).join(', ');
+      </button>`).join('')}</div>`;
+    getValue = () => Array.from(body.querySelectorAll('.edit-chip-btn.active')).map(b => b.textContent.trim()).join(', ');
 
   } else if (tipo === 'fecha') {
     const cleanVal = currentVal === EMPTY ? '' : currentVal;
-    body.innerHTML = `<input id="edit-field-input" class="edit-field-input" type="text" value="${cleanVal}" placeholder="DD/MM/AAAA" autocomplete="off" readonly>`;
+    body.innerHTML = `<input id="edit-field-input" class="edit-field-input" type="text"
+      value="${cleanVal}" placeholder="DD/MM/AAAA" autocomplete="off" readonly>`;
     const input = document.getElementById('edit-field-input');
-    // Reuse existing date picker
     abrirDatePicker(cleanVal, (fecha) => { input.value = fecha; });
     getValue = () => document.getElementById('edit-field-input')?.value.trim() || '';
   }
 
-  // Store getValue for confirm
   overlay._getValue = getValue;
   overlay._fieldKey = fieldKey;
 
-  // Animate in
   requestAnimationFrame(() => {
     overlay.classList.add('visible');
     document.getElementById('edit-field-sheet')?.classList.add('visible');
   });
 
-  // Close on overlay tap
   overlay.addEventListener('click', e => { if (e.target === overlay) cerrarEditarCampo(); });
 }
 
-function editChipSelect(btn, val) {
+function editChipSelect(btn) {
   btn.closest('.edit-field-body').querySelectorAll('.edit-chip-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
@@ -1493,8 +1695,13 @@ function editChipToggle(btn) {
 function cerrarEditarCampo() {
   const overlay = document.querySelector('.edit-field-overlay');
   if (!overlay) return;
+  // Remove visualViewport listener if present
+  if (overlay._vvListener && window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', overlay._vvListener);
+  }
+  const sheet = document.getElementById('edit-field-sheet');
   overlay.classList.remove('visible');
-  document.getElementById('edit-field-sheet')?.classList.remove('visible');
+  if (sheet) sheet.classList.remove('visible');
   setTimeout(() => overlay.remove(), 300);
 }
 
@@ -1510,21 +1717,10 @@ async function confirmarEditarCampo() {
   if (btn) { btn.disabled = true; btn.textContent = '…'; }
 
   try {
-    // Save only this field
     const datos = recogerTodosLosDatos();
     datos[fieldKey] = newVal;
-    await gasCall('updateMyProfile', {
-      rowNumber: CURRENT_USER.rowNumber,
-      data: datos,
-    });
+    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
     window.myProfile[fieldKey] = newVal;
-    // Update the input in the view
-    const el = document.getElementById('p-' + fieldKey);
-    if (el) {
-      const EMPTY = 'No hay datos ingresados';
-      if (!newVal) { el.value = EMPTY; el.classList.add('sec-input-empty'); }
-      else         { el.value = newVal; el.classList.remove('sec-input-empty'); }
-    }
     renderTodo(window.myProfile);
     cerrarEditarCampo();
     mostrarToastGuardado();
@@ -1546,38 +1742,6 @@ function mostrarToastGuardado() {
   }, 2000);
 }
 
-function recogerTodosLosDatos() {
-  const v = id => { const val = document.getElementById(id)?.value || ''; return val === 'No hay datos ingresados' ? '' : val; };
-  return {
-    nombreDerby:        v('p-nombreDerby'),
-    nombre:             v('p-nombre'),
-    nombreCivil:        v('p-nombreCivil'),
-    cedulaPasaporte:    v('p-cedulaPasaporte'),
-    numero:             v('p-numero'),
-    pronombres:         v('p-pronombres'),
-    estado:             v('p-estado'),
-    rolJugadorx:        v('p-rolJugadorx'),
-    pagaCuota:          v('p-pagaCuota'),
-    alergias:           v('p-alergias'),
-    dieta:              v('p-dieta'),
-    pais:               v('p-pais'),
-    codigoPais:         v('p-codigoPais'),
-    telefono:           v('p-telefono'),
-    grupoSanguineo:     v('p-grupoSanguineo'),
-    fechaNacimiento:    v('p-fechaNacimiento'),
-    contactoEmergencia: v('p-contactoEmergencia'),
-    mostrarCumple:      v('p-mostrarCumple'),
-    mostrarEdad:        v('p-mostrarEdad'),
-    email:              v('p-email').trim() + '@gmail.com',
-    asisteSemana:       v('p-asisteSemana'),
-    pruebaFisica:       v('p-pruebaFisica'),
-    aptoDeporte:        v('p-aptoDeporte'),
-    tipoUsuario:        v('p-tipoUsuario'),
-    fotoPerfil:         window.myProfile.fotoPerfil,
-    adjCedula:          window.myProfile.adjCedula,
-    adjPruebaFisica:    window.myProfile.adjPruebaFisica,
-  };
-}
 
 function mostrarFlechasSelect(seccion, mostrar) {
   const selectIds = {
