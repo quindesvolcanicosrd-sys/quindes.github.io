@@ -3218,8 +3218,9 @@ input, button, select, textarea {
 .file-page-title { font-size: 17px; font-weight: 700; color: var(--text); }
 .file-page-body {
   flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 16px; padding: 32px 24px;
+  align-items: stretch; justify-content: flex-start;
+  gap: 12px; padding: 24px 20px;
+  overflow-y: auto;
 }
 .file-page-preview {
   width: 100%; border-radius: 16px; overflow: hidden;
@@ -3243,18 +3244,18 @@ input, button, select, textarea {
 .file-page-empty .material-icons { font-size: 52px; }
 /* Unified button styles */
 .file-page-btn {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 15px; border-radius: 14px;
-  font-size: 15px; font-weight: 700; font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 16px; border-radius: 14px;
+  font-size: 16px; font-weight: 700; font-family: inherit;
   cursor: pointer; box-sizing: border-box; border: none;
-  text-decoration: none; margin-top: 8px;
+  text-decoration: none;
 }
-.file-page-btn .material-icons { font-size: 20px; }
+.file-page-btn .material-icons { font-size: 22px; }
 .file-page-btn-primary {
   background: var(--accent); color: #fff;
 }
 .file-page-btn-secondary {
-  background: transparent; color: var(--text);
+  background: var(--card); color: var(--text);
   border: 1.5px solid var(--border) !important;
 }
 
