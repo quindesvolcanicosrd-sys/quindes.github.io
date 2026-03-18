@@ -2,12 +2,12 @@
   "name": "Quindes Volcánicos",
   "short_name": "Quindes",
   "description": "App del equipo Quindes Volcánicos Roller Derby Quito",
-  "start_url": "https://quindes.github.io/",
+  "start_url": "https://app.quindesvolcanicos.com/",
+  "scope": "https://app.quindesvolcanicos.com/",
   "display": "standalone",
   "background_color": "#1a1212",
   "theme_color": "#1a1212",
   "orientation": "portrait",
-  "scope": "https://https://app.quindesvolcanicos.com/",
   "icons": [
     {
       "src": "icons/icon-192x192.png",
@@ -19,7 +19,13 @@
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
