@@ -1354,22 +1354,6 @@ function volverHome(fromPopState = false) {
 }
 
 // ── Handle browser back gesture / button ──────────────────────
-// Strategy: always keep 2 history entries when at home so the OS back
-// gesture hits our popstate handler instead of closing the app/tab.
-//
-// Stack looks like:
-//   [entry-A: home]  ← current when at home (replaceState)
-//   [entry-B: home]  ← one behind it (pushState on load)
-//
-// When in a section: [entry-A: home] [entry-B: section]
-// Back gesture pops entry-B → popstate fires → we call volverHome()
-// then pushState to restore the buffer entry.
-
-// ── BACK GESTURE TRAP ────────────────────────────────────────
-// Strategy: keep a sentinel entry AHEAD of current position.
-// On popstate we immediately go(+1) to undo the pop, then handle
-// in-app navigation ourselves. Works on Android & iOS PWA.
-
 function pushSentinel() {
   history.pushState({ sentinel: true }, '', location.pathname + '#_');
 }
@@ -1435,7 +1419,7 @@ window.addEventListener('popstate', (e) => {
   // Already at home — silently absorbed, app stays open
 });
 
-// ── Block body scroll/bounce on mobile (iOS rubber-band + Android overscroll) ──
+// ── Block body scroll/bounce on mobile ──
 document.addEventListener('touchmove', (e) => {
   let el = e.target;
   let scrollable = false;
@@ -1444,10 +1428,9 @@ document.addEventListener('touchmove', (e) => {
     const overflowY = style.overflowY;
     const canScroll = overflowY === 'auto' || overflowY === 'scroll';
     if (canScroll) {
-      const hasOverflow = el.scrollHeight > el.clientHeight + 1; // +1 for rounding
+      const hasOverflow = el.scrollHeight > el.clientHeight + 1;
       const notAtTop    = el.scrollTop > 0;
       const notAtBottom = el.scrollTop < el.scrollHeight - el.clientHeight - 1;
-      // Allow scroll only if there's real overflow AND we're not already at the boundary
       if (hasOverflow && (notAtTop || notAtBottom)) {
         scrollable = true;
         break;
@@ -1468,7 +1451,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── EDICIÓN POR SECCIÓN ───────────────────────────────────────
-// Campos por sección
 const CAMPOS_SECCION = {
   generales:   ['p-nombreDerby','p-numero','p-rolJugadorx','p-nombre','p-pronombres'],
   personales:  ['p-nombreCivil','p-cedulaPasaporte','p-pais','p-fechaNacimiento','p-mostrarCumple','p-mostrarEdad','p-adjCedula'],
@@ -1477,40 +1459,32 @@ const CAMPOS_SECCION = {
   rendimiento: ['p-estado','p-asisteSemana','p-pruebaFisica','p-tipoUsuario','p-pagaCuota'],
 };
 
-// Campos que solo Admin puede editar
 const SOLO_ADMIN = ['p-nombreCivil','p-nombre','p-estado','p-asisteSemana','p-pruebaFisica','p-aptoDeporte','p-tipoUsuario','p-email'];
 
 // ── TAP-TO-EDIT SYSTEM ────────────────────────────────────────
-// Legacy stubs
 function toggleEdicionSeccion(seccion) {}
 function guardarSeccion(seccion) {}
 
-// Fields that use searchable list
 const SEARCH_FIELDS = ['pais', 'codigoPais'];
 
-// Open appropriate editor based on field type
 function editarCampo(fieldKey, opciones) {
   const tipo = opciones?.tipo || 'text';
 
-  // Toggles — handle inline, no dialog
   if (tipo === 'toggle') {
     toggleCampoInline(fieldKey);
     return;
   }
 
-  // File fields — navigate to file page
   if (tipo === 'archivo') {
     abrirPaginaArchivo(fieldKey, opciones);
     return;
   }
 
-  // All single selects use the bottom sheet slider (scrollable list)
   if (tipo === 'select') {
     abrirSelectorConBusqueda(fieldKey, opciones);
     return;
   }
 
-  // Text / tel / fecha / multiselect — bottom sheet
   abrirEditSheet(fieldKey, opciones);
 }
 
@@ -1520,7 +1494,6 @@ async function toggleCampoInline(fieldKey) {
   const newVal  = current === 'Sí' ? 'No' : 'Sí';
   window.myProfile[fieldKey] = newVal;
 
-  // Animate toggle visually — find the .toggle-btn near this field
   const togEl = document.getElementById('p-' + fieldKey);
   const btn = togEl?.parentNode?.querySelector('.toggle-btn');
   if (btn) {
@@ -1529,14 +1502,13 @@ async function toggleCampoInline(fieldKey) {
     btn.setAttribute('aria-pressed', String(newVal === 'Sí'));
   }
 
-  // Save
   try {
     const datos = recogerTodosLosDatos();
     datos[fieldKey] = newVal;
     await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
     mostrarToastGuardado();
   } catch(e) {
-    window.myProfile[fieldKey] = current; // revert
+    window.myProfile[fieldKey] = current;
     console.error(e);
   }
 }
@@ -1548,11 +1520,9 @@ function abrirPaginaArchivo(fieldKey, opciones) {
   const btnId    = 'btn-subir-' + fileId;
   const statusId = 'estado-' + fileId;
 
-  // Show a full-screen overlay for file management
   const overlay = document.createElement('div');
   overlay.className = 'file-page-overlay';
   const currentUrl = window.myProfile[fieldKey] || '';
-  // Build thumbnail URL for preview (works for Drive files)
   let thumbUrl = '';
   if (currentUrl) {
     const idMatch = currentUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/) || currentUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -1665,7 +1635,6 @@ function abrirSelectorConBusqueda(fieldKey, opciones) {
       ${o === current ? '<span class="material-icons" style="font-size:18px;margin-left:auto;color:var(--accent);">check</span>' : ''}
     </div>`).join('');
 
-  // Scroll to selected item
   requestAnimationFrame(() => {
     overlay.classList.add('visible');
     document.getElementById('edit-field-sheet')?.classList.add('visible');
@@ -1677,16 +1646,13 @@ function abrirSelectorConBusqueda(fieldKey, opciones) {
 }
 
 async function seleccionarOpcionBusqueda(fieldKey, el, value) {
-  // Update UI immediately
   el.closest('.edit-search-list').querySelectorAll('.edit-search-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   window.myProfile[fieldKey] = value;
   renderTodo(window.myProfile);
 
-  // Close immediately — save in background
   cerrarEditarCampo();
 
-  // Show "saving" indicator on the field
   const fieldEl = document.getElementById('p-' + fieldKey);
   if (fieldEl) {
     const orig = fieldEl.textContent;
@@ -1698,7 +1664,6 @@ async function seleccionarOpcionBusqueda(fieldKey, el, value) {
       renderTodo(window.myProfile);
     } catch(e) {
       console.error(e);
-      // Revert on error
       window.myProfile[fieldKey] = orig;
       renderTodo(window.myProfile);
     }
@@ -1743,9 +1708,6 @@ function abrirEditSheet(fieldKey, opciones) {
       value="${cleanVal.replace(/"/g,'&quot;')}"
       placeholder="${label}…" autocomplete="off">`;
     const input = document.getElementById('edit-field-input');
-
-    // No keyboard movement — just let it be, input stays visible via scroll
-
     setTimeout(() => { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }, 150);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') confirmarEditarCampo(); });
     getValue = () => input.value.trim();
@@ -1771,7 +1733,6 @@ function abrirEditSheet(fieldKey, opciones) {
   } else if (tipo === 'fecha') {
     // Open date picker directly — no sheet needed
     const cleanVal = (currentVal === EMPTY || !currentVal) ? '' : String(currentVal);
-    // Remove overlay immediately (no pushSentinel was called yet)
     document.body.removeChild(overlay);
     abrirDatePicker(cleanVal, async (fecha) => {
       window.myProfile[fieldKey] = fecha;
@@ -1782,7 +1743,7 @@ function abrirEditSheet(fieldKey, opciones) {
         renderTodo(window.myProfile);
       } catch(e) { console.error(e); }
     });
-    return; // Don't render the sheet body
+    return;
   }
 
   overlay._getValue = getValue;
@@ -1841,8 +1802,6 @@ async function confirmarEditarCampo() {
 }
 
 function recogerTodosLosDatos() {
-  // Returns a copy of myProfile with all current values
-  // Used as base when saving a single field
   return {
     nombreDerby:        window.myProfile.nombreDerby        || '',
     nombre:             window.myProfile.nombre             || '',
@@ -1899,11 +1858,9 @@ function aplicarPermisos() {
   document.querySelectorAll('[data-role]').forEach(el => {
     const roles = el.dataset.role.split(' ');
     const matches = roles.includes(role);
-    // Preserve display type
     if (!matches) el.style.display = 'none';
     else if (el.style.display === 'none') el.style.display = '';
   });
-  // Ocultar fila rendimiento si no corresponde
   const rowRend = document.getElementById('row-rendimiento');
   if (rowRend) rowRend.style.display = (role === 'Admin' || role === 'SemiAdmin') ? 'flex' : 'none';
 }
@@ -1925,7 +1882,6 @@ const CHIPS_OPTIONS = {
   tipoUsuario:    { multi: false, ui: 'select', options: ['Admin','SemiAdmin','Invitado'] },
 };
 
-// Determina si alguna sección está en modo edición para este campo
 function isEditing(id) {
   const seccion = Object.keys(CAMPOS_SECCION).find(s => CAMPOS_SECCION[s].includes(id));
   return seccion ? edicionActiva[seccion] : false;
@@ -1940,7 +1896,6 @@ function habilitarChips(id, valorInicial = '') {
   input.style.display = 'none';
   const editing = isEditing(id);
 
-  // Buscar o crear wrapper en sec-row-body o directamente en parentNode
   const container = input.closest('.sec-row-body') || input.parentNode;
   let wrapper = container.querySelector('.chip-wrapper');
   if (!wrapper) {
@@ -1984,11 +1939,9 @@ function habilitarMultiSelect(id, valorInicial = '') {
 
   const container = input.closest('.sec-row-body') || input.parentNode;
 
-  // Remove old trigger if exists
   const oldTrigger = container.querySelector('.multiselect-trigger');
   if (oldTrigger) oldTrigger.remove();
 
-  // Build display value
   const selected = new Set(
     valorInicial ? valorInicial.split(',').map(v => v.trim()).filter(Boolean) : []
   );
@@ -1999,7 +1952,6 @@ function habilitarMultiSelect(id, valorInicial = '') {
   trigger.className = 'multiselect-trigger sec-input' + (editing ? ' multiselect-editable' : '');
   trigger.disabled = !editing;
 
-  // Show value + chevron when editing
   function updateTrigger() {
     const val = input.value ? input.value.split(',').map(v=>v.trim()).filter(Boolean).join(', ') : '—';
     if (editing) {
@@ -2026,7 +1978,6 @@ function habilitarMultiSelect(id, valorInicial = '') {
 }
 
 function abrirMultiSelectModal(label, options, curSelected, onConfirm) {
-  // Remove existing
   const old = document.getElementById('multiselect-overlay');
   if (old) old.remove();
 
@@ -2106,7 +2057,6 @@ function habilitarSelect(id, valorInicial = '') {
   if (!config || !input) return;
   const editing = isEditing(id);
 
-  // Label: buscar en sec-row-label o en label
   const rowBody   = input.closest('.sec-row-body');
   const labelEl   = rowBody ? rowBody.querySelector('.sec-row-label') : input.closest('.profile-field')?.querySelector('label');
   const labelText = labelEl ? labelEl.textContent : key;
@@ -2141,7 +2091,6 @@ function habilitarToggle(id, valorInicial = '') {
   input.style.display = 'none';
   const editing = isEditing(id);
 
-  // Buscar contenedor (sec-row-toggle o profile-field-toggle)
   const container = input.parentNode;
   let existing = container.querySelector('.toggle-wrap');
   if (existing) existing.remove();
@@ -2158,8 +2107,7 @@ function habilitarToggle(id, valorInicial = '') {
   container.appendChild(wrap);
 
   const btn = wrap.querySelector('.toggle-btn');
-  btn.disabled = false; // always tappable — editarCampo handles the save
-  // Don't add click listener here — tap on the row triggers editarCampo(toggle)
+  btn.disabled = false;
 }
 
 // ── BOTTOM SHEET (selector modal centrado) ────────────────────
@@ -2181,7 +2129,7 @@ function crearBottomSheet() {
 }
 
 function abrirBottomSheet(label, options, valorActual, onSelect) {
-  if (_bsClosing) return; // still closing, ignore this tap
+  if (_bsClosing) return;
   crearBottomSheet();
   const overlay       = document.getElementById('bs-overlay');
   const panel         = document.getElementById('bs-panel');
@@ -2226,13 +2174,12 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
   if (_regScr && _regScr.style.display !== 'none') _regScr.style.overflowY = 'hidden';
 }
 
-let _bsClosing = false; // guard against immediate reopen after close
+let _bsClosing = false;
 
 function cerrarBottomSheet() {
   const overlay = document.getElementById('bs-overlay');
   const panel   = document.getElementById('bs-panel');
   if (!overlay || !panel) return;
-  // Kill pointer-events immediately so taps below work right away
   overlay.style.pointerEvents = 'none';
   panel.style.pointerEvents   = 'none';
   overlay.classList.remove('active');
@@ -2240,7 +2187,6 @@ function cerrarBottomSheet() {
   document.body.style.overflow = '';
   const reg = document.getElementById('registroScreen');
   if (reg) reg.style.overflowY = '';
-  // Block reopening for 400ms — prevents the closing tap from firing the button below
   _bsClosing = true;
   setTimeout(() => { _bsClosing = false; }, 400);
 }
@@ -2256,7 +2202,6 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
   const input = document.getElementById(inputId);
   if (!input) return;
 
-  // Fully reset input by replacing with fresh element (not cloneNode which can carry file state)
   const nuevoInput = document.createElement('input');
   nuevoInput.type   = 'file';
   nuevoInput.id     = inputId;
@@ -2268,7 +2213,7 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
 
   const btnSubir = document.getElementById('btn-subir-' + campoDestino);
   if (btnSubir) btnSubir.onclick = () => {
-    const pId = inputId; // e.g. 'p-adjPruebaFisica'
+    const pId = inputId;
     if (isEditing(pId) || campoDestino === 'fotoPerfil') inputReal.click();
   };
 
@@ -2290,7 +2235,6 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
       if (campoDestino === 'fotoPerfil') { abrirCropper(base64); return; }
       mostrarSubiendo(campoDestino);
       try {
-        // GAS expects full data URL with prefix
         const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo, email: CURRENT_USER.email });
         window.myProfile[campoDestino] = result.url;
         renderEstadoArchivo(campoDestino, result.url);
@@ -2333,7 +2277,6 @@ function mostrarErrorUpload(campo) {
 
 // ── FOTO DE PERFIL ────────────────────────────────────────────
 function clickEditarFoto() {
-  // Foto always editable — no edit mode required
   document.getElementById('p-fotoPerfil')?.click();
 }
 
@@ -2342,10 +2285,7 @@ function abrirFotoSinEdicion() {
   document.getElementById('p-fotoPerfil')?.click();
 }
 
-function setSecAvatarEditable(editable) {
-  // The main avatar-container (in hero) is always clickable
-  // sec-row-avatar in generales section uses clickEditarFoto() which checks edit mode
-}
+function setSecAvatarEditable(editable) {}
 
 function renderFotoPerfil(url) {
   console.log('[renderFotoPerfil] url:', url);
@@ -2361,7 +2301,6 @@ function renderFotoPerfil(url) {
 function normalizarDriveUrl(url) {
   if (!url) return '';
   console.log('[normalizarDriveUrl] input:', url);
-  // Extract Drive file ID from any Drive URL format
   let fileId = null;
   const m1 = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (m1?.[1]) fileId = m1[1];
@@ -2377,7 +2316,7 @@ function abrirCropper(base64) {
   const modal = document.getElementById('modal-crop');
   const image = document.getElementById('crop-image');
   modal.style.display = 'flex';
-  pushSentinel(); // so back gesture closes the modal
+  pushSentinel();
   image.src = base64;
   if (cropper) cropper.destroy();
   cropper = new Cropper(image, {
@@ -2442,7 +2381,6 @@ function mostrarCargandoFoto(show) {
         document.body.appendChild(el);
       }
       el.style.display = 'flex';
-      // Safety net: auto-remove after 15s in case cleanup fails
       clearTimeout(el._safetyTimer);
       el._safetyTimer = setTimeout(() => { el.style.display = 'none'; }, 15000);
     } else {
@@ -2493,11 +2431,9 @@ let dpState = {
 };
 
 function parseFecha(str) {
-  // Accepts DD/MM/YYYY (primary), YYYY-MM-DD, or legacy M/D/YYYY
   if (!str) return null;
   const slash = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (slash) {
-    // DD/MM/YYYY — day is first (our stored format)
     return { day: parseInt(slash[1]), month: parseInt(slash[2])-1, year: parseInt(slash[3]) };
   }
   const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -2506,7 +2442,6 @@ function parseFecha(str) {
 }
 
 function formatFecha(y, m, d) {
-  // Store as DD/MM/YYYY
   const dd = String(d).padStart(2, '0');
   const mm = String(m + 1).padStart(2, '0');
   return `${dd}/${mm}/${y}`;
@@ -2518,7 +2453,6 @@ function formatFechaDisplay(y, m, d) {
 
 function abrirDatePicker(valorActual, onConfirm) {
   const parsed = parseFecha(valorActual);
-  // Always ensure valid numbers
   dpState.viewYear  = (parsed && parsed.year)  ? parsed.year  : 1990;
   dpState.viewMonth = (parsed && typeof parsed.month === 'number') ? parsed.month : 0;
   dpState.selYear   = parsed ? parsed.year  : null;
@@ -2527,7 +2461,6 @@ function abrirDatePicker(valorActual, onConfirm) {
   dpState.yearMode  = false;
   dpState.monthMode = false;
   dpState.onConfirm = onConfirm;
-  // Clear any previous error
   const errEl = document.getElementById('dp-error');
   if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
 
@@ -2544,11 +2477,9 @@ function cerrarDatePicker() {
 function renderDatePicker() {
   const { viewYear, viewMonth, selYear, selMonth, selDay, yearMode } = dpState;
 
-  // Guard: ensure month is always a valid 0-11 integer
   const safeMonth = (Number.isInteger(viewMonth) && viewMonth >= 0 && viewMonth <= 11) ? viewMonth : 0;
   const safeYear  = (Number.isInteger(viewYear)  && viewYear > 1900) ? viewYear : 1990;
 
-  // Header label
   const lbl = document.getElementById('dp-selected-label');
   if (lbl) {
     if (Number.isInteger(selYear) && Number.isInteger(selMonth) && Number.isInteger(selDay)) {
@@ -2567,7 +2498,6 @@ function renderDatePicker() {
   const yearGrid   = document.getElementById('dp-year-grid');
   const monthGrid  = document.getElementById('dp-month-grid');
 
-  // Hide/show prev-next arrows in month/year mode
   const navArrows = document.getElementById('dp-nav-arrows');
   if (navArrows) navArrows.style.display = (yearMode || dpState.monthMode) ? 'none' : 'flex';
 
@@ -2595,9 +2525,9 @@ function renderDaysGrid() {
   const daysEl = document.getElementById('dp-days');
   daysEl.innerHTML = '';
 
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  const offset = (firstDay + 6) % 7; // Monday-first
+  const offset = (firstDay + 6) % 7;
 
   const today = new Date();
 
@@ -2644,7 +2574,6 @@ function renderYearGrid() {
     });
     yearGrid.appendChild(btn);
   }
-  // Scroll to selected
   requestAnimationFrame(() => {
     const sel = yearGrid.querySelector('.dp-year-selected');
     if (sel) sel.scrollIntoView({ block: 'center' });
@@ -2652,7 +2581,6 @@ function renderYearGrid() {
 }
 
 function animateDp() {
-  // Briefly fade out the grid so re-render feels animated
   const grid = document.getElementById('dp-grid-wrap');
   const yearG = document.getElementById('dp-year-grid');
   const lbl = document.getElementById('dp-month-label');
@@ -2683,7 +2611,6 @@ function renderMonthGrid() {
   });
 }
 
-// Wire up date picker events once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dp-prev')?.addEventListener('click', () => {
     dpState.viewMonth--;
@@ -2695,8 +2622,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dpState.viewMonth > 11) { dpState.viewMonth = 0; dpState.viewYear++; }
     animateDp(); renderDatePicker();
   });
-  // Use event delegation on the modal — labels get recreated by renderDatePicker
-  // so we can't attach listeners directly; listen on the stable modal container instead
   const dpModal = document.getElementById('date-picker-modal');
   if (dpModal) {
     dpModal.addEventListener('click', (e) => {
@@ -2736,7 +2661,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Init date picker trigger for fechaNacimiento
+// ── FECHA TRIGGER — FIX: leer textContent además de value ────
+// p-fechaNacimiento es un <span> en el HTML, así que renderTodo()
+// escribe en .textContent. initFechaTrigger() debe leer ambos.
 function initFechaTrigger() {
   const input = document.getElementById('p-fechaNacimiento');
   if (!input) return;
@@ -2750,38 +2677,48 @@ function initFechaTrigger() {
     trigger = document.createElement('button');
     trigger.type = 'button';
     trigger.className = 'date-picker-trigger';
-    // Build: [date text LEFT] [icon RIGHT]
     const txtNode = document.createTextNode('—');
     const icoSpan = document.createElement('span');
     icoSpan.className = 'material-icons dp-trig-ico';
     icoSpan.textContent = 'edit_calendar';
-    trigger.appendChild(txtNode);  // first = left
-    trigger.appendChild(icoSpan);  // second = right
+    trigger.appendChild(txtNode);
+    trigger.appendChild(icoSpan);
     container.appendChild(trigger);
   }
-  // Refresh the text node (second child), icon span stays untouched
+
+  // ── FIX: leer valor desde textContent (span) O value (input) ──
+  function getStoredValue() {
+    return input.value || input.textContent || '';
+  }
+
   function refreshTriggerDisplay() {
-    const p = parseFecha(input.value);
+    const rawVal = getStoredValue();
+    const p = parseFecha(rawVal);
     const txt = p
       ? `${p.day} ${MESES_CORTO[p.month]} ${p.year}`
-      : (input.value || '—');
-    // Text node is first child, icon span is last
-    const textNode = trigger.childNodes[0]?.nodeType === Node.TEXT_NODE ? trigger.childNodes[0] : Array.from(trigger.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+      : (rawVal && rawVal !== 'No hay datos' ? rawVal : '—');
+    const textNode = trigger.childNodes[0]?.nodeType === Node.TEXT_NODE
+      ? trigger.childNodes[0]
+      : Array.from(trigger.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
     if (textNode) {
       textNode.nodeValue = txt;
     } else {
-      trigger.appendChild(document.createTextNode(txt));
+      trigger.insertBefore(document.createTextNode(txt), trigger.firstChild);
     }
   }
+
   refreshTriggerDisplay();
   trigger.disabled = false;
 
   trigger.addEventListener('click', (e) => {
     e.preventDefault(); e.stopPropagation();
     if (!isEditing('p-fechaNacimiento')) return;
-    const currentVal = input.value || '';
+    // ── FIX: leer valor actual desde ambas fuentes ──
+    const currentVal = getStoredValue();
     abrirDatePicker(currentVal, val => {
+      // ── FIX: escribir en ambos para mantener sincronía ──
       input.value = val;
+      input.textContent = val;
       refreshTriggerDisplay();
     });
   });
@@ -2804,7 +2741,6 @@ function detectarEntorno() {
   const isAndroid    = /Android/i.test(ua);
   const isIPad       = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-  // Browser detection
   const isSamsungBrowser = /SamsungBrowser/i.test(ua);
   const isChrome         = /Chrome|CriOS/i.test(ua) && !/Edg|OPR|Opera|SamsungBrowser/i.test(ua);
   const isSafari         = /Safari/i.test(ua) && !/Chrome|CriOS|FxiOS|OPR|SamsungBrowser/i.test(ua);
@@ -2813,12 +2749,10 @@ function detectarEntorno() {
   const isEdge           = /Edg\//i.test(ua);
   const isMiui           = /XiaoMi|MIUI/i.test(ua);
 
-  // WebView detection (WhatsApp, Instagram, Telegram, etc.)
   const isWebView = (isIOS && !/Safari/i.test(ua) && /AppleWebKit/i.test(ua)) ||
                     /wv|WebView/i.test(ua) ||
                     /FBAN|FBAV|Instagram|Twitter|Line|Snapchat/i.test(ua);
 
-  // Standalone = already installed
   const isStandalone = window.navigator.standalone === true ||
     window.matchMedia('(display-mode: standalone)').matches ||
     window.matchMedia('(display-mode: fullscreen)').matches;
@@ -2830,17 +2764,13 @@ function detectarEntorno() {
 function mostrarInstallBannerSiCorresponde() {
   const env = detectarEntorno();
 
-  // Already installed as PWA — no banner needed
   if (env.isStandalone) return;
-
-  // Desktop — no banner
   if (!env.isIOS && !env.isAndroid) return;
 
-  // Incompatible browser — block app entirely, force Chrome/Safari
   const compatible =
     (env.isAndroid && (env.isChrome || env.isSamsungBrowser)) ||
     (env.isIOS && env.isSafari) ||
-    env.isWebView; // webview handled separately inside banner
+    env.isWebView;
 
   if (!compatible) {
     buildBlockedBrowser(env);
@@ -2920,7 +2850,6 @@ function buildInstallBanner(env) {
   let subtitle = '';
   let body = '';
 
-  // ── CASO 1: WebView (abierto desde WhatsApp, Instagram, etc.) ──
   if (env.isWebView) {
     const browserName = env.isIOS ? 'Safari' : 'Chrome';
     subtitle = 'Abre en ' + browserName;
@@ -2946,7 +2875,6 @@ function buildInstallBanner(env) {
         Copiar enlace
       </button>`;
 
-  // ── CASO 2: iOS Safari ──
   } else if (env.isIOS && env.isSafari) {
     subtitle = env.isIPad ? 'iPad · Safari' : 'iPhone · Safari';
     const shareIcon = env.isIPad
@@ -2968,7 +2896,6 @@ function buildInstallBanner(env) {
         </span>
       </div>`;
 
-  // ── CASO 3: iOS pero NO Safari (Chrome, Firefox, etc.) ──
   } else if (env.isIOS && !env.isSafari) {
     subtitle = 'iPhone / iPad · Requiere Safari';
     body = `
@@ -2988,7 +2915,6 @@ function buildInstallBanner(env) {
         Copiar enlace para Safari
       </button>`;
 
-  // ── CASO 4: Android Chrome con prompt nativo disponible ──
   } else if (env.isAndroid && env.isChrome && deferredInstallPrompt) {
     subtitle = 'Android · Chrome';
     body = `
@@ -3024,7 +2950,6 @@ function buildInstallBanner(env) {
         font-family:inherit;cursor:pointer;box-sizing:border-box;
       ">📲 Instalar ahora</button>`;
 
-  // ── CASO 5: Android Chrome sin prompt (ya se mostró o no aplica) ──
   } else if (env.isAndroid && env.isChrome) {
     subtitle = 'Android · Chrome';
     body = `
@@ -3054,7 +2979,6 @@ function buildInstallBanner(env) {
         </div>
       </div>`;
 
-  // ── CASO 6: Samsung Browser ──
   } else if (env.isAndroid && env.isSamsungBrowser) {
     subtitle = 'Android · Samsung Internet';
     body = `
@@ -3074,7 +2998,6 @@ function buildInstallBanner(env) {
         </span>
       </div>`;
 
-  // ── CASO 7: Android con browser no compatible (Firefox, Opera, etc.) ──
   } else if (env.isAndroid) {
     subtitle = 'Requiere Chrome';
     body = `
@@ -3122,7 +3045,6 @@ function buildInstallBanner(env) {
   document.body.appendChild(overlay);
   setTimeout(() => { overlay.style.opacity = '1'; }, 100);
 
-  // Native install button
   const nativeBtn = document.getElementById('install-native-btn');
   if (nativeBtn) {
     nativeBtn.addEventListener('click', async () => {
