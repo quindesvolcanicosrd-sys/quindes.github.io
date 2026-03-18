@@ -1326,6 +1326,13 @@ window.addEventListener('popstate', (e) => {
   // Immediately reverse the back navigation so we stay in the PWA
   history.go(1);
 
+  // Date picker open? close it
+  const dpModal = document.getElementById('date-picker-modal');
+  if (dpModal && dpModal.classList.contains('active')) {
+    cerrarDatePicker();
+    return;
+  }
+
   // Edit field sheet open? close it
   const editOverlay = document.querySelector('.edit-field-overlay');
   if (editOverlay) {
@@ -1493,7 +1500,14 @@ function abrirPaginaArchivo(fieldKey, opciones) {
   const overlay = document.createElement('div');
   overlay.className = 'file-page-overlay';
   const currentUrl = window.myProfile[fieldKey] || '';
-  const isImage = currentUrl && /\.(jpg|jpeg|png|webp|gif)/i.test(currentUrl);
+  // Build thumbnail URL for preview (works for Drive files)
+  let thumbUrl = '';
+  if (currentUrl) {
+    const idMatch = currentUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/) || currentUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (idMatch) thumbUrl = 'https://drive.google.com/thumbnail?id=' + idMatch[1] + '&sz=w600';
+    else thumbUrl = currentUrl;
+  }
+
   overlay.innerHTML = `
     <div class="file-page-sheet">
       <div class="file-page-header">
@@ -1505,10 +1519,12 @@ function abrirPaginaArchivo(fieldKey, opciones) {
       <div class="file-page-body">
         ${currentUrl ? `
           <div class="file-page-preview">
-            ${isImage
-              ? `<img src="${currentUrl}" class="file-page-img" alt="Vista previa">`
-              : `<div class="file-page-doc-icon"><span class="material-icons">insert_drive_file</span><span>Archivo subido</span></div>`
-            }
+            <img src="${thumbUrl}" class="file-page-img" alt="Vista previa"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="file-page-doc-icon" style="display:none;">
+              <span class="material-icons">insert_drive_file</span>
+              <span>Archivo subido</span>
+            </div>
           </div>
           <a href="${currentUrl}" target="_blank" rel="noopener" class="file-page-btn file-page-btn-primary">
             <span class="material-icons">open_in_new</span>
@@ -1690,22 +1706,19 @@ function abrirEditSheet(fieldKey, opciones) {
     getValue = () => Array.from(body.querySelectorAll('.edit-chip-btn.active')).map(b => b.textContent.trim()).join(', ');
 
   } else if (tipo === 'fecha') {
-    // Close the sheet and use the date picker directly
+    // Open date picker directly — no sheet needed
     const cleanVal = (currentVal === EMPTY || !currentVal) ? '' : String(currentVal);
-    // Remove the sheet before opening date picker
-    setTimeout(() => {
-      overlay.remove();
-      abrirDatePicker(cleanVal, async (fecha) => {
-        // Save directly
-        window.myProfile[fieldKey] = fecha;
-        const datos = recogerTodosLosDatos();
-        datos[fieldKey] = fecha;
-        try {
-          await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
-          renderTodo(window.myProfile);
-        } catch(e) { console.error(e); }
-      });
-    }, 50);
+    // Remove overlay immediately (no pushSentinel was called yet)
+    document.body.removeChild(overlay);
+    abrirDatePicker(cleanVal, async (fecha) => {
+      window.myProfile[fieldKey] = fecha;
+      const datos = recogerTodosLosDatos();
+      datos[fieldKey] = fecha;
+      try {
+        await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+        renderTodo(window.myProfile);
+      } catch(e) { console.error(e); }
+    });
     return; // Don't render the sheet body
   }
 
