@@ -377,33 +377,31 @@ function mostrarCuentaYaRegistrada(email, user) {
 
   document.body.appendChild(overlay);
 
-  // After 2s continue loading the app normally
-  setTimeout(() => {
+  // Start loading the app immediately in the background — keep overlay visible the whole time
+  CURRENT_USER = user;
+  document.getElementById('user-email').textContent = user.email;
+
+  gasCall('getMyProfile', { rowNumber: user.rowNumber }).then(profile => {
+    window.myProfile = profile;
+    configurarTodasLasSubidas();
+    renderTodo(profile);
+    aplicarPermisos();
+
+    // App is ready — now fade out overlay and show app
     clearInterval(msgTimer);
     clearInterval(iconTimer);
-    overlay.style.transition = 'opacity 0.3s ease';
+    document.getElementById('appContent').style.display = 'block';
+    overlay.style.transition = 'opacity 0.4s ease';
     overlay.style.opacity = '0';
-    setTimeout(() => {
-      overlay.remove();
-      // Now load the app with the found user
-      CURRENT_USER = user;
-      document.getElementById('loadingScreen').style.display = 'flex';
-      iniciarDerbyLoader();
-      gasCall('getMyProfile', { rowNumber: user.rowNumber }).then(profile => {
-        window.myProfile = profile;
-        configurarTodasLasSubidas();
-        renderTodo(profile);
-        aplicarPermisos();
-        detenerDerbyLoader();
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('appContent').style.display    = 'block';
-        document.getElementById('user-email').textContent = user.email;
-      }).catch(err => {
-        console.error(err);
-        mostrarLoginScreen();
-      });
-    }, 300);
-  }, 2200);
+    setTimeout(() => overlay.remove(), 400);
+
+  }).catch(err => {
+    clearInterval(msgTimer);
+    clearInterval(iconTimer);
+    console.error(err);
+    overlay.remove();
+    mostrarLoginScreen();
+  });
 }
 
 function mostrarRegistroDesdeLogin() {
