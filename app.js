@@ -1445,13 +1445,13 @@ function editarCampo(fieldKey, opciones) {
     return;
   }
 
-  // Searchable list (pais, codigoPais)
-  if (SEARCH_FIELDS.includes(fieldKey)) {
+  // All single selects use the bottom sheet slider (scrollable list)
+  if (tipo === 'select') {
     abrirSelectorConBusqueda(fieldKey, opciones);
     return;
   }
 
-  // Text / tel / fecha / select / multiselect — bottom sheet
+  // Text / tel / fecha / multiselect — bottom sheet
   abrirEditSheet(fieldKey, opciones);
 }
 
@@ -1493,6 +1493,7 @@ function abrirPaginaArchivo(fieldKey, opciones) {
   const overlay = document.createElement('div');
   overlay.className = 'file-page-overlay';
   const currentUrl = window.myProfile[fieldKey] || '';
+  const isImage = currentUrl && /\.(jpg|jpeg|png|webp|gif)/i.test(currentUrl);
   overlay.innerHTML = `
     <div class="file-page-sheet">
       <div class="file-page-header">
@@ -1503,21 +1504,33 @@ function abrirPaginaArchivo(fieldKey, opciones) {
       </div>
       <div class="file-page-body">
         ${currentUrl ? `
-          <a href="${currentUrl}" target="_blank" rel="noopener" class="file-page-view-btn">
+          <div class="file-page-preview">
+            ${isImage
+              ? `<img src="${currentUrl}" class="file-page-img" alt="Vista previa">`
+              : `<div class="file-page-doc-icon"><span class="material-icons">insert_drive_file</span><span>Archivo subido</span></div>`
+            }
+          </div>
+          <a href="${currentUrl}" target="_blank" rel="noopener" class="file-page-btn file-page-btn-primary">
             <span class="material-icons">open_in_new</span>
             Ver en Google Drive
-          </a>` : `
+          </a>
+          <label class="file-page-btn file-page-btn-secondary">
+            <span class="material-icons">swap_horiz</span>
+            Reemplazar archivo
+            <input type="file" accept=".pdf,image/*" style="display:none;"
+              onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
+          </label>` : `
           <div class="file-page-empty">
             <span class="material-icons">insert_drive_file</span>
             <p>No hay archivo subido</p>
-          </div>`}
-        <label class="file-page-upload-btn">
-          <span class="material-icons">${currentUrl ? 'swap_horiz' : 'upload'}</span>
-          ${currentUrl ? 'Reemplazar archivo' : 'Subir archivo'}
-          <input type="file" accept=".pdf,image/*" style="display:none;"
-            onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
-        </label>
-        <div id="file-page-status" style="font-size:13px;color:var(--text3);text-align:center;min-height:24px;margin-top:4px;"></div>
+          </div>
+          <label class="file-page-btn file-page-btn-primary">
+            <span class="material-icons">upload</span>
+            Subir archivo
+            <input type="file" accept=".pdf,image/*" style="display:none;"
+              onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
+          </label>`}
+        <div id="file-page-status" style="font-size:13px;color:var(--text3);text-align:center;min-height:24px;margin-top:8px;"></div>
       </div>
     </div>
   `;
@@ -1570,36 +1583,28 @@ function abrirSelectorConBusqueda(fieldKey, opciones) {
           <span class="material-icons">close</span>
         </button>
       </div>
-      <div class="edit-search-wrap">
-        <span class="material-icons edit-search-ico">search</span>
-        <input id="edit-search-input" class="edit-search-input" type="text" placeholder="Buscar…" autocomplete="off">
-      </div>
       <div class="edit-search-list" id="edit-search-list"></div>
     </div>
   `;
   document.body.appendChild(overlay);
   overlay._fieldKey = fieldKey;
 
-  const renderList = (filter) => {
-    const list = document.getElementById('edit-search-list');
-    const filtered = filter
-      ? options.filter(o => o.toLowerCase().includes(filter.toLowerCase()))
-      : options;
-    list.innerHTML = filtered.map(o => `
-      <div class="edit-search-item ${o === current ? 'active' : ''}"
-           onclick="seleccionarOpcionBusqueda('${fieldKey}', this, '${o.replace(/'/g,"\'")}')">
-        ${o}
-        ${o === current ? '<span class="material-icons" style="font-size:18px;margin-left:auto;color:var(--accent);">check</span>' : ''}
-      </div>`).join('');
-  };
+  const list = document.getElementById('edit-search-list');
+  list.innerHTML = options.map(o => `
+    <div class="edit-search-item ${o === current ? 'active' : ''}"
+         onclick="seleccionarOpcionBusqueda('${fieldKey}', this, '${o.replace(/'/g,"\'")}')">
+      ${o}
+      ${o === current ? '<span class="material-icons" style="font-size:18px;margin-left:auto;color:var(--accent);">check</span>' : ''}
+    </div>`).join('');
 
-  renderList('');
+  // Scroll to selected item
   requestAnimationFrame(() => {
     overlay.classList.add('visible');
     document.getElementById('edit-field-sheet')?.classList.add('visible');
+    const active = list.querySelector('.edit-search-item.active');
+    if (active) active.scrollIntoView({ block: 'center' });
   });
 
-  document.getElementById('edit-search-input')?.addEventListener('input', e => renderList(e.target.value));
   overlay.addEventListener('click', e => { if (e.target === overlay) cerrarEditarCampo(); });
 }
 
@@ -1660,17 +1665,7 @@ function abrirEditSheet(fieldKey, opciones) {
       placeholder="${label}…" autocomplete="off">`;
     const input = document.getElementById('edit-field-input');
 
-    // Move sheet up when keyboard opens — smooth transition
-    const sheet = document.getElementById('edit-field-sheet');
-    if (window.visualViewport) {
-      const onVVResize = () => {
-        const gap = window.innerHeight - window.visualViewport.height;
-        sheet.style.transition = 'margin-bottom 0.3s cubic-bezier(0.4,0,0.2,1)';
-        sheet.style.marginBottom = gap > 50 ? (gap + 8) + 'px' : '0';
-      };
-      window.visualViewport.addEventListener('resize', onVVResize);
-      overlay._vvListener = onVVResize;
-    }
+    // No keyboard movement — just let it be, input stays visible via scroll
 
     setTimeout(() => { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }, 150);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') confirmarEditarCampo(); });
@@ -1695,20 +1690,23 @@ function abrirEditSheet(fieldKey, opciones) {
     getValue = () => Array.from(body.querySelectorAll('.edit-chip-btn.active')).map(b => b.textContent.trim()).join(', ');
 
   } else if (tipo === 'fecha') {
+    // Close the sheet and use the date picker directly
     const cleanVal = (currentVal === EMPTY || !currentVal) ? '' : String(currentVal);
-    body.innerHTML = `<div id="edit-fecha-display" style="
-      font-size:16px;color:var(--text);padding:12px 0;text-align:center;min-height:40px;
-    ">${cleanVal || 'Toca para seleccionar'}</div>`;
-    let fechaSeleccionada = cleanVal;
-    // Open date picker immediately
+    // Remove the sheet before opening date picker
     setTimeout(() => {
-      abrirDatePicker(cleanVal, (fecha) => {
-        fechaSeleccionada = fecha;
-        const disp = document.getElementById('edit-fecha-display');
-        if (disp) disp.textContent = fecha;
+      overlay.remove();
+      abrirDatePicker(cleanVal, async (fecha) => {
+        // Save directly
+        window.myProfile[fieldKey] = fecha;
+        const datos = recogerTodosLosDatos();
+        datos[fieldKey] = fecha;
+        try {
+          await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+          renderTodo(window.myProfile);
+        } catch(e) { console.error(e); }
       });
-    }, 100);
-    getValue = () => fechaSeleccionada;
+    }, 50);
+    return; // Don't render the sheet body
   }
 
   overlay._getValue = getValue;
@@ -1734,10 +1732,7 @@ function editChipToggle(btn) {
 function cerrarEditarCampo() {
   const overlay = document.querySelector('.edit-field-overlay');
   if (!overlay) return;
-  // Remove visualViewport listener if present
-  if (overlay._vvListener && window.visualViewport) {
-    window.visualViewport.removeEventListener('resize', overlay._vvListener);
-  }
+
   const sheet = document.getElementById('edit-field-sheet');
   overlay.classList.remove('visible');
   if (sheet) sheet.classList.remove('visible');
@@ -1804,15 +1799,7 @@ function recogerTodosLosDatos() {
 }
 
 function mostrarToastGuardado() {
-  const t = document.createElement('div');
-  t.className = 'toast-guardado';
-  t.innerHTML = '<span class="material-icons">check_circle</span> Guardado';
-  document.body.appendChild(t);
-  requestAnimationFrame(() => t.classList.add('visible'));
-  setTimeout(() => {
-    t.classList.remove('visible');
-    setTimeout(() => t.remove(), 300);
-  }, 2000);
+  // Toast removed — too distracting when saving multiple fields
 }
 
 
