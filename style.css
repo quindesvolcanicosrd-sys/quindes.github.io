@@ -877,14 +877,15 @@ input[type="file"] { display: none !important; }
 /* ══ FONT + TAP HIGHLIGHT: globales ══ */
 * {
   font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif;
-  /* Eliminar el highlight azul/gris de tap en TODA la app */
   -webkit-tap-highlight-color: transparent;
-  /* Eliminar selección de texto al tocar */
   -webkit-touch-callout: none;
+  /* Evitar selección de texto al mantener presionado */
+  -webkit-user-select: none;
+  user-select: none;
 }
 input, button, select, textarea { font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif !important; }
-/* Restaurar selección en inputs de texto para que el usuario pueda copiar/pegar */
-input[type="text"], input[type="tel"], input[type="email"], textarea {
+/* Restaurar selección solo en inputs para copiar/pegar */
+input[type="text"], input[type="tel"], input[type="email"], input[type="search"], textarea {
   -webkit-touch-callout: default;
   -webkit-user-select: text;
   user-select: text;
