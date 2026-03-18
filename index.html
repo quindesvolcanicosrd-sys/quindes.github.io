@@ -191,8 +191,7 @@
           </div>
           <p class="reg-foto-hint" id="reg-foto-hint">Toca para agregar tu foto</p>
         </div>
-        <input type="file" id="reg-foto-input" accept="image/*" style="display:none;">
-      </div>
+</div>
       <div class="wiz-actions">
         <button class="wiz-btn-next" id="wiz-btn-foto" onclick="wizNext()" style="display:none;">
           Continuar <span class="material-icons">arrow_forward</span>
@@ -465,8 +464,7 @@
           <span class="pf-badge pf-badge-red" id="hero-rol">—</span>
           <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
         </div>
-        <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
-      </div>
+</div>
       <!-- Settings list — grouped like Android Settings -->
       <div class="settings-group">
         <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
@@ -555,33 +553,41 @@
         <div class="sec-row sec-row-tappable" onclick="editarCampo('nombreDerby', {label:'Nombre Derby', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Nombre Derby</span>
-            <input id="p-nombreDerby" class="sec-input sec-input-bold" disabled>
+            <span id="p-nombreDerby" class="sec-val sec-val-bold"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('numero', {label:'Número Derby', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Número Derby</span>
-            <input id="p-numero" class="sec-input" disabled>
+            <span id="p-numero" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('rolJugadorx', {label:'Posición / Rol', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Posición / Rol</span>
-            <input id="p-rolJugadorx" class="sec-input" disabled>
+            <span id="p-rolJugadorx" class="sec-val"></span>
           </div>
-          <span class="material-icons sec-select-arrow" id="arrow-rolJugadorx" style="display:none;">chevron_right</span>
+          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('nombre', {label:'Nombre en la app', tipo:'text'})" data-role="Admin SemiAdmin">
           <div class="sec-row-body">
             <span class="sec-row-label">Nombre en la app</span>
-            <input id="p-nombre" class="sec-input sec-input-normal" disabled>
+            <span id="p-nombre" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('pronombres', {label:'Pronombres', tipo:'multiselect'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Pronombres</span>
-            <input id="p-pronombres" class="sec-input" disabled style="display:none;">
+            <span id="p-pronombres" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
 <div style="height:32px;"></div>
@@ -605,37 +611,37 @@
         <div class="sec-row sec-row-tappable" onclick="editarCampo('nombreCivil', {label:'Nombre civil', tipo:'text'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Nombre civil</span>
-            <input id="p-nombreCivil" class="sec-input sec-input-normal" disabled>
+            <span id="p-nombreCivil" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('cedulaPasaporte', {label:'Número de documento', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Número de documento</span>
-            <input id="p-cedulaPasaporte" class="sec-input sec-input-normal" disabled>
+            <span id="p-cedulaPasaporte" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
-        <div class="sec-row sec-row-tappable" onclick="editarCampo('mostrarCumple', {label:'¿Mostrar cumpleaños?', tipo:'select'})">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('adjCedula', {label:'Documento de identidad', tipo:'archivo'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Documento de identidad</span>
-            <div id="estado-adjCedula" class="sec-file-status"></div>
-            <input type="file" id="p-adjCedula" accept=".pdf,image/*" style="display:none;">
-            <div class="sec-file-actions">
-              <button type="button" class="btn-file" id="btn-subir-adjCedula">Subir archivo</button>
-              <span id="upload-status-adjCedula"></span>
-            </div>
+            <span id="p-adjCedula" class="sec-val"></span>
           </div>
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('pais', {label:'Nacionalidad', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Nacionalidad</span>
-            <input id="p-pais" class="sec-input" disabled>
+            <span id="p-pais" class="sec-val"></span>
           </div>
-          <span class="material-icons sec-select-arrow" id="arrow-pais" style="display:none;">chevron_right</span>
+          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('fechaNacimiento', {label:'Fecha de nacimiento', tipo:'fecha'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Fecha de nacimiento</span>
-            <input id="p-fechaNacimiento" class="sec-input sec-input-normal" disabled>
+            <span id="p-fechaNacimiento" class="sec-val"></span>
           </div>
         </div>
       </div>
@@ -671,24 +677,23 @@
         <div class="sec-row" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Email (Cuenta de Google)</span>
-            <div class="pf-email-wrap">
-              <input id="p-email" class="sec-input sec-input-normal" placeholder="tu-email" disabled>
-              <span class="pf-email-suffix">@gmail.com</span>
-            </div>
+            <span id="p-email" class="sec-val"></span>
           </div>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('codigoPais', {label:'Código de país', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Código de país</span>
-            <input id="p-codigoPais" class="sec-input" disabled>
+            <span id="p-codigoPais" class="sec-val"></span>
           </div>
-          <span class="material-icons sec-select-arrow" id="arrow-codigoPais" style="display:none;">chevron_right</span>
+          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('telefono', {label:'Teléfono', tipo:'tel'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Teléfono</span>
-            <input id="p-telefono" class="sec-input sec-input-normal" disabled>
+            <span id="p-telefono" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
 <div style="height:32px;"></div>
@@ -712,27 +717,33 @@
         <div class="sec-row sec-row-tappable" onclick="editarCampo('contactoEmergencia', {label:'Contacto de emergencia', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Contacto de emergencia</span>
-            <input id="p-contactoEmergencia" class="sec-input sec-input-normal" disabled>
+            <span id="p-contactoEmergencia" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('grupoSanguineo', {label:'Grupo sanguíneo', tipo:'select'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Grupo sanguíneo</span>
-            <input id="p-grupoSanguineo" class="sec-input" disabled>
+            <span id="p-grupoSanguineo" class="sec-val"></span>
           </div>
-          <span class="material-icons sec-select-arrow" id="arrow-grupoSanguineo" style="display:none;">chevron_right</span>
+          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('alergias', {label:'Alergias', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Alergias</span>
-            <input id="p-alergias" class="sec-input sec-input-normal" disabled>
+            <span id="p-alergias" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('dieta', {label:'Dieta', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Dieta</span>
-            <input id="p-dieta" class="sec-input sec-input-normal" disabled>
+            <span id="p-dieta" class="sec-val"></span>
           </div>
+        
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
       <div class="sec-group">
@@ -742,16 +753,12 @@
         </div>
       </div>
       <div class="sec-group">
-        <div class="sec-row">
+        <div class="sec-row sec-row-tappable" onclick="editarCampo('adjPruebaFisica', {label:'Prueba física (archivo)', tipo:'archivo'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Prueba física (archivo)</span>
-            <div id="estado-adjPruebaFisica" class="sec-file-status"></div>
-            <input type="file" id="p-adjPruebaFisica" accept=".pdf,image/*" style="display:none;">
-            <div class="sec-file-actions">
-              <button type="button" class="btn-file" id="btn-subir-adjPruebaFisica">Subir archivo</button>
-              <span id="upload-status-adjPruebaFisica"></span>
-            </div>
+            <span id="p-adjPruebaFisica" class="sec-val"></span>
           </div>
+          <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
 <div style="height:32px;"></div>
@@ -775,32 +782,34 @@
         <div class="sec-row sec-row-tappable" onclick="editarCampo('estado', {label:'Estado', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Estado</span>
-            <input id="p-estado" class="sec-input" disabled>
+            <span id="p-estado" class="sec-val"></span>
           </div>
-          <span class="material-icons sec-select-arrow" id="arrow-estado" style="display:none;">chevron_right</span>
+          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('asisteSemana', {label:'Asiste por semana', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Asiste por semana</span>
-            <input id="p-asisteSemana" class="sec-input" disabled>
+            <span id="p-asisteSemana" class="sec-val"></span>
           </div>
-          <span class="material-icons sec-select-arrow" id="arrow-asisteSemana" style="display:none;">chevron_right</span>
+          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('pruebaFisica', {label:'Prueba física', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Prueba física (estado)</span>
-            <input id="p-pruebaFisica" class="sec-input" disabled>
+            <span id="p-pruebaFisica" class="sec-val"></span>
           </div>
-          <span class="material-icons sec-select-arrow" id="arrow-pruebaFisica" style="display:none;">chevron_right</span>
+          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('tipoUsuario', {label:'Tipo de usuario', tipo:'select'})" data-role="Admin">
           <div class="sec-row-body">
             <span class="sec-row-label">Tipo de usuario</span>
-            <input id="p-tipoUsuario" class="sec-input" disabled>
+            <span id="p-tipoUsuario" class="sec-val"></span>
           </div>
-          <span class="material-icons sec-select-arrow" id="arrow-tipoUsuario" style="display:none;">chevron_right</span>
+          
         </div>
-      </div>
+      
+          <span class="material-icons sec-row-arrow">chevron_right</span>
+        </div>
       <div class="sec-group">
         <div class="sec-row-toggle" onclick="editarCampo('pagaCuota', {label:'Paga cuota', tipo:'toggle'})" style="cursor:pointer;">
           <span class="sec-toggle-label">Paga cuota</span>
