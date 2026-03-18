@@ -168,6 +168,58 @@ function fixGoogleButtonFlicker() {
   });
 }
 
+
+// ── CERRAR SESIÓN ─────────────────────────────────────────────
+function cerrarSesion() {
+  try { google.accounts.id.disableAutoSelect(); } catch(e) {}
+  // Reset all state
+  CURRENT_USER = null;
+  window.myProfile = null;
+  accessToken = null;
+  wizOrigen = null;
+  window._registroDesdeLogin = false;
+  // Hide app, show login
+  document.getElementById('appContent').style.display = 'none';
+  mostrarLoginScreen();
+}
+
+// ── BORRAR PERFIL ──────────────────────────────────────────────
+function confirmarBorrarPerfil() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;padding:24px;';
+  overlay.innerHTML = `
+    <div style="background:var(--bg);border-radius:20px;padding:28px 24px;max-width:340px;width:100%;text-align:center;">
+      <span class="material-icons" style="font-size:48px;color:var(--accent);margin-bottom:12px;display:block;">warning</span>
+      <h3 style="font-size:20px;font-weight:800;color:var(--text);margin:0 0 10px;">¿Borrar tu perfil?</h3>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:0 0 24px;">
+        Esta acción eliminará <strong>todos tus datos</strong> de la app y de la planilla. No se puede deshacer.
+      </p>
+      <button onclick="ejecutarBorrarPerfil()" style="
+        width:100%;padding:14px;border-radius:12px;border:none;
+        background:var(--accent);color:#fff;font-size:15px;font-weight:700;
+        font-family:inherit;cursor:pointer;margin-bottom:10px;
+      ">Sí, borrar mi perfil</button>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="
+        width:100%;padding:14px;border-radius:12px;border:none;
+        background:var(--card);color:var(--text);font-size:15px;font-weight:600;
+        font-family:inherit;cursor:pointer;
+      ">Cancelar</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+async function ejecutarBorrarPerfil() {
+  const overlay = document.querySelector('[style*="position:fixed"][style*="9999"]');
+  if (overlay) overlay.remove();
+  try {
+    await gasCall('borrarPerfil', { rowNumber: CURRENT_USER.rowNumber });
+    cerrarSesion();
+  } catch(e) {
+    alert('Error al borrar el perfil: ' + (e.message || e));
+  }
+}
+
 function initGoogleAuth() {
   fixGoogleButtonFlicker();
   google.accounts.id.initialize({
@@ -1625,20 +1677,31 @@ function abrirSelectorConBusqueda(fieldKey, opciones) {
 }
 
 async function seleccionarOpcionBusqueda(fieldKey, el, value) {
-  // Visual feedback
+  // Update UI immediately
   el.closest('.edit-search-list').querySelectorAll('.edit-search-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
+  window.myProfile[fieldKey] = value;
+  renderTodo(window.myProfile);
 
-  try {
-    window.myProfile[fieldKey] = value;
-    const datos = recogerTodosLosDatos();
-    datos[fieldKey] = value;
-    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
-    renderTodo(window.myProfile);
-    cerrarEditarCampo();
-    mostrarToastGuardado();
-  } catch(e) {
-    console.error(e);
+  // Close immediately — save in background
+  cerrarEditarCampo();
+
+  // Show "saving" indicator on the field
+  const fieldEl = document.getElementById('p-' + fieldKey);
+  if (fieldEl) {
+    const orig = fieldEl.textContent;
+    fieldEl.innerHTML = '<span style="font-size:12px;color:var(--text4);font-style:italic;">Guardando…</span>';
+    try {
+      const datos = recogerTodosLosDatos();
+      datos[fieldKey] = value;
+      await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+      renderTodo(window.myProfile);
+    } catch(e) {
+      console.error(e);
+      // Revert on error
+      window.myProfile[fieldKey] = orig;
+      renderTodo(window.myProfile);
+    }
   }
 }
 
