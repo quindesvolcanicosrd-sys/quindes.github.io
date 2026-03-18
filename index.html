@@ -27,7 +27,6 @@
   <div class="loading-logo">
     <img src="icons/splash-512x512.png" alt="Quindes" class="loading-logo-img">
   </div>
-  <!-- Derby loader -->
   <div class="derby-loader">
     <div class="derby-icons" id="derby-icons">
       <span class="derby-icon" id="di-0">🛼</span>
@@ -51,7 +50,6 @@
       <h1 class="login-title">Quindes Volcánicos</h1>
       <p class="login-sub">Roller Derby Quito</p>
     </div>
-
     <div class="login-cta-box">
       <p class="login-instruction">
         <span class="login-instruction-icon">👇</span>
@@ -71,9 +69,8 @@
   </div>
 </div>
 
-<!-- NO ENCONTRADO — pantalla intermedia -->
+<!-- NO ENCONTRADO -->
 <div id="noEncontradoScreen" style="display:none;">
-  <!-- Animated background rings — same as login -->
   <div class="login-bg">
     <span class="login-bg-ring login-bg-ring-1"></span>
     <span class="login-bg-ring login-bg-ring-2"></span>
@@ -99,7 +96,7 @@
 <!-- REGISTRO — WIZARD PASO A PASO -->
 <div id="registroScreen" style="display:none;">
 
-  <!-- ══ PASO 0: Login con Google (solo para registro desde login) ══ -->
+  <!-- PASO 0: Login con Google -->
   <div id="wiz-step-0" class="wiz-intro-screen" style="display:none;">
     <div class="wiz-intro-bg">
       <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
@@ -119,7 +116,7 @@
     </div>
   </div>
 
-  <!-- ══ INTRO SCREEN ══ -->
+  <!-- INTRO SCREEN -->
   <div id="wiz-intro" class="wiz-intro-screen">
     <div class="wiz-intro-bg">
       <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
@@ -130,7 +127,6 @@
       <div class="wiz-intro-logo">🛼</div>
       <h1 class="wiz-intro-title">Vamos a crear<br>tu perfil</h1>
       <p class="wiz-intro-sub">Te haremos algunas preguntas cortas. El proceso toma menos de 2 minutos y puedes completar o editar cualquier dato después.</p>
-
       <div class="wiz-intro-steps">
         <div class="wiz-intro-step wiz-intro-step-1">
           <span class="wiz-intro-step-ico">📸</span>
@@ -149,14 +145,11 @@
           <span class="wiz-intro-step-txt">Salud y emergencia</span>
         </div>
       </div>
-
       <button class="wiz-intro-btn" onclick="wizIntroStart()">
         <span>Comenzar</span>
         <span class="material-icons">arrow_forward</span>
       </button>
-      <button class="wiz-btn-skip" onclick="wizIntroVolver()">
-        Volver
-      </button>
+      <button class="wiz-btn-skip" onclick="wizIntroVolver()">Volver</button>
     </div>
   </div>
 
@@ -174,247 +167,247 @@
 
   <div class="wiz-viewport" id="wiz-viewport" style="display:none;">
 
-    <!-- ══ PASO 1: Foto ══ -->
+    <!-- PASO 1: Foto -->
     <div class="wiz-step" id="wiz-step-1">
       <div class="wiz-bg-emoji" aria-hidden="true">📸</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">📸</div>
-      <h2 class="wiz-title">¡Ponele cara al nombre!</h2>
-      <p class="wiz-desc">Sube una foto para que todxs en el equipo puedan identificarte. Es opcional, puedes hacerlo después también.</p>
-      <div class="wiz-content">
-        <div class="reg-foto-center">
-          <div class="reg-avatar" id="reg-avatar" onclick="regAbrirFoto()">
-            <img id="reg-avatar-img" src="" alt="" style="display:none;">
-            <span class="material-icons reg-avatar-placeholder" id="reg-avatar-placeholder">add_a_photo</span>
-            <div class="reg-avatar-overlay" id="reg-avatar-overlay" style="display:none;">
-              <span class="material-icons">photo_camera</span>
+        <div class="wiz-emoji">📸</div>
+        <h2 class="wiz-title">¡Ponele cara al nombre!</h2>
+        <p class="wiz-desc">Sube una foto para que todxs en el equipo puedan identificarte. Es opcional, puedes hacerlo después también.</p>
+        <div class="wiz-content">
+          <div class="reg-foto-center">
+            <div class="reg-avatar" id="reg-avatar" onclick="regAbrirFoto()">
+              <img id="reg-avatar-img" src="" alt="" style="display:none;">
+              <span class="material-icons reg-avatar-placeholder" id="reg-avatar-placeholder">add_a_photo</span>
+              <div class="reg-avatar-overlay" id="reg-avatar-overlay" style="display:none;">
+                <span class="material-icons">photo_camera</span>
+              </div>
             </div>
+            <p class="reg-foto-hint" id="reg-foto-hint">Toca para agregar tu foto</p>
           </div>
-          <p class="reg-foto-hint" id="reg-foto-hint">Toca para agregar tu foto</p>
         </div>
-</div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" id="wiz-btn-foto" onclick="wizNext()" style="display:none;">
-          Continuar <span class="material-icons">arrow_forward</span>
-        </button>
-        <button class="wiz-btn-skip" onclick="wizNext()">Omitir por ahora</button>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" id="wiz-btn-foto" onclick="wizNext()" style="display:none;">
+            Continuar <span class="material-icons">arrow_forward</span>
+          </button>
+          <button class="wiz-btn-skip" onclick="wizNext()">Omitir por ahora</button>
+        </div>
       </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 2: Nombre ══ -->
+    <!-- PASO 2: Nombre -->
     <div class="wiz-step" id="wiz-step-2">
       <div class="wiz-bg-emoji" aria-hidden="true">✨</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">✨</div>
-      <h2 class="wiz-title">¿Cómo te llamamos?</h2>
-      <p class="wiz-desc">Puede ser tu primer nombre, nickname o seudónimo… lo que más te represente y con lo que quieras ser conocidx en el equipo.</p>
-      <div class="wiz-content">
-        <label class="reg-label">Tu nombre <span class="reg-required">*</span></label>
-        <input id="reg-nombre" class="reg-input wiz-big-input" type="text"
-               placeholder="Ej: Valentina, Val, La Bestia…"
-               autocomplete="given-name" maxlength="60"
-               onkeydown="if(event.key==='Enter') wizNext()">
+        <div class="wiz-emoji">✨</div>
+        <h2 class="wiz-title">¿Cómo te llamamos?</h2>
+        <p class="wiz-desc">Puede ser tu primer nombre, nickname o seudónimo… lo que más te represente y con lo que quieras ser conocidx en el equipo.</p>
+        <div class="wiz-content">
+          <label class="reg-label">Tu nombre <span class="reg-required">*</span></label>
+          <input id="reg-nombre" class="reg-input wiz-big-input" type="text"
+                 placeholder="Ej: Valentina, Val, La Bestia…"
+                 autocomplete="given-name" maxlength="60"
+                 onkeydown="if(event.key==='Enter') wizNext()">
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 3: Pronombres ══ -->
+    <!-- PASO 3: Pronombres -->
     <div class="wiz-step" id="wiz-step-3">
       <div class="wiz-bg-emoji" aria-hidden="true">🏳️‍🌈</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">🏳️‍🌈</div>
-      <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
-      <p class="wiz-desc">Elige los pronombres con los que más te identificas y con los que quieres que te reconozcan en el equipo. Es opcional.</p>
-      <div class="wiz-content">
-        <div id="reg-pronombres-chips" class="chip-wrapper wiz-chips"></div>
+        <div class="wiz-emoji">🏳️‍🌈</div>
+        <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
+        <p class="wiz-desc">Elige los pronombres con los que más te identificas y con los que quieres que te reconozcan en el equipo. Es opcional.</p>
+        <div class="wiz-content">
+          <div id="reg-pronombres-chips" class="chip-wrapper wiz-chips"></div>
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 4: País ══ -->
+    <!-- PASO 4: País -->
     <div class="wiz-step" id="wiz-step-4">
       <div class="wiz-bg-emoji" aria-hidden="true">🌎</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">🌎</div>
-      <h2 class="wiz-title">¿De dónde sos?</h2>
-      <p class="wiz-desc">Selecciona tu país de origen. El roller derby une a personas de todo el planeta y nos encanta saberlo.</p>
-      <div class="wiz-content">
-        <label class="reg-label">País de origen <span class="reg-required">*</span></label>
-        <button type="button" id="reg-pais-btn" class="reg-selector-btn wiz-selector-btn">
-          <span id="reg-pais-display" class="reg-selector-val">Seleccionar país…</span>
-          <span class="material-icons reg-selector-ico">expand_more</span>
-        </button>
+        <div class="wiz-emoji">🌎</div>
+        <h2 class="wiz-title">¿De dónde sos?</h2>
+        <p class="wiz-desc">Selecciona tu país de origen. El roller derby une a personas de todo el planeta y nos encanta saberlo.</p>
+        <div class="wiz-content">
+          <label class="reg-label">País de origen <span class="reg-required">*</span></label>
+          <button type="button" id="reg-pais-btn" class="reg-selector-btn wiz-selector-btn">
+            <span id="reg-pais-display" class="reg-selector-val">Seleccionar país…</span>
+            <span class="material-icons reg-selector-ico">expand_more</span>
+          </button>
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 5: Teléfono ══ -->
+    <!-- PASO 5: Teléfono -->
     <div class="wiz-step" id="wiz-step-5">
       <div class="wiz-bg-emoji" aria-hidden="true">📱</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">📱</div>
-      <h2 class="wiz-title">Tu número de contacto</h2>
-      <p class="wiz-desc">Selecciona tu prefijo y escribe tu número. Prometemos que no te enviaremos spam ni amenazas… solo lo usamos para comunicaciones del equipo 🙃</p>
-      <div class="wiz-content">
-        <label class="reg-label">Teléfono <span class="reg-required">*</span></label>
-        <div class="reg-phone-row">
-          <button type="button" id="reg-codigo-btn" class="reg-selector-btn reg-codigo-btn wiz-selector-btn">
-            <span id="reg-codigo-display" class="reg-selector-val">+?</span>
-            <span class="material-icons reg-selector-ico">expand_more</span>
-          </button>
-          <input id="reg-telefono" class="reg-input reg-tel-input wiz-big-input" type="tel"
-                 placeholder="Número" maxlength="20"
-                 onkeydown="if(event.key==='Enter') wizNext()">
+        <div class="wiz-emoji">📱</div>
+        <h2 class="wiz-title">Tu número de contacto</h2>
+        <p class="wiz-desc">Selecciona tu prefijo y escribe tu número. Prometemos que no te enviaremos spam ni amenazas… solo lo usamos para comunicaciones del equipo 🙃</p>
+        <div class="wiz-content">
+          <label class="reg-label">Teléfono <span class="reg-required">*</span></label>
+          <div class="reg-phone-row">
+            <button type="button" id="reg-codigo-btn" class="reg-selector-btn reg-codigo-btn wiz-selector-btn">
+              <span id="reg-codigo-display" class="reg-selector-val">+?</span>
+              <span class="material-icons reg-selector-ico">expand_more</span>
+            </button>
+            <input id="reg-telefono" class="reg-input reg-tel-input wiz-big-input" type="tel"
+                   placeholder="Número" maxlength="20"
+                   onkeydown="if(event.key==='Enter') wizNext()">
+          </div>
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
         </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 6: Fecha y privacidad ══ -->
+    <!-- PASO 6: Fecha y privacidad -->
     <div class="wiz-step" id="wiz-step-6">
       <div class="wiz-bg-emoji" aria-hidden="true">🎂</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">🎂</div>
-      <h2 class="wiz-title">¡Fecha de cumpleaños!</h2>
-      <p class="wiz-desc">Ingresa tu fecha de nacimiento. Luego elige qué quieres que sea visible para el equipo. Si prefieres privacidad total, solo tus entrenadorxs verán esos datos.</p>
-      <div class="wiz-content">
-        <label class="reg-label">Fecha de nacimiento <span class="reg-required">*</span></label>
-        <button type="button" id="reg-fecha-btn" class="reg-selector-btn wiz-selector-btn">
-          <span id="reg-fecha-display" class="reg-selector-val">Seleccionar fecha…</span>
-          <span class="material-icons reg-selector-ico">edit_calendar</span>
-        </button>
-        <div class="wiz-privacy-box">
-          <p class="wiz-privacy-title">¿Qué ven tus compañerxs? 👀</p>
-          <div class="wiz-privacy-row">
-            <span class="wiz-privacy-q">Mostrar fecha de cumpleaños 🎉</span>
-            <div id="reg-cumple-chips" class="chip-wrapper wiz-chips-inline"></div>
-          </div>
-          <div class="wiz-privacy-row">
-            <span class="wiz-privacy-q">Mostrar edad 🔢</span>
-            <div id="reg-edad-chips" class="chip-wrapper wiz-chips-inline"></div>
+        <div class="wiz-emoji">🎂</div>
+        <h2 class="wiz-title">¡Fecha de cumpleaños!</h2>
+        <p class="wiz-desc">Ingresa tu fecha de nacimiento. Luego elige qué quieres que sea visible para el equipo. Si prefieres privacidad total, solo tus entrenadorxs verán esos datos.</p>
+        <div class="wiz-content">
+          <label class="reg-label">Fecha de nacimiento <span class="reg-required">*</span></label>
+          <button type="button" id="reg-fecha-btn" class="reg-selector-btn wiz-selector-btn">
+            <span id="reg-fecha-display" class="reg-selector-val">Seleccionar fecha…</span>
+            <span class="material-icons reg-selector-ico">edit_calendar</span>
+          </button>
+          <div class="wiz-privacy-box">
+            <p class="wiz-privacy-title">¿Qué ven tus compañerxs? 👀</p>
+            <div class="wiz-privacy-row">
+              <span class="wiz-privacy-q">Mostrar fecha de cumpleaños 🎉</span>
+              <div id="reg-cumple-chips" class="chip-wrapper wiz-chips-inline"></div>
+            </div>
+            <div class="wiz-privacy-row">
+              <span class="wiz-privacy-q">Mostrar edad 🔢</span>
+              <div id="reg-edad-chips" class="chip-wrapper wiz-chips-inline"></div>
+            </div>
           </div>
         </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 7: Datos Derby (opcional) ══ -->
+    <!-- PASO 7: Datos Derby -->
     <div class="wiz-step" id="wiz-step-7">
       <div class="wiz-bg-emoji" aria-hidden="true">⭐</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">⭐</div>
-      <h2 class="wiz-title">Datos Derby <span class="wiz-optional-badge">opcional</span></h2>
-      <p class="wiz-desc">Completa tu nombre y número derby. Si aún no tienes uno o no sabes cuál poner, no te preocupes, puedes completarlo más adelante.</p>
-      <div class="wiz-content">
-        <label class="reg-label">Nombre Derby</label>
-        <input id="reg-nombreDerby" class="reg-input wiz-big-input" type="text"
-               placeholder="Ej: Roller Manía, La Tormenta…" maxlength="60"
-               onkeydown="if(event.key==='Enter') document.getElementById('reg-numero').focus()">
-        <label class="reg-label" style="margin-top:4px;">Número Derby</label>
-        <input id="reg-numero" class="reg-input wiz-big-input" type="text"
-               placeholder="Ej: 13, 666, 007…" maxlength="10"
-               onkeydown="if(event.key==='Enter') wizNext()">
+        <div class="wiz-emoji">⭐</div>
+        <h2 class="wiz-title">Datos Derby <span class="wiz-optional-badge">opcional</span></h2>
+        <p class="wiz-desc">Completa tu nombre y número derby. Si aún no tienes uno o no sabes cuál poner, no te preocupes, puedes completarlo más adelante.</p>
+        <div class="wiz-content">
+          <label class="reg-label">Nombre Derby</label>
+          <input id="reg-nombreDerby" class="reg-input wiz-big-input" type="text"
+                 placeholder="Ej: Roller Manía, La Tormenta…" maxlength="60"
+                 onkeydown="if(event.key==='Enter') document.getElementById('reg-numero').focus()">
+          <label class="reg-label" style="margin-top:4px;">Número Derby</label>
+          <input id="reg-numero" class="reg-input wiz-big-input" type="text"
+                 placeholder="Ej: 13, 666, 007…" maxlength="10"
+                 onkeydown="if(event.key==='Enter') wizNext()">
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+          <button class="wiz-btn-skip" onclick="wizNext()">Omitir por ahora</button>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-        <button class="wiz-btn-skip" onclick="wizNext()">Omitir por ahora</button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 8: Rol en el equipo ══ -->
+    <!-- PASO 8: Rol -->
     <div class="wiz-step" id="wiz-step-8">
       <div class="wiz-bg-emoji" aria-hidden="true">🏅</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">🏅</div>
-      <h2 class="wiz-title">Tu rol en el equipo</h2>
-      <p class="wiz-desc">Selecciona tu rol dentro del equipo. Si no estás segurx de cuál es, elige <strong>"No definido"</strong> y puedes cambiarlo después.</p>
-      <div class="wiz-content">
-        <div id="reg-rol-chips" class="chip-wrapper wiz-chips"></div>
+        <div class="wiz-emoji">🏅</div>
+        <h2 class="wiz-title">Tu rol en el equipo</h2>
+        <p class="wiz-desc">Selecciona tu rol dentro del equipo. Si no estás segurx de cuál es, elige <strong>"No definido"</strong> y puedes cambiarlo después.</p>
+        <div class="wiz-content">
+          <div id="reg-rol-chips" class="chip-wrapper wiz-chips"></div>
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 9: Asistencia (solo jugadorxs) ══ -->
+    <!-- PASO 9: Asistencia -->
     <div class="wiz-step" id="wiz-step-9">
       <div class="wiz-bg-emoji" aria-hidden="true">🏋️</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">🏋️</div>
-      <h2 class="wiz-title">¿Cuánto entrenas?</h2>
-      <p class="wiz-desc">¿Cuántas veces a la semana asistes a los entrenamientos? Esto nos ayuda a organizar mejor al equipo.</p>
-      <div class="wiz-content">
-        <div id="reg-asiste-chips" class="chip-wrapper wiz-chips"></div>
+        <div class="wiz-emoji">🏋️</div>
+        <h2 class="wiz-title">¿Cuánto entrenas?</h2>
+        <p class="wiz-desc">¿Cuántas veces a la semana asistes a los entrenamientos? Esto nos ayuda a organizar mejor al equipo.</p>
+        <div class="wiz-content">
+          <div id="reg-asiste-chips" class="chip-wrapper wiz-chips"></div>
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 10: Salud (opcional) ══ -->
+    <!-- PASO 10: Salud -->
     <div class="wiz-step" id="wiz-step-10">
       <div class="wiz-bg-emoji" aria-hidden="true">🩺</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">🩺</div>
-      <h2 class="wiz-title">Tu salud nos importa <span class="wiz-optional-badge">opcional</span></h2>
-      <p class="wiz-desc">Cuéntanos si tienes alergias a alimentos o medicamentos, o alguna condición de salud que debamos conocer. Esta información es estrictamente confidencial y se usa solo para tu seguridad.</p>
-      <div class="wiz-content">
-        <label class="reg-label">Alergias o condiciones de salud</label>
-        <input id="reg-alergias" class="reg-input" type="text"
-               placeholder="Ej: Alergia a la penicilina, asma…" maxlength="200"
-               onkeydown="if(event.key==='Enter') document.getElementById('reg-dieta').focus()">
-        <label class="reg-label" style="margin-top:4px;">Dieta especial</label>
-        <input id="reg-dieta" class="reg-input" type="text"
-               placeholder="Ej: Vegetariana, sin gluten…" maxlength="100"
-               onkeydown="if(event.key==='Enter') wizNext()">
+        <div class="wiz-emoji">🩺</div>
+        <h2 class="wiz-title">Tu salud nos importa <span class="wiz-optional-badge">opcional</span></h2>
+        <p class="wiz-desc">Cuéntanos si tienes alergias a alimentos o medicamentos, o alguna condición de salud que debamos conocer. Esta información es estrictamente confidencial y se usa solo para tu seguridad.</p>
+        <div class="wiz-content">
+          <label class="reg-label">Alergias o condiciones de salud</label>
+          <input id="reg-alergias" class="reg-input" type="text"
+                 placeholder="Ej: Alergia a la penicilina, asma…" maxlength="200"
+                 onkeydown="if(event.key==='Enter') document.getElementById('reg-dieta').focus()">
+          <label class="reg-label" style="margin-top:4px;">Dieta especial</label>
+          <input id="reg-dieta" class="reg-input" type="text"
+                 placeholder="Ej: Vegetariana, sin gluten…" maxlength="100"
+                 onkeydown="if(event.key==='Enter') wizNext()">
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+          <button class="wiz-btn-skip" onclick="wizNext()">Omitir por ahora</button>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-        <button class="wiz-btn-skip" onclick="wizNext()">Omitir por ahora</button>
-      </div>
-          </div>
     </div>
 
-    <!-- ══ PASO 11: Contacto de emergencia (opcional) ══ -->
+    <!-- PASO 11: Contacto de emergencia -->
     <div class="wiz-step" id="wiz-step-11">
       <div class="wiz-bg-emoji" aria-hidden="true">🆘</div>
       <div class="wiz-step-inner">
-      <div class="wiz-emoji">🆘</div>
-      <h2 class="wiz-title">Contacto de emergencia <span class="wiz-optional-badge">opcional</span></h2>
-      <p class="wiz-desc">Completa los datos de alguien de confianza que podamos contactar en caso de emergencia. Nombre completo seguido de su número de teléfono.</p>
-      <div class="wiz-content">
-        <label class="reg-label">Nombre y teléfono</label>
-        <input id="reg-emergencia" class="reg-input" type="text"
-               placeholder="Ej: María García +593 999 123456" maxlength="150"
-               onkeydown="if(event.key==='Enter') wizNext()">
+        <div class="wiz-emoji">🆘</div>
+        <h2 class="wiz-title">Contacto de emergencia <span class="wiz-optional-badge">opcional</span></h2>
+        <p class="wiz-desc">Completa los datos de alguien de confianza que podamos contactar en caso de emergencia. Nombre completo seguido de su número de teléfono.</p>
+        <div class="wiz-content">
+          <label class="reg-label">Nombre y teléfono</label>
+          <input id="reg-emergencia" class="reg-input" type="text"
+                 placeholder="Ej: María García +593 999 123456" maxlength="150"
+                 onkeydown="if(event.key==='Enter') wizNext()">
+        </div>
+        <div class="wiz-actions">
+          <button id="reg-submit" class="wiz-btn-finish" onclick="submitRegistro()">
+            <span class="material-icons">check_circle</span> ¡Crear mi perfil!
+          </button>
+          <button class="wiz-btn-skip" onclick="regData.contactoEmergencia=''; submitRegistro()">Omitir y finalizar</button>
+          <p class="reg-note">Al crear tu perfil aceptas los <strong>términos y condiciones</strong> y el uso de tus datos personales.</p>
+        </div>
       </div>
-      <div class="wiz-actions">
-        <button id="reg-submit" class="wiz-btn-finish" onclick="submitRegistro()">
-          <span class="material-icons">check_circle</span> ¡Crear mi perfil!
-        </button>
-        <button class="wiz-btn-skip" onclick="regData.contactoEmergencia=''; submitRegistro()">Omitir y finalizar</button>
-        <p class="reg-note">Al crear tu perfil aceptas los <strong>términos y condiciones</strong> y el uso de tus datos personales.</p>
-      </div>
-          </div>
     </div>
 
   </div><!-- /wiz-viewport -->
@@ -438,16 +431,18 @@
 
 <!-- APP SHELL -->
 <div id="appContent" style="display:none;">
-  <!-- ═══════════════════════════════════════════════
-       VISTA PRINCIPAL (home)
-  ═══════════════════════════════════════════════ -->
+
+  <!-- VISTA PRINCIPAL (home) -->
   <div id="view-home" class="app-view active">
+    <!-- ── CAMBIO: home header usa home-header-row para alinear con secciones ── -->
     <header class="app-header">
-      <span class="app-header-title">Mi Perfil</span>
-      <span id="user-email" class="app-header-email"></span>
+      <div class="home-header-row">
+        <span class="app-header-title">Mi Perfil</span>
+        <span id="user-email" class="app-header-email"></span>
+      </div>
     </header>
     <div class="app-scroll">
-      <!-- Hero card — click → Datos Generales -->
+      <!-- Hero card -->
       <div class="hero-card hero-card-clickable" onclick="navegarSeccion('generales')">
         <div class="hero-flat-row">
           <div id="avatar-container" class="disabled hero-avatar-flat" onclick="event.stopPropagation(); abrirFotoSinEdicion()">
@@ -467,7 +462,7 @@
         </div>
         <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
       </div>
-      <!-- Settings list — grouped like Android Settings -->
+      <!-- Settings list -->
       <div class="settings-group">
         <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
           <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
@@ -516,17 +511,15 @@
       <div style="height:32px;"></div>
     </div>
   </div>
-  <!-- ═══════════════════════════════════════════════
-       VISTA SECCIÓN GENERALES
-  ═══════════════════════════════════════════════ -->
+
+  <!-- VISTA GENERALES -->
   <div id="view-generales" class="app-view">
     <header class="app-header app-header-section" id="header-generales">
       <div class="header-row-top">
         <button class="header-back" id="btn-back-generales" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Datos Generales</span>
-        
       </div>
-</header>
+    </header>
     <div class="app-scroll">
       <div id="error-generales" class="error-box" style="display:none;"></div>
       <div class="sec-group">
@@ -567,7 +560,6 @@
             <span class="sec-row-label">Nombre Derby</span>
             <span id="p-nombreDerby" class="sec-val sec-val-bold"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('numero', {label:'Número Derby', tipo:'text'})">
@@ -575,7 +567,6 @@
             <span class="sec-row-label">Número Derby</span>
             <span id="p-numero" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('rolJugadorx', {label:'Posición / Rol', tipo:'select'})">
@@ -583,14 +574,12 @@
             <span class="sec-row-label">Posición / Rol</span>
             <span id="p-rolJugadorx" class="sec-val"></span>
           </div>
-          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('nombre', {label:'Nombre en la app', tipo:'text'})" data-role="Admin SemiAdmin">
           <div class="sec-row-body">
             <span class="sec-row-label">Nombre en la app</span>
             <span id="p-nombre" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('pronombres', {label:'Pronombres', tipo:'multiselect'})">
@@ -598,25 +587,21 @@
             <span class="sec-row-label">Pronombres</span>
             <span id="p-pronombres" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
-<div style="height:32px;"></div>
+      <div style="height:32px;"></div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
-       VISTA SECCIÓN DATOS PERSONALES
-  ═══════════════════════════════════════════════ -->
+  <!-- VISTA DATOS PERSONALES -->
   <div id="view-personales" class="app-view">
     <header class="app-header app-header-section" id="header-personales">
       <div class="header-row-top">
         <button class="header-back" id="btn-back-personales" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Datos Personales</span>
-        
       </div>
-</header>
+    </header>
     <div class="app-scroll">
       <div id="error-personales" class="error-box" style="display:none;"></div>
       <div class="sec-group">
@@ -625,7 +610,6 @@
             <span class="sec-row-label">Nombre civil</span>
             <span id="p-nombreCivil" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('cedulaPasaporte', {label:'Número de documento', tipo:'text'})">
@@ -633,7 +617,6 @@
             <span class="sec-row-label">Número de documento</span>
             <span id="p-cedulaPasaporte" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('adjCedula', {label:'Documento de identidad', tipo:'archivo'})">
@@ -648,7 +631,6 @@
             <span class="sec-row-label">Nacionalidad</span>
             <span id="p-pais" class="sec-val"></span>
           </div>
-          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('fechaNacimiento', {label:'Fecha de nacimiento', tipo:'fecha'})">
           <div class="sec-row-body">
@@ -666,23 +648,19 @@
           <span class="sec-toggle-label">¿Mostrar edad?</span>
           <input id="p-mostrarEdad" style="display:none;">
         </div>
-
       </div>
-<div style="height:32px;"></div>
+      <div style="height:32px;"></div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
-       VISTA SECCIÓN CONTACTO
-  ═══════════════════════════════════════════════ -->
+  <!-- VISTA CONTACTO -->
   <div id="view-contacto" class="app-view">
     <header class="app-header app-header-section" id="header-contacto">
       <div class="header-row-top">
         <button class="header-back" id="btn-back-contacto" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Contacto</span>
-        
       </div>
-</header>
+    </header>
     <div class="app-scroll">
       <div id="error-contacto" class="error-box" style="display:none;"></div>
       <div class="sec-group">
@@ -697,32 +675,27 @@
             <span class="sec-row-label">Código de país</span>
             <span id="p-codigoPais" class="sec-val"></span>
           </div>
-          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('telefono', {label:'Teléfono', tipo:'tel'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Teléfono</span>
             <span id="p-telefono" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
-<div style="height:32px;"></div>
+      <div style="height:32px;"></div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
-       VISTA SECCIÓN SALUD Y EMERGENCIA
-  ═══════════════════════════════════════════════ -->
+  <!-- VISTA SALUD Y EMERGENCIA -->
   <div id="view-salud" class="app-view">
     <header class="app-header app-header-section" id="header-salud">
       <div class="header-row-top">
         <button class="header-back" id="btn-back-salud" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Salud y Emergencia</span>
-        
       </div>
-</header>
+    </header>
     <div class="app-scroll">
       <div id="error-salud" class="error-box" style="display:none;"></div>
       <div class="sec-group">
@@ -731,7 +704,6 @@
             <span class="sec-row-label">Contacto de emergencia</span>
             <span id="p-contactoEmergencia" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('grupoSanguineo', {label:'Grupo sanguíneo', tipo:'select'})">
@@ -739,14 +711,12 @@
             <span class="sec-row-label">Grupo sanguíneo</span>
             <span id="p-grupoSanguineo" class="sec-val"></span>
           </div>
-          
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('alergias', {label:'Alergias', tipo:'text'})">
           <div class="sec-row-body">
             <span class="sec-row-label">Alergias</span>
             <span id="p-alergias" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
         <div class="sec-row sec-row-tappable" onclick="editarCampo('dieta', {label:'Dieta', tipo:'text'})">
@@ -754,7 +724,6 @@
             <span class="sec-row-label">Dieta</span>
             <span id="p-dieta" class="sec-val"></span>
           </div>
-        
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
@@ -773,21 +742,18 @@
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
-<div style="height:32px;"></div>
+      <div style="height:32px;"></div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
-       VISTA SECCIÓN RENDIMIENTO
-  ═══════════════════════════════════════════════ -->
+  <!-- VISTA RENDIMIENTO -->
   <div id="view-rendimiento" class="app-view">
     <header class="app-header app-header-section" id="header-rendimiento">
       <div class="header-row-top">
         <button class="header-back" id="btn-back-rendimiento" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
         <span class="app-header-title">Estado y Rendimiento</span>
-        
       </div>
-</header>
+    </header>
     <div class="app-scroll">
       <div id="error-rendimiento" class="error-box" style="display:none;"></div>
       <div class="sec-group">
@@ -826,9 +792,10 @@
           <input id="p-pagaCuota" style="display:none;">
         </div>
       </div>
-<div style="height:32px;"></div>
+      <div style="height:32px;"></div>
     </div>
   </div>
+
 </div><!-- /appContent -->
 
 <!-- Date picker modal -->
@@ -867,20 +834,15 @@
   </div>
 </div>
 
-<!-- Modal crop (shared by app + registro) -->
+<!-- Modal crop -->
 <div id="modal-crop" style="display:none;">
   <div class="crop-sheet">
-    <!-- Handle -->
     <div class="crop-handle"></div>
-    <!-- Title -->
     <p class="crop-title">Ajusta tu foto</p>
-    <!-- Crop area -->
     <div class="crop-area">
       <img id="crop-image" style="display:block;max-width:100%;">
     </div>
-    <!-- Hint -->
     <p class="crop-hint">Pellizca para hacer zoom · Arrastra para reencuadrar</p>
-    <!-- Actions -->
     <div class="crop-actions">
       <button onclick="cancelarCrop()" class="crop-btn-cancel">Cancelar</button>
       <button onclick="rotarImagen()"  class="crop-btn-rotate">
