@@ -248,15 +248,12 @@ function initGoogleAuth() {
         detenerDerbyLoader();
         iniciarDerbyLoader();
 
-        // 3. El worker maneja getCurrentUser y getMyProfile con sessionToken
-        //    (verifica el sessionToken internamente y usa apiKey con el GAS)
-        accessToken = savedToken; // el worker lo intercepta antes de llegar al GAS
-
-        const user = await gasCall('getCurrentUser', { email: savedEmail });
+        // 3. Llamadas sin token de Google — el worker las autentica con apiKey
+        const user = await gasCallNoToken('getCurrentUser', { email: savedEmail });
         if (!user || !user.found) throw new Error('user not found');
 
         CURRENT_USER = user;
-        const profile = await gasCall('getMyProfile', { rowNumber: user.rowNumber });
+        const profile = await gasCallNoToken('getMyProfile', { rowNumber: user.rowNumber });
         window.myProfile = profile;
 
         configurarTodasLasSubidas();
@@ -369,9 +366,11 @@ function mostrarLoginScreen() {
 
 // ── API ───────────────────────────────────────────────────────
 
-// Llamada sin token — para verificar sesión guardada con solo email
+// Llamada con sessionToken propio (no JWT de Google)
+// El nuevo code.gs verifica este token via HMAC sin llamar a Google
 async function gasCallNoToken(action, data = {}) {
-  const params = new URLSearchParams({ action });
+  const sessionToken = localStorage.getItem('quindes_token') || '';
+  const params = new URLSearchParams({ action, token: sessionToken });
   Object.entries(data).forEach(([k, v]) => params.set(k, v));
   const url = CONFIG.GAS_URL + '?' + params.toString();
   const res = await fetch(url, { method: 'GET', redirect: 'follow' });
