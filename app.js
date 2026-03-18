@@ -354,7 +354,7 @@ async function inicializarApp(email) {
     }
 
     CURRENT_USER = user;
-    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('user-email')?.textContent = user.email;
 
     const profile = await gasCall('getMyProfile', { rowNumber: user.rowNumber });
     window.myProfile = profile;
@@ -441,7 +441,7 @@ function mostrarCuentaYaRegistrada(email, user) {
 
   // Start loading the app immediately in the background — keep overlay visible the whole time
   CURRENT_USER = user;
-  document.getElementById('user-email').textContent = user.email;
+  document.getElementById('user-email')?.textContent = user.email;
 
   gasCall('getMyProfile', { rowNumber: user.rowNumber }).then(profile => {
     window.myProfile = profile;
@@ -1136,7 +1136,7 @@ async function submitRegistro() {
     if (json.error) throw new Error(json.error);
 
     CURRENT_USER = { found: true, rowNumber: json.rowNumber, email: json.email, rolApp: 'Invitado' };
-    document.getElementById('user-email').textContent = json.email;
+    document.getElementById('user-email')?.textContent = json.email;
 
     // Photo URL returned directly from registrarUsuario (uploaded atomically in GAS)
     const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
