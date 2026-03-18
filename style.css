@@ -275,19 +275,24 @@ input[type="file"] { display: none !important; }
 }
 .header-row-top {
   display: flex;
-  /* flex-end ancla el contenido desde abajo — título siempre a la misma
-     altura vertical sin importar si hay botón atrás o no */
-  align-items: flex-end;
+  align-items: center; /* centrado vertical simple */
   gap: 4px;
   min-height: 60px;
-  padding: 0 12px 14px 8px;
+  padding: 10px 12px 14px 8px;
 }
 .header-row-top .app-header-title { flex: 1; }
-/* Botón atrás: se alinea al fondo igual que el título,
-   pero lo subimos para que el ícono quede centrado con el texto */
+/* Sin overrides en header-back — hereda align-items:center del padre */
 .header-row-top .header-back {
-  align-self: flex-end;
-  margin-bottom: 7px;
+  flex-shrink: 0;
+}
+
+/* "MI PERFIL" — indentar igual que los títulos con flecha atrás
+   (8px container + 44px botón + 4px gap = 56px desde el borde) */
+.app-header .home-header-row {
+  display: flex; align-items: center;
+  padding: 10px 20px 14px 56px;
+  min-height: 60px;
+  gap: 4px;
 }
 .header-row-actions {
   overflow: hidden; max-height: 0; opacity: 0;
