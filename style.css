@@ -3331,3 +3331,40 @@ input, button, select, textarea {
   .file-badge-ok { background: rgba(96,165,250,0.15); color: #60a5fa; }
   .file-badge-missing { background: rgba(239,68,68,0.15); color: #f87171; }
 }
+
+/* ── Home danger zone (sign out + delete) ───────────────────── */
+.home-danger-zone {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 0 16px; margin-top: 8px;
+}
+.home-btn-signout, .home-btn-delete {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px; border-radius: 14px;
+  font-size: 15px; font-weight: 600; font-family: inherit;
+  cursor: pointer; border: none; transition: opacity 0.15s;
+}
+.home-btn-signout {
+  background: var(--card);
+  color: var(--text);
+  border: 1.5px solid var(--border) !important;
+}
+.home-btn-delete {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent) !important;
+}
+.home-btn-signout:active, .home-btn-delete:active { opacity: 0.7; }
+
+/* ── Edit sheet — extra padding so keyboard doesn't hide save btn ─ */
+.edit-field-sheet {
+  padding-bottom: 60px !important;
+}
+.edit-field-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  padding: 12px 0 8px;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
