@@ -250,29 +250,17 @@ input[type="file"] { display: none !important; }
   display: flex; align-items: stretch; justify-content: space-between;
   padding-left: 0; padding-right: 0; padding-bottom: 0;
   background: var(--bg);
-  border-bottom: none; box-shadow: none;
+  border-bottom: none;
+  /* Sombra hacia arriba del mismo color del fondo — tapa el gap de 1px en Android */
+  box-shadow: 0 -4px 0 4px var(--bg);
   flex-shrink: 0;
   flex-direction: column;
-  /* Extender el fondo hacia arriba para cubrir cualquier gap residual */
-  margin-top: calc(-1 * env(safe-area-inset-top, 0px));
-  padding-top: calc(env(safe-area-inset-top, 0px) + 0px);
-}
-/* Pseudo-elemento que llena el safe-area con el mismo color de fondo */
-.app-header::before {
-  content: '';
-  display: block;
-  height: env(safe-area-inset-top, 0px);
-  background: var(--bg);
-  margin-top: calc(-1 * env(safe-area-inset-top, 0px));
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
 }
 /* Row inside home header — same as header-row-top in sections */
 .app-header .home-header-row {
   display: flex; align-items: center;
-  padding: 4px 20px 12px 20px;
-  min-height: 56px;
+  padding: 10px 20px 14px 20px;
+  min-height: 60px;
   gap: 4px;
 }
 /* Section headers use stacked layout */
@@ -280,15 +268,16 @@ input[type="file"] { display: none !important; }
   flex-direction: column !important;
   align-items: stretch !important;
   height: auto !important;
-  padding: env(safe-area-inset-top, 0px) 12px 0 8px !important;
+  /* max() asegura al menos 8px de padding superior en Android donde safe-area puede ser 0 */
+  padding: max(env(safe-area-inset-top, 0px), 8px) 12px 0 8px !important;
   gap: 0 !important;
   border-bottom: none !important;
 }
 .header-row-top {
   display: flex; align-items: center; gap: 4px;
-  min-height: 56px;
-  padding-top: 4px;
-  padding-bottom: 12px;
+  min-height: 60px;
+  padding-top: 10px;
+  padding-bottom: 14px;
 }
 .header-row-top .app-header-title { flex: 1; }
 .header-row-actions {
