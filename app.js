@@ -172,8 +172,10 @@ function fixGoogleButtonFlicker() {
 // ── CERRAR SESIÓN ─────────────────────────────────────────────
 function cerrarSesion() {
   try { google.accounts.id.disableAutoSelect(); } catch(e) {}
-  // Limpiar sesión guardada
+  // Borrar sesión del worker y limpiar localStorage
   try {
+    const t = localStorage.getItem('quindes_token');
+    if (t) fetch(CONFIG.GAS_URL + '?action=deleteSession&token=' + encodeURIComponent(t)).catch(() => {});
     localStorage.removeItem('quindes_email');
     localStorage.removeItem('quindes_token');
   } catch(e) {}
@@ -231,29 +233,18 @@ function initGoogleAuth() {
   // ── SESIÓN GUARDADA: si hay email en localStorage, cargar directo ──
   const savedEmail = localStorage.getItem('quindes_email');
   const savedToken = localStorage.getItem('quindes_token');
-  if (savedEmail) {
-    // Intentar cargar sin token — solo verifica que el email esté registrado
-    // Si el worker lo acepta, cargamos directo. Si no, mostramos login.
+  if (savedEmail && savedToken) {
+    // Validar sesión guardada contra el worker
     (async () => {
       try {
-        // Usamos accessToken vacío para getCurrentUser — el worker puede
-        // aceptar esta llamada de solo lectura sin token
-        accessToken = savedToken || 'saved-session';
-        const user = await gasCallNoToken('getCurrentUser', { email: savedEmail });
-        if (!user || !user.found) throw new Error('not found');
-        // Usuario encontrado — cargar perfil con el token guardado
-        accessToken = savedToken || '';
-        const profile = await gasCall('getMyProfile', { rowNumber: user.rowNumber });
-        window.myProfile = profile;
-        CURRENT_USER = user;
-        configurarTodasLasSubidas();
-        renderTodo(profile);
-        aplicarPermisos();
-        detenerDerbyLoader();
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('appContent').style.display    = 'block';
+        const res = await fetch(CONFIG.GAS_URL + '?action=validateSession&token=' + encodeURIComponent(savedToken));
+        const data = await res.json();
+        if (!data.valid || data.email !== savedEmail) throw new Error('invalid session');
+        // Sesión válida — cargar app usando el google token guardado como accessToken
+        accessToken = savedToken;
+        await inicializarApp(savedEmail);
       } catch(e) {
-        // Falló → limpiar y mostrar login normal
+        // Sesión inválida o expirada → limpiar y mostrar login
         localStorage.removeItem('quindes_email');
         localStorage.removeItem('quindes_token');
         accessToken = null;
@@ -291,12 +282,28 @@ function initGoogleAuth() {
 function onGoogleSignIn(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   accessToken = response.credential;
-  // Guardar email y token para sesión persistente
-  try {
-    localStorage.setItem('quindes_email', payload.email);
-    localStorage.setItem('quindes_token', response.credential);
-  } catch(e) {}
-  inicializarApp(payload.email);
+  const email = payload.email;
+
+  // Crear sesión persistente en el worker (token propio que no expira en 1h)
+  fetch(CONFIG.GAS_URL + '?action=createSession&token=' + encodeURIComponent(accessToken) + '&email=' + encodeURIComponent(email))
+    .then(r => r.json())
+    .then(data => {
+      if (data.sessionToken) {
+        try {
+          localStorage.setItem('quindes_email', email);
+          localStorage.setItem('quindes_token', data.sessionToken);
+        } catch(e) {}
+      }
+    })
+    .catch(() => {
+      // Si falla crear la sesión, guardar el token de Google igual (fallback)
+      try {
+        localStorage.setItem('quindes_email', email);
+        localStorage.setItem('quindes_token', accessToken);
+      } catch(e) {}
+    });
+
+  inicializarApp(email);
 }
 
 function mostrarLoginScreen() {
