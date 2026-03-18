@@ -3368,3 +3368,187 @@ input, button, select, textarea {
   padding-left: 20px;
   padding-right: 20px;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PATCH — diseño coherente e integral
+   Aplicar al final de style.css (sobrescribe lo necesario)
+══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Quitar margen entre status bar y header ── */
+/* El problema es padding-top en html/body con safe-area.
+   El app-header usa position:sticky top:0 dentro de app-view,
+   pero el margen visible viene de un gap antes del header. */
+#appContent {
+  padding-top: 0 !important;
+}
+.app-view {
+  padding-top: 0 !important;
+}
+/* Absorber el safe-area-inset-top en el propio header */
+.app-header {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px) !important;
+  min-height: calc(60px + env(safe-area-inset-top, 0px)) !important;
+  background: var(--bg) !important;       /* sin transparencia — tapa el gap */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* Quitar el padding-top global del body que causa el margen */
+html, body {
+  padding-top: 0 !important;
+}
+
+/* ── 2. Badge de archivo en filas — verde/rojo suave ── */
+.file-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px;
+  font-style: normal !important;
+  text-transform: none !important;
+  margin-top: 4px;
+}
+.file-badge-ok {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a !important;
+  -webkit-text-fill-color: #16a34a !important;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+.file-badge-missing {
+  background: rgba(239, 68, 68, 0.10);
+  color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+  border: 1px solid rgba(239, 68, 68, 0.20);
+}
+@media (prefers-color-scheme: light) {
+  .file-badge-ok {
+    background: rgba(22, 163, 74, 0.10);
+    color: #15803d !important;
+    -webkit-text-fill-color: #15803d !important;
+    border-color: rgba(22, 163, 74, 0.22);
+  }
+  .file-badge-missing {
+    background: rgba(220, 38, 38, 0.08);
+    color: var(--accent) !important;
+    -webkit-text-fill-color: var(--accent) !important;
+    border-color: rgba(220, 38, 38, 0.18);
+  }
+}
+
+/* ── 3. File page view — usa app-view, hereda todo automáticamente ── */
+/* Solo necesitamos estilos para el contenido interno */
+
+.file-page-preview {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  margin-bottom: 12px;
+}
+.file-page-img {
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  display: block;
+}
+.file-page-doc-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px;
+  color: var(--text3);
+}
+.file-page-doc-icon .material-icons { font-size: 52px !important; }
+.file-page-doc-icon span:last-child  { font-size: 14px !important; font-weight: 500 !important; }
+
+.file-page-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 0 32px;
+  color: var(--text4);
+}
+.file-page-empty .material-icons { font-size: 52px !important; color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important; }
+.file-page-empty p { font-size: 15px !important; font-weight: 500 !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; margin: 0 !important; }
+
+/* Botón primario (Ver en Drive / Subir archivo) */
+.file-page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 17px 20px;
+  border-radius: 16px;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  font-family: var(--font) !important;
+  font-style: normal !important;
+  text-transform: none !important;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: none;
+  text-decoration: none;
+  margin-bottom: 10px;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s, transform 0.12s;
+}
+.file-page-btn:active { opacity: 0.8; transform: scale(0.98); }
+.file-page-btn .material-icons { font-size: 20px !important; flex-shrink: 0; }
+
+.file-page-btn-primary {
+  background: var(--accent) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: 0 6px 20px rgba(220, 30, 30, 0.30);
+}
+.file-page-btn-primary .material-icons {
+  color: rgba(255,255,255,0.9) !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.9) !important;
+}
+
+/* Botón Reemplazar — prominente, segundo en jerarquía */
+.file-page-btn-replace {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  border: 1.5px solid var(--border) !important;
+}
+.file-page-btn-replace .material-icons {
+  color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+}
+
+/* Mensaje de estado al subir */
+.file-page-status-msg {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--text3) !important;
+  -webkit-text-fill-color: var(--text3) !important;
+  text-align: center;
+  min-height: 20px;
+  margin-top: 4px;
+  padding: 0 4px;
+}
+/* ── 4. Eliminar clases antiguas de file-page que ya no se usan ── */
+.file-page-overlay,
+.file-page-sheet,
+.file-page-header,
+.file-page-back,
+.file-page-title,
+.file-page-body,
+.file-page-btn-secondary {
+  /* Nulled — la nueva implementación usa clases de app-view */
+  all: unset;
+  display: none !important;
+}
