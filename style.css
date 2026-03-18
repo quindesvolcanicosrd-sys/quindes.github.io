@@ -65,6 +65,16 @@ html, body {
   -webkit-text-size-adjust: 100%;
   touch-action: pan-y;
 }
+/* Barra de gestos inferior: mismo color que el fondo */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: env(safe-area-inset-bottom, 0px);
+  background: var(--bg);
+  z-index: 99998;
+  pointer-events: none;
+}
 
 /* ── LOADING ── */
 #loadingScreen {
@@ -241,6 +251,14 @@ input[type="file"] { display: none !important; }
 }
 /* Safe-area: el header absorbe env(safe-area-inset-top) con padding-top.
    El fondo del body cubre el espacio restante con el mismo color. */
+
+/* Línea entre status bar y nav: cubrirla con el color de fondo */
+html {
+  background: #1a1212;
+}
+@media (prefers-color-scheme: light) {
+  html { background: #fcf0f0; }
+}
 .app-view.active { display: flex; transform: translateX(0); }
 .app-view.slide-out { transform: translateX(-30%); }
 
@@ -268,7 +286,7 @@ input[type="file"] { display: none !important; }
 }
 .header-row-top {
   display: flex;
-  align-items: center; /* centrado vertical simple */
+  align-items: center;
   gap: 4px;
   min-height: 60px;
   padding: 19px 12px 0px 8px;
