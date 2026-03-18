@@ -33,6 +33,7 @@ const DERBY_MSGS = [
   'Entrando a pista…',
   'Ignorando arbitrxs…',
   'Cumpliendo penalizaciones…',
+  'Reingresando a pista…',
 ];
 
 let _derbyMsgTimer  = null;
