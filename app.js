@@ -173,7 +173,10 @@ function fixGoogleButtonFlicker() {
 function cerrarSesion() {
   try { google.accounts.id.disableAutoSelect(); } catch(e) {}
   // Limpiar sesión guardada
-  try { localStorage.removeItem('quindes_email'); } catch(e) {}
+  try {
+    localStorage.removeItem('quindes_email');
+    localStorage.removeItem('quindes_token');
+  } catch(e) {}
   // Reset all state
   CURRENT_USER = null;
   window.myProfile = null;
@@ -225,49 +228,74 @@ async function ejecutarBorrarPerfil() {
 function initGoogleAuth() {
   fixGoogleButtonFlicker();
 
-  // Intentar sesión guardada antes de mostrar el login
+  // ── SESIÓN GUARDADA: si hay email en localStorage, cargar directo ──
   const savedEmail = localStorage.getItem('quindes_email');
+  const savedToken = localStorage.getItem('quindes_token');
+  if (savedEmail) {
+    // Intentar cargar sin token — solo verifica que el email esté registrado
+    // Si el worker lo acepta, cargamos directo. Si no, mostramos login.
+    (async () => {
+      try {
+        // Usamos accessToken vacío para getCurrentUser — el worker puede
+        // aceptar esta llamada de solo lectura sin token
+        accessToken = savedToken || 'saved-session';
+        const user = await gasCallNoToken('getCurrentUser', { email: savedEmail });
+        if (!user || !user.found) throw new Error('not found');
+        // Usuario encontrado — cargar perfil con el token guardado
+        accessToken = savedToken || '';
+        const profile = await gasCall('getMyProfile', { rowNumber: user.rowNumber });
+        window.myProfile = profile;
+        CURRENT_USER = user;
+        configurarTodasLasSubidas();
+        renderTodo(profile);
+        aplicarPermisos();
+        detenerDerbyLoader();
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('appContent').style.display    = 'block';
+      } catch(e) {
+        // Falló → limpiar y mostrar login normal
+        localStorage.removeItem('quindes_email');
+        localStorage.removeItem('quindes_token');
+        accessToken = null;
+        detenerDerbyLoader();
+        mostrarLoginScreen();
+      }
+    })();
+    // Inicializar Google en background por si necesitamos el botón
+    google.accounts.id.initialize({
+      client_id: CONFIG.GOOGLE_CLIENT_ID,
+      callback: onGoogleSignIn,
+      auto_select: false,
+    });
+    preRenderResigninButton();
+    return;
+  }
 
+  // Sin sesión guardada — flujo normal de login
   google.accounts.id.initialize({
     client_id: CONFIG.GOOGLE_CLIENT_ID,
     callback: onGoogleSignIn,
-    // auto_select: true permite que Google reautentique silenciosamente
-    // si el usuario ya inició sesión antes en este dispositivo
-    auto_select: true,
-    // cancel_on_tap_outside: false para no interrumpir el flujo silencioso
-    cancel_on_tap_outside: false,
+    auto_select: false,
   });
 
-  // Si hay email guardado, intentar reautenticación silenciosa
-  // Google llamará al callback onGoogleSignIn automáticamente si puede
-  if (savedEmail) {
-    // Dar tiempo a Google para reautenticar silenciosamente
-    // Si no lo hace en 2.5s, mostrar login
-    setTimeout(() => {
-      const loading = document.getElementById('loadingScreen');
-      if (loading && loading.style.display !== 'none') {
-        mostrarLoginScreen();
-      }
-    }, 2500);
-  } else {
-    // Sin sesión guardada — mostrar login rápido
-    setTimeout(() => {
-      const loading = document.getElementById('loadingScreen');
-      if (loading && loading.style.display !== 'none') {
-        mostrarLoginScreen();
-      }
-    }, 1200);
-  }
+  setTimeout(() => {
+    const loading = document.getElementById('loadingScreen');
+    if (loading && loading.style.display !== 'none') {
+      mostrarLoginScreen();
+    }
+  }, 1200);
 
-  // Pre-render the re-sign-in button early
   preRenderResigninButton();
 }
 
 function onGoogleSignIn(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   accessToken = response.credential;
-  // Guardar email para reautenticación silenciosa en próximas aperturas
-  try { localStorage.setItem('quindes_email', payload.email); } catch(e) {}
+  // Guardar email y token para sesión persistente
+  try {
+    localStorage.setItem('quindes_email', payload.email);
+    localStorage.setItem('quindes_token', response.credential);
+  } catch(e) {}
   inicializarApp(payload.email);
 }
 
@@ -301,6 +329,17 @@ function mostrarLoginScreen() {
 }
 
 // ── API ───────────────────────────────────────────────────────
+
+// Llamada sin token — para verificar sesión guardada con solo email
+async function gasCallNoToken(action, data = {}) {
+  const params = new URLSearchParams({ action });
+  Object.entries(data).forEach(([k, v]) => params.set(k, v));
+  const url = CONFIG.GAS_URL + '?' + params.toString();
+  const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+  const text = await res.text();
+  try { return JSON.parse(text); } catch(e) { throw new Error(text); }
+}
+
 async function gasCall(action, data = {}) {
   let res;
 
