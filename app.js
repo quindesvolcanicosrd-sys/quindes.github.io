@@ -26,11 +26,13 @@ if ('serviceWorker' in navigator) {
 
 // ── DERBY LOADER ─────────────────────────────────────────────
 const DERBY_MSGS = [
-  'Cargando…',
+  'Buscando protecciones…',
   'Atando los patines…',
-  'Calentando motores…',
   'Ajustando el casco…',
-  'Entrando a la pista…',
+  '¡5 segundos!',
+  'Entrando a pista…',
+  'Ignorando arbitrxs…',
+  'Cumpliendo penalizaciones…',
 ];
 
 let _derbyMsgTimer  = null;
