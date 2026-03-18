@@ -278,7 +278,7 @@ input[type="file"] { display: none !important; }
   display: flex; align-items: center; gap: 4px;
   min-height: 60px;
   /* mismo padding que home-header-row para alineación exacta */
-  padding: 10px 12px 14px 8px;
+  padding: 10px 12px 14px 18px;
 }
 .header-row-top .app-header-title { flex: 1; }
 .header-row-actions {
