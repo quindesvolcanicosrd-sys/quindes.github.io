@@ -2245,16 +2245,31 @@ function configurarTodasLasSubidas() {
 }
 
 function configurarUpload(inputId, tipoArchivo, campoDestino) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-
-  const nuevoInput = document.createElement('input');
-  nuevoInput.type   = 'file';
-  nuevoInput.id     = inputId;
-  nuevoInput.accept = 'image/*';
-  nuevoInput.style.display = 'none';
-  input.parentNode.replaceChild(nuevoInput, input);
-  let inputReal = nuevoInput;
+  // inputId may point to a <span> (badge display) or an <input> (photo).
+  // For file fields (adjCedula, adjPruebaFisica), we create a separate hidden
+  // file input so we don't replace the span that shows the badge.
+  const fileInputId = 'fileinput-' + campoDestino;
+  let inputReal = document.getElementById(fileInputId);
+  if (!inputReal) {
+    inputReal = document.createElement('input');
+    inputReal.type   = 'file';
+    inputReal.id     = fileInputId;
+    inputReal.accept = 'image/*';
+    inputReal.style.display = 'none';
+    document.body.appendChild(inputReal);
+  }
+  // For the photo field (p-fotoPerfil), also keep the original hidden input in place
+  const originalInput = document.getElementById(inputId);
+  if (originalInput && originalInput.tagName === 'INPUT' && originalInput.type === 'file') {
+    // Replace as before for actual file inputs (fotoPerfil)
+    const nuevoInput = document.createElement('input');
+    nuevoInput.type   = 'file';
+    nuevoInput.id     = inputId;
+    nuevoInput.accept = 'image/*';
+    nuevoInput.style.display = 'none';
+    originalInput.parentNode.replaceChild(nuevoInput, originalInput);
+    inputReal = nuevoInput;
+  }
   inputReal.addEventListener('click', () => { inputReal.value = ''; });
 
   const btnSubir = document.getElementById('btn-subir-' + campoDestino);
