@@ -548,11 +548,10 @@ html {
 /* ══ FILE STATUS BADGES ══ */
 .file-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: 9999px;
+  padding: 6px 14px; border-radius: 8px;
   font-size: 12px !important; font-weight: 700 !important;
   font-style: normal !important; text-transform: none !important;
-  letter-spacing: 0.2px; margin-top: 2px;
-  /* Ensure badge colors are never overridden by parent */
+  letter-spacing: 0.2px; margin-top: 8px;
   -webkit-text-fill-color: currentColor;
 }
 .file-badge-ok {
