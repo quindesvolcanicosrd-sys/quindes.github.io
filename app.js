@@ -234,17 +234,40 @@ function initGoogleAuth() {
   const savedEmail = localStorage.getItem('quindes_email');
   const savedToken = localStorage.getItem('quindes_token');
   if (savedEmail && savedToken) {
-    // Validar sesión guardada contra el worker
+    // Sesión guardada — validar y cargar perfil sin pasar por Google
     (async () => {
       try {
-        const res = await fetch(CONFIG.GAS_URL + '?action=validateSession&token=' + encodeURIComponent(savedToken));
-        const data = await res.json();
-        if (!data.valid || data.email !== savedEmail) throw new Error('invalid session');
-        // Sesión válida — cargar app usando el google token guardado como accessToken
-        accessToken = savedToken;
-        await inicializarApp(savedEmail);
+        // 1. Validar sessionToken contra el worker
+        const valRes  = await fetch(CONFIG.GAS_URL + '?action=validateSession&token=' + encodeURIComponent(savedToken));
+        const valData = await valRes.json();
+        if (!valData.valid || valData.email !== savedEmail) throw new Error('invalid session');
+
+        // 2. Mostrar loader
+        document.getElementById('loadingScreen').style.display  = 'flex';
+        document.getElementById('loginScreen').style.display    = 'none';
+        detenerDerbyLoader();
+        iniciarDerbyLoader();
+
+        // 3. El worker maneja getCurrentUser y getMyProfile con sessionToken
+        //    (verifica el sessionToken internamente y usa apiKey con el GAS)
+        accessToken = savedToken; // el worker lo intercepta antes de llegar al GAS
+
+        const user = await gasCall('getCurrentUser', { email: savedEmail });
+        if (!user || !user.found) throw new Error('user not found');
+
+        CURRENT_USER = user;
+        const profile = await gasCall('getMyProfile', { rowNumber: user.rowNumber });
+        window.myProfile = profile;
+
+        configurarTodasLasSubidas();
+        renderTodo(profile);
+        aplicarPermisos();
+        detenerDerbyLoader();
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('appContent').style.display    = 'block';
+
       } catch(e) {
-        // Sesión inválida o expirada → limpiar y mostrar login
+        console.warn('[SESSION] Saved session failed, showing login:', e.message);
         localStorage.removeItem('quindes_email');
         localStorage.removeItem('quindes_token');
         accessToken = null;
@@ -284,19 +307,28 @@ function onGoogleSignIn(response) {
   accessToken = response.credential;
   const email = payload.email;
 
-  // Crear sesión persistente en el worker (token propio que no expira en 1h)
+  // Crear sesión persistente en el worker
+  console.log('[SESSION] Creating persistent session for:', email);
   fetch(CONFIG.GAS_URL + '?action=createSession&token=' + encodeURIComponent(accessToken) + '&email=' + encodeURIComponent(email))
     .then(r => r.json())
     .then(data => {
+      console.log('[SESSION] createSession response:', JSON.stringify(data));
       if (data.sessionToken) {
         try {
           localStorage.setItem('quindes_email', email);
           localStorage.setItem('quindes_token', data.sessionToken);
+          console.log('[SESSION] Saved sessionToken to localStorage');
+        } catch(e) { console.error('[SESSION] localStorage error:', e); }
+      } else {
+        console.warn('[SESSION] No sessionToken in response, falling back to Google token');
+        try {
+          localStorage.setItem('quindes_email', email);
+          localStorage.setItem('quindes_token', accessToken);
         } catch(e) {}
       }
     })
-    .catch(() => {
-      // Si falla crear la sesión, guardar el token de Google igual (fallback)
+    .catch(e => {
+      console.error('[SESSION] createSession fetch failed:', e);
       try {
         localStorage.setItem('quindes_email', email);
         localStorage.setItem('quindes_token', accessToken);
