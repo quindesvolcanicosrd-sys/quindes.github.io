@@ -1372,7 +1372,7 @@ function renderTodo(profile) {
   setFileBadge('p-adjCedula',       profile.adjCedula);
   setFileBadge('p-adjPruebaFisica', profile.adjPruebaFisica);
 
-  // Stats
+  // Stats — puntos
   const mesEl  = document.getElementById('p-puntosMes');
   const mesLbl = document.getElementById('label-puntosMes');
   if (mesEl)  mesEl.textContent  = profile.puntosMes || '—';
@@ -1385,6 +1385,11 @@ function renderTodo(profile) {
   const anioLbl = document.getElementById('label-puntosAnio');
   if (anioEl)  anioEl.textContent  = profile.puntosAnio || '—';
   if (anioLbl) anioLbl.textContent = 'Año ' + (profile.labelAnio || '');
+  // Stats — horas y asistencia
+  const horasEl = document.getElementById('p-horasPatinadas');
+  if (horasEl) horasEl.textContent = profile.horasPatinadas || '—';
+  const asistEl = document.getElementById('p-asistenciaAnual');
+  if (asistEl) asistEl.textContent = profile.asistenciaAnual || '—';
 
   // Hero
   const heroNombre = document.getElementById('hero-nombre-derby');
