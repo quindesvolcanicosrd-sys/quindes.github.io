@@ -462,27 +462,27 @@
         <!-- Stats compactas: 5 pills en una fila -->
         <div class="hero-mini-stats">
           <div class="hero-mini-stat">
-            <span class="hero-mini-stat-val" id="p-puntosMes">—</span>
-            <span class="hero-mini-stat-lbl" id="label-puntosMes">Mes</span>
+            <span class="hero-mini-stat-val" id="hero-puntosMes">—</span>
+            <span class="hero-mini-stat-lbl" id="hero-label-puntosMes">Mes</span>
           </div>
           <div class="hero-mini-stat-sep"></div>
           <div class="hero-mini-stat">
-            <span class="hero-mini-stat-val" id="p-puntosTrim">—</span>
-            <span class="hero-mini-stat-lbl" id="label-puntosTrim">Trim.</span>
+            <span class="hero-mini-stat-val" id="hero-puntosTrim">—</span>
+            <span class="hero-mini-stat-lbl" id="hero-label-puntosTrim">Trim.</span>
           </div>
           <div class="hero-mini-stat-sep"></div>
           <div class="hero-mini-stat">
-            <span class="hero-mini-stat-val" id="p-puntosAnio">—</span>
-            <span class="hero-mini-stat-lbl" id="label-puntosAnio">Año</span>
+            <span class="hero-mini-stat-val" id="hero-puntosAnio">—</span>
+            <span class="hero-mini-stat-lbl" id="hero-label-puntosAnio">Año</span>
           </div>
           <div class="hero-mini-stat-sep"></div>
           <div class="hero-mini-stat">
-            <span class="hero-mini-stat-val" id="p-horasPatinadas">—</span>
+            <span class="hero-mini-stat-val" id="hero-horasPatinadas">—</span>
             <span class="hero-mini-stat-lbl">Horas</span>
           </div>
           <div class="hero-mini-stat-sep"></div>
           <div class="hero-mini-stat">
-            <span class="hero-mini-stat-val" id="p-asistenciaAnual">—</span>
+            <span class="hero-mini-stat-val" id="hero-asistenciaAnual">—</span>
             <span class="hero-mini-stat-lbl">Asist.</span>
           </div>
         </div>
@@ -491,6 +491,14 @@
 
       <!-- Settings list -->
       <div class="settings-group">
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('estadisticas')">
+          <div class="settings-row-ico ico-yellow"><span class="material-icons">bar_chart</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Estadísticas</span>
+            <span class="settings-row-sub" id="sub-estadisticas">Mes, Trimestre, Año</span>
+          </div>
+          <span class="settings-row-arrow"></span>
+        </div>
         <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
           <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
           <div class="settings-row-body">
@@ -534,6 +542,53 @@
           <span class="material-icons">delete_forever</span>
           Borrar perfil
         </button>
+      </div>
+      <div style="height:32px;"></div>
+    </div>
+  </div>
+
+  <!-- VISTA ESTADÍSTICAS (solo lectura) -->
+  <div id="view-estadisticas" class="app-view">
+    <header class="app-header app-header-section" id="header-estadisticas">
+      <div class="header-row-top">
+        <button class="header-back" id="btn-back-estadisticas" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+        <span class="app-header-title">Estadísticas</span>
+      </div>
+    </header>
+    <div class="app-scroll">
+      <div class="sec-group">
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Mes de <span id="stat-mes-nombre">—</span></span>
+            <span id="p-puntosMes" class="sec-val"></span>
+          </div>
+        </div>
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label"><span id="stat-trim-nombre">Trimestre</span></span>
+            <span id="p-puntosTrim" class="sec-val"></span>
+          </div>
+        </div>
+        <div class="sec-row" style="border-bottom:none;">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Año <span id="stat-anio-nombre">—</span></span>
+            <span id="p-puntosAnio" class="sec-val"></span>
+          </div>
+        </div>
+      </div>
+      <div class="sec-group">
+        <div class="sec-row">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Horas patinadas</span>
+            <span id="p-horasPatinadas" class="sec-val"></span>
+          </div>
+        </div>
+        <div class="sec-row" style="border-bottom:none;">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Asistencia anual</span>
+            <span id="p-asistenciaAnual" class="sec-val"></span>
+          </div>
+        </div>
       </div>
       <div style="height:32px;"></div>
     </div>
