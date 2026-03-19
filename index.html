@@ -441,7 +441,7 @@
       </div>
     </header>
     <div class="app-scroll">
-      <!-- Hero card -->
+      <!-- Hero card con stats integradas -->
       <div class="hero-card hero-card-clickable" onclick="navegarSeccion('generales')">
         <div class="hero-flat-row">
           <div id="avatar-container" class="disabled hero-avatar-flat" onclick="event.stopPropagation(); abrirFotoSinEdicion()">
@@ -458,6 +458,24 @@
         <div class="hero-flat-badges">
           <span class="pf-badge pf-badge-red" id="hero-rol">—</span>
           <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
+        </div>
+        <!-- Stats integradas -->
+        <div class="hero-stats-row">
+          <div class="sec-stat">
+            <span class="material-icons sec-stat-ico">calendar_today</span>
+            <span class="sec-stat-lbl" id="label-puntosMes">Mes</span>
+            <span class="sec-stat-val" id="p-puntosMes">—</span>
+          </div>
+          <div class="sec-stat">
+            <span class="material-icons sec-stat-ico">date_range</span>
+            <span class="sec-stat-lbl" id="label-puntosTrim">Trimestre</span>
+            <span class="sec-stat-val" id="p-puntosTrim">—</span>
+          </div>
+          <div class="sec-stat">
+            <span class="material-icons sec-stat-ico">emoji_events</span>
+            <span class="sec-stat-lbl" id="label-puntosAnio">Año</span>
+            <span class="sec-stat-val" id="p-puntosAnio">—</span>
+          </div>
         </div>
         <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
       </div>
