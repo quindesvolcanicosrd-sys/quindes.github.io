@@ -1373,23 +1373,52 @@ function renderTodo(profile) {
   setFileBadge('p-adjPruebaFisica', profile.adjPruebaFisica);
 
   // Stats — puntos
-  const mesEl  = document.getElementById('p-puntosMes');
-  const mesLbl = document.getElementById('label-puntosMes');
-  if (mesEl)  mesEl.textContent  = profile.puntosMes || '—';
-  if (mesLbl) mesLbl.textContent = 'Mes de ' + (profile.labelMes || '');
-  const trimEl  = document.getElementById('p-puntosTrim');
-  const trimLbl = document.getElementById('label-puntosTrim');
-  if (trimEl)  trimEl.textContent  = profile.puntosTrimestre || '—';
-  if (trimLbl) trimLbl.textContent = profile.labelTrimestre  || 'Trimestre';
-  const anioEl  = document.getElementById('p-puntosAnio');
-  const anioLbl = document.getElementById('label-puntosAnio');
-  if (anioEl)  anioEl.textContent  = profile.puntosAnio || '—';
-  if (anioLbl) anioLbl.textContent = 'Año ' + (profile.labelAnio || '');
-  // Stats — horas y asistencia
+  // Mapeo de textos de elegibilidad largos → cortos para la UI
+  const abreviarEstado = v => {
+    if (!v) return '—';
+    if (v.includes('Puede jugar'))                    return 'Apta para jugar';
+    if (v.includes('Asistencia y Tareas'))            return 'Falta: Asist. y Tareas';
+    if (v.includes('Asistencia'))                     return 'Falta: Asistencia';
+    if (v.includes('Tareas'))                         return 'Falta: Tareas';
+    return v;
+  };
+
+  // ── Sección Estadísticas ──
+  const mesEl = document.getElementById('p-puntosMes');
+  if (mesEl) mesEl.textContent = abreviarEstado(profile.puntosMes);
+  const trimEl = document.getElementById('p-puntosTrim');
+  if (trimEl) trimEl.textContent = abreviarEstado(profile.puntosTrimestre);
+  const anioEl = document.getElementById('p-puntosAnio');
+  if (anioEl) anioEl.textContent = abreviarEstado(profile.puntosAnio);
   const horasEl = document.getElementById('p-horasPatinadas');
   if (horasEl) horasEl.textContent = profile.horasPatinadas || '—';
   const asistEl = document.getElementById('p-asistenciaAnual');
   if (asistEl) asistEl.textContent = profile.asistenciaAnual || '—';
+  // Labels dinámicos de la sección (mes, trimestre, año actuales)
+  const statMesNombre = document.getElementById('stat-mes-nombre');
+  if (statMesNombre) statMesNombre.textContent = profile.labelMes || '';
+  const statTrimNombre = document.getElementById('stat-trim-nombre');
+  if (statTrimNombre) statTrimNombre.textContent = profile.labelTrimestre || 'Trimestre';
+  const statAnioNombre = document.getElementById('stat-anio-nombre');
+  if (statAnioNombre) statAnioNombre.textContent = profile.labelAnio || '';
+
+  // ── Hero card mini stats ──
+  const hMes = document.getElementById('hero-puntosMes');
+  if (hMes) hMes.textContent = abreviarEstado(profile.puntosMes);
+  const hTrim = document.getElementById('hero-puntosTrim');
+  if (hTrim) hTrim.textContent = abreviarEstado(profile.puntosTrimestre);
+  const hAnio = document.getElementById('hero-puntosAnio');
+  if (hAnio) hAnio.textContent = abreviarEstado(profile.puntosAnio);
+  const hHoras = document.getElementById('hero-horasPatinadas');
+  if (hHoras) hHoras.textContent = profile.horasPatinadas || '—';
+  const hAsist = document.getElementById('hero-asistenciaAnual');
+  if (hAsist) hAsist.textContent = profile.asistenciaAnual || '—';
+  const hLblMes = document.getElementById('hero-label-puntosMes');
+  if (hLblMes) hLblMes.textContent = profile.labelMes || 'Mes';
+  const hLblTrim = document.getElementById('hero-label-puntosTrim');
+  if (hLblTrim) hLblTrim.textContent = profile.labelTrimestre || 'Trim.';
+  const hLblAnio = document.getElementById('hero-label-puntosAnio');
+  if (hLblAnio) hLblAnio.textContent = (profile.labelAnio ? 'Año ' + profile.labelAnio : 'Año');
 
   // Hero
   const heroNombre = document.getElementById('hero-nombre-derby');
