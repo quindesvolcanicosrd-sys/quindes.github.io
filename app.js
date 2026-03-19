@@ -1385,11 +1385,11 @@ function renderTodo(profile) {
 
   // ── Sección Estadísticas ──
   const mesEl = document.getElementById('p-puntosMes');
-  if (mesEl) mesEl.textContent = abreviarEstado(profile.puntosMes);
+  if (mesEl) mesEl.textContent = profile.puntosMes || "—";
   const trimEl = document.getElementById('p-puntosTrim');
-  if (trimEl) trimEl.textContent = abreviarEstado(profile.puntosTrimestre);
+  if (trimEl) trimEl.textContent = profile.puntosTrimestre || "—";
   const anioEl = document.getElementById('p-puntosAnio');
-  if (anioEl) anioEl.textContent = abreviarEstado(profile.puntosAnio);
+  if (anioEl) anioEl.textContent = profile.puntosAnio || "—";
   const horasEl = document.getElementById('p-horasPatinadas');
   if (horasEl) horasEl.textContent = profile.horasPatinadas || '—';
   const asistEl = document.getElementById('p-asistenciaAnual');
@@ -1404,11 +1404,11 @@ function renderTodo(profile) {
 
   // ── Hero card mini stats ──
   const hMes = document.getElementById('hero-puntosMes');
-  if (hMes) hMes.textContent = abreviarEstado(profile.puntosMes);
+  if (hMes) hMes.textContent = profile.puntosMes || "—";
   const hTrim = document.getElementById('hero-puntosTrim');
-  if (hTrim) hTrim.textContent = abreviarEstado(profile.puntosTrimestre);
+  if (hTrim) hTrim.textContent = profile.puntosTrimestre || "—";
   const hAnio = document.getElementById('hero-puntosAnio');
-  if (hAnio) hAnio.textContent = abreviarEstado(profile.puntosAnio);
+  if (hAnio) hAnio.textContent = profile.puntosAnio || "—";
   const hHoras = document.getElementById('hero-horasPatinadas');
   if (hHoras) hHoras.textContent = profile.horasPatinadas || '—';
   const hAsist = document.getElementById('hero-asistenciaAnual');
