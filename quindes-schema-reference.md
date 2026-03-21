@@ -156,3 +156,68 @@ De estadísticas (calculados):
 5. **Cuotas**: lógica mensual por jugadora → tabla `cuotas` con registro por mes/jugadora
 6. **Presupuestos**: ingresos/egresos del equipo → tabla `movimientos_financieros`
 7. **Multi-equipo**: diseñar con `equipo_id` en todas las tablas desde el inicio
+
+---
+
+## AppScripts — Lógica de negocio actual
+
+### Quindes.xlsx (triggers)
+- **`alEditarCualquierHoja`** → onEdit: actualiza cumpleaños y avatares automáticamente
+- **`onEditAvatar`** → genera URL de avatar (ui-avatars.com) si la jugadora no tiene foto
+- **`actualizarCumples`** → calcula cumpleaños próximos (90 días) y los escribe en hoja "A cumplir"
+- **`actualizarTodoDiario`** → trigger diario que escribe mes actual (H5) y trimestre (I5) en la hoja principal
+
+### Tareas_Puntajes_Asistencias_2026.xlsx (triggers)
+- **`ejecutarSincronizacionTotal`** → corre cada minuto: sincroniza entrenamientos, estados y asistencias
+- **`sincronizarEspejo`** → sincroniza "Template de Asistencias" → "Asistencias" (crea/actualiza/borra filas de entrenamientos)
+- **`mantenimientoYEstados`** → rellena Trimestre, Mes, Día, Lugar por fecha; actualiza estado del evento (Programado / Finalizado / Cancelado)
+- **`actualizarAsistenNoAsisten`** → lee "Log de Asistencias" y escribe en col Q (Asisten) y R (No Asisten) de cada entrenamiento
+- **`actualizarAsistentesDesdeLog_`** → actualiza asistentes desde log de AppSheet
+- **`onEdit`** → en hoja "Tareas": registra fecha de creación y trimestre; en "Asistencias": protege IDs con prefijo MOD_
+
+### Presupuestos.xlsx (triggers)
+- **`onEditInstalable`** → en hojas Ingresos/Egresos: cuando se edita una fila sin procesar, llama procesarFila()
+- **`procesarFilasNoProcesadas`** → trigger por tiempo: procesa filas pendientes en Ingresos y Egresos
+- **`procesarFila`** → lógica principal:
+  - Si tipo = "Cuotas" en Ingresos → abre Cuotas.xlsx y toma el valor del mes correspondiente
+  - Si tipo = "Coaches/Pago a Coaches" en Egresos → cuenta coaches únicos en Asistencias del mes y multiplica por valor/persona
+  - Si tipo = otro → simplemente marca como procesado y pone fecha
+
+### Cuotas.xlsx (triggers)
+- **`onEdit`** → aplica fuente, actualiza fecha A2, formatos visuales, copia valor K→M cuando se chequea el checkbox de pago
+- **`ejecutarActualizacionDelMesActual`** → dispara la función del mes actual (actualizarEnero(), actualizarFebrero(), etc.)
+- Las funciones `actualizarMes()` calculan totales de deuda/pago por mes
+
+---
+
+## Lógica de negocio clave a migrar
+
+### Sistema de puntos (hoy en fórmulas de Sheets)
+```
+Puntos por mes = Asistencia + Tareas + Bono(asistencia seguida) + Pago cuota
+Resultado:
+  - "Puede jugar partidos"           → cumple mínimo asistencia Y tareas
+  - "Faltan puntos: Tareas"          → asistencia OK, tareas NO
+  - "Faltan puntos: Asistencia"      → tareas OK, asistencia NO
+  - "Faltan puntos: Asistencia y Tareas" → nada cumple
+
+Mínimos por frecuencia de asistencia:
+  - 1 vez/semana: asistencia=3, tareas=5
+  - 2 veces/semana: asistencia=7, tareas=3
+  - 3+ veces/semana: asistencia=8, tareas=3
+  (por mes; x4 para trimestre; x16 para año)
+```
+
+### Sistema de asistencias (hoy en AppSheet + GAS)
+- AppSheet registra presencia/ausencia en `Log de Asistencias`
+- GAS sincroniza cada minuto y escribe en columnas Q/R de cada entrenamiento
+- Cada entrenamiento tiene un ID único generado por la hoja
+
+### Sistema de cuotas (hoy en Cuotas.xlsx)
+- $15/mes por jugadora activa
+- Seguimiento mensual: pagado/no pagado/exento
+- Acumulación de deuda si no paga
+
+### Cálculo de pago a coaches (hoy en Presupuestos.xlsx)
+- Cuenta coaches únicos que entrenaron en el mes (excluyendo "Sant" y "Vic")
+- Multiplica por valor por persona (configurado en E2 de Egresos)
