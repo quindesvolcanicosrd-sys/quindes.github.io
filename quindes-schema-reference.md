@@ -1,7 +1,120 @@
 # Quindes Volcánicos — Referencia de Schema para Supabase
 
-> Generado el 2026-03-20 a partir de los archivos xlsx originales.
-> Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx.
+> Última actualización: 2026-03-21
+> Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
+
+---
+
+## Estado actual del proyecto (al 2026-03-21)
+
+### Lo que ya está hecho ✅
+
+#### PWA (app actual — sigue funcionando)
+- Hosteada en GitHub Pages: `app.quindesvolcanicos.com`
+- Cloudflare Worker como proxy
+- Google Apps Script como backend
+- Login con Google (Google Identity Services)
+- Perfil completo editable (tap-to-edit)
+- Secciones: Estadísticas, Datos Personales, Contacto, Salud, Rendimiento
+- Wizard de registro para nuevas jugadoras
+- Sesión persistente con localStorage
+- **Bug pendiente**: `gasCall` con token expirado al restaurar sesión desde localStorage — fix aplicado (fallback a `localStorage.getItem('quindes_token')`)
+
+#### Migración a Supabase (en progreso)
+- **Supabase**: proyecto creado (`znprcowxveyzanpvotms.supabase.co`)
+- **Google Auth**: configurado en Supabase
+- **Schema ejecutado**: 13 tablas creadas (ver sección Schema más abajo)
+- **Datos iniciales**: liga, equipo y usuario admin insertados
+- **Backend Node.js**: creado en `/api` dentro del repo de GitHub
+  - Express + @supabase/supabase-js + dotenv + cors
+  - Endpoint `/health` funcionando y conectado a Supabase
+  - Corriendo en puerto 3000 localmente
+- **Railway**: cuenta creada, pendiente de conectar con el repo
+
+### Lo que falta hacer 🔜
+1. Construir los endpoints del backend (getCurrentUser, getMyProfile, updateMyProfile, etc.)
+2. Conectar Railway con el repo de GitHub para deploy automático
+3. Migrar datos existentes de Quindes.xlsx → Supabase
+4. Cambiar `CONFIG.GAS_URL` en app.js por la URL de Railway
+5. Reemplazar Google Identity Services por Supabase Auth en la app
+
+### Credenciales y IDs importantes
+```
+SUPABASE_URL=https://znprcowxveyzanpvotms.supabase.co
+LIGA_ID=35d870d8-bfad-4a9a-881a-32a3a8308378
+EQUIPO_ID=03161fd2-3120-49f7-b165-27f23bcdae2d
+VICTOR_AUTH_ID=b32d0923-dc31-4176-856b-2aa8a6ef04e6
+```
+(Las API keys están en `/api/.env` en el repo local — nunca se suben a GitHub)
+
+### Repo de GitHub
+`https://github.com/quindesvolcanicosrd-sys/quindes.github.io`
+- Frontend: raíz del repo (index.html, app.js, style.css)
+- Backend: carpeta `/api` (index.js, package.json, .env)
+
+### Para retomar el desarrollo local
+```bash
+cd "Documents\Trabajo\Personales\App Quinde\quindes.github.io\api"
+npm run dev
+# → API corriendo en puerto 3000
+# → Probar: http://localhost:3000/health
+```
+
+---
+
+## Arquitectura del sistema (objetivo final)
+
+```
+[PWA - GitHub Pages]
+      ↓ fetch
+[Backend Node.js - Railway]
+      ↓ supabase-js
+[Supabase - PostgreSQL]
+
+Jerarquía de datos:
+Liga → Equipo(s) → Miembros → Perfiles
+```
+
+### Roles del sistema
+| Rol | Alcance |
+|---|---|
+| `admin_liga` | Acceso total a toda la liga y todos sus equipos |
+| `admin_equipo` | Acceso total solo a su equipo |
+| `semiAdmin_equipo` | Acceso parcial a su equipo |
+| `jugadorx` | Solo su perfil y datos de su equipo |
+| `coach` / `arbitrx` / `bench` | Idem jugadorx |
+| `invitadx` | Acceso mínimo, pendiente de aprobación |
+
+### Flujo de onboarding de nueva jugadora
+1. Descarga la app → ingresa código de invitación generado por admin
+2. Se autentica con Google
+3. Completa el wizard de registro
+4. Queda con `estado = 'pendiente'` en tabla `miembros`
+5. Admin del equipo aprueba → `estado = 'activo'`
+
+---
+
+## Schema de Supabase (v2 — ejecutado)
+
+### 13 tablas
+
+| Tabla | Equivale a |
+|---|---|
+| `ligas` | Nivel superior — agrupa equipos |
+| `equipos` | Cada equipo dentro de una liga |
+| `codigos_invitacion` | Códigos que genera el admin para invitar jugadoras |
+| `miembros` | Vincula usuarios con ligas/equipos y define su rol |
+| `perfiles` | Datos personales y de derby de cada jugadora |
+| `lugares` | Lugares de entrenamiento con horarios |
+| `entrenamientos` | Calendario de entrenamientos |
+| `asistencias` | Log de quién fue a qué entrenamiento |
+| `tareas` | Tareas asignadas con puntos |
+| `cuotas` | Pagos mensuales por jugadora |
+| `movimientos` | Ingresos y egresos del equipo |
+| `puntos_resumen` | Puntos calculados por backend (mensual/trimestral/anual) |
+| `log_cambios` | Historial de ediciones |
+
+El SQL completo está en `quindes-schema-v2.sql` en el repo.
 
 ---
 
