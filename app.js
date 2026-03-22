@@ -1801,6 +1801,15 @@ async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
       await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
       if (status) status.textContent = '✅ Archivo subido correctamente';
       mostrarToastGuardado();
+      // Recargar vista previa
+      setTimeout(() => {
+        const filePageView = document.querySelector('.file-page-view');
+        const prevView = document.getElementById('view-' + vistaActual);
+        if (filePageView) {
+          cerrarFilePage(filePageView, prevView);
+          setTimeout(() => abrirPaginaArchivo(fieldKey, { label: fieldKey }), 350);
+        }
+      }, 800);
     };
     reader.readAsDataURL(file);
   } catch(e) {
@@ -2470,7 +2479,7 @@ function renderEstadoArchivo(campo, url) {
     contenedor.innerHTML = '<span class="file-status-vacio">Sin archivo</span>';
     return;
   }
-  const esImagen = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  const esImagen = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
   let html = `<div class="file-status-ok"><a href="${url}" target="_blank" class="file-link">VER ARCHIVO</a></div>`;
   if (esImagen) html += `<img src="${url}" class="file-preview" alt="Preview">`;
   contenedor.innerHTML = html;
