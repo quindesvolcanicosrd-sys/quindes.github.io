@@ -1729,9 +1729,9 @@ function abrirPaginaArchivo(fieldKey, opciones) {
             <span>Archivo subido</span>
           </div>
         </div>
-        <a href="${currentUrl}" target="_blank" rel="noopener" class="file-page-btn file-page-btn-primary">
-          <span class="material-icons">open_in_new</span>
-          Ver en Google Drive
+        <a href="${currentUrl}" target="_blank" rel="noopener" download class="file-page-btn file-page-btn-primary">
+          <span class="material-icons">download</span>
+          Ver / Descargar archivo
         </a>
         <label class="file-page-btn file-page-btn-replace">
           <span class="material-icons">swap_horiz</span>
