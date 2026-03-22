@@ -167,6 +167,29 @@
 
   <div class="wiz-viewport" id="wiz-viewport" style="display:none;">
 
+
+    <!-- PASO 0: Código de invitación -->
+    <div class="wiz-step" id="wiz-step-inv">
+      <div class="wiz-bg-emoji" aria-hidden="true">🔑</div>
+      <div class="wiz-step-inner">
+        <div class="wiz-emoji">🔑</div>
+        <h2 class="wiz-title">Código de invitación</h2>
+        <p class="wiz-desc">Ingresá el código que te envió el admin del equipo. Si llegaste desde un link, ya está cargado automáticamente.</p>
+        <div class="wiz-content">
+          <label class="reg-label">Código <span class="reg-required">*</span></label>
+          <input id="reg-codigo-inv" class="reg-input wiz-big-input" type="text"
+                placeholder="Ej: QUINDES2026"
+                autocomplete="off" maxlength="40"
+                onkeydown="if(event.key==='Enter') wizNext()">
+          <div id="wiz-codigo-autocargado" style="display:none;margin-top:4px;">
+            <span style="font-size:13px;color:#22c55e;font-weight:600;">✓ Código recibido automáticamente</span>
+          </div>
+        </div>
+        <div class="wiz-actions">
+          <button class="wiz-btn-next" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
+        </div>
+      </div>
+    </div>
     <!-- PASO 1: Foto -->
     <div class="wiz-step" id="wiz-step-1">
       <div class="wiz-bg-emoji" aria-hidden="true">📸</div>

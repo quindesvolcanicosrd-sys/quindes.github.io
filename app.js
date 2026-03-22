@@ -3,13 +3,15 @@
 // ============================================================
 
 const CONFIG = {
-  GAS_URL: 'https://black-snow-eff8.quindesvolcanicosrd.workers.dev',
+  API_URL: 'https://quindesgithubio-production.up.railway.app',
   GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
 };
 
 let CURRENT_USER   = null;
 let accessToken    = null;
-let wizOrigen      = null; // 'login' | 'noEncontrado' — tracks where wizard was launched from
+let wizOrigen      = null;
+const _urlParams   = new URLSearchParams(window.location.search);
+let inviteCode     = _urlParams.get('invite') || null; // 'login' | 'noEncontrado' — tracks where wizard was launched from
 let fotoSubiendo   = false;
 let cropper;
 
@@ -218,7 +220,7 @@ function cerrarSesion() {
   // Borrar sesión del worker y limpiar localStorage
   try {
     const t = localStorage.getItem('quindes_token');
-    if (t) fetch(CONFIG.GAS_URL + '?action=deleteSession&token=' + encodeURIComponent(t)).catch(() => {});
+    // sesión limpiada localmente
     localStorage.removeItem('quindes_email');
     localStorage.removeItem('quindes_token');
   } catch(e) {}
@@ -263,7 +265,7 @@ async function ejecutarBorrarPerfil() {
   const overlay = document.querySelector('[style*="position:fixed"][style*="9999"]');
   if (overlay) overlay.remove();
   try {
-    await gasCall('borrarPerfil', { rowNumber: CURRENT_USER.rowNumber });
+    await gasCall('borrarPerfil', { rowNumber: CURRENT_USER.id });
     cerrarSesion();
   } catch(e) {
     alert('Error al borrar el perfil: ' + (e.message || e));
@@ -281,9 +283,9 @@ function initGoogleAuth() {
     (async () => {
       try {
         // 1. Validar sessionToken contra el worker
-        const valRes  = await fetch(CONFIG.GAS_URL + '?action=validateSession&token=' + encodeURIComponent(savedToken));
-        const valData = await valRes.json();
-        if (!valData.valid || valData.email !== savedEmail) throw new Error('invalid session');
+        // Sesión guardada — verificar que el usuario existe en el nuevo backend
+        const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
+        if (!valData.found) throw new Error('invalid session');
 
         // 2. Mostrar loader
         document.getElementById('loadingScreen').style.display  = 'flex';
@@ -295,8 +297,8 @@ function initGoogleAuth() {
         const user = await gasCallNoToken('getCurrentUser', { email: savedEmail });
         if (!user || !user.found) throw new Error('user not found');
 
-        CURRENT_USER = user;
-        const profile = await gasCallNoToken('getMyProfile', { rowNumber: user.rowNumber });
+        CURRENT_USER = { ...user, rolApp: user.rol };
+        const profile = await gasCallNoToken('getMyProfile', { rowNumber: user.id });
         window.myProfile = profile;
 
         configurarTodasLasSubidas();
@@ -349,31 +351,10 @@ function onGoogleSignIn(response) {
 
   // Crear sesión persistente en el worker
   console.log('[SESSION] Creating persistent session for:', email);
-  fetch(CONFIG.GAS_URL + '?action=createSession&token=' + encodeURIComponent(accessToken) + '&email=' + encodeURIComponent(email))
-    .then(r => r.json())
-    .then(data => {
-      console.log('[SESSION] createSession response:', JSON.stringify(data));
-      if (data.sessionToken) {
-        try {
-          localStorage.setItem('quindes_email', email);
-          localStorage.setItem('quindes_token', data.sessionToken);
-          console.log('[SESSION] Saved sessionToken to localStorage');
-        } catch(e) { console.error('[SESSION] localStorage error:', e); }
-      } else {
-        console.warn('[SESSION] No sessionToken in response, falling back to Google token');
-        try {
-          localStorage.setItem('quindes_email', email);
-          localStorage.setItem('quindes_token', accessToken);
-        } catch(e) {}
-      }
-    })
-    .catch(e => {
-      console.error('[SESSION] createSession fetch failed:', e);
-      try {
-        localStorage.setItem('quindes_email', email);
-        localStorage.setItem('quindes_token', accessToken);
-      } catch(e) {}
-    });
+  try {
+    localStorage.setItem('quindes_email', email);
+    localStorage.setItem('quindes_token', accessToken);
+  } catch(e) {}
 
   inicializarApp(email);
 }
@@ -409,54 +390,47 @@ function mostrarLoginScreen() {
 
 // ── API ───────────────────────────────────────────────────────
 
-// Llamada con sessionToken propio (no JWT de Google)
-// El nuevo code.gs verifica este token via HMAC sin llamar a Google
-async function gasCallNoToken(action, data = {}) {
-  const sessionToken = localStorage.getItem('quindes_token') || '';
-  const params = new URLSearchParams({ action, token: sessionToken });
-  Object.entries(data).forEach(([k, v]) => params.set(k, v));
-  const url = CONFIG.GAS_URL + '?' + params.toString();
-  const res = await fetch(url, { method: 'GET', redirect: 'follow' });
-  const text = await res.text();
-  try { return JSON.parse(text); } catch(e) { throw new Error(text); }
-}
-
-async function gasCall(action, data = {}) {
-  let res;
-
-  if (action === 'subirArchivo') {
-    // POST with JSON body — base64 is too large for URL query params
-    const params = new URLSearchParams({ action, token: accessToken });
-    const url = CONFIG.GAS_URL + '?' + params.toString();
-    res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        tipoArchivo: data.tipoArchivo,
-        base64Data:  data.base64Data,
-        email:       data.email,
-      }),
-      redirect: 'follow',
-    });
-  } else {
-    const params = new URLSearchParams({ action, token: accessToken });
-    if (action === 'updateMyProfile') {
-      params.set('rowNumber', data.rowNumber);
-      // Let URLSearchParams handle encoding — don't double-encode
-      params.set('data', JSON.stringify(data.data));
-    } else {
-      Object.entries(data).forEach(([k, v]) => params.set(k, v));
-    }
-    const url = CONFIG.GAS_URL + '?' + params.toString();
-    res = await fetch(url, { redirect: 'follow' });
-  }
-
+async function apiCall(endpoint, method = 'GET', body = null) {
+  const url = CONFIG.API_URL + endpoint;
+  const options = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (body) options.body = JSON.stringify(body);
+  const res = await fetch(url, options);
   const text = await res.text();
   let json;
   try { json = JSON.parse(text); }
   catch { throw new Error('Respuesta inválida: ' + text.substring(0, 200)); }
   if (json.error) throw new Error(json.error);
   return json;
+}
+
+async function gasCall(action, data = {}) {
+  if (action === 'getCurrentUser') {
+    return apiCall('/usuario?email=' + encodeURIComponent(data.email));
+  }
+  if (action === 'getMyProfile') {
+    return apiCall('/perfil/' + data.rowNumber);
+  }
+  if (action === 'updateMyProfile') {
+    return apiCall('/perfil/' + data.rowNumber, 'PUT', data.data);
+  }
+  if (action === 'subirArchivo') {
+    return apiCall('/archivo', 'POST', {
+      base64Data: data.base64Data,
+      tipoArchivo: data.tipoArchivo,
+      email: data.email,
+    });
+  }
+  if (action === 'borrarPerfil') {
+    return apiCall('/perfil/' + data.rowNumber, 'DELETE');
+  }
+  throw new Error('Acción no soportada: ' + action);
+}
+
+async function gasCallNoToken(action, data = {}) {
+  return gasCall(action, data);
 }
 
 // ── INICIALIZACIÓN ────────────────────────────────────────────
@@ -496,10 +470,10 @@ async function inicializarApp(email) {
       return;
     }
 
-    CURRENT_USER = user;
+    CURRENT_USER = { ...user, rolApp: user.rol };
     const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = user.email;
 
-    const profile = await gasCall('getMyProfile', { rowNumber: user.rowNumber });
+    const profile = await gasCall('getMyProfile', { rowNumber: user.id });
     window.myProfile = profile;
 
     configurarTodasLasSubidas();
@@ -583,10 +557,10 @@ function mostrarCuentaYaRegistrada(email, user) {
   document.body.appendChild(overlay);
 
   // Start loading the app immediately in the background — keep overlay visible the whole time
-  CURRENT_USER = user;
+  CURRENT_USER = { ...user, rolApp: user.rol };
   const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = user.email;
 
-  gasCall('getMyProfile', { rowNumber: user.rowNumber }).then(profile => {
+  gasCall('getMyProfile', { rowNumber: user.id }).then(profile => {
     window.myProfile = profile;
     configurarTodasLasSubidas();
     renderTodo(profile);
@@ -749,7 +723,7 @@ const REG_ROLES      = ['Jammer', 'Bloquer', 'Blammer', 'Ref', 'Coach', 'Bench',
 const REG_ROLES_JUG  = ['Jammer', 'Bloquer', 'Blammer', 'No definido'];
 const REG_ASISTENCIA = ['1 vez', '2 veces', '3 o más veces'];
 
-const WIZ_STEPS_BASE = [1,2,3,4,5,6,7,8,10,11];
+const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,10,11];
 let wizStepSequence = [...WIZ_STEPS_BASE];
 let wizStep = 1;
 let cropTarget = 'app';
@@ -758,21 +732,21 @@ const regData = {
   nombre:'', pronombres:[], pais:'', codigoPais:'',
   telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
   nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
-  alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null,
+  alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null, codigoInvitacion:'',
 };
 
 function esJugadorx(rol) { return REG_ROLES_JUG.includes(rol); }
 
 function wizRecalcSequence() {
-  wizStepSequence = esJugadorx(regData.rolJugadorx)
-    ? [1,2,3,4,5,6,7,8,9,10,11]
-    : [1,2,3,4,5,6,7,8,10,11];
+wizStepSequence = esJugadorx(regData.rolJugadorx)
+    ? ['inv',1,2,3,4,5,6,7,8,9,10,11]
+    : ['inv',1,2,3,4,5,6,7,8,10,11];
 }
 
 function wizPositionInSequence() { return wizStepSequence.indexOf(wizStep) + 1; }
 
 function mostrarRegistroWizard() {
-  wizStep = 1;
+  wizStep = 'inv';
   if (!wizOrigen) wizOrigen = 'login'; // fallback
   wizRecalcSequence();
   Object.assign(regData, {
@@ -805,6 +779,9 @@ function mostrarRegistroWizard() {
 
   wizHideError();
 
+  // Limpiar wiz-step-inv también
+  const sInv = document.getElementById('wiz-step-inv');
+  if (sInv) { sInv.classList.remove('wiz-active','wiz-animate'); sInv.style.transition = sInv.style.transform = sInv.style.visibility = ''; }
   for (let i = 1; i <= 11; i++) {
     const s = document.getElementById('wiz-step-' + i);
     if (!s) continue;
@@ -851,7 +828,7 @@ function wizIntroStart() {
     if (headerEl)   headerEl.style.display   = 'flex';
     if (viewportEl) viewportEl.style.display = 'block';
     wizUpdateHeader();
-    const s1 = document.getElementById('wiz-step-1');
+    const s1 = document.getElementById('wiz-step-inv');
     if (s1) {
       s1.classList.remove('wiz-animate');
       s1.classList.add('wiz-active');
@@ -945,6 +922,13 @@ function wizUpdateHeader() {
 function wizNext() {
   wizHideError();
 
+
+  if (wizStep === 'inv') {
+    const val = document.getElementById('reg-codigo-inv')?.value.trim();
+    if (!val) { wizShowError('Ingresá tu código de invitación 🔑'); return; }
+    regData.codigoInvitacion = val;
+    inviteCode = val;
+  }
   if (wizStep === 2) {
     const val = document.getElementById('reg-nombre')?.value.trim();
     if (!val) { wizShowError('Escribe cómo quieres que te llamemos ✍️'); return; }
@@ -994,7 +978,7 @@ function wizBack() {
     const headerEl   = document.getElementById('wiz-header');
     const viewportEl = document.getElementById('wiz-viewport');
     // Hide steps
-    const s1 = document.getElementById('wiz-step-1');
+    const s1 = document.getElementById('wiz-step-inv');
     if (s1) { s1.classList.remove('wiz-active','wiz-animate'); }
     if (headerEl)   headerEl.style.display   = 'none';
     if (viewportEl) viewportEl.style.display = 'none';
@@ -1258,34 +1242,26 @@ async function submitRegistro() {
   wizMostrarCargando();
 
   try {
-    const params = new URLSearchParams({ action: 'registrarUsuario', token: accessToken });
-    const res = await fetch(CONFIG.GAS_URL + '?' + params.toString(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nombre: regData.nombre.trim(), pronombres: Array.isArray(regData.pronombres) ? regData.pronombres.join(', ') : (regData.pronombres || ''),
-        pais: regData.pais, codigoPais: regData.codigoPais,
-        telefono: regData.telefono.trim(), fechaNacimiento: regData.fechaNacimiento,
-        mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
-        nombreDerby: regData.nombreDerby, numero: regData.numero,
-        rolJugadorx: regData.rolJugadorx, asisteSemana: regData.asisteSemana,
-        alergias: regData.alergias, dieta: regData.dieta,
-        contactoEmergencia: regData.contactoEmergencia,
-        fotoBase64: regData.fotoBase64 || null,
-      }),
-      redirect: 'follow',
+    const email = localStorage.getItem('quindes_email') || '';
+    const json = await apiCall('/registrar', 'POST', {
+      email,
+      nombre: regData.nombre.trim(),
+      pronombres: Array.isArray(regData.pronombres) ? regData.pronombres.join(', ') : (regData.pronombres || ''),
+      pais: regData.pais, codigoPais: regData.codigoPais,
+      telefono: regData.telefono.trim(), fechaNacimiento: regData.fechaNacimiento,
+      mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
+      nombreDerby: regData.nombreDerby, numero: regData.numero,
+      rolJugadorx: regData.rolJugadorx, asisteSemana: regData.asisteSemana,
+      alergias: regData.alergias, dieta: regData.dieta,
+      contactoEmergencia: regData.contactoEmergencia,
+      fotoBase64: regData.fotoBase64 || null,
+      codigoInvitacion: regData.codigoInvitacion || inviteCode || '',
     });
-    const json = JSON.parse(await res.text());
-    if (json.error) throw new Error(json.error);
 
-    CURRENT_USER = { found: true, rowNumber: json.rowNumber, email: json.email, rolApp: 'Invitado' };
-    const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = json.email;
+    CURRENT_USER = { found: true, id: json.perfilId, rowNumber: json.perfilId, email, rolApp: 'Invitado' };
+    const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = email;
 
-    // Photo URL returned directly from registrarUsuario (uploaded atomically in GAS)
-    const profile = await gasCall('getMyProfile', { rowNumber: json.rowNumber });
-    if (json.fotoUrl) {
-      profile.fotoPerfil = json.fotoUrl;
-    }
+    const profile = await apiCall('/perfil/' + json.perfilId);
     window.myProfile = profile;
     configurarTodasLasSubidas();
     renderTodo(profile);
@@ -1695,7 +1671,7 @@ async function toggleCampoInline(fieldKey) {
   try {
     const datos = recogerTodosLosDatos();
     datos[fieldKey] = newVal;
-    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
     mostrarToastGuardado();
   } catch(e) {
     window.myProfile[fieldKey] = current;
@@ -1822,7 +1798,7 @@ async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
       window.myProfile[fieldKey] = result.url;
       const datos = recogerTodosLosDatos();
       datos[fieldKey] = result.url;
-      await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+      await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
       if (status) status.textContent = '✅ Archivo subido correctamente';
       mostrarToastGuardado();
     };
@@ -1889,7 +1865,7 @@ async function seleccionarOpcionBusqueda(fieldKey, el, value) {
     try {
       const datos = recogerTodosLosDatos();
       datos[fieldKey] = value;
-      await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+      await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
       renderTodo(window.myProfile);
     } catch(e) {
       console.error(e);
@@ -2013,7 +1989,7 @@ async function confirmarEditarCampo() {
   try {
     const datos = recogerTodosLosDatos();
     datos[fieldKey] = newVal;
-    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
     window.myProfile[fieldKey] = newVal;
     renderTodo(window.myProfile);
     cerrarEditarCampo();
@@ -2592,7 +2568,7 @@ async function subirImagenRecortada(base64) {
     window.myProfile.fotoPerfil = result.url;
     renderFotoPerfil(normalizarDriveUrl(result.url));
     await gasCall('updateMyProfile', {
-      rowNumber: CURRENT_USER.rowNumber,
+      rowNumber: CURRENT_USER.id,
       data: { fotoPerfil: result.url },
     });
   } catch (e) {
@@ -2943,7 +2919,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.myProfile[fieldKey] = val;
         const datos = recogerTodosLosDatos();
         datos[fieldKey] = val;
-        await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.rowNumber, data: datos });
+        await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
         // Actualizar data-fecha antes de cerrar para que refreshTriggerDisplay
         // lea el valor correcto en el renderTodo siguiente
         const fechaSpan = document.getElementById('p-fechaNacimiento');
