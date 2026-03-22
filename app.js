@@ -1814,8 +1814,8 @@ async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
       const datos = recogerTodosLosDatos();
       datos[fieldKey] = result.url;
       await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
-      if (status) status.textContent = '✅ Archivo subido correctamente';
-      mostrarToastGuardado();
+      if (status) status.textContent = '';
+      mostrarToastGuardado('✅ Archivo actualizado');
       // Actualizar preview inline sin navegar
       const filePageView = document.querySelector('.file-page-view');
       if (filePageView) {
@@ -2079,8 +2079,27 @@ function recogerTodosLosDatos() {
   };
 }
 
-function mostrarToastGuardado() {
-  // Toast removed — too distracting when saving multiple fields
+function mostrarToastGuardado(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `
+    position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:12px 20px;font-size:14px;font-weight:600;color:var(--text);
+    z-index:9999;white-space:nowrap;opacity:0;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    box-shadow:0 4px 20px rgba(0,0,0,0.2);
+  `;
+  t.textContent = msg || '✅ Guardado';
+  document.body.appendChild(t);
+  requestAnimationFrame(() => {
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(10px)';
+    setTimeout(() => t.remove(), 300);
+  }, 2500);
 }
 
 
@@ -2554,7 +2573,10 @@ function renderFotoPerfil(url) {
   [document.getElementById('img-preview-foto'), document.getElementById('sec-img-foto')].forEach(img => {
     if (!img) return;
     img.onerror = (e) => { console.log('[renderFotoPerfil] img error, falling to placeholder. src was:', img.src); img.src = placeholder; };
+    img.style.opacity = '0';
+    img.style.transition = 'opacity 0.4s ease';
     img.src = url || placeholder;
+    img.onload = () => { img.style.opacity = '1'; };
     console.log('[renderFotoPerfil] set img.src to:', img.src, 'element:', img.id);
   });
 }
