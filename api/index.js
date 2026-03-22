@@ -188,5 +188,187 @@ app.put('/perfil/:id', async (req, res) => {
   }
 });
 
+// ── POST /registrar ───────────────────────────────────────────
+// Equivale a registrarUsuario en GAS
+app.post('/registrar', async (req, res) => {
+  try {
+    const {
+      email, nombre, pronombres, pais, codigoPais, telefono,
+      fechaNacimiento, mostrarCumple, mostrarEdad, nombreDerby,
+      numero, rolJugadorx, asisteSemana, alergias, dieta,
+      contactoEmergencia, codigoInvitacion,
+    } = req.body;
+
+    if (!email) return res.status(400).json({ error: 'Falta email' });
+
+    // 1. Verificar código de invitación
+    const { data: codigo, error: codigoError } = await supabase
+      .from('codigos_invitacion')
+      .select('id, equipo_id, usos_max, usos_actuales, activo, expira_at')
+      .eq('codigo', codigoInvitacion)
+      .single();
+
+    if (codigoError || !codigo) return res.status(400).json({ error: 'Código de invitación inválido' });
+    if (!codigo.activo) return res.status(400).json({ error: 'Código de invitación inactivo' });
+    if (codigo.expira_at && new Date(codigo.expira_at) < new Date()) return res.status(400).json({ error: 'Código de invitación expirado' });
+    if (codigo.usos_max && codigo.usos_actuales >= codigo.usos_max) return res.status(400).json({ error: 'Código de invitación agotado' });
+
+    // 2. Buscar si el usuario ya existe en auth.users
+    const { data: authUsers } = await supabase
+      .rpc('get_user_by_email', { p_email: email });
+
+    let authUserId;
+
+    if (authUsers && authUsers.length > 0) {
+      authUserId = authUsers[0].id;
+    } else {
+      // Crear usuario en Supabase Auth
+      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+        email,
+        email_confirm: true,
+      });
+      if (createError) return res.status(500).json({ error: createError.message });
+      authUserId = newUser.user.id;
+    }
+
+    // 3. Crear perfil
+    const { data: perfil, error: perfilError } = await supabase
+      .from('perfiles')
+      .insert({
+        auth_user_id:       authUserId,
+        equipo_id:          codigo.equipo_id,
+        nombre:             nombre,
+        nombre_derby:       nombreDerby,
+        numero_derby:       numero,
+        pronombres:         pronombres,
+        rol_jugadorx:       rolJugadorx,
+        pais_origen:        pais,
+        codigo_pais:        codigoPais,
+        telefono:           telefono,
+        fecha_nacimiento:   fechaNacimiento || null,
+        mostrar_cumple:     mostrarCumple === 'Sí',
+        mostrar_edad:       mostrarEdad === 'Sí',
+        alergias:           alergias,
+        dieta:              dieta,
+        contacto_emergencia: contactoEmergencia,
+        estado:             'Activx',
+        tipo_usuario:       'Invitado',
+      })
+      .select('id')
+      .single();
+
+    if (perfilError) return res.status(500).json({ error: perfilError.message });
+
+    // 4. Crear membresía como pendiente
+    const { error: miembroError } = await supabase
+      .from('miembros')
+      .insert({
+        auth_user_id:         authUserId,
+        equipo_id:            codigo.equipo_id,
+        rol:                  'invitadx',
+        estado:               'pendiente',
+        codigo_invitacion_id: codigo.id,
+      });
+
+    if (miembroError) return res.status(500).json({ error: miembroError.message });
+
+    // 5. Actualizar usos del código
+    await supabase
+      .from('codigos_invitacion')
+      .update({ usos_actuales: codigo.usos_actuales + 1 })
+      .eq('id', codigo.id);
+
+    res.json({
+      ok: true,
+      perfilId: perfil.id,
+      authUserId,
+      equipoId: codigo.equipo_id,
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /perfil/:id ────────────────────────────────────────
+// Equivale a borrarPerfil en GAS
+app.delete('/perfil/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Buscar el auth_user_id antes de borrar
+    const { data: perfil } = await supabase
+      .from('perfiles')
+      .select('auth_user_id')
+      .eq('id', id)
+      .single();
+
+    if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado' });
+
+    // Borrar membresía
+    await supabase
+      .from('miembros')
+      .delete()
+      .eq('auth_user_id', perfil.auth_user_id);
+
+    // Borrar perfil
+    await supabase
+      .from('perfiles')
+      .delete()
+      .eq('id', id);
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /archivo ─────────────────────────────────────────────
+// Equivale a subirArchivo en GAS
+// Recibe base64 y lo sube a Supabase Storage
+app.post('/archivo', async (req, res) => {
+  try {
+    const { base64Data, tipoArchivo, email } = req.body;
+
+    if (!base64Data || !tipoArchivo || !email) {
+      return res.status(400).json({ error: 'Faltan datos' });
+    }
+
+    // Convertir base64 a buffer
+    const base64 = base64Data.replace(/^data:.+;base64,/, '');
+    const buffer = Buffer.from(base64, 'base64');
+
+    // Determinar extensión y tipo MIME
+    const mimeMatch = base64Data.match(/^data:(.+);base64,/);
+    const mimeType = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+    const ext = mimeType.split('/')[1]?.split('+')[0] || 'bin';
+
+    // Nombre del archivo
+    const timestamp = Date.now();
+    const fileName = `${email}/${tipoArchivo}_${timestamp}.${ext}`;
+
+    // Subir a Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('archivos')
+      .upload(fileName, buffer, {
+        contentType: mimeType,
+        upsert: true,
+      });
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    // Obtener URL pública
+    const { data: urlData } = supabase.storage
+      .from('archivos')
+      .getPublicUrl(fileName);
+
+    res.json({ ok: true, url: urlData.publicUrl });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}); 
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`API corriendo en puerto ${PORT}`));
