@@ -12,6 +12,14 @@ const supabase = createClient(
   process.env.SUPABASE_SECRET_KEY
 );
 
+function convertirFecha(str) {
+  if (!str) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  const slash = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slash) return `${slash[3]}-${slash[2].padStart(2,'0')}-${slash[1].padStart(2,'0')}`;
+  return null;
+}
+
 // ── Health check ──────────────────────────────────────────────
 app.get('/health', async (req, res) => {
   const { data, error } = await supabase.from('ligas').select('nombre').limit(1);
@@ -162,7 +170,7 @@ app.put('/perfil/:id', async (req, res) => {
         nombre:               datos.nombre,
         nombre_civil:         datos.nombreCivil,
         cedula_pasaporte:     datos.cedulaPasaporte,
-        fecha_nacimiento:     datos.fechaNacimiento || null,
+        fecha_nacimiento:     convertirFecha(datos.fechaNacimiento),
         mostrar_cumple:       datos.mostrarCumple === 'Sí',
         mostrar_edad:         datos.mostrarEdad === 'Sí',
         pais_origen:          datos.pais,
