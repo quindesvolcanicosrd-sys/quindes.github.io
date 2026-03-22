@@ -1483,6 +1483,24 @@ function ajustarAnchoEmail() {
 // ── NAVEGACIÓN ────────────────────────────────────────────────
 let vistaActual = 'home';
 
+function volverPerfil(fromPopState = false) {
+  const perfil = document.getElementById('view-perfil');
+  const curr   = document.getElementById('view-' + vistaActual);
+  if (!curr || !perfil) return;
+  perfil.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      perfil.classList.add('active');
+      curr.classList.remove('active');
+    });
+  });
+  curr.addEventListener('transitionend', () => {
+    curr.style.display = 'none';
+  }, { once: true });
+  vistaActual = 'perfil';
+  if (!fromPopState) history.replaceState({ seccion: 'perfil' }, '', location.pathname);
+}
+
 function navegarSeccion(seccion) {
   const home = document.getElementById('view-home');
   const dest = document.getElementById('view-' + seccion);

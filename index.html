@@ -459,39 +459,18 @@
   <div id="view-home" class="app-view active">
     <header class="app-header app-header-section">
       <div class="header-row-top">
-        <span class="material-icons" style="font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);opacity:0.85;">account_circle</span>
+        <span class="material-icons" style="font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);opacity:0.85;">settings</span>
         <span class="app-header-title">Ajustes</span>
       </div>
     </header>
     <div class="app-scroll">
       <!-- Hero card con stats integradas -->
-      <div class="hero-card hero-card-clickable" onclick="navegarSeccion('generales')">
-        <div class="hero-flat-row">
-          <div id="avatar-container" class="disabled hero-avatar-flat" onclick="event.stopPropagation(); abrirFotoSinEdicion()">
-            <img id="img-preview-foto" src="" alt="Foto de perfil">
-            <div class="pf-avatar-edit"><span class="material-icons">photo_camera</span></div>
-            <div id="avatar-loader" class="hidden"><span class="material-icons">hourglass_empty</span></div>
-            <div id="avatar-overlay" class="hidden"></div>
-          </div>
-          <div class="hero-flat-info">
-            <p class="hero-name" id="hero-nombre-derby">—</p>
-            <p class="hero-sub" id="hero-sub">— · —</p>
-          </div>
-        </div>
-        <div class="hero-flat-badges">
-          <span class="pf-badge pf-badge-red" id="hero-rol">—</span>
-          <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
-        </div>
-        <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
-      </div>
-
-      <!-- Settings list -->
       <div class="settings-group">
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('generales')">
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('perfil')">
           <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Mi perfil</span>
-            <span class="settings-row-sub">Nombre, foto, datos personales</span>
+            <span class="settings-row-sub" id="sub-miperfil">Nombre, foto, datos personales</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
@@ -499,7 +478,7 @@
           <div class="settings-row-ico ico-green"><span class="material-icons">card_giftcard</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Código de invitación</span>
-            <span class="settings-row-sub" id="sub-invitacion">Ver y compartir tu código</span>
+            <span class="settings-row-sub">Ver y compartir tu código</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
@@ -536,7 +515,6 @@
           <span class="settings-row-arrow"></span>
         </div>
       </div>
-      <!-- Sign out + Delete -->
       <div class="home-danger-zone">
         <button class="home-btn-signout" onclick="cerrarSesion()">
           <span class="material-icons">logout</span>
@@ -550,6 +528,72 @@
       <div style="height:32px;"></div>
     </div>
   </div>
+
+  <!-- VISTA MI PERFIL -->
+  <div id="view-perfil" class="app-view">
+    <header class="app-header app-header-section">
+      <div class="header-row-top">
+        <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+        <span class="app-header-title">Mi Perfil</span>
+      </div>
+    </header>
+    <div class="app-scroll">
+      <div class="hero-card hero-card-clickable" onclick="navegarSeccion('generales')">
+        <div class="hero-flat-row">
+          <div id="avatar-container" class="disabled hero-avatar-flat" onclick="event.stopPropagation(); abrirFotoSinEdicion()">
+            <img id="img-preview-foto" src="" alt="Foto de perfil">
+            <div class="pf-avatar-edit"><span class="material-icons">photo_camera</span></div>
+            <div id="avatar-loader" class="hidden"><span class="material-icons">hourglass_empty</span></div>
+            <div id="avatar-overlay" class="hidden"></div>
+          </div>
+          <div class="hero-flat-info">
+            <p class="hero-name" id="hero-nombre-derby">—</p>
+            <p class="hero-sub" id="hero-sub">— · —</p>
+          </div>
+        </div>
+        <div class="hero-flat-badges">
+          <span class="pf-badge pf-badge-red" id="hero-rol">—</span>
+          <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
+        </div>
+        <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
+      </div>
+      <div class="settings-group">
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('estadisticas')">
+          <div class="settings-row-ico ico-yellow"><span class="material-icons">bar_chart</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Estadísticas</span>
+            <span class="settings-row-sub" id="sub-estadisticas">Mes, Trimestre, Año</span>
+          </div>
+          <span class="settings-row-arrow"></span>
+        </div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('generales')">
+          <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Datos Generales</span>
+            <span class="settings-row-sub" id="sub-generales">Nombre Derby, Número, Rol</span>
+          </div>
+          <span class="settings-row-arrow"></span>
+        </div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
+          <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Datos Personales</span>
+            <span class="settings-row-sub" id="sub-personales">Documento, Nacionalidad</span>
+          </div>
+          <span class="settings-row-arrow"></span>
+        </div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('contacto')">
+          <div class="settings-row-ico ico-teal"><span class="material-icons">contacts</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Contacto</span>
+            <span class="settings-row-sub" id="sub-contacto">Email, Teléfono</span>
+          </div>
+          <span class="settings-row-arrow"></span>
+        </div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('salud')">
+          <div class="settings-row-ico ico-red"><span class="material-icons">favorite</span></div>
+          <div class="settings-row-body">
+            <span
 
   <!-- VISTA ESTADÍSTICAS (solo lectura) -->
   <div id="view-estadisticas" class="app-view">
