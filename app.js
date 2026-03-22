@@ -1816,15 +1816,38 @@ async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
       await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
       if (status) status.textContent = '✅ Archivo subido correctamente';
       mostrarToastGuardado();
-      // Recargar vista previa
-      setTimeout(() => {
-        const filePageView = document.querySelector('.file-page-view');
-        const prevView = document.getElementById('view-' + vistaActual);
-        if (filePageView) {
-          cerrarFilePage(filePageView, prevView);
-          setTimeout(() => abrirPaginaArchivo(fieldKey, { label: fieldKey }), 350);
+      // Actualizar preview inline sin navegar
+      const filePageView = document.querySelector('.file-page-view');
+      if (filePageView) {
+        const previewDiv = filePageView.querySelector('.file-page-preview');
+        const emptyDiv = filePageView.querySelector('.file-page-empty');
+        const urlConCache = result.url + '?t=' + Date.now();
+        if (emptyDiv) emptyDiv.style.display = 'none';
+        if (previewDiv) {
+          previewDiv.querySelectorAll('img').forEach(img => { img.src = ''; });
+          previewDiv.innerHTML = `
+            <img src="${urlConCache}" class="file-page-img" alt="Vista previa"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="file-page-doc-icon" style="display:none;">
+              <span class="material-icons">insert_drive_file</span>
+              <span>Archivo subido</span>
+            </div>`;
+        } else {
+          const scroll = filePageView.querySelector('.app-scroll');
+          if (scroll) {
+            const newPreview = document.createElement('div');
+            newPreview.className = 'file-page-preview';
+            newPreview.innerHTML = `
+              <img src="${urlConCache}" class="file-page-img" alt="Vista previa"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <div class="file-page-doc-icon" style="display:none;">
+                <span class="material-icons">insert_drive_file</span>
+                <span>Archivo subido</span>
+              </div>`;
+            scroll.insertBefore(newPreview, scroll.firstChild);
+          }
         }
-      }, 800);
+      }
     };
     reader.readAsDataURL(file);
   } catch(e) {
