@@ -461,6 +461,9 @@
       <div class="header-row-top">
         <span class="material-icons" style="font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);opacity:0.85;">account_circle</span>
         <span class="app-header-title">Mi Perfil</span>
+        <button class="header-settings-btn" onclick="navegarSeccion('ajustes')" aria-label="Ajustes">
+          <span class="material-icons">settings</span>
+        </button>
       </div>
     </header>
     <div class="app-scroll">
@@ -855,6 +858,433 @@
       <div style="height:32px;"></div>
     </div>
   </div>
+
+<!-- VISTA AJUSTES (menú principal) -->
+<div id="view-ajustes" class="app-view">
+  <header class="app-header app-header-section">
+    <div class="header-row-top">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Ajustes</span>
+    </div>
+  </header>
+  <div class="app-scroll">
+
+    <div class="settings-group">
+      <div class="settings-row settings-row-grouped" onclick="navegarSeccion('generales')">
+        <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
+        <div class="settings-row-body">
+          <span class="settings-row-title">Mi perfil</span>
+          <span class="settings-row-sub">Nombre, foto, datos personales</span>
+        </div>
+        <span class="settings-row-arrow"></span>
+      </div>
+      <div class="settings-row settings-row-grouped" onclick="navegarSeccion('invitacion')">
+        <div class="settings-row-ico ico-green"><span class="material-icons">card_giftcard</span></div>
+        <div class="settings-row-body">
+          <span class="settings-row-title">Código de invitación</span>
+          <span class="settings-row-sub" id="sub-invitacion">Ver y compartir tu código</span>
+        </div>
+        <span class="settings-row-arrow"></span>
+      </div>
+      <div class="settings-row settings-row-grouped" onclick="navegarSeccion('apariencia')">
+        <div class="settings-row-ico ico-purple"><span class="material-icons">palette</span></div>
+        <div class="settings-row-body">
+          <span class="settings-row-title">Apariencia</span>
+          <span class="settings-row-sub">Tema, colores, tamaño de texto</span>
+        </div>
+        <span class="settings-row-arrow"></span>
+      </div>
+      <div class="settings-row settings-row-grouped" onclick="navegarSeccion('privacidad')">
+        <div class="settings-row-ico ico-teal"><span class="material-icons">shield</span></div>
+        <div class="settings-row-body">
+          <span class="settings-row-title">Privacidad</span>
+          <span class="settings-row-sub">Visibilidad de tus datos</span>
+        </div>
+        <span class="settings-row-arrow"></span>
+      </div>
+      <div class="settings-row settings-row-grouped" onclick="navegarSeccion('notificaciones')">
+        <div class="settings-row-ico ico-yellow"><span class="material-icons">notifications</span></div>
+        <div class="settings-row-body">
+          <span class="settings-row-title">Notificaciones</span>
+          <span class="settings-row-sub">Controla qué quieres recibir</span>
+        </div>
+        <span class="settings-row-arrow"></span>
+      </div>
+      <div class="settings-row settings-row-grouped settings-row-last" onclick="navegarSeccion('acerca')">
+        <div class="settings-row-ico ico-gray"><span class="material-icons">info</span></div>
+        <div class="settings-row-body">
+          <span class="settings-row-title">Acerca de la app</span>
+          <span class="settings-row-sub">Versión, desarrollador, feedback</span>
+        </div>
+        <span class="settings-row-arrow"></span>
+      </div>
+    </div>
+
+    <div class="home-danger-zone">
+      <button class="home-btn-signout" onclick="cerrarSesion()">
+        <span class="material-icons">logout</span>
+        Cerrar sesión
+      </button>
+      <button class="home-btn-delete" onclick="confirmarBorrarPerfil()">
+        <span class="material-icons">delete_forever</span>
+        Borrar perfil
+      </button>
+    </div>
+    <div style="height:32px;"></div>
+  </div>
+</div>
+
+<!-- VISTA CÓDIGO DE INVITACIÓN -->
+<div id="view-invitacion" class="app-view">
+  <header class="app-header app-header-section">
+    <div class="header-row-top">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Código de invitación</span>
+    </div>
+  </header>
+  <div class="app-scroll">
+
+    <div class="inv-hero">
+      <div class="inv-hero-ico">🔑</div>
+      <p class="inv-hero-desc">Comparte este código o link con quien quieras invitar al equipo. Cada nueva persona necesitará este código para crear su perfil.</p>
+    </div>
+
+    <div class="sec-group">
+      <div class="sec-row">
+        <div class="sec-row-body">
+          <span class="sec-row-label">Código de invitación</span>
+          <div class="inv-code-row">
+            <span class="inv-code-text" id="inv-codigo-display">••••••••••</span>
+            <button class="inv-code-toggle" id="inv-toggle-btn" onclick="toggleCodigoVisible()" aria-label="Mostrar código">
+              <span class="material-icons" id="inv-toggle-ico">visibility</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="sec-row" style="border-bottom:none;">
+        <div class="sec-row-body">
+          <span class="sec-row-label">Link de invitación</span>
+          <span class="inv-link-text" id="inv-link-display">••••••••••••••••••••••••</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="inv-actions">
+      <button class="inv-btn inv-btn-primary" onclick="copiarCodigo()">
+        <span class="material-icons">content_copy</span>
+        Copiar código
+      </button>
+      <button class="inv-btn inv-btn-secondary" onclick="compartirLink()">
+        <span class="material-icons">share</span>
+        Compartir link
+      </button>
+    </div>
+
+    <div class="sec-note">
+      <span class="material-icons" style="font-size:16px;opacity:0.5;">info</span>
+      El código no tiene fecha de vencimiento hasta que el admin lo regenere. Cada invitadx necesitará aprobación del admin antes de acceder a todas las funciones.
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+</div>
+
+<!-- VISTA APARIENCIA -->
+<div id="view-apariencia" class="app-view">
+  <header class="app-header app-header-section">
+    <div class="header-row-top">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Apariencia</span>
+    </div>
+  </header>
+  <div class="app-scroll">
+
+    <!-- Sección admin: personalización del equipo -->
+    <div id="apariencia-admin-section" style="display:none;">
+      <div class="sec-label-header">Personalización del equipo</div>
+      <div class="sec-group">
+        <div class="sec-row sec-row-tappable" onclick="cambiarLogoEquipo()">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Logo del equipo</span>
+            <span class="sec-row-sub">Se muestra en la pantalla de login y la app</span>
+          </div>
+          <div class="apr-logo-preview" id="apr-logo-preview">
+            <img id="apr-logo-img" src="icons/icon-192x192.png" alt="Logo">
+          </div>
+          <span class="material-icons sec-row-arrow">chevron_right</span>
+        </div>
+        <div class="sec-row sec-row-tappable" style="border-bottom:none;" onclick="abrirColorPicker()">
+          <div class="sec-row-body">
+            <span class="sec-row-label">Color principal</span>
+            <span class="sec-row-sub">Acento de la app</span>
+          </div>
+          <div class="apr-color-swatch" id="apr-color-swatch"></div>
+          <span class="material-icons sec-row-arrow">chevron_right</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección todos: tema -->
+    <div class="sec-label-header">Tema</div>
+    <div class="sec-group">
+      <div class="sec-row" style="border-bottom:none;">
+        <div class="sec-row-body">
+          <span class="sec-row-label">Modo de color</span>
+        </div>
+        <div class="apr-theme-chips" id="apr-theme-chips">
+          <button class="apr-chip" data-theme="auto" onclick="setTheme('auto')">Auto</button>
+          <button class="apr-chip" data-theme="light" onclick="setTheme('light')">☀️ Claro</button>
+          <button class="apr-chip" data-theme="dark"  onclick="setTheme('dark')">🌙 Oscuro</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección todos: accesibilidad -->
+    <div class="sec-label-header">Accesibilidad</div>
+    <div class="sec-group">
+      <div class="sec-row">
+        <div class="sec-row-body">
+          <span class="sec-row-label">Tamaño de texto</span>
+        </div>
+        <div class="apr-text-size-ctrl">
+          <button class="apr-size-btn" onclick="cambiarTamanoTexto(-1)" aria-label="Reducir">A−</button>
+          <span class="apr-size-val" id="apr-size-val">100%</span>
+          <button class="apr-size-btn" onclick="cambiarTamanoTexto(1)" aria-label="Aumentar">A+</button>
+        </div>
+      </div>
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleAltoContraste()">
+        <span class="sec-toggle-label">Alto contraste</span>
+        <div id="toggle-alto-contraste" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-off" aria-pressed="false">
+            <span class="toggle-thumb"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+</div>
+
+<!-- VISTA PRIVACIDAD -->
+<div id="view-privacidad" class="app-view">
+  <header class="app-header app-header-section">
+    <div class="header-row-top">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Privacidad</span>
+    </div>
+  </header>
+  <div class="app-scroll">
+
+    <div class="sec-note sec-note-top">
+      <span class="material-icons" style="font-size:16px;opacity:0.5;">admin_panel_settings</span>
+      Los admins del equipo siempre pueden ver todos tus datos, independientemente de tu configuración de privacidad.
+    </div>
+
+    <div class="sec-label-header">Visibilidad del perfil</div>
+    <div class="sec-group">
+      <div class="sec-row" style="border-bottom:none;">
+        <div class="sec-row-body">
+          <span class="sec-row-label">¿Quién puede ver mi perfil?</span>
+        </div>
+        <div class="apr-theme-chips" id="priv-visibilidad-chips">
+          <button class="apr-chip" data-val="equipo" onclick="setPrivacidad('visibilidadPerfil','equipo')">Solo equipo</button>
+          <button class="apr-chip" data-val="todos"  onclick="setPrivacidad('visibilidadPerfil','todos')">Todos</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label-header">Datos de contacto</div>
+    <div class="sec-group">
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarEmail')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Mostrar email a compañerxs</span>
+        </div>
+        <div id="toggle-priv-email" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true">
+            <span class="toggle-thumb"></span>
+          </button>
+        </div>
+      </div>
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarTelefono')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Mostrar teléfono a compañerxs</span>
+        </div>
+        <div id="toggle-priv-telefono" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true">
+            <span class="toggle-thumb"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label-header">Cumpleaños y edad</div>
+    <div class="sec-group">
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="editarCampo('mostrarCumple', {label:'Mostrar cumpleaños', tipo:'toggle'})">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Mostrar fecha de cumpleaños</span>
+          <span class="sec-row-sub" style="font-size:12px;">Visible para el equipo</span>
+        </div>
+        <input id="p-mostrarCumple-priv" style="display:none;">
+        <div id="toggle-mostrarCumple" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-off" aria-pressed="false" id="btn-toggle-cumple">
+            <span class="toggle-thumb"></span>
+          </button>
+        </div>
+      </div>
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="editarCampo('mostrarEdad', {label:'Mostrar edad', tipo:'toggle'})">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Mostrar edad</span>
+          <span class="sec-row-sub" style="font-size:12px;">Visible para el equipo</span>
+        </div>
+        <input id="p-mostrarEdad-priv" style="display:none;">
+        <div id="toggle-mostrarEdad" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-off" aria-pressed="false" id="btn-toggle-edad">
+            <span class="toggle-thumb"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label-header">Cuenta</div>
+    <div class="sec-group">
+      <div class="sec-row sec-row-tappable sec-row-danger" style="border-bottom:none;" onclick="confirmarBorrarPerfil()">
+        <div class="sec-row-body">
+          <span class="sec-row-label" style="color:var(--accent);">Eliminar mi cuenta y datos</span>
+          <span class="sec-row-sub">Esta acción no se puede deshacer</span>
+        </div>
+        <span class="material-icons sec-row-arrow" style="color:var(--accent);">chevron_right</span>
+      </div>
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+</div>
+
+<!-- VISTA NOTIFICACIONES -->
+<div id="view-notificaciones" class="app-view">
+  <header class="app-header app-header-section">
+    <div class="header-row-top">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Notificaciones</span>
+    </div>
+  </header>
+  <div class="app-scroll">
+
+    <div id="notif-push-banner" class="notif-push-banner" style="display:none;">
+      <span class="material-icons" style="font-size:20px;">notifications_active</span>
+      <div>
+        <p class="notif-push-title">Activar notificaciones push</p>
+        <p class="notif-push-sub">Recibe alertas aunque la app esté cerrada</p>
+      </div>
+      <button class="notif-push-btn" onclick="solicitarPermisoPush()">Activar</button>
+    </div>
+
+    <div class="sec-label-header">Equipo y eventos</div>
+    <div class="sec-group">
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('nuevosEventos')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Nuevos eventos</span>
+          <span class="sec-row-sub" style="font-size:12px;">Entrenamientos, partidos y más</span>
+        </div>
+        <div id="toggle-notif-nuevosEventos" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+        </div>
+      </div>
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('actualizacionesEventos')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Actualizaciones de eventos</span>
+          <span class="sec-row-sub" style="font-size:12px;">Cambios de hora, lugar o detalles</span>
+        </div>
+        <div id="toggle-notif-actualizacionesEventos" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+        </div>
+      </div>
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('cancelaciones')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Cancelaciones</span>
+          <span class="sec-row-sub" style="font-size:12px;">Cuando un evento es cancelado</span>
+        </div>
+        <div id="toggle-notif-cancelaciones" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label-header">Social</div>
+    <div class="sec-group">
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('cumpleanios')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Cumpleaños del equipo</span>
+          <span class="sec-row-sub" style="font-size:12px;">Cuando alguien del equipo cumple años</span>
+        </div>
+        <div id="toggle-notif-cumpleanios" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+        </div>
+      </div>
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('tareas')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Nuevas tareas disponibles</span>
+          <span class="sec-row-sub" style="font-size:12px;">Cuando el equipo publica tareas</span>
+        </div>
+        <div id="toggle-notif-tareas" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+</div>
+
+<!-- VISTA ACERCA DE -->
+<div id="view-acerca" class="app-view">
+  <header class="app-header app-header-section">
+    <div class="header-row-top">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Acerca de la app</span>
+    </div>
+  </header>
+  <div class="app-scroll">
+
+    <div class="acerca-hero">
+      <img src="icons/icon-192x192.png" alt="Quindes" class="acerca-logo">
+      <p class="acerca-nombre">Quindes Volcánicos</p>
+      <p class="acerca-version" id="acerca-version">Versión 1.0.0</p>
+    </div>
+
+    <div class="sec-group">
+      <div class="sec-row" style="border-bottom:none;">
+        <div class="sec-row-body">
+          <span class="sec-row-label">Desarrollado por</span>
+          <span class="sec-val">Víctor Barros</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="acerca-actions">
+      <button class="acerca-btn acerca-btn-primary" onclick="abrirFeedback()">
+        <span class="material-icons">rate_review</span>
+        Dar feedback
+      </button>
+      <button class="acerca-btn acerca-btn-secondary" onclick="abrirDonaciones()">
+        <span class="material-icons">favorite</span>
+        Apoyar el proyecto
+      </button>
+    </div>
+
+    <div class="sec-group" style="margin-top:24px;">
+      <div class="sec-row sec-row-tappable" style="border-bottom:none;" onclick="abrirTerminos()">
+        <div class="sec-row-body">
+          <span class="sec-row-label">Términos y condiciones</span>
+        </div>
+        <span class="material-icons sec-row-arrow">chevron_right</span>
+      </div>
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+</div>
 
 </div><!-- /appContent -->
 
