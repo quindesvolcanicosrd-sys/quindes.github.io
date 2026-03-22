@@ -480,6 +480,21 @@ async function inicializarApp(email) {
     renderTodo(profile);
     aplicarPermisos();
 
+    // Precargar imágenes antes de mostrar la app
+    const urlsAPrecargar = [
+      normalizarDriveUrl(profile.fotoPerfil),
+      profile.adjCedula,
+      profile.adjPruebaFisica,
+    ].filter(Boolean);
+
+    await Promise.allSettled(
+      urlsAPrecargar.map(url => new Promise(resolve => {
+        const img = new Image();
+        img.onload = img.onerror = resolve;
+        img.src = url;
+      }))
+    );
+
     detenerDerbyLoader();
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('appContent').style.display    = 'block';
