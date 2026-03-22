@@ -2563,7 +2563,7 @@ async function subirImagenRecortada(base64) {
   mostrarCargandoFoto(true);
   fotoSubiendo = true;
   try {
-    const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo: 'foto', email: CURRENT_USER.email });
+    const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo: 'foto', email: CURRENT_USER.email || localStorage.getItem('quindes_email') || '' });
     if (!result || !result.url) throw new Error('No se recibio URL');
     window.myProfile.fotoPerfil = result.url;
     renderFotoPerfil(normalizarDriveUrl(result.url));
