@@ -2589,9 +2589,9 @@ async function subirImagenRecortada(base64) {
   try {
     const result = await gasCall('subirArchivo', { base64Data: base64, tipoArchivo: 'foto', email: CURRENT_USER.email || localStorage.getItem('quindes_email') || '' });
     if (!result || !result.url) throw new Error('No se recibio URL');
-    const urlConCache = result.url + '?t=' + Date.now();
     window.myProfile.fotoPerfil = result.url;
-    renderFotoPerfil(normalizarDriveUrl(result.url) + '?t=' + Date.now());
+    const cacheBuster = '?t=' + Date.now();
+    renderFotoPerfil(result.url + cacheBuster);
     await gasCall('updateMyProfile', {
       rowNumber: CURRENT_USER.id,
       data: { fotoPerfil: result.url },
