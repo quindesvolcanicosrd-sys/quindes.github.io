@@ -356,8 +356,7 @@ app.post('/archivo', async (req, res) => {
     const ext = mimeType.split('/')[1]?.split('+')[0] || 'bin';
 
     // Nombre del archivo
-    const timestamp = Date.now();
-    const fileName = `${email}/${tipoArchivo}_${timestamp}.${ext}`;
+    const fileName = `${email}/${tipoArchivo}.${ext}`;
 
     // Subir a Supabase Storage
     const { data, error } = await supabase.storage
