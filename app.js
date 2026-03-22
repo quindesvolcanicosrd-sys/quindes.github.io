@@ -1792,7 +1792,7 @@ async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
       const result = await gasCall('subirArchivo', {
         base64Data: e.target.result,
         tipoArchivo: fieldKey,
-        email: CURRENT_USER.email,
+        email: CURRENT_USER.email || localStorage.getItem('quindes_email') || '',
       });
       if (!result?.url) throw new Error('No se recibió URL');
       window.myProfile[fieldKey] = result.url;
