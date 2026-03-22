@@ -184,6 +184,9 @@ app.put('/perfil/:id', async (req, res) => {
         asiste_semana:        datos.asisteSemana,
         paga_cuota:           datos.pagaCuota === 'Sí',
         prueba_fisica:        datos.pruebaFisica,
+        foto_perfil_url:      datos.fotoPerfil || undefined,
+        adj_cedula_url:       datos.adjCedula || undefined,
+        adj_prueba_fisica_url: datos.adjPruebaFisica || undefined,
       })
       .eq('id', id);
 
