@@ -1826,8 +1826,9 @@ async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
         if (previewDiv) {
           previewDiv.querySelectorAll('img').forEach(img => { img.src = ''; });
           previewDiv.innerHTML = `
-            <img src="${urlConCache}" class="file-page-img" alt="Vista previa"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <img src="${urlConCache}" class="file-page-img" alt="Vista previa" style="opacity:0;transition:opacity 0.4s ease;"
+              onload="this.style.opacity='1'"
+              onerror="this.style.opacity='1';this.style.display='none';this.nextElementSibling.style.display='flex';">
             <div class="file-page-doc-icon" style="display:none;">
               <span class="material-icons">insert_drive_file</span>
               <span>Archivo subido</span>
