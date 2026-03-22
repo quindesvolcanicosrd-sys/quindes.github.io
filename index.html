@@ -460,10 +460,7 @@
     <header class="app-header app-header-section">
       <div class="header-row-top">
         <span class="material-icons" style="font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);opacity:0.85;">account_circle</span>
-        <span class="app-header-title">Mi Perfil</span>
-        <button class="header-settings-btn" onclick="navegarSeccion('ajustes')" aria-label="Ajustes">
-          <span class="material-icons">settings</span>
-        </button>
+        <span class="app-header-title">Ajustes</span>
       </div>
     </header>
     <div class="app-scroll">
@@ -490,43 +487,51 @@
 
       <!-- Settings list -->
       <div class="settings-group">
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('estadisticas')">
-          <div class="settings-row-ico ico-yellow"><span class="material-icons">bar_chart</span></div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('generales')">
+          <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
           <div class="settings-row-body">
-            <span class="settings-row-title">Estadísticas</span>
-            <span class="settings-row-sub" id="sub-estadisticas">Mes, Trimestre, Año</span>
+            <span class="settings-row-title">Mi perfil</span>
+            <span class="settings-row-sub">Nombre, foto, datos personales</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
-          <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('invitacion')">
+          <div class="settings-row-ico ico-green"><span class="material-icons">card_giftcard</span></div>
           <div class="settings-row-body">
-            <span class="settings-row-title">Datos Personales</span>
-            <span class="settings-row-sub" id="sub-personales">Documento, Nacionalidad, Fecha de nacimiento</span>
+            <span class="settings-row-title">Código de invitación</span>
+            <span class="settings-row-sub" id="sub-invitacion">Ver y compartir tu código</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('contacto')">
-          <div class="settings-row-ico ico-teal"><span class="material-icons">contacts</span></div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('apariencia')">
+          <div class="settings-row-ico ico-purple"><span class="material-icons">palette</span></div>
           <div class="settings-row-body">
-            <span class="settings-row-title">Contacto</span>
-            <span class="settings-row-sub" id="sub-contacto">Email, Teléfono</span>
+            <span class="settings-row-title">Apariencia</span>
+            <span class="settings-row-sub">Tema, colores, tamaño de texto</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('salud')">
-          <div class="settings-row-ico ico-red"><span class="material-icons">favorite</span></div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('privacidad')">
+          <div class="settings-row-ico ico-teal"><span class="material-icons">shield</span></div>
           <div class="settings-row-body">
-            <span class="settings-row-title">Salud y Emergencia</span>
-            <span class="settings-row-sub" id="sub-salud">Contacto de emergencia, Grupo sanguíneo</span>
+            <span class="settings-row-title">Privacidad</span>
+            <span class="settings-row-sub">Visibilidad de tus datos</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped settings-row-last" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarSeccion('rendimiento')">
-          <div class="settings-row-ico ico-orange"><span class="material-icons">bar_chart</span></div>
+        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('notificaciones')">
+          <div class="settings-row-ico ico-yellow"><span class="material-icons">notifications</span></div>
           <div class="settings-row-body">
-            <span class="settings-row-title">Estado y Rendimiento</span>
-            <span class="settings-row-sub" id="sub-rendimiento">Estado, Cuota, Asistencia</span>
+            <span class="settings-row-title">Notificaciones</span>
+            <span class="settings-row-sub">Controla qué quieres recibir</span>
+          </div>
+          <span class="settings-row-arrow"></span>
+        </div>
+        <div class="settings-row settings-row-grouped settings-row-last" onclick="navegarSeccion('acerca')">
+          <div class="settings-row-ico ico-gray"><span class="material-icons">info</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Acerca de la app</span>
+            <span class="settings-row-sub">Versión, desarrollador, feedback</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
