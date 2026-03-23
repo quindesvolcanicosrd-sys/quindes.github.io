@@ -1481,25 +1481,8 @@ function ajustarAnchoEmail() {
 }
 
 // ── NAVEGACIÓN ────────────────────────────────────────────────
-let vistaActual = 'home';
-
-function volverPerfil(fromPopState = false) {
-  const perfil = document.getElementById('view-perfil');
-  const curr   = document.getElementById('view-' + vistaActual);
-  if (!curr || !perfil) return;
-  perfil.style.display = 'flex';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      perfil.classList.add('active');
-      curr.classList.remove('active');
-    });
-  });
-  curr.addEventListener('transitionend', () => {
-    curr.style.display = 'none';
-  }, { once: true });
-  vistaActual = 'perfil';
-  if (!fromPopState) history.replaceState({ seccion: 'perfil' }, '', location.pathname);
-}
+let vistaActual    = 'home';
+let _vistaAnterior = 'home';
 
 function navegarSeccion(seccion) {
   const home = document.getElementById('view-home');
@@ -1520,23 +1503,44 @@ function navegarSeccion(seccion) {
   }, { once: true });
 
   vistaActual = seccion;
-  // No history manipulation needed — sentinel handles back gesture globally
+}
+
+function navegarDesdePerfilASeccion(seccion) {
+  const perfil = document.getElementById('view-perfil');
+  const dest   = document.getElementById('view-' + seccion);
+  if (!dest || !perfil) return;
+
+  perfil.classList.add('slide-out');
+  dest.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      dest.classList.add('active');
+      perfil.classList.remove('active');
+    });
+  });
+  dest.addEventListener('transitionend', () => {
+    perfil.classList.remove('slide-out');
+    perfil.style.display = 'none';
+  }, { once: true });
+
+  vistaActual = seccion;
+  _vistaAnterior = 'perfil';
 }
 
 function volverHome(fromPopState = false) {
-  // Cancelar edición si está activa
   if (edicionActiva[vistaActual]) {
     cancelarEdicionSeccion(vistaActual);
   }
 
-  const home = document.getElementById('view-home');
-  const curr = document.getElementById('view-' + vistaActual);
-  if (!curr) return;
+  const destId = _vistaAnterior && _vistaAnterior !== 'home' ? _vistaAnterior : 'home';
+  const dest   = document.getElementById('view-' + destId);
+  const curr   = document.getElementById('view-' + vistaActual);
+  if (!curr || !dest) return;
 
-  home.style.display = 'flex';
+  dest.style.display = 'flex';
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      home.classList.add('active');
+      dest.classList.add('active');
       curr.classList.remove('active');
     });
   });
@@ -1544,11 +1548,11 @@ function volverHome(fromPopState = false) {
     curr.style.display = 'none';
   }, { once: true });
 
-  vistaActual = 'home';
+  vistaActual    = destId;
+  _vistaAnterior = 'home';
 
-  // Clean up hash from URL
   if (!fromPopState) {
-    history.replaceState({ seccion: 'home' }, '', location.pathname);
+    history.replaceState({ seccion: destId }, '', location.pathname);
   }
 }
 
@@ -3510,12 +3514,7 @@ function inicializarAjustes() {
   aplicarTema(a.tema || 'auto');
   marcarChipActivo('apr-theme-chips', a.tema || 'auto');
 
-  // Tamaño de texto
-  aplicarTamanoTexto(a.tamanoTexto || 0);
-
-  // Alto contraste
-  if (a.altoContraste) document.documentElement.classList.add('high-contrast');
-  sincronizarToggle('toggle-alto-contraste', a.altoContraste || false);
+  
 
   // Notificaciones — sincronizar toggles
   const notifs = a.notificaciones || {};
@@ -3532,6 +3531,36 @@ function inicializarAjustes() {
 
   // Código de invitación
   inicializarCodigoInvitacion();
+
+  // Privacidad — sincronizar todos los toggles con sus valores guardados
+  sincronizarToggle('toggle-priv-perfilVisible',         getPriv('perfilVisible'));
+  sincronizarToggle('toggle-priv-mostrarEstadisticas',   getPriv('mostrarEstadisticas'));
+  // Contacto
+  const secContacto = getPriv('seccionContacto');
+  sincronizarToggle('toggle-priv-seccion-contacto', secContacto);
+  sincronizarToggle('toggle-priv-mostrarEmail',    getPriv('mostrarEmail'));
+  sincronizarToggle('toggle-priv-mostrarTelefono', getPriv('mostrarTelefono'));
+  const itemsContacto = document.getElementById('priv-items-contacto');
+  if (itemsContacto) { itemsContacto.style.opacity = secContacto ? '1' : '0.4'; itemsContacto.style.pointerEvents = secContacto ? 'auto' : 'none'; }
+  // Personales
+  const secPersonales = getPriv('seccionPersonales');
+  sincronizarToggle('toggle-priv-seccion-personales',  secPersonales);
+  sincronizarToggle('toggle-priv-mostrarDocumento',    getPriv('mostrarDocumento'));
+  sincronizarToggle('toggle-priv-mostrarNacionalidad', getPriv('mostrarNacionalidad'));
+  sincronizarToggle('toggle-mostrarCumple',            getPriv('mostrarCumple'));
+  sincronizarToggle('toggle-mostrarEdad',              getPriv('mostrarEdad'));
+  const itemsPersonales = document.getElementById('priv-items-personales');
+  if (itemsPersonales) { itemsPersonales.style.opacity = secPersonales ? '1' : '0.4'; itemsPersonales.style.pointerEvents = secPersonales ? 'auto' : 'none'; }
+  // Salud
+  const secSalud = getPriv('seccionSalud');
+  sincronizarToggle('toggle-priv-seccion-salud',         secSalud);
+  sincronizarToggle('toggle-priv-mostrarEmergencia',     getPriv('mostrarEmergencia'));
+  sincronizarToggle('toggle-priv-mostrarGrupoSanguineo', getPriv('mostrarGrupoSanguineo'));
+  sincronizarToggle('toggle-priv-mostrarAlergias',       getPriv('mostrarAlergias'));
+  sincronizarToggle('toggle-priv-mostrarDieta',          getPriv('mostrarDieta'));
+  sincronizarToggle('toggle-priv-mostrarPruebaFisica',   getPriv('mostrarPruebaFisica'));
+  const itemsSalud = document.getElementById('priv-items-salud');
+  if (itemsSalud) { itemsSalud.style.opacity = secSalud ? '1' : '0.4'; itemsSalud.style.pointerEvents = secSalud ? 'auto' : 'none'; }
 }
 
 // ── Código de invitación ──────────────────────────────────────
@@ -3677,22 +3706,59 @@ function toggleAltoContraste() {
 }
 
 // ── Privacidad: toggles ───────────────────────────────────────
-function togglePrivacidad(key) {
+const PRIV_DEFAULTS = {
+  perfilVisible:         true,
+  mostrarEstadisticas:   true,
+  // contacto
+  seccionContacto:       true,
+  mostrarEmail:          true,
+  mostrarTelefono:       true,
+  // personales
+  seccionPersonales:     true,
+  mostrarDocumento:      false,
+  mostrarNacionalidad:   true,
+  mostrarCumple:         false,
+  mostrarEdad:           false,
+  // salud
+  seccionSalud:          false,
+  mostrarEmergencia:     false,
+  mostrarGrupoSanguineo: false,
+  mostrarAlergias:       false,
+  mostrarDieta:          false,
+  mostrarPruebaFisica:   false,
+};
+
+function getPriv(key) {
   const a = cargarAjustes();
   const priv = a.privacidad || {};
-  priv[key] = !priv[key];
-  a.privacidad = priv;
-  localStorage.setItem(AJUSTES_KEY, JSON.stringify(a));
-  sincronizarToggle('toggle-priv-' + key, priv[key]);
+  return priv[key] !== undefined ? priv[key] : (PRIV_DEFAULTS[key] !== undefined ? PRIV_DEFAULTS[key] : true);
 }
 
-function setPrivacidad(key, val) {
+function setPriv(key, val) {
   const a = cargarAjustes();
   const priv = a.privacidad || {};
   priv[key] = val;
   a.privacidad = priv;
   localStorage.setItem(AJUSTES_KEY, JSON.stringify(a));
-  marcarChipActivo('priv-visibilidad-chips', val);
+}
+
+function togglePrivacidad(key) {
+  const nuevo = !getPriv(key);
+  setPriv(key, nuevo);
+  sincronizarToggle('toggle-priv-' + key, nuevo);
+}
+
+function toggleSeccionPriv(seccion) {
+  const key   = 'seccion' + seccion.charAt(0).toUpperCase() + seccion.slice(1);
+  const nuevo = !getPriv(key);
+  setPriv(key, nuevo);
+  sincronizarToggle('toggle-priv-seccion-' + seccion, nuevo);
+  // Apagar/encender visualmente los items de la sección
+  const items = document.getElementById('priv-items-' + seccion);
+  if (items) {
+    items.style.opacity       = nuevo ? '1'    : '0.4';
+    items.style.pointerEvents = nuevo ? 'auto' : 'none';
+  }
 }
 
 // ── Notificaciones ────────────────────────────────────────────

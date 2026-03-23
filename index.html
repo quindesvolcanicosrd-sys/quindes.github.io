@@ -520,10 +520,6 @@
           <span class="material-icons">logout</span>
           Cerrar sesión
         </button>
-        <button class="home-btn-delete" onclick="confirmarBorrarPerfil()">
-          <span class="material-icons">delete_forever</span>
-          Borrar perfil
-        </button>
       </div>
       <div style="height:32px;"></div>
     </div>
@@ -538,7 +534,7 @@
       </div>
     </header>
     <div class="app-scroll">
-      <div class="hero-card hero-card-clickable" onclick="navegarSeccion('generales')">
+      <div class="hero-card hero-card-clickable" onclick="navegarDesdePerfilASeccion('generales')">
         <div class="hero-flat-row">
           <div id="avatar-container" class="disabled hero-avatar-flat" onclick="event.stopPropagation(); abrirFotoSinEdicion()">
             <img id="img-preview-foto" src="" alt="Foto de perfil">
@@ -574,7 +570,7 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('personales')">
+        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('personales')">
           <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Datos Personales</span>
@@ -582,7 +578,7 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('contacto')">
+        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('contacto')">
           <div class="settings-row-ico ico-teal"><span class="material-icons">contacts</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Contacto</span>
@@ -590,7 +586,7 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('salud')">
+        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('salud')">
           <div class="settings-row-ico ico-red"><span class="material-icons">favorite</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Salud y Emergencia</span>
@@ -598,7 +594,7 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped settings-row-last" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarSeccion('rendimiento')">
+        <div class="settings-row settings-row-grouped settings-row-last" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarDesdePerfilASeccion('rendimiento')">
           <div class="settings-row-ico ico-orange"><span class="material-icons">bar_chart</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Estado y Rendimiento</span>
@@ -606,6 +602,12 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
+      </div>
+      <div class="home-danger-zone" style="margin-top:8px;">
+        <button class="home-btn-signout" onclick="cerrarSesion()">
+          <span class="material-icons">logout</span>
+          Cerrar sesión
+        </button>
       </div>
       <div style="height:32px;"></div>
     </div>
@@ -767,16 +769,7 @@
           </div>
         </div>
       </div>
-      <div class="sec-group">
-        <div class="sec-row-toggle" onclick="editarCampo('mostrarCumple', {label:'¿Mostrar cumpleaños?', tipo:'toggle'})" style="cursor:pointer;">
-          <span class="sec-toggle-label">¿Mostrar cumpleaños?</span>
-          <input id="p-mostrarCumple" style="display:none;">
-        </div>
-        <div class="sec-row-toggle" onclick="editarCampo('mostrarEdad', {label:'¿Mostrar edad?', tipo:'toggle'})" style="cursor:pointer;">
-          <span class="sec-toggle-label">¿Mostrar edad?</span>
-          <input id="p-mostrarEdad" style="display:none;">
-        </div>
-      </div>
+      
       <div style="height:32px;"></div>
     </div>
   </div>
@@ -1318,7 +1311,7 @@
       <div class="sec-row" style="border-bottom:none;">
         <div class="sec-row-body">
           <span class="sec-row-label">Desarrollado por</span>
-          <span class="sec-val">Víctor Barros</span>
+          <span class="sec-val">Shusho 2000</span>
         </div>
       </div>
     </div>
