@@ -558,7 +558,7 @@
         <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
       </div>
       <div class="settings-group">
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('estadisticas')">
+        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('estadisticas')">
           <div class="settings-row-ico ico-yellow"><span class="material-icons">bar_chart</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Estadísticas</span>
@@ -566,7 +566,7 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('generales')">
+        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('generales')">
           <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Datos Generales</span>
@@ -1029,28 +1029,7 @@
       </div>
     </div>
 
-    <!-- Sección todos: accesibilidad -->
-    <div class="sec-label-header">Accesibilidad</div>
-    <div class="sec-group">
-      <div class="sec-row">
-        <div class="sec-row-body">
-          <span class="sec-row-label">Tamaño de texto</span>
-        </div>
-        <div class="apr-text-size-ctrl">
-          <button class="apr-size-btn" onclick="cambiarTamanoTexto(-1)" aria-label="Reducir">A−</button>
-          <span class="apr-size-val" id="apr-size-val">100%</span>
-          <button class="apr-size-btn" onclick="cambiarTamanoTexto(1)" aria-label="Aumentar">A+</button>
-        </div>
-      </div>
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleAltoContraste()">
-        <span class="sec-toggle-label">Alto contraste</span>
-        <div id="toggle-alto-contraste" class="toggle-wrap">
-          <button type="button" class="toggle-btn toggle-off" aria-pressed="false">
-            <span class="toggle-thumb"></span>
-          </button>
-        </div>
-      </div>
-    </div>
+    
 
     <div style="height:32px;"></div>
   </div>
@@ -1071,85 +1050,177 @@
       Los admins del equipo siempre pueden ver todos tus datos, independientemente de tu configuración de privacidad.
     </div>
 
-    <div class="sec-label-header">Visibilidad del perfil</div>
+    <!-- PERFIL -->
+    <div class="sec-label-header">Perfil</div>
     <div class="sec-group">
-      <div class="sec-row" style="border-bottom:none;">
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('perfilVisible')">
         <div class="sec-row-body">
-          <span class="sec-row-label">¿Quién puede ver mi perfil?</span>
+          <span class="sec-toggle-label">Mostrar perfil al equipo</span>
+          <span class="sec-row-sub" style="font-size:12px;">Si está apagado, solo los admins ven tu perfil</span>
         </div>
-        <div class="apr-theme-chips" id="priv-visibilidad-chips">
-          <button class="apr-chip" data-val="equipo" onclick="setPrivacidad('visibilidadPerfil','equipo')">Solo equipo</button>
-          <button class="apr-chip" data-val="todos"  onclick="setPrivacidad('visibilidadPerfil','todos')">Todos</button>
+        <div id="toggle-priv-perfilVisible" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+        </div>
+      </div>
+      <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarEstadisticas')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label">Mostrar estadísticas</span>
+          <span class="sec-row-sub" style="font-size:12px;">Puntos, asistencia y horas patinadas</span>
+        </div>
+        <div id="toggle-priv-mostrarEstadisticas" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
         </div>
       </div>
     </div>
 
-    <div class="sec-label-header">Datos de contacto</div>
-    <div class="sec-group">
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarEmail')">
+    <!-- CONTACTO -->
+    <div class="sec-label-header">Contacto</div>
+    <div class="sec-group" id="priv-grupo-contacto">
+      <div class="sec-row-toggle priv-seccion-toggle" style="cursor:pointer;" onclick="toggleSeccionPriv('contacto')">
         <div class="sec-row-body">
-          <span class="sec-toggle-label">Mostrar email a compañerxs</span>
+          <span class="sec-toggle-label" style="font-weight:700;">Mostrar datos de contacto</span>
+          <span class="sec-row-sub" style="font-size:12px;">Activa o desactiva toda la sección</span>
         </div>
-        <div id="toggle-priv-email" class="toggle-wrap">
-          <button type="button" class="toggle-btn toggle-on" aria-pressed="true">
-            <span class="toggle-thumb"></span>
-          </button>
+        <div id="toggle-priv-seccion-contacto" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
         </div>
       </div>
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarTelefono')">
-        <div class="sec-row-body">
-          <span class="sec-toggle-label">Mostrar teléfono a compañerxs</span>
+      <div class="priv-seccion-items" id="priv-items-contacto">
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarEmail')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Email</span>
+          </div>
+          <div id="toggle-priv-mostrarEmail" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+          </div>
         </div>
-        <div id="toggle-priv-telefono" class="toggle-wrap">
-          <button type="button" class="toggle-btn toggle-on" aria-pressed="true">
-            <span class="toggle-thumb"></span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="sec-label-header">Cumpleaños y edad</div>
-    <div class="sec-group">
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="editarCampo('mostrarCumple', {label:'Mostrar cumpleaños', tipo:'toggle'})">
-        <div class="sec-row-body">
-          <span class="sec-toggle-label">Mostrar fecha de cumpleaños</span>
-          <span class="sec-row-sub" style="font-size:12px;">Visible para el equipo</span>
-        </div>
-        <input id="p-mostrarCumple-priv" style="display:none;">
-        <div id="toggle-mostrarCumple" class="toggle-wrap">
-          <button type="button" class="toggle-btn toggle-off" aria-pressed="false" id="btn-toggle-cumple">
-            <span class="toggle-thumb"></span>
-          </button>
-        </div>
-      </div>
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="editarCampo('mostrarEdad', {label:'Mostrar edad', tipo:'toggle'})">
-        <div class="sec-row-body">
-          <span class="sec-toggle-label">Mostrar edad</span>
-          <span class="sec-row-sub" style="font-size:12px;">Visible para el equipo</span>
-        </div>
-        <input id="p-mostrarEdad-priv" style="display:none;">
-        <div id="toggle-mostrarEdad" class="toggle-wrap">
-          <button type="button" class="toggle-btn toggle-off" aria-pressed="false" id="btn-toggle-edad">
-            <span class="toggle-thumb"></span>
-          </button>
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarTelefono')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Teléfono</span>
+          </div>
+          <div id="toggle-priv-mostrarTelefono" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- DATOS PERSONALES -->
+    <div class="sec-label-header">Datos personales</div>
+    <div class="sec-group" id="priv-grupo-personales">
+      <div class="sec-row-toggle priv-seccion-toggle" style="cursor:pointer;" onclick="toggleSeccionPriv('personales')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label" style="font-weight:700;">Mostrar datos personales</span>
+          <span class="sec-row-sub" style="font-size:12px;">Activa o desactiva toda la sección</span>
+        </div>
+        <div id="toggle-priv-seccion-personales" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+        </div>
+      </div>
+      <div class="priv-seccion-items" id="priv-items-personales">
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarDocumento')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Número de documento</span>
+          </div>
+          <div id="toggle-priv-mostrarDocumento" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarNacionalidad')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Nacionalidad</span>
+          </div>
+          <div id="toggle-priv-mostrarNacionalidad" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="editarCampo('mostrarCumple', {label:'Mostrar cumpleaños', tipo:'toggle'})">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Cumpleaños</span>
+          </div>
+          <div id="toggle-mostrarCumple" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-off" aria-pressed="false" id="btn-toggle-cumple"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="editarCampo('mostrarEdad', {label:'Mostrar edad', tipo:'toggle'})">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Edad</span>
+          </div>
+          <div id="toggle-mostrarEdad" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-off" aria-pressed="false" id="btn-toggle-edad"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALUD Y EMERGENCIA -->
+    <div class="sec-label-header">Salud y emergencia</div>
+    <div class="sec-group" id="priv-grupo-salud">
+      <div class="sec-row-toggle priv-seccion-toggle" style="cursor:pointer;" onclick="toggleSeccionPriv('salud')">
+        <div class="sec-row-body">
+          <span class="sec-toggle-label" style="font-weight:700;">Mostrar datos de salud</span>
+          <span class="sec-row-sub" style="font-size:12px;">Activa o desactiva toda la sección</span>
+        </div>
+        <div id="toggle-priv-seccion-salud" class="toggle-wrap">
+          <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
+        </div>
+      </div>
+      <div class="priv-seccion-items" id="priv-items-salud" style="opacity:0.4;pointer-events:none;">
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarEmergencia')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Contacto de emergencia</span>
+          </div>
+          <div id="toggle-priv-mostrarEmergencia" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarGrupoSanguineo')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Grupo sanguíneo</span>
+          </div>
+          <div id="toggle-priv-mostrarGrupoSanguineo" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarAlergias')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Alergias</span>
+          </div>
+          <div id="toggle-priv-mostrarAlergias" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarDieta')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Dieta</span>
+          </div>
+          <div id="toggle-priv-mostrarDieta" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarPruebaFisica')">
+          <div class="sec-row-body">
+            <span class="sec-toggle-label">Adjunto prueba física</span>
+          </div>
+          <div id="toggle-priv-mostrarPruebaFisica" class="toggle-wrap">
+            <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUENTA -->
     <div class="sec-label-header">Cuenta</div>
-    <div class="sec-group">
-      <div class="sec-row sec-row-tappable sec-row-danger" style="border-bottom:none;" onclick="confirmarBorrarPerfil()">
-        <div class="sec-row-body">
-          <span class="sec-row-label" style="color:var(--accent);">Eliminar mi cuenta y datos</span>
-          <span class="sec-row-sub">Esta acción no se puede deshacer</span>
-        </div>
-        <span class="material-icons sec-row-arrow" style="color:var(--accent);">chevron_right</span>
-      </div>
-    </div>
+    <button class="home-btn-delete" style="width:100%;" onclick="confirmarBorrarPerfil()">
+      <span class="material-icons">delete_forever</span>
+      Borrar perfil y datos
+    </button>
 
     <div style="height:32px;"></div>
   </div>
 </div>
+
+<!-- VISTA NOTIFICACIONES -->
 
 <!-- VISTA NOTIFICACIONES -->
 <div id="view-notificaciones" class="app-view">
