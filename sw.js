@@ -1,7 +1,9 @@
-const CACHE = 'quindes-v7';
+const CACHE = 'quindes-v8';
 const ASSETS = [
   './index.html',
-  './style.css',
+  './css/global.css',
+  './css/nav.css',
+  './css/ajustes.css',
   './manifest.json',
   './icons/icon-192x192.png',
   './icons/icon-512x512.png',
@@ -11,7 +13,6 @@ const ASSETS = [
   './icons/logo-loading.png',
 ];
 
-// Nunca cachear estos
 const NO_CACHE = ['app.js', 'workers.dev', 'script.google.com'];
 
 self.addEventListener('install', e => {
@@ -37,13 +38,11 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = e.request.url;
 
-  // Nunca cachear app.js ni llamadas a APIs
   if (NO_CACHE.some(s => url.includes(s))) {
     e.respondWith(fetch(e.request));
     return;
   }
 
-  // Network-first para iconos y logo (siempre toma el nuevo si hay red)
   if (url.includes('/icons/')) {
     e.respondWith(
       fetch(e.request)
@@ -57,7 +56,6 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first para el resto
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
