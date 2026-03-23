@@ -1,0 +1,175 @@
+/* ============================================================
+   QUINDES APP — global.css
+   Variables, reset, tipografía, animaciones globales
+   ============================================================ */
+
+   /* ── TOKENS: DARK (default) ── */
+:root {
+  --bg-rgb: 26, 18, 18;
+  --bg:         #1a1212;
+  --card:       #251a1a;
+  --card2:      #2e1f1f;
+  --border:     rgba(255,200,200,0.10);
+  --border2:    rgba(255,200,200,0.07);
+  --border3:    rgba(255,200,200,0.05);
+  --text:       #f5e6e6;
+  --text2:      #c4a0a0;
+  --text3:      #8c6464;
+  --text4:      #6b4a4a;
+  --label:      #c4a0a0;
+  --accent:     #ef4444;
+  --accent2:    #dc2626;
+  --accent-dim: rgba(239,68,68,0.18);
+  --header-bg:  rgba(26,18,18,0.80);
+  --chip-bg:    rgba(239,68,68,0.08);
+  --stat-bg:    rgba(239,68,68,0.06);
+  --section-hd: rgba(239,68,68,0.05);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-rgb: 252, 240, 240;
+    --bg:         #fcf0f0;
+    --card:       #ffffff;
+    --card2:      #fff5f5;
+    --border:     rgba(180,0,0,0.10);
+    --border2:    rgba(180,0,0,0.07);
+    --border3:    rgba(180,0,0,0.05);
+    --text:       #1c0a0a;
+    --text2:      #6b3030;
+    --text3:      #9e5050;
+    --text4:      #bb8080;
+    --label:      #9e5050;
+    --accent:     #c62828;
+    --accent2:    #b71c1c;
+    --accent-dim: rgba(198,40,40,0.10);
+    --header-bg:  rgba(252,240,240,0.80);
+    --chip-bg:    rgba(198,40,40,0.07);
+    --stat-bg:    rgba(198,40,40,0.05);
+    --section-hd: rgba(198,40,40,0.04);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root { --font: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+html, body { font-family: var(--font); }
+input, button, select, textarea { font-family: var(--font); }
+
+html, body {
+  width: 100%; height: 100%; max-height: 100%;
+  background: var(--bg);
+  font-family: var(--font);
+  font-size: 16px; color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  overscroll-behavior: none;
+  margin: 0; padding: 0;
+  -webkit-text-size-adjust: 100%;
+  touch-action: pan-y;
+}
+/* Barra de gestos inferior: mismo color que el fondo */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: env(safe-area-inset-bottom, 0px);
+  background: var(--bg);
+  z-index: 99998;
+  pointer-events: none;
+}
+
+/* ── LOADING ── */
+#loadingScreen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: var(--bg); z-index: 200;
+}
+#loadingScreen h2 { display: none; }
+.loading-logo {
+  width: 160px; height: 160px;
+  border-radius: 0; overflow: visible;
+  background: transparent;
+}
+.loading-logo-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.loading-logo .material-icons { display: none; }
+
+/* ══ DERBY LOADER ══ */
+.derby-loader { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.derby-icons { display: flex; align-items: center; justify-content: center; gap: 26px; transition: gap 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+.derby-icon {
+  font-size: 22px; line-height: 1; user-select: none; display: block;
+  opacity: 0.38; transform: scale(0.58);
+  transition: transform 0.5s cubic-bezier(0.34,1.7,0.64,1), opacity 0.3s ease, filter 0.3s ease, margin 0.45s cubic-bezier(0.34,1.7,0.64,1);
+  filter: none; margin: 0;
+}
+.derby-icon.di-active {
+  opacity: 1; transform: scale(1.6);
+  filter: drop-shadow(0 0 7px rgba(255,210,0,0.95)) drop-shadow(0 0 18px rgba(255,140,0,0.55));
+  margin-left: -4px; margin-right: -4px;
+}
+.derby-icon.di-near {
+  margin-left: -5px; margin-right: -5px; transform: scale(0.62); opacity: 0.45;
+  transition: transform 0.45s cubic-bezier(0.34,1.5,0.64,1), opacity 0.3s ease, filter 0.3s ease, margin 0.45s cubic-bezier(0.34,1.5,0.64,1);
+}
+.derby-loader-text {
+  font-size: 11px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.12em !important;
+  color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important;
+  margin: 0 !important; text-align: center; transition: opacity 0.3s;
+  animation: derby-text-pulse 2s ease-in-out infinite;
+}
+@keyframes derby-text-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+/* ── Animaciones globales ── */
+@keyframes wiz-fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes wiz-spin-cw  { to { transform: rotate(360deg);  } }
+@keyframes wiz-spin-ccw { to { transform: rotate(-360deg); } }
+@keyframes intro-ring-pulse { 0%,100% { transform: scale(1); opacity: 0.07; } 50% { transform: scale(1.05); opacity: 0.13; } }
+
+/* ── Color scheme ── */
+:root { color-scheme: dark; }
+@media (prefers-color-scheme: light) { :root { color-scheme: light; } }
+
+/* ── Temas forzados ── */
+html.theme-light {
+  --bg-rgb: 252, 240, 240;
+  --bg: #fcf0f0; --card: #ffffff; --card2: #fff5f5;
+  --border: rgba(180,0,0,0.10); --border2: rgba(180,0,0,0.07); --border3: rgba(180,0,0,0.05);
+  --text: #1c0a0a; --text2: #6b3030; --text3: #9e5050; --text4: #bb8080;
+  --label: #9e5050; --accent: #c62828; --accent2: #b71c1c;
+  --accent-dim: rgba(198,40,40,0.10); --header-bg: rgba(252,240,240,0.80);
+  --chip-bg: rgba(198,40,40,0.07); --stat-bg: rgba(198,40,40,0.05);
+  --section-hd: rgba(198,40,40,0.04); color-scheme: light;
+}
+html.theme-dark {
+  --bg-rgb: 26, 18, 18;
+  --bg: #1a1212; --card: #251a1a; --card2: #2e1f1f;
+  --border: rgba(255,200,200,0.10); --border2: rgba(255,200,200,0.07); --border3: rgba(255,200,200,0.05);
+  --text: #f5e6e6; --text2: #c4a0a0; --text3: #8c6464; --text4: #6b4a4a;
+  --label: #c4a0a0; --accent: #ef4444; --accent2: #dc2626;
+  --accent-dim: rgba(239,68,68,0.18); --header-bg: rgba(26,18,18,0.80);
+  --chip-bg: rgba(239,68,68,0.08); --stat-bg: rgba(239,68,68,0.06);
+  --section-hd: rgba(239,68,68,0.05); color-scheme: dark;
+}
+
+/* ── Font + tap highlight globales ── */
+* {
+  font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+input, button, select, textarea { font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, sans-serif !important; }
+input[type="text"], input[type="tel"], input[type="email"], input[type="search"], textarea {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ── html background (safe area color) ── */
+html { background: #1a1212; }
+@media (prefers-color-scheme: light) { html { background: #fcf0f0; } }
