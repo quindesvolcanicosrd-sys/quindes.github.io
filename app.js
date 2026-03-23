@@ -238,7 +238,7 @@ function cerrarSesion() {
 // ── BORRAR PERFIL ──────────────────────────────────────────────
 function confirmarBorrarPerfil() {
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;padding:24px;';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;padding:24px;transition:background 0.25s ease;';
   overlay.innerHTML = `
     <div style="background:var(--bg);border-radius:20px;padding:28px 24px;max-width:340px;width:100%;text-align:center;">
       <span class="material-icons" style="font-size:48px;color:var(--accent);margin-bottom:12px;display:block;">warning</span>
