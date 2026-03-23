@@ -259,6 +259,22 @@ function confirmarBorrarPerfil() {
     </div>
   `;
   document.body.appendChild(overlay);
+  // Animar entrada
+  const card = overlay.querySelector('div');
+  if (card) {
+    card.style.transform = 'scale(0.88) translateY(16px)';
+    card.style.opacity = '0';
+    card.style.transition = 'transform 0.28s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s ease';
+  }
+  requestAnimationFrame(() => {
+    overlay.style.background = 'rgba(0,0,0,0.6)';
+    requestAnimationFrame(() => {
+      if (card) {
+        card.style.transform = 'scale(1) translateY(0)';
+        card.style.opacity = '1';
+      }
+    });
+  });
 }
 
 async function ejecutarBorrarPerfil() {
