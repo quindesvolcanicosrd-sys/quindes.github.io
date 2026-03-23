@@ -1,56 +1,112 @@
 # Quindes Volcánicos — Referencia de Schema para Supabase
 
-> Última actualización: 2026-03-21
+> Última actualización: 2026-03-22
 > Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 ---
 
-## Estado actual del proyecto (al 2026-03-21)
+## Estado actual del proyecto (al 2026-03-22)
 
 ### Lo que ya está hecho ✅
 
-#### PWA (app actual — sigue funcionando)
-- Hosteada en GitHub Pages: `app.quindesvolcanicos.com`
-- Cloudflare Worker como proxy
-- Google Apps Script como backend
+#### PWA (frontend — GitHub Pages)
+- Hosteada en `app.quindesvolcanicos.com`
 - Login con Google (Google Identity Services)
-- Perfil completo editable (tap-to-edit)
-- Secciones: Estadísticas, Datos Personales, Contacto, Salud, Rendimiento
-- Wizard de registro para nuevas jugadoras
 - Sesión persistente con localStorage
-- **Bug pendiente**: `gasCall` con token expirado al restaurar sesión desde localStorage — fix aplicado (fallback a `localStorage.getItem('quindes_token')`)
+- Wizard de registro con código de invitación (paso `inv` antes del paso 1)
+- Perfil completo editable (tap-to-edit) con secciones: Estadísticas, Datos Generales, Datos Personales, Contacto, Salud y Emergencia, Estado y Rendimiento
+- Subida de fotos con cropper (Cropper.js)
+- Subida de archivos a Supabase Storage vía Railway
+- Navegación por secciones con animaciones (slide)
+- Instalación PWA con banner contextual por navegador/OS
+- **Sección Ajustes completa** — es la pantalla principal (home temporal):
+  - Mi perfil → lleva a `view-perfil` (hero card + menú de secciones del perfil)
+  - Código de invitación → ver/copiar/compartir código del equipo
+  - Apariencia → tema (auto/claro/oscuro), tamaño de texto, alto contraste, sección admin (logo + color del equipo)
+  - Privacidad → visibilidad perfil, email, teléfono, cumpleaños/edad, eliminar cuenta
+  - Notificaciones → push banner + toggles por categoría
+  - Acerca de → versión, desarrollador, feedback, donaciones, términos
+- **Ajustes persisten en localStorage** bajo key `quindes_ajustes`
+- `inicializarAjustes()` se llama desde `inicializarApp()` después de `aplicarPermisos()`
 
-#### Migración a Supabase (en progreso)
-- **Supabase**: proyecto creado (`znprcowxveyzanpvotms.supabase.co`)
-- **Google Auth**: configurado en Supabase
-- **Schema ejecutado**: 13 tablas creadas (ver sección Schema más abajo)
-- **Datos iniciales**: liga, equipo y usuario admin insertados
-- **Backend Node.js**: creado en `/api` dentro del repo de GitHub
-  - Express + @supabase/supabase-js + dotenv + cors
-  - Endpoint `/health` funcionando y conectado a Supabase
-  - Corriendo en puerto 3000 localmente
-- **Railway**: cuenta creada, pendiente de conectar con el repo
+#### Arquitectura de navegación actual
+- `view-home` = pantalla de **Ajustes** (home temporal hasta que haya nav inferior)
+- `view-perfil` = Mi Perfil con hero card + menú de secciones (llega desde Ajustes → Mi perfil)
+- `view-estadisticas`, `view-generales`, `view-personales`, `view-contacto`, `view-salud`, `view-rendimiento` = secciones del perfil (llegan desde `view-perfil`, vuelven a `view-perfil` con `volverPerfil()`)
+- `view-invitacion`, `view-apariencia`, `view-privacidad`, `view-notificaciones`, `view-acerca` = secciones de ajustes (llegan desde home/ajustes, vuelven al home con `volverHome()`)
+- Función `volverPerfil()` agregada en app.js para volver a `view-perfil` desde las secciones del perfil
+- **Futuro**: cuando haya otras secciones (entrenamientos, equipo, tareas, etc.), agregar barra de navegación inferior y Ajustes pasará a ser una pestaña más
 
-### Lo que falta hacer 🔜
-1. Construir los endpoints del backend (getCurrentUser, getMyProfile, updateMyProfile, etc.)
-2. Conectar Railway con el repo de GitHub para deploy automático
-3. Migrar datos existentes de Quindes.xlsx → Supabase
-4. Cambiar `CONFIG.GAS_URL` en app.js por la URL de Railway
-5. Reemplazar Google Identity Services por Supabase Auth en la app
+#### Backend Node.js (Railway)
+- URL: `https://quindesgithubio-production.up.railway.app`
+- Endpoints activos:
+  - `GET /usuario?email=xxx` → `{ found, id, authUserId, equipoId, nombreDerby, rol, estadoMiembro }`
+  - `GET /perfil/:id` → perfil completo con stats
+  - `PUT /perfil/:id` → actualizar perfil
+  - `POST /registrar` → crear perfil (valida `codigoInvitacion` contra tabla `codigos_invitacion`)
+  - `DELETE /perfil/:id` → borrar perfil
+  - `POST /archivo` → subir a Supabase Storage bucket `archivos`
+- Nota: `/usuario` devuelve `rol` (no `rolApp`). Se normaliza en el frontend: `{ ...user, rolApp: user.rol }`
 
-### Credenciales y IDs importantes
+#### Supabase
+- URL: `znprcowxveyzanpvotms.supabase.co`
+- Schema v2: 13 tablas creadas y funcionando
+- `/registrar` crea perfil con `estado: 'pendiente'` en tabla `miembros`
+
+---
+
+### Pendientes 🔜
+
+#### Backend
+- **`GET /codigo-invitacion?equipoId=xxx`** — endpoint no implementado. La sección de Invitación lo llama pero cae silenciosamente al catch. Debe devolver `{ codigo }` para el equipo del usuario.
+- **`PUT /miembro/:id/aprobar`** — para flujo de aprobación admin de usuarios pendientes
+
+#### Frontend — Flujo de aprobación de nuevas jugadoras
+**Decisión tomada**: se mantiene doble validación — el código de invitación permite entrar al wizard, pero el admin igual debe aprobar al usuario antes de que acceda a las funciones del equipo. Esto previene que un código filtrado dé acceso inmediato sin control.
+
+Flujo completo acordado:
+1. Admin crea código → manda link `?invite=CODIGO`
+2. Usuario se registra con el wizard → queda con `estado: 'pendiente'` en `miembros`
+3. Admin ve lista de pendientes en la app → aprueba o rechaza
+4. Solo al aprobar el usuario puede acceder a funciones del equipo
+
+Falta implementar:
+1. En `inicializarApp`: verificar `estadoMiembro` después del login. Si es `'pendiente'`, mostrar pantalla "Tu cuenta está en revisión, el admin te habilitará pronto 🏥" en lugar de la app normal
+2. Vista admin para listar pendientes con botón de aprobar/rechazar
+3. Endpoint `PUT /miembro/:id/aprobar` en Railway
+
+#### Frontend — Ajustes (placeholders activos)
+- **Apariencia admin**: `cambiarLogoEquipo()` y `abrirColorPicker()` muestran toast "🚧 Próximamente"
+- **Notificaciones push**: `solicitarPermisoPush()` pide permiso del navegador pero no registra Service Worker push subscription
+- **Privacidad**: los toggles guardan en localStorage pero no se sincronizan con Supabase
+- **Acerca de**: URLs de feedback/donaciones/términos son placeholders (`ko-fi.com`, `mailto:`, etc.)
+
+#### Próximas secciones a desarrollar
+- Entrenamientos / Calendario
+- Tareas y puntos
+- Equipo (lista de jugadoras)
+- Cuotas
+- Presupuesto (admin)
+- Nav inferior con todas las secciones
+
+---
+
+## Credenciales y IDs importantes
+
 ```
 SUPABASE_URL=https://znprcowxveyzanpvotms.supabase.co
 LIGA_ID=35d870d8-bfad-4a9a-881a-32a3a8308378
 EQUIPO_ID=03161fd2-3120-49f7-b165-27f23bcdae2d
 VICTOR_AUTH_ID=b32d0923-dc31-4176-856b-2aa8a6ef04e6
+VICTOR_PERFIL_ID=ebfccea3-a725-4d22-b9d3-af408a19a54d
+RAILWAY_URL=https://quindesgithubio-production.up.railway.app
 ```
 (Las API keys están en `/api/.env` en el repo local — nunca se suben a GitHub)
 
 ### Repo de GitHub
 `https://github.com/quindesvolcanicosrd-sys/quindes.github.io`
-- Frontend: raíz del repo (index.html, app.js, style.css)
-- Backend: carpeta `/api` (index.js, package.json, .env)
+- Frontend: raíz del repo (`index.html`, `app.js`, `style.css`)
+- Backend: carpeta `/api` (`index.js`, `package.json`, `.env`)
 
 ### Para retomar el desarrollo local
 ```bash
@@ -62,35 +118,35 @@ npm run dev
 
 ---
 
-## Arquitectura del sistema (objetivo final)
+## Arquitectura del sistema
 
 ```
-[PWA - GitHub Pages]
+[PWA - GitHub Pages - app.quindesvolcanicos.com]
       ↓ fetch
 [Backend Node.js - Railway]
       ↓ supabase-js
-[Supabase - PostgreSQL]
+[Supabase - PostgreSQL - znprcowxveyzanpvotms.supabase.co]
 
 Jerarquía de datos:
 Liga → Equipo(s) → Miembros → Perfiles
 ```
 
 ### Roles del sistema
-| Rol | Alcance |
+| Rol en app (`rolApp`) | Equivale a |
 |---|---|
-| `admin_liga` | Acceso total a toda la liga y todos sus equipos |
-| `admin_equipo` | Acceso total solo a su equipo |
-| `semiAdmin_equipo` | Acceso parcial a su equipo |
-| `jugadorx` | Solo su perfil y datos de su equipo |
-| `coach` / `arbitrx` / `bench` | Idem jugadorx |
-| `invitadx` | Acceso mínimo, pendiente de aprobación |
+| `Admin` | admin_equipo — acceso total al equipo |
+| `SemiAdmin` | semiAdmin_equipo — acceso parcial |
+| `Invitado` | jugadorx/coach/etc — solo su perfil |
 
-### Flujo de onboarding de nueva jugadora
-1. Descarga la app → ingresa código de invitación generado por admin
-2. Se autentica con Google
-3. Completa el wizard de registro
-4. Queda con `estado = 'pendiente'` en tabla `miembros`
-5. Admin del equipo aprueba → `estado = 'activo'`
+El backend devuelve `rol` en `/usuario`, el frontend lo normaliza como `rolApp`.
+
+### Flujo de onboarding de nueva jugadorx
+1. Recibe link con código de invitación (`?invite=CODIGO`)
+2. Abre la app → wizard → paso `inv` carga el código automáticamente
+3. Se autentica con Google
+4. Completa el wizard (foto, nombre, pronombres, país, teléfono, fecha, derby, rol, salud, emergencia)
+5. `POST /registrar` valida el código y crea el perfil con `estado: 'pendiente'`
+6. Admin del equipo aprueba → `estado: 'activo'` (**pendiente de implementar**)
 
 ---
 
@@ -116,9 +172,41 @@ Liga → Equipo(s) → Miembros → Perfiles
 
 El SQL completo está en `quindes-schema-v2.sql` en el repo.
 
+### Tabla `codigos_invitacion` (campos relevantes)
+```
+codigo        — string único del equipo
+activo        — boolean
+expira_at     — timestamp (nullable)
+usos_max      — integer (nullable)
+usos_actuales — integer
+```
+
 ---
 
-## Estructura actual (Google Sheets)
+## Notas técnicas importantes (app.js)
+
+- `CONFIG.GAS_URL` eliminado — solo existe `CONFIG.API_URL = RAILWAY_URL`
+- `gasCallNoToken` es alias de `gasCall`
+- `aplicarPermisos()` usa `CURRENT_USER.rolApp` — valores: `'Admin'`, `'SemiAdmin'`, `'Invitado'`
+- `mostrarToastGuardado(msg)` acepta mensaje opcional, default `'✅ Guardado'`
+- `inicializarAjustes()` se llama después de `aplicarPermisos()` en `inicializarApp()`
+- `volverPerfil()` — función para volver a `view-perfil` desde las subsecciones del perfil
+- Fotos: `normalizarDriveUrl()` convierte URL de Drive a `lh3.googleusercontent.com/d/...=w500`
+- Archivos van a Supabase Storage bucket `archivos` vía `POST /archivo`
+
+### Variables globales del wizard
+```javascript
+const _urlParams = new URLSearchParams(window.location.search);
+let inviteCode = _urlParams.get('invite') || null;
+const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,10,11];
+// wizStep inicia en 'inv'
+// wizIntroStart() activa wiz-step-inv
+// regData.codigoInvitacion se envía en submitRegistro()
+```
+
+---
+
+## Estructura de Google Sheets (origen de datos)
 
 ### 4 documentos fuente
 
@@ -133,9 +221,8 @@ El SQL completo está en `quindes-schema-v2.sql` en el repo.
 
 ## Quindes.xlsx — Hoja `2026`
 
-Headers reales están en **fila 5**. Filas 1-4 son config (año, umbrales de puntos).
+Headers reales en **fila 5**. Filas 1-4 son config.
 
-### Columnas del perfil (orden en la hoja)
 ```
 Nombre Derby | Nombre | Número | Pronombres | Estado | Cuanto asiste por semana
 Rol de jugadorx | Marzo (puntos mes) | Trimestre 1 (puntos trim) | 2026 (puntos año)
@@ -148,102 +235,9 @@ E-Mail | ¿Quiere que se sepa su fecha de cumpleaños? | ¿Quiere que se sepa su
 Horas Patinadas | Tipo de usuario | Porcentaje de asistencia anual
 ```
 
-### Otras hojas en Quindes.xlsx
-- `LOG_CAMBIOS`: historial de ediciones (`fecha`, `email`, `rol`, `campo`, `valor_anterior`, `valor_nuevo`)
-- `A cumplir`: vista de cumpleaños próximos
-- `Web`: links útiles del equipo
-- `Lista de Paises`: catálogo de países y códigos
-- `Lugares y horarios de entrenami`: lugares de entrenamiento con días, horarios, fotos, Google Maps
-
 ---
 
-## Tareas_Puntajes_Asistencias_2026.xlsx
-
-### Hoja `Tareas`
-Headers en fila 2:
-```
-Área | Trimestre | Tarea | Estado | Nombre (jugadora) | Puntos | Puntos finales
-Estado final de entrega | Fecha de registro | Fecha Límite | Fecha de Finalización
-Notas y adjuntos | ID
-```
-
-### Hoja `Asistencias`
-Configuración de días y valores de puntos por asistencia.
-
-### Hoja `Calendario de Asistencias`
-- Columna 1: nombre derby de jugadora
-- Columnas siguientes: cada fecha de entrenamiento del año (3 por semana)
-- Valores por celda: P (puntual), T (tarde), A (ausente), o vacío
-- Organizado por trimestres (T1, T2, T3, T4)
-
-### Hoja `Log de Asistencias`
-```
-ID_Entrenamiento | Email_Usuario | Nombre_Derby | Estado | Foto
-```
-
-### Hoja `Puntos`
-Tabla calculada por jugadora con desglose mensual, trimestral y anual.
-- Columna 1: nombre derby
-- Por mes: Asistencia, Tareas, Bono asistencia seguida, Pago cuota → total mes
-- Por trimestre: igual
-- Por año: igual + resultado ("Puede jugar partidos" / "Faltan puntos: X")
-
----
-
-## Cuotas.xlsx — Hoja `2026`
-
-Headers en **fila 3**:
-```
-Nombre | Nombre Derby | Paga cuota | Debe pagar | Estado | Pagado
-Fecha de pago | Punto | Forma de pago | Mese/s que adeuda
-Deudas (Anual) | Saldos | Abonado | Notas | Mes
-```
-
-Configuración en filas 1-2: valor de cuota ($15/mes), deudas totales, ingresos totales.
-
-Hay una columna adicional que genera el seguimiento mensual por jugadora.
-
----
-
-## Presupuestos.xlsx
-
-### Hoja `2026`
-Tabla doble: Ingresos | Egresos
-```
-Ingresos: Concepto | Valor | Responsable | Fecha | Registro
-Egresos:  Concepto | Valor | Responsable/s | Fecha | Registro
-```
-Conceptos de ingreso: Año pasado, Cuotas, Patreon, Pagos individuales, Transportes
-Conceptos de egreso: Pago a Coaches, Transportes, Anuncios
-
-### Hojas `Ingresos` y `Egresos`
-Registros detallados de cada movimiento.
-
----
-
-## Relaciones entre documentos
-
-```
-Quindes.xlsx (perfiles)
-    ↑ referenciado por email/nombre
-    |
-Tareas_Puntajes_Asistencias_2026.xlsx
-    → Puntos calculados: puntosMes, puntosTrimestre, puntosAnio
-    → Asistencia: horasPatinadas, porcentajeAsistenciaAnual
-    → Log de asistencias por entrenamiento
-
-Cuotas.xlsx
-    → Estado de pago por jugadora (pagaCuota, mesesAdeuda, deuda)
-    → Referencia a Quindes por nombre
-
-Presupuestos.xlsx
-    → Ingresos/egresos del equipo (no por jugadora)
-    → Referencia a Cuotas para totales
-```
-
----
-
-## Campos que expone la API actual (GAS → App)
+## Campos que expone la API (Railway → App)
 
 Del perfil:
 `email`, `nombre`, `nombreDerby`, `numero`, `pronombres`, `rolJugadorx`,
@@ -260,77 +254,33 @@ De estadísticas (calculados):
 
 ---
 
-## Notas para la migración a Supabase
-
-1. **Autenticación**: hoy usa Google OAuth → migrar a Supabase Auth con Google provider
-2. **Fotos/archivos**: hoy en Google Drive → migrar a Supabase Storage
-3. **Puntos**: hoy calculados con fórmulas en Sheets → pasar a funciones en Node.js backend
-4. **Asistencias**: AppSheet registra presencia → reemplazar con endpoint propio
-5. **Cuotas**: lógica mensual por jugadora → tabla `cuotas` con registro por mes/jugadora
-6. **Presupuestos**: ingresos/egresos del equipo → tabla `movimientos_financieros`
-7. **Multi-equipo**: diseñar con `equipo_id` en todas las tablas desde el inicio
-
----
-
-## AppScripts — Lógica de negocio actual
-
-### Quindes.xlsx (triggers)
-- **`alEditarCualquierHoja`** → onEdit: actualiza cumpleaños y avatares automáticamente
-- **`onEditAvatar`** → genera URL de avatar (ui-avatars.com) si la jugadora no tiene foto
-- **`actualizarCumples`** → calcula cumpleaños próximos (90 días) y los escribe en hoja "A cumplir"
-- **`actualizarTodoDiario`** → trigger diario que escribe mes actual (H5) y trimestre (I5) en la hoja principal
-
-### Tareas_Puntajes_Asistencias_2026.xlsx (triggers)
-- **`ejecutarSincronizacionTotal`** → corre cada minuto: sincroniza entrenamientos, estados y asistencias
-- **`sincronizarEspejo`** → sincroniza "Template de Asistencias" → "Asistencias" (crea/actualiza/borra filas de entrenamientos)
-- **`mantenimientoYEstados`** → rellena Trimestre, Mes, Día, Lugar por fecha; actualiza estado del evento (Programado / Finalizado / Cancelado)
-- **`actualizarAsistenNoAsisten`** → lee "Log de Asistencias" y escribe en col Q (Asisten) y R (No Asisten) de cada entrenamiento
-- **`actualizarAsistentesDesdeLog_`** → actualiza asistentes desde log de AppSheet
-- **`onEdit`** → en hoja "Tareas": registra fecha de creación y trimestre; en "Asistencias": protege IDs con prefijo MOD_
-
-### Presupuestos.xlsx (triggers)
-- **`onEditInstalable`** → en hojas Ingresos/Egresos: cuando se edita una fila sin procesar, llama procesarFila()
-- **`procesarFilasNoProcesadas`** → trigger por tiempo: procesa filas pendientes en Ingresos y Egresos
-- **`procesarFila`** → lógica principal:
-  - Si tipo = "Cuotas" en Ingresos → abre Cuotas.xlsx y toma el valor del mes correspondiente
-  - Si tipo = "Coaches/Pago a Coaches" en Egresos → cuenta coaches únicos en Asistencias del mes y multiplica por valor/persona
-  - Si tipo = otro → simplemente marca como procesado y pone fecha
-
-### Cuotas.xlsx (triggers)
-- **`onEdit`** → aplica fuente, actualiza fecha A2, formatos visuales, copia valor K→M cuando se chequea el checkbox de pago
-- **`ejecutarActualizacionDelMesActual`** → dispara la función del mes actual (actualizarEnero(), actualizarFebrero(), etc.)
-- Las funciones `actualizarMes()` calculan totales de deuda/pago por mes
-
----
-
 ## Lógica de negocio clave a migrar
 
-### Sistema de puntos (hoy en fórmulas de Sheets)
+### Sistema de puntos
 ```
 Puntos por mes = Asistencia + Tareas + Bono(asistencia seguida) + Pago cuota
 Resultado:
-  - "Puede jugar partidos"           → cumple mínimo asistencia Y tareas
-  - "Faltan puntos: Tareas"          → asistencia OK, tareas NO
-  - "Faltan puntos: Asistencia"      → tareas OK, asistencia NO
+  - "Puede jugar partidos"               → cumple mínimo asistencia Y tareas
+  - "Faltan puntos: Tareas"              → asistencia OK, tareas NO
+  - "Faltan puntos: Asistencia"          → tareas OK, asistencia NO
   - "Faltan puntos: Asistencia y Tareas" → nada cumple
 
-Mínimos por frecuencia de asistencia:
-  - 1 vez/semana: asistencia=3, tareas=5
+Mínimos por frecuencia:
+  - 1 vez/semana:   asistencia=3, tareas=5
   - 2 veces/semana: asistencia=7, tareas=3
   - 3+ veces/semana: asistencia=8, tareas=3
-  (por mes; x4 para trimestre; x16 para año)
+  (x4 para trimestre; x16 para año)
 ```
 
-### Sistema de asistencias (hoy en AppSheet + GAS)
-- AppSheet registra presencia/ausencia en `Log de Asistencias`
-- GAS sincroniza cada minuto y escribe en columnas Q/R de cada entrenamiento
-- Cada entrenamiento tiene un ID único generado por la hoja
+### Sistema de asistencias
+- AppSheet registra presencia en `Log de Asistencias`
+- GAS sincroniza cada minuto → reemplazar con endpoint propio en Railway
 
-### Sistema de cuotas (hoy en Cuotas.xlsx)
+### Sistema de cuotas
 - $15/mes por jugadora activa
 - Seguimiento mensual: pagado/no pagado/exento
 - Acumulación de deuda si no paga
 
-### Cálculo de pago a coaches (hoy en Presupuestos.xlsx)
+### Cálculo de pago a coaches
 - Cuenta coaches únicos que entrenaron en el mes (excluyendo "Sant" y "Vic")
-- Multiplica por valor por persona (configurado en E2 de Egresos)
+- Multiplica por valor/persona (configurado en E2 de Egresos)
