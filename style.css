@@ -968,7 +968,7 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="search"]
   font-size: 11px !important; font-weight: 700 !important;
   text-transform: uppercase !important; letter-spacing: 0.8px !important;
   color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
-  padding: 20px 4px 0; margin-bottom: -4px;
+  padding: 20px 4px 0; margin-bottom: 10px;
 }
 
 /* ── sec-note — nota informativa ── */
