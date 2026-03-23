@@ -3533,8 +3533,10 @@ function inicializarAjustes() {
   inicializarCodigoInvitacion();
 
   // Privacidad — sincronizar todos los toggles con sus valores guardados
-  sincronizarToggle('toggle-priv-perfilVisible',         getPriv('perfilVisible'));
-  sincronizarToggle('toggle-priv-mostrarEstadisticas',   getPriv('mostrarEstadisticas'));
+  const perfilVisible = getPriv('perfilVisible');
+  sincronizarToggle('toggle-priv-perfilVisible',       perfilVisible);
+  sincronizarToggle('toggle-priv-mostrarEstadisticas', getPriv('mostrarEstadisticas'));
+  actualizarVisibilidadSeccionesPrivacidad(perfilVisible);
   // Contacto
   const secContacto = getPriv('seccionContacto');
   sincronizarToggle('toggle-priv-seccion-contacto', secContacto);
@@ -3746,6 +3748,22 @@ function togglePrivacidad(key) {
   const nuevo = !getPriv(key);
   setPriv(key, nuevo);
   sincronizarToggle('toggle-priv-' + key, nuevo);
+  if (key === 'perfilVisible') actualizarVisibilidadSeccionesPrivacidad(nuevo);
+}
+
+function actualizarVisibilidadSeccionesPrivacidad(perfilVisible) {
+  const ids = [
+    'priv-bloque-estadisticas',
+    'priv-bloque-contacto',
+    'priv-bloque-personales',
+    'priv-bloque-salud',
+  ];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.opacity       = perfilVisible ? '1'    : '0.35';
+    el.style.pointerEvents = perfilVisible ? 'auto' : 'none';
+  });
 }
 
 function toggleSeccionPriv(seccion) {
