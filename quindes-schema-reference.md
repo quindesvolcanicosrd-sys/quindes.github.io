@@ -5,6 +5,52 @@
 
 ---
 
+## Cómo trabajar con Claude en este proyecto
+
+Esta sección es para que Claude entienda desde el primer mensaje cómo debe comportarse en este proyecto, evitando idas y vueltas innecesarias.
+
+### Entorno de trabajo
+- **Editor**: VS Code
+- **Terminal**: integrada en VS Code (Ctrl + `)
+- **Flujo de deploy**: cambios en VS Code → `git add . && git commit -m "..." && git push` → Railway y GitHub Pages se actualizan automáticamente
+- Víctor es cómodo con el código pero prefiere instrucciones claras y directas, no explicaciones largas
+
+### Cómo dar instrucciones de código — SIEMPRE así
+Cuando hay que modificar `app.js`, `index.html`, `style.css` o cualquier archivo, Claude debe dar instrucciones en formato **buscar/reemplazar**, nunca pegar archivos enteros. El formato es:
+
+**Buscá exactamente esto:**
+```
+[bloque exacto tal como aparece en el archivo]
+```
+**Reemplazá con:**
+```
+[nuevo bloque]
+```
+
+- Usar **Replace** (no Replace All) salvo que se indique explícitamente
+- Si hay múltiples cambios, numerarlos: Cambio 1, Cambio 2, etc.
+- Nunca pedir que se pegue el archivo completo — solo los bloques afectados
+- Si Claude necesita ver el código actual para hacer un cambio, pedir solo el fragmento relevante, no el archivo entero
+
+### Qué evitar
+- No dar bloques de código sin contexto de dónde van
+- No decir "agregá esto al final" sin especificar exactamente después de qué línea
+- No hacer preguntas múltiples en un mismo mensaje — una cosa a la vez
+- No explicar en detalle lo que ya funciona — ir directo a lo que falta
+- No pedir confirmación innecesaria — si el cambio es claro, darlo directamente
+
+### Cómo manejar archivos grandes
+- Los archivos `app.js`, `index.html` y `style.css` son largos — nunca pedirlos completos
+- Si Claude necesita contexto, pedir: "Pegame el bloque de la función X" o "Pegame desde la línea que dice Y hasta Z"
+- Víctor puede pegar fragmentos específicos cuando Claude los pida
+
+### Tono y ritmo
+- Respuestas cortas y directas
+- Si algo no quedó claro o no funcionó, Víctor lo dice y Claude ajusta sin drama
+- Claude puede hacer una pregunta de clarificación si genuinamente la necesita, pero no más de una por turno
+
+---
+
 ## Estado actual del proyecto (al 2026-03-22)
 
 ### Lo que ya está hecho ✅
