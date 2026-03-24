@@ -7,8 +7,6 @@
 
 ## Cómo trabajar con Claude en este proyecto
 
-Esta sección es para que Claude entienda desde el primer mensaje cómo debe comportarse en este proyecto, evitando idas y vueltas innecesarias.
-
 ### Entorno de trabajo
 - **Editor**: VS Code
 - **Terminal**: integrada en VS Code (Ctrl + `)
@@ -66,22 +64,93 @@ Cuando hay que modificar `app.js`, `index.html`, `style.css` o cualquier archivo
 - Navegación por secciones con animaciones (slide)
 - Instalación PWA con banner contextual por navegador/OS
 - **Sección Ajustes completa** — es la pantalla principal (home temporal):
-  - Mi perfil → lleva a `view-perfil` (hero card + menú de secciones del perfil)
+  - Mi perfil → lleva a `view-perfil`
   - Código de invitación → ver/copiar/compartir código del equipo
-  - Apariencia → tema (auto/claro/oscuro), tamaño de texto, alto contraste, sección admin (logo + color del equipo)
+  - Apariencia → tema (auto/claro/oscuro)
   - Privacidad → visibilidad perfil, email, teléfono, cumpleaños/edad, eliminar cuenta
   - Notificaciones → push banner + toggles por categoría
   - Acerca de → versión, desarrollador, feedback, donaciones, términos
 - **Ajustes persisten en localStorage** bajo key `quindes_ajustes`
 - `inicializarAjustes()` se llama desde `inicializarApp()` después de `aplicarPermisos()`
+- **Bottom Nav implementada** — glass effect con backdrop-filter, pill animada al activar
 
-#### Arquitectura de navegación actual
-- `view-home` = pantalla de **Ajustes** (home temporal hasta que haya nav inferior)
-- `view-perfil` = Mi Perfil con hero card + menú de secciones (llega desde Ajustes → Mi perfil)
-- `view-estadisticas`, `view-generales`, `view-personales`, `view-contacto`, `view-salud`, `view-rendimiento` = secciones del perfil (llegan desde `view-perfil`, vuelven a `view-perfil` con `volverPerfil()`)
-- `view-invitacion`, `view-apariencia`, `view-privacidad`, `view-notificaciones`, `view-acerca` = secciones de ajustes (llegan desde home/ajustes, vuelven al home con `volverHome()`)
-- Función `volverPerfil()` agregada en app.js para volver a `view-perfil` desde las secciones del perfil
-- **Futuro**: cuando haya otras secciones (entrenamientos, equipo, tareas, etc.), agregar barra de navegación inferior y Ajustes pasará a ser una pestaña más
+#### Arquitectura de archivos (estado actual)
+```
+quindes.github.io/
+  css/
+    global.css    ← variables, reset, animaciones globales, temas forzados
+    nav.css       ← bottom nav (vacío por ahora, styles están en style.css)
+    ajustes.css   ← todos los estilos de ajustes/perfil/wizard
+  js/
+    core.js       ← vacío, para futuro
+    ajustes.js    ← vacío, para futuro
+  index.html
+  app.js
+  style.css       ← CSS COMPLETO activo (los archivos en css/ existen pero no están linkeados aún)
+  sw.js
+  manifest.json
+```
+
+**IMPORTANTE sobre la refactorización CSS:**
+- Se intentó dividir `style.css` en `css/global.css` + `css/nav.css` + `css/ajustes.css`
+- GitHub Pages cachea `style.css` agresivamente — al cambiar el link en `index.html` se rompió el estilo
+- **Solución pendiente**: agregar los nuevos archivos como links ADICIONALES después de `style.css`, no reemplazarlo
+- Por ahora todo el CSS está en `style.css` y funciona correctamente
+- Los archivos en `css/` están listos con el contenido correcto pero no están activos
+- Cuando se reactive: agregar `<link rel="stylesheet" href="css/nav.css">` etc. DESPUÉS de `style.css` en index.html
+
+#### Estructura de navegación actual
+- `view-home` = pantalla de **Ajustes** (home temporal)
+- `view-perfil` = Mi Perfil con hero card + menú de secciones
+- `view-estadisticas`, `view-generales`, `view-personales`, `view-contacto`, `view-salud`, `view-rendimiento` = secciones del perfil
+- `view-invitacion`, `view-apariencia`, `view-privacidad`, `view-notificaciones`, `view-acerca` = secciones de ajustes
+- **Bottom nav** con 4 ítems: Ajustes, Equipo, Eventos, Tareas — función `navIr(seccion)` en app.js
+- La nav muestra la pill animada con `nav-active` y glass effect
+
+#### Bottom Nav — CSS en style.css (al final)
+```css
+/* ══ BOTTOM NAV ══ */
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:200; height:64px; display:flex; ... }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; ... }
+.nav-item.nav-active { color: var(--accent); }
+.nav-item.nav-active::before { opacity:1; animation: nav-pill-in ... }
+@keyframes nav-pill-in { 0% { clip-path: circle(0%...) } 100% { clip-path: circle(100%...) } }
+```
+
+#### Bottom Nav — HTML en index.html (antes de `</div><!-- /appContent -->`)
+```html
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="nav-item nav-active" onclick="navIr('ajustes')" id="nav-ajustes">
+    <span class="material-icons">settings</span>
+    <span class="nav-item-label">Ajustes</span>
+  </div>
+  <div class="nav-item" onclick="navIr('equipo')" id="nav-equipo">
+    <span class="material-icons">groups</span>
+    <span class="nav-item-label">Equipo</span>
+  </div>
+  <div class="nav-item" onclick="navIr('eventos')" id="nav-eventos">
+    <span class="material-icons">event</span>
+    <span class="nav-item-label">Eventos</span>
+  </div>
+  <div class="nav-item" onclick="navIr('tareas')" id="nav-tareas">
+    <span class="material-icons">task_alt</span>
+    <span class="nav-item-label">Tareas</span>
+  </div>
+</nav>
+```
+
+#### Bottom Nav — JS en app.js
+```javascript
+let _navSeccionActual = 'ajustes';
+function navIr(seccion) {
+  if (_navSeccionActual === seccion) return;
+  _navSeccionActual = seccion;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
+  const navEl = document.getElementById('nav-' + seccion);
+  if (navEl) { void navEl.offsetWidth; navEl.classList.add('nav-active'); }
+  // TODO: mostrar sección correspondiente
+}
+```
 
 #### Backend Node.js (Railway)
 - URL: `https://quindesgithubio-production.up.railway.app`
@@ -89,51 +158,59 @@ Cuando hay que modificar `app.js`, `index.html`, `style.css` o cualquier archivo
   - `GET /usuario?email=xxx` → `{ found, id, authUserId, equipoId, nombreDerby, rol, estadoMiembro }`
   - `GET /perfil/:id` → perfil completo con stats
   - `PUT /perfil/:id` → actualizar perfil
-  - `POST /registrar` → crear perfil (valida `codigoInvitacion` contra tabla `codigos_invitacion`)
+  - `POST /registrar` → crear perfil (valida `codigoInvitacion`)
   - `DELETE /perfil/:id` → borrar perfil
   - `POST /archivo` → subir a Supabase Storage bucket `archivos`
-- Nota: `/usuario` devuelve `rol` (no `rolApp`). Se normaliza en el frontend: `{ ...user, rolApp: user.rol }`
 
 #### Supabase
 - URL: `znprcowxveyzanpvotms.supabase.co`
 - Schema v2: 13 tablas creadas y funcionando
-- `/registrar` crea perfil con `estado: 'pendiente'` en tabla `miembros`
 
 ---
 
 ### Pendientes 🔜
 
+#### Próximo a desarrollar — Sección Equipo
+- Vista `view-equipo` accesible desde la bottom nav
+- Lista de jugadoras con foto, nombre derby, rol, estado
+- Datos de cada jugadora según configuración de privacidad
+- Requiere endpoint `GET /equipo/:equipoId/miembros` en Railway
+
 #### Backend
-- **`GET /codigo-invitacion?equipoId=xxx`** — endpoint no implementado. La sección de Invitación lo llama pero cae silenciosamente al catch. Debe devolver `{ codigo }` para el equipo del usuario.
-- **`PUT /miembro/:id/aprobar`** — para flujo de aprobación admin de usuarios pendientes
+- **`GET /codigo-invitacion?equipoId=xxx`** — no implementado (cae silenciosamente al catch)
+- **`GET /equipo/:equipoId/miembros`** — no implementado, necesario para sección Equipo
+- **`PUT /miembro/:id/aprobar`** — para flujo de aprobación admin
 
 #### Frontend — Flujo de aprobación de nuevas jugadoras
-**Decisión tomada**: se mantiene doble validación — el código de invitación permite entrar al wizard, pero el admin igual debe aprobar al usuario antes de que acceda a las funciones del equipo. Esto previene que un código filtrado dé acceso inmediato sin control.
-
 Flujo completo acordado:
 1. Admin crea código → manda link `?invite=CODIGO`
-2. Usuario se registra con el wizard → queda con `estado: 'pendiente'` en `miembros`
-3. Admin ve lista de pendientes en la app → aprueba o rechaza
-4. Solo al aprobar el usuario puede acceder a funciones del equipo
+2. Usuario se registra → queda con `estado: 'pendiente'`
+3. Admin ve lista de pendientes → aprueba o rechaza
+4. Solo al aprobar puede acceder a funciones del equipo
 
 Falta implementar:
-1. En `inicializarApp`: verificar `estadoMiembro` después del login. Si es `'pendiente'`, mostrar pantalla "Tu cuenta está en revisión, el admin te habilitará pronto 🏥" en lugar de la app normal
-2. Vista admin para listar pendientes con botón de aprobar/rechazar
-3. Endpoint `PUT /miembro/:id/aprobar` en Railway
+1. En `inicializarApp`: verificar `estadoMiembro`. Si es `'pendiente'`, mostrar pantalla "Tu cuenta está en revisión"
+2. Vista admin para listar pendientes
+3. Endpoint `PUT /miembro/:id/aprobar`
 
 #### Frontend — Ajustes (placeholders activos)
-- **Apariencia admin**: `cambiarLogoEquipo()` y `abrirColorPicker()` muestran toast "🚧 Próximamente"
-- **Notificaciones push**: `solicitarPermisoPush()` pide permiso del navegador pero no registra Service Worker push subscription
-- **Privacidad**: los toggles guardan en localStorage pero no se sincronizan con Supabase
-- **Acerca de**: URLs de feedback/donaciones/términos son placeholders (`ko-fi.com`, `mailto:`, etc.)
+- `cambiarLogoEquipo()` y `abrirColorPicker()` → toast "🚧 Próximamente"
+- `solicitarPermisoPush()` → pide permiso pero no registra SW push subscription
+- Privacidad → toggles solo en localStorage, no sincronizados con Supabase
+- Limpieza menor en `inicializarAjustes()`: borrar líneas huérfanas de accesibilidad
+
+#### Refactorización CSS (pausada)
+- Archivos `css/global.css`, `css/nav.css`, `css/ajustes.css` ya existen con contenido correcto
+- No están activos — todo sigue en `style.css`
+- Para activar: agregar links adicionales en `index.html` DESPUÉS de `style.css` (no reemplazarlo)
+- `sw.js` ya actualizado a `quindes-v8` con los nuevos paths de CSS incluidos
 
 #### Próximas secciones a desarrollar
+- **Equipo** (lista de jugadoras) — PRÓXIMA
 - Entrenamientos / Calendario
 - Tareas y puntos
-- Equipo (lista de jugadoras)
 - Cuotas
 - Presupuesto (admin)
-- Nav inferior con todas las secciones
 
 ---
 
@@ -159,7 +236,6 @@ RAILWAY_URL=https://quindesgithubio-production.up.railway.app
 cd "Documents\Trabajo\Personales\App Quinde\quindes.github.io\api"
 npm run dev
 # → API corriendo en puerto 3000
-# → Probar: http://localhost:3000/health
 ```
 
 ---
@@ -184,23 +260,13 @@ Liga → Equipo(s) → Miembros → Perfiles
 | `SemiAdmin` | semiAdmin_equipo — acceso parcial |
 | `Invitado` | jugadorx/coach/etc — solo su perfil |
 
-El backend devuelve `rol` en `/usuario`, el frontend lo normaliza como `rolApp`.
-
-### Flujo de onboarding de nueva jugadorx
-1. Recibe link con código de invitación (`?invite=CODIGO`)
-2. Abre la app → wizard → paso `inv` carga el código automáticamente
-3. Se autentica con Google
-4. Completa el wizard (foto, nombre, pronombres, país, teléfono, fecha, derby, rol, salud, emergencia)
-5. `POST /registrar` valida el código y crea el perfil con `estado: 'pendiente'`
-6. Admin del equipo aprueba → `estado: 'activo'` (**pendiente de implementar**)
-
 ---
 
-## Schema de Supabase (v2 — ejecutado)
+## Schema de Supabase (v2)
 
 ### 13 tablas
 
-| Tabla | Equivale a |
+| Tabla | Propósito |
 |---|---|
 | `ligas` | Nivel superior — agrupa equipos |
 | `equipos` | Cada equipo dentro de una liga |
@@ -213,94 +279,46 @@ El backend devuelve `rol` en `/usuario`, el frontend lo normaliza como `rolApp`.
 | `tareas` | Tareas asignadas con puntos |
 | `cuotas` | Pagos mensuales por jugadora |
 | `movimientos` | Ingresos y egresos del equipo |
-| `puntos_resumen` | Puntos calculados por backend (mensual/trimestral/anual) |
+| `puntos_resumen` | Puntos calculados por backend |
 | `log_cambios` | Historial de ediciones |
-
-El SQL completo está en `quindes-schema-v2.sql` en el repo.
-
-### Tabla `codigos_invitacion` (campos relevantes)
-```
-codigo        — string único del equipo
-activo        — boolean
-expira_at     — timestamp (nullable)
-usos_max      — integer (nullable)
-usos_actuales — integer
-```
 
 ---
 
 ## Notas técnicas importantes (app.js)
 
-- `CONFIG.GAS_URL` eliminado — solo existe `CONFIG.API_URL = RAILWAY_URL`
+- `CONFIG.API_URL = 'https://quindesgithubio-production.up.railway.app'`
 - `gasCallNoToken` es alias de `gasCall`
 - `aplicarPermisos()` usa `CURRENT_USER.rolApp` — valores: `'Admin'`, `'SemiAdmin'`, `'Invitado'`
 - `mostrarToastGuardado(msg)` acepta mensaje opcional, default `'✅ Guardado'`
 - `inicializarAjustes()` se llama después de `aplicarPermisos()` en `inicializarApp()`
-- `volverPerfil()` — función para volver a `view-perfil` desde las subsecciones del perfil
 - Fotos: `normalizarDriveUrl()` convierte URL de Drive a `lh3.googleusercontent.com/d/...=w500`
 - Archivos van a Supabase Storage bucket `archivos` vía `POST /archivo`
+- Modal "Borrar perfil" tiene animación de entrada (scale + fade)
 
 ### Variables globales del wizard
 ```javascript
 const _urlParams = new URLSearchParams(window.location.search);
 let inviteCode = _urlParams.get('invite') || null;
 const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,10,11];
-// wizStep inicia en 'inv'
-// wizIntroStart() activa wiz-step-inv
-// regData.codigoInvitacion se envía en submitRegistro()
 ```
 
 ---
 
-## Estructura de Google Sheets (origen de datos)
+## Campos que expone la API
 
-### 4 documentos fuente
-
-| Documento | Propósito |
-|---|---|
-| `Quindes.xlsx` | Perfiles de jugadoras (tabla maestra) |
-| `Tareas_Puntajes_Asistencias_2026.xlsx` | Asistencias, tareas y cálculo de puntos |
-| `Cuotas.xlsx` | Seguimiento de pagos de cuotas |
-| `Presupuestos.xlsx` | Ingresos y egresos del equipo |
-
----
-
-## Quindes.xlsx — Hoja `2026`
-
-Headers reales en **fila 5**. Filas 1-4 son config.
-
-```
-Nombre Derby | Nombre | Número | Pronombres | Estado | Cuanto asiste por semana
-Rol de jugadorx | Marzo (puntos mes) | Trimestre 1 (puntos trim) | 2026 (puntos año)
-Paga cuota | Prueba de esfuerzo físico (estado) | Adjunto de prueba Física (URL)
-Aptx para el deporte | Cédula o pasaporte | Nombre Cívil | Fecha de nacimiento
-Edad | Cumple años | Adjunto de Cédula o pasaporte
-Alergias o enfermedades | Dieta | País de origen | Código de país
-Número de teléfono | Grupo sanguíneo | Foto de perfil | Contacto de Emergencia
-E-Mail | ¿Quiere que se sepa su fecha de cumpleaños? | ¿Quiere que se sepa su edad?
-Horas Patinadas | Tipo de usuario | Porcentaje de asistencia anual
-```
-
----
-
-## Campos que expone la API (Railway → App)
-
-Del perfil:
-`email`, `nombre`, `nombreDerby`, `numero`, `pronombres`, `rolJugadorx`,
+Del perfil: `email`, `nombre`, `nombreDerby`, `numero`, `pronombres`, `rolJugadorx`,
 `nombreCivil`, `cedulaPasaporte`, `pais`, `codigoPais`, `telefono`,
 `fechaNacimiento`, `mostrarCumple`, `mostrarEdad`, `contactoEmergencia`,
 `grupoSanguineo`, `alergias`, `dieta`, `aptoDeporte`, `pruebaFisica`,
 `estado`, `asisteSemana`, `pagaCuota`, `tipoUsuario`, `fotoPerfil`,
 `adjCedula`, `adjPruebaFisica`
 
-De estadísticas (calculados):
-`puntosMes`, `puntosTrimestre`, `puntosAnio`,
-`horasPatinadas`, `asistenciaAnual`,
-`labelMes`, `labelTrimestre`, `labelAnio`
+De estadísticas: `puntosMes`, `puntosTrimestre`, `puntosAnio`,
+`horasPatinadas`, `asistenciaAnual`, `labelMes`, `labelTrimestre`, `labelAnio`
 
 ---
 
-## Lógica de negocio clave a migrar
+## Lógica de negocio clave
 
 ### Sistema de puntos
 ```
@@ -312,21 +330,12 @@ Resultado:
   - "Faltan puntos: Asistencia y Tareas" → nada cumple
 
 Mínimos por frecuencia:
-  - 1 vez/semana:   asistencia=3, tareas=5
-  - 2 veces/semana: asistencia=7, tareas=3
+  - 1 vez/semana:    asistencia=3, tareas=5
+  - 2 veces/semana:  asistencia=7, tareas=3
   - 3+ veces/semana: asistencia=8, tareas=3
-  (x4 para trimestre; x16 para año)
+  (x4 trimestre; x16 año)
 ```
-
-### Sistema de asistencias
-- AppSheet registra presencia en `Log de Asistencias`
-- GAS sincroniza cada minuto → reemplazar con endpoint propio en Railway
 
 ### Sistema de cuotas
 - $15/mes por jugadora activa
 - Seguimiento mensual: pagado/no pagado/exento
-- Acumulación de deuda si no paga
-
-### Cálculo de pago a coaches
-- Cuenta coaches únicos que entrenaron en el mes (excluyendo "Sant" y "Vic")
-- Multiplica por valor/persona (configurado en E2 de Egresos)
