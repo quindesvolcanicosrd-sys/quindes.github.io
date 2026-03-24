@@ -1223,7 +1223,7 @@ html.theme-light .bottom-nav { background: rgba(252,240,240,0.88); }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 12px;
   position: relative;
   color: var(--text3);
   cursor: pointer;
