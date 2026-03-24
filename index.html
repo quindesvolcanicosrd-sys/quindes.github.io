@@ -478,7 +478,7 @@
           <div class="settings-row-ico ico-green"><span class="material-icons">card_giftcard</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Código de invitación</span>
-            <span class="settings-row-sub">Ver y compartir tu código</span>
+            <span class="settings-row-sub">Gestiona el código de acceso</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
@@ -486,7 +486,7 @@
           <div class="settings-row-ico ico-purple"><span class="material-icons">palette</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Apariencia</span>
-            <span class="settings-row-sub">Tema, colores, tamaño de texto</span>
+            <span class="settings-row-sub">Tema, colores, personalización</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
@@ -494,7 +494,7 @@
           <div class="settings-row-ico ico-teal"><span class="material-icons">shield</span></div>
           <div class="settings-row-body">
             <span class="settings-row-title">Privacidad</span>
-            <span class="settings-row-sub">Visibilidad de tus datos</span>
+            <span class="settings-row-sub">Visibilidad y privacidad de tus datos</span>
           </div>
           <span class="settings-row-arrow"></span>
         </div>
@@ -949,17 +949,17 @@
     <div class="inv-actions">
       <button class="inv-btn inv-btn-primary" onclick="copiarCodigo()">
         <span class="material-icons">content_copy</span>
-        Copiar código
+        Copiar código de invitación
       </button>
       <button class="inv-btn inv-btn-secondary" onclick="compartirLink()">
         <span class="material-icons">share</span>
-        Compartir link
+        Compartir link de registro
       </button>
     </div>
 
     <div class="sec-note">
       <span class="material-icons" style="font-size:16px;opacity:0.5;">info</span>
-      El código no tiene fecha de vencimiento hasta que el admin lo regenere. Cada invitadx necesitará aprobación del admin antes de acceder a todas las funciones.
+      El código no tiene fecha de vencimiento hasta que un administradorx lo regenere. Cada invitadx necesitará aprobación de un administradorx antes de acceder a todas las funciones del equipo.
     </div>
 
     <div style="height:32px;"></div>
@@ -1041,8 +1041,8 @@
     <div class="sec-group">
       <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('perfilVisible')">
         <div class="sec-row-body">
-          <span class="sec-toggle-label">Mostrar perfil al equipo</span>
-          <span class="sec-row-sub" style="font-size:12px;">Si está apagado, solo les admins ven tu perfil</span>
+          <span class="sec-toggle-label">Perfil público</span>
+          <span class="sec-row-sub" style="font-size:12px;">Si está apagado, el equipo no verá los datos de tu perfil</span>
         </div>
         <div id="toggle-priv-perfilVisible" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
@@ -1209,7 +1209,7 @@
     <!-- CUENTA -->
     <button class="home-btn-delete" style="width:100%;" onclick="confirmarBorrarPerfil()">
       <span class="material-icons">delete_forever</span>
-      Borrar perfil y datos
+      Borrar datos y perfil
     </button>
 
     <div style="height:32px;"></div>
@@ -1322,11 +1322,11 @@
     <div class="acerca-actions">
       <button class="acerca-btn acerca-btn-primary" onclick="abrirFeedback()">
         <span class="material-icons">rate_review</span>
-        Dar feedback
+        Deja tu feedback
       </button>
       <button class="acerca-btn acerca-btn-secondary" onclick="abrirDonaciones()">
         <span class="material-icons">favorite</span>
-        Apoyar el proyecto
+        Apoya el proyecto
       </button>
     </div>
 
