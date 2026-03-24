@@ -29,11 +29,10 @@ if ('serviceWorker' in navigator) {
 // ── DERBY LOADER ─────────────────────────────────────────────
 const DERBY_MSGS = [
   'Buscando protecciones…',
-  'Atando los patines…',
-  'Ajustando el casco…',
+  'Ajustando patines…',
+  'Ajustando casco…',
   '¡5 segundos!',
   'Entrando a pista…',
-  'Ignorando arbitrxs…',
   'Cumpliendo penalizaciones…',
   'Reingresando a pista…',
   'Buscando cubrecascos…',
@@ -50,31 +49,17 @@ const DERBY_MSGS = [
   'Encintando Pista…',
   'Encintando Patines…',
   'Hechando perros del recinto…',
-  'Lidiando con madres de niños que estorban…',
   'Barriendo pista…',
   'Llegando a tiempo al entrenamiento…',
-  'Con ñeque…',
-  'Con Altura…',
-  'Preparando flasbacks del Derby de Altura…',
-  'Cargando traumas…',
   'Sumando puntos…',
   'Pasando la estrella…',
   'Preparando MVPS…',
   'Calculando física de caidas en patines…',
   'Leyendo el reglamento…',
-  'Esto es Roller Derby…',
-  'Otro día en la oficina…',
   'Preparando comentarios…',
-  'Buscando gomitas…',
-  'Llevando agua…',
   'Cortando pista…',
   'Reciclando…',
-  '¡No hay pack!…',
   'Calculando distancia del pack…',
-  '¡Choque de trenes!',
-  'Lidiando con madres…',
-  'Calculando momentum de la puerca…',
-  'Chupando…',
 ];
 
 let _derbyMsgTimer  = null;
@@ -1432,7 +1417,7 @@ function renderTodo(profile) {
   const heroNombre = document.getElementById('hero-nombre-derby');
   if (heroNombre) heroNombre.textContent = profile.nombreDerby || '—';
   const heroSub = document.getElementById('hero-sub');
-  if (heroSub) heroSub.textContent = (profile.numero ? '#' + profile.numero : '—') + ' · ' + (profile.rolJugadorx || '—');
+  if (heroSub) heroSub.textContent = (profile.numero ? '#' + profile.numero : '—');
   const heroRol = document.getElementById('hero-rol');
   if (heroRol) heroRol.textContent = profile.rolJugadorx || '—';
   const heroPron = document.getElementById('hero-pronombres');
