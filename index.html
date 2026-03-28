@@ -14,7 +14,9 @@
   <script>
     (function(){
       var inv = new URLSearchParams(window.location.search).get('invite');
+      console.log('[HEAD] invite encontrado:', inv);
       if (inv) sessionStorage.setItem('quindes_invite', inv);
+      console.log('[HEAD] sessionStorage invite:', sessionStorage.getItem('quindes_invite'));
     })();
   </script>
   <link rel="manifest" href="manifest.json">
