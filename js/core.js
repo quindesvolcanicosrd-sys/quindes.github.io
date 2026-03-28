@@ -10,7 +10,8 @@ const CONFIG = {
 let CURRENT_USER   = null;
 let accessToken    = null;
 let wizOrigen      = null;
-const _urlParams   = new URLSearchParams(window.location.search);
+const _rawSearch   = window.location.search || window.location.href.split('?')[1]?.split('#')[0] || '';
+const _urlParams   = new URLSearchParams(_rawSearch);
 let inviteCode     = _urlParams.get('invite') || null;
 let fotoSubiendo   = false;
 let cropper;
