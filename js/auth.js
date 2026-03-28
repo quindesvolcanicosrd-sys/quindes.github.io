@@ -193,7 +193,9 @@ function initGoogleAuth() {
   if (savedEmail && savedToken && !inviteCode) {
     (async () => {
       try {
+        console.log('[AUTH] verificando sesión para:', savedEmail);
         const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
+        console.log('[AUTH] valData:', valData);
         if (!valData.found) throw new Error('invalid session');
 
         document.getElementById('loadingScreen').style.display  = 'flex';
