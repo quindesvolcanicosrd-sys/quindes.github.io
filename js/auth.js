@@ -317,6 +317,11 @@ function mostrarNoEncontrado(email) {
     mostrarRegistroWizard();
     return;
   }
+  if (inviteCode) {
+    wizOrigen = 'noEncontrado';
+    mostrarRegistroWizard();
+    return;
+  }
   wizOrigen = 'noEncontrado';
   const el = document.getElementById('no-enc-email');
   if (el) el.textContent = email || '';
