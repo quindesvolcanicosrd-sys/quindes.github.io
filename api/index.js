@@ -419,5 +419,5 @@ app.listen(PORT, () => console.log(`API corriendo en puerto ${PORT}`));
 
 Eso es todo en el backend. Hacé deploy y probá con:
 ```
-https://quindesgithubio-production.up.railway.app/codigo-invitacion?equipoId=03161fd2-3120-49f7-b165-27f23bcdae2d
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`API corriendo en puerto ${PORT}`));
