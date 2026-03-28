@@ -17,6 +17,8 @@ function convertirFecha(str) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
   const slash = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (slash) return `${slash[3]}-${slash[2].padStart(2,'0')}-${slash[1].padStart(2,'0')}`;
+  const isoFull = str.match(/^(\d{4})-(\d{2})-(\d{2})T/);
+  if (isoFull) return `${isoFull[1]}-${isoFull[2]}-${isoFull[3]}`;
   return null;
 }
 
