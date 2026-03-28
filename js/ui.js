@@ -63,6 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
   mostrarInstallBannerSiCorresponde();
 });
 
+// ── EDICIÓN ───────────────────────────────────────────────────
+function isEditing(id) {
+  const seccion = Object.keys(CAMPOS_SECCION).find(s => CAMPOS_SECCION[s].includes(id));
+  return seccion ? edicionActiva[seccion] : false;
+}
+
 // ── TOAST ─────────────────────────────────────────────────────
 function mostrarToastGuardado(msg) {
   const t = document.createElement('div');
