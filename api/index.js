@@ -380,6 +380,29 @@ app.post('/archivo', async (req, res) => {
   }
 }); 
 
+// ── POST /validar-codigo ──────────────────────────────────────
+app.post('/validar-codigo', async (req, res) => {
+  try {
+    const { codigo } = req.body;
+    if (!codigo) return res.json({ valido: false, error: 'Falta el código' });
+
+    const { data, error } = await supabase
+      .from('codigos_invitacion')
+      .select('id, activo, usos_max, usos_actuales, expira_at')
+      .eq('codigo', codigo)
+      .single();
+
+    if (error || !data) return res.json({ valido: false, error: 'Código de invitación inválido 🔑' });
+    if (!data.activo) return res.json({ valido: false, error: 'Este código está inactivo' });
+    if (data.expira_at && new Date(data.expira_at) < new Date()) return res.json({ valido: false, error: 'Este código expiró' });
+    if (data.usos_max && data.usos_actuales >= data.usos_max) return res.json({ valido: false, error: 'Este código ya alcanzó el límite de usos' });
+
+    res.json({ valido: true });
+  } catch (err) {
+    res.status(500).json({ valido: false, error: err.message });
+  }
+});
+
 // ── GET /codigo-invitacion?equipoId=xxx ───────────────────────
 app.get('/codigo-invitacion', async (req, res) => {
   try {

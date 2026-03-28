@@ -179,13 +179,22 @@ function wizUpdateHeader() {
   if (label) label.textContent = 'Paso ' + pos + ' de ' + total;
 }
 
-function wizNext() {
+async function wizNext() {
   wizHideError();
   if (wizStep === 'inv') {
     const val = document.getElementById('reg-codigo-inv')?.value.trim();
     if (!val) { wizShowError('Ingresá tu código de invitación 🔑'); return; }
-    regData.codigoInvitacion = val;
-    inviteCode = val;
+    wizMostrarCargando();
+    try {
+      const check = await apiCall('/validar-codigo', 'POST', { codigo: val });
+      if (!check.valido) { wizOcultarCargando(); wizShowError(check.error || 'Código inválido 🔑'); return; }
+      regData.codigoInvitacion = val;
+      inviteCode = val;
+      wizOcultarCargando();
+    } catch(e) {
+      wizOcultarCargando();
+      wizShowError('Error al verificar el código. Intenta de nuevo.'); return;
+    }
   }
   if (wizStep === 2) {
     const val = document.getElementById('reg-nombre')?.value.trim();
