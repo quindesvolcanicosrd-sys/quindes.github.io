@@ -209,7 +209,7 @@ app.post('/registrar', async (req, res) => {
       email, nombre, pronombres, pais, codigoPais, telefono,
       fechaNacimiento, mostrarCumple, mostrarEdad, nombreDerby,
       numero, rolJugadorx, asisteSemana, alergias, dieta,
-      contactoEmergencia, codigoInvitacion,
+      contactoEmergencia, codigoInvitacion, fotoBase64,
     } = req.body;
 
     if (!email) return res.status(400).json({ error: 'Falta email' });
@@ -292,11 +292,35 @@ app.post('/registrar', async (req, res) => {
       .update({ usos_actuales: codigo.usos_actuales + 1 })
       .eq('id', codigo.id);
 
+    // 6. Subir foto de perfil si viene
+    let fotoPerfil = null;
+    if (fotoBase64) {
+      try {
+        const base64 = fotoBase64.replace(/^data:.+;base64,/, '');
+        const buffer = Buffer.from(base64, 'base64');
+        const mimeMatch = fotoBase64.match(/^data:(.+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const ext = mimeType.split('/')[1] || 'jpg';
+        const fileName = `${email}/fotoPerfil.${ext}`;
+        const { error: storageError } = await supabase.storage
+          .from('archivos')
+          .upload(fileName, buffer, { contentType: mimeType, upsert: true });
+        if (!storageError) {
+          const { data: urlData } = supabase.storage.from('archivos').getPublicUrl(fileName);
+          fotoPerfil = urlData.publicUrl;
+          await supabase.from('perfiles').update({ foto_perfil_url: fotoPerfil }).eq('id', perfil.id);
+        }
+      } catch(e) {
+        console.error('Error subiendo foto:', e.message);
+      }
+    }
+
     res.json({
       ok: true,
       perfilId: perfil.id,
       authUserId,
       equipoId: codigo.equipo_id,
+      fotoPerfil,
     });
 
   } catch (err) {

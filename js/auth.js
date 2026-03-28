@@ -135,9 +135,22 @@ async function ejecutarBorrarPerfil() {
   try {
     await gasCall('borrarPerfil', { rowNumber: CURRENT_USER.id });
     cerrarSesion();
+    mostrarModalCuentaBorrada();
   } catch(e) {
     alert('Error al borrar el perfil: ' + (e.message || e));
   }
+}
+
+function mostrarModalCuentaBorrada() {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;';
+  modal.innerHTML = `
+    <span style="font-size:56px;margin-bottom:16px;">🗑️</span>
+    <h2 style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:12px;">Cuenta borrada</h2>
+    <p style="font-size:15px;color:var(--text-secondary);line-height:1.5;margin-bottom:32px;">Podés crear una nueva cuenta o solicitar un código de registro al administradorx de tu equipo.</p>
+    <button onclick="this.closest('div[style]').remove()" style="background:var(--accent);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;width:100%;max-width:280px;">Aceptar</button>
+  `;
+  document.body.appendChild(modal);
 }
 
 // ── GOOGLE AUTH ───────────────────────────────────────────────
