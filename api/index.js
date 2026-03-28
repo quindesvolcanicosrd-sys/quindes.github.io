@@ -271,7 +271,7 @@ app.post('/registrar', async (req, res) => {
       .select('id')
       .single();
 
-    if (perfilError) return res.status(500).json({ error: perfilError.message });
+    if (perfilError) { console.error('ERROR perfilError:', JSON.stringify(perfilError)); return res.status(500).json({ error: perfilError.message }); }
 
     // 4. Crear membresía como pendiente
     const { error: miembroError } = await supabase
