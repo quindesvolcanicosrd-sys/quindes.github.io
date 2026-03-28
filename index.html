@@ -11,6 +11,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Quindes">
   <title>Quindes App</title>
+  <script>
+    (function(){
+      var inv = new URLSearchParams(window.location.search).get('invite');
+      if (inv) sessionStorage.setItem('quindes_invite', inv);
+    })();
+  </script>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-180x180.png">
   <link rel="icon" type="image/png" href="icons/icon-192x192.png">
