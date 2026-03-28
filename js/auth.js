@@ -226,7 +226,7 @@ function initGoogleAuth() {
         document.getElementById('appContent').style.display    = 'block';
 
       } catch(e) {
-        console.warn('[SESSION] Saved session failed, showing login:', e.message);
+        console.error('[SESSION] Saved session failed:', e);
         localStorage.removeItem('quindes_email');
         localStorage.removeItem('quindes_token');
         accessToken = null;
