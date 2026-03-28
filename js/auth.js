@@ -275,6 +275,10 @@ function onGoogleSignIn(response) {
 }
 
 function mostrarLoginScreen() {
+  if (inviteCode) {
+    mostrarRegistroDesdeLogin();
+    return;
+  }
   const loginScr = document.getElementById('loginScreen');
   renderGoogleButton('google-signin-btn', 'signin_with', true);
   detenerDerbyLoader();
@@ -324,6 +328,7 @@ function mostrarRegistroDesdeLogin() {
 }
 
 function mostrarNoEncontrado(email) {
+  console.log('[NO-ENC] inviteCode:', inviteCode);
   if (window._registroDesdeLogin) {
     window._registroDesdeLogin = false;
     wizOrigen = 'login';
