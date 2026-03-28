@@ -210,6 +210,7 @@ function initGoogleAuth() {
           detenerDerbyLoader();
           document.getElementById('loadingScreen').style.display = 'none';
           wizOrigen = 'noEncontrado';
+          console.log('[INVITE] llamando mostrarRegistroWizard, registroScreen:', document.getElementById('registroScreen'));
           mostrarRegistroWizard();
           return;
         }
