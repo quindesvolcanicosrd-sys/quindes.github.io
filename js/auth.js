@@ -6,6 +6,20 @@ function getGoogleBtnTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'filled_black' : 'outline';
 }
 
+function fixResigninBorder() {
+  const el = document.getElementById('google-resignin-btn');
+  if (!el) return;
+  const iframe = el.querySelector('iframe');
+  if (iframe) {
+    iframe.style.border = 'none';
+    iframe.style.outline = 'none';
+    iframe.style.boxShadow = 'none';
+  }
+  el.style.border = 'none';
+  el.style.outline = 'none';
+  el.style.boxShadow = 'none';
+}
+
 function renderGoogleButton(id, text, suppressReveal) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -327,6 +341,7 @@ function mostrarNoEncontrado(email) {
     setTimeout(() => {
       resignBtn.style.transition = 'opacity 0.4s ease';
       resignBtn.style.opacity    = '1';
+      fixResigninBorder();
     }, 1000);
   }
   pushSentinel();

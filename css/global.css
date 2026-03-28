@@ -548,3 +548,11 @@ html {
 .toast-guardado { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(16px); background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; opacity: 0; transition: opacity 0.25s, transform 0.25s; z-index: 9999; white-space: nowrap; }
 .toast-guardado .material-icons { font-size: 16px; color: #22c55e; }
 .toast-guardado.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+#google-resignin-btn > div,
+#google-resignin-btn iframe,
+#google-resignin-btn [role="button"] {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
