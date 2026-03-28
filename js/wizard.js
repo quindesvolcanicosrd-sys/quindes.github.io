@@ -596,6 +596,7 @@ async function submitRegistro() {
     wizOcultarCargando();
     document.getElementById('registroScreen').style.display = 'none';
     document.getElementById('appContent').style.display    = 'block';
+    sessionStorage.removeItem('quindes_invite');
     setTimeout(() => {
       lanzarConfetti();
       mostrarBienvenida();
@@ -606,4 +607,5 @@ async function submitRegistro() {
     wizShowError(err.message || 'Algo salió mal. Intenta de nuevo 😅');
     if (btnEl) btnEl.disabled = false;
   }
+
 }
