@@ -1,6 +1,6 @@
 # Quindes Volcánicos — Referencia de Schema para Supabase
 
-> Última actualización: 2026-03-27
+> Última actualización: 2026-03-28
 > Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 ---
@@ -49,7 +49,46 @@ Cuando hay que modificar cualquier archivo, Claude debe dar instrucciones en for
 
 ---
 
-## Estado actual del proyecto (al 2026-03-27)
+## Principios de diseño y animación — SIEMPRE respetar
+
+Toda pantalla, modal, toast o elemento nuevo debe seguir estas reglas de animación. **Nada debe aparecer abruptamente** — la app debe sentirse nativa, no como una página web.
+
+### Entradas (aparecer)
+```css
+opacity: 0 → 1                          /* siempre */
+transform: translateY(24px) → translateY(0)   /* pantallas completas y modales */
+transform: scale(0.92) → scale(1)             /* modales tipo card */
+transition: opacity 0.3–0.4s ease, transform 0.3–0.4s cubic-bezier(0.34,1.56,0.64,1)
+```
+- Usar `requestAnimationFrame(() => requestAnimationFrame(() => { ... }))` para garantizar que el browser pinte el estado inicial antes de animar
+
+### Salidas (desaparecer)
+```css
+opacity: 1 → 0
+transform: translateY(0) → translateY(-24px)  /* sale hacia arriba */
+transition: opacity 0.3s ease, transform 0.3s ease
+setTimeout(() => el.remove(), 300)            /* remover después de la transición */
+```
+
+### Navegación entre secciones
+- Las secciones de la app usan slide horizontal (ya implementado en `navegarSeccion`)
+- Al volver, la animación va en sentido contrario
+- Nunca usar `display: block/none` sin transición
+
+### Modales y overlays
+- Fondo: `rgba(0,0,0,0)` → `rgba(0,0,0,0.6)` con `transition: background 0.25s ease`
+- Card interna: `scale(0.88) translateY(16px)` → `scale(1) translateY(0)` con `cubic-bezier(0.34,1.56,0.64,1)`
+
+### Toasts
+- Entran desde abajo con `translateY(80px)` → `translateY(0)`
+- Salen con fade out + `translateY(16px)`
+
+### Regla general
+Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada. Si flota sobre la UI (modal, sheet, toast), también necesita `transform`.
+
+---
+
+## Estado actual del proyecto (al 2026-03-28)
 
 ### Lo que ya está hecho ✅
 
@@ -58,14 +97,15 @@ Cuando hay que modificar cualquier archivo, Claude debe dar instrucciones en for
 - Login con Google (Google Identity Services)
 - Sesión persistente con localStorage
 - Wizard de registro con código de invitación (paso `inv` antes del paso 1)
+- Validación del código de invitación contra el backend antes de avanzar en el wizard
 - Perfil completo editable (tap-to-edit) con secciones: Estadísticas, Datos Generales, Datos Personales, Contacto, Salud y Emergencia, Estado y Rendimiento
-- Subida de fotos con cropper (Cropper.js)
+- Subida de fotos con cropper (Cropper.js), incluyendo foto en el wizard de registro
 - Subida de archivos a Supabase Storage vía Railway
 - Navegación por secciones con animaciones (slide)
 - Instalación PWA con banner contextual por navegador/OS
 - **Sección Ajustes completa** — es la pantalla principal (home temporal):
   - Mi perfil → lleva a `view-perfil`
-  - Código de invitación → ver/copiar/compartir código del equipo
+  - Código de invitación → ver/copiar/compartir código del equipo (solo visible para Admin)
   - Apariencia → tema (auto/claro/oscuro)
   - Privacidad → visibilidad perfil, email, teléfono, cumpleaños/edad, eliminar cuenta
   - Notificaciones → push banner + toggles por categoría
@@ -73,6 +113,7 @@ Cuando hay que modificar cualquier archivo, Claude debe dar instrucciones en for
 - **Ajustes persisten en localStorage** bajo key `quindes_ajustes`
 - `inicializarAjustes()` se llama desde `inicializarApp()` después de `aplicarPermisos()`
 - **Bottom Nav implementada** — glass effect con backdrop-filter, pill animada al activar
+- **Modal de cuenta borrada** — aparece con fade+scale in, desaparece con fade out, reemplaza el diálogo de confirmación
 
 #### Arquitectura de archivos (estado actual)
 ```
@@ -99,7 +140,7 @@ quindes.github.io/
     nav.html        ← bottom nav (parcial dinámico, se inyecta en appContent)
     modals.html     ← date picker + modal crop (parcial dinámico)
   index.html        ← head + loadingScreen + appContent (vistas) + scripts
-  sw.js             ← service worker (quindes-v9)
+  sw.js             ← service worker (quindes-v10)
   manifest.json
 ```
 
@@ -118,25 +159,35 @@ quindes.github.io/
 
 #### Backend Node.js (Railway)
 - URL: `https://quindesgithubio-production.up.railway.app`
+- Express v4 (downgradeado desde v5 por incompatibilidades)
 - Endpoints activos:
+  - `GET /health` → status del servidor
   - `GET /usuario?email=xxx` → `{ found, id, authUserId, equipoId, nombreDerby, rol, estadoMiembro }`
   - `GET /perfil/:id` → perfil completo con stats
   - `PUT /perfil/:id` → actualizar perfil
-  - `POST /registrar` → crear perfil (valida `codigoInvitacion`)
+  - `POST /registrar` → crear perfil (valida `codigoInvitacion`, sube foto si viene en base64)
   - `DELETE /perfil/:id` → borrar perfil
   - `POST /archivo` → subir a Supabase Storage bucket `archivos`
+  - `GET /codigo-invitacion?equipoId=xxx` → `{ codigo, usosActuales, usosMax, agotado }`
+  - `POST /validar-codigo` → `{ valido, error? }` — valida código antes de avanzar en wizard
 
 #### Supabase
 - URL: `znprcowxveyzanpvotms.supabase.co`
 - Schema v2: 13 tablas creadas y funcionando
+- Tabla `perfiles` tiene columna `tipo_usuario` (text, default: 'Invitado')
 
 #### Service Worker
-- Versión actual: `quindes-v9`
+- Versión actual: `quindes-v10`
 - Cachea: `index.html`, todos los CSS en `css/`, todos los JS en `js/`, todos los HTML en `html/`, íconos y manifest
 
 ---
 
 ### Pendientes 🔜
+
+#### Próximo a desarrollar — Onboarding desde login
+- Pantalla de login con dos opciones: "Unirse a un equipo" y "Crear un equipo/liga"
+- Wizard de creación de liga/equipo (nombre, logo, color, etc.)
+- Flujo completo desde cero para nuevos admins
 
 #### Próximo a desarrollar — Sección Equipo
 - Vista `view-equipo` accesible desde la bottom nav
@@ -144,10 +195,10 @@ quindes.github.io/
 - Datos de cada jugadora según configuración de privacidad
 - Requiere endpoint `GET /equipo/:equipoId/miembros` en Railway
 
-#### Backend
-- **`GET /codigo-invitacion?equipoId=xxx`** — no implementado (cae silenciosamente al catch)
+#### Backend pendiente
 - **`GET /equipo/:equipoId/miembros`** — no implementado, necesario para sección Equipo
 - **`PUT /miembro/:id/aprobar`** — para flujo de aprobación admin
+- **`POST /crear-liga`** — crear liga + equipo + admin en un solo paso
 
 #### Frontend — Flujo de aprobación de nuevas jugadoras
 Flujo completo acordado:
@@ -194,7 +245,7 @@ RAILWAY_URL=https://quindesgithubio-production.up.railway.app
 
 ### Para retomar el desarrollo local
 ```bash
-cd "Documents\Trabajo\Personales\App Quinde\quindes.github.io\api"
+cd api
 npm run dev
 # → API corriendo en puerto 3000
 ```
@@ -243,6 +294,10 @@ Liga → Equipo(s) → Miembros → Perfiles
 | `puntos_resumen` | Puntos calculados por backend |
 | `log_cambios` | Historial de ediciones |
 
+### Columnas relevantes de `perfiles`
+- `tipo_usuario` — text, default `'Invitado'` (agregada 2026-03-28)
+- `foto_perfil_url` — URL pública en Supabase Storage
+
 ---
 
 ## Notas técnicas importantes
@@ -269,6 +324,9 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `onGoogleSignIn(response)` — callback de Google, guarda sesión
 - `cerrarSesion()` — limpia estado y vuelve al login
 - `confirmarBorrarPerfil()` / `ejecutarBorrarPerfil()` — flujo de borrado
+- `mostrarModalCuentaBorrada()` — modal animado post-borrado con fade+scale in/out
+- `wizStep0Volver()` — vuelve al login/noEncontrado desde el step-0 del wizard
+- `wizIntroVolver()` — vuelve al login/noEncontrado desde la intro del wizard
 
 **perfil.js**
 - `inicializarApp(email)` — flujo principal post-login
@@ -295,11 +353,13 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `dpState` — estado del date picker
 
 **wizard.js**
-- `mostrarRegistroWizard()` / `wizIntroStart()` / `wizNext()` / `wizBack()`
+- `mostrarRegistroWizard()` / `wizIntroStart()` / `async wizNext()` / `wizBack()`
+- `wizStep0Volver()` / `wizIntroVolver()` — volver desde intro y step-0
 - `submitRegistro()` — envía el registro al backend
 - `initRegistroListeners()` — se llama después de cargar wizard.html
 - `regData` — objeto con los datos del formulario de registro
 - `WIZ_STEPS_BASE` / `wizStepSequence` / `wizStep`
+- Validación del código de invitación con `/validar-codigo` antes de avanzar
 
 **ajustes.js**
 - `inicializarAjustes()` — sincroniza UI con localStorage al cargar
@@ -307,6 +367,7 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `setTheme(tema)` / `aplicarTema(tema)`
 - `getPriv(key)` / `setPriv(key, val)` / `togglePrivacidad(key)`
 - `navIr(seccion)` — navegación de la bottom nav
+- `actualizarSeccionAdmin()` — oculta "Código de invitación" y sección admin para no-Admins
 - `AJUSTES_KEY = 'quindes_ajustes'`
 - `PRIV_DEFAULTS` — valores por defecto de privacidad
 
@@ -316,6 +377,11 @@ const _urlParams = new URLSearchParams(window.location.search);
 let inviteCode = _urlParams.get('invite') || null;
 const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,10,11];
 ```
+
+### Notas de compatibilidad
+- Express v4 (no v5 — v5 causaba crashes en Railway)
+- `convertirFecha()` en backend convierte `DD/MM/YYYY` → `YYYY-MM-DD` antes de insertar en Supabase
+- En el insert de `/registrar`, usar `convertirFecha(fechaNacimiento)` explícitamente
 
 ---
 
