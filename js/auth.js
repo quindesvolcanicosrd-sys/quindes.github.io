@@ -276,6 +276,8 @@ function onGoogleSignIn(response) {
 
 function mostrarLoginScreen() {
   if (inviteCode) {
+    detenerDerbyLoader();
+    document.getElementById('loadingScreen').style.display = 'none';
     mostrarRegistroDesdeLogin();
     return;
   }
