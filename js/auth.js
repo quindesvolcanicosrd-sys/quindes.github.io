@@ -190,7 +190,7 @@ function initGoogleAuth() {
 
   const savedEmail = localStorage.getItem('quindes_email');
   const savedToken = localStorage.getItem('quindes_token');
-  if (savedEmail && savedToken) {
+  if (savedEmail && savedToken && !inviteCode) {
     (async () => {
       try {
         const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
