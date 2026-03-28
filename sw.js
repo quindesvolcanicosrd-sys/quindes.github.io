@@ -1,4 +1,4 @@
-const CACHE = 'quindes-v9';
+const CACHE = 'quindes-v10';
 const ASSETS = [
   './index.html',
   './css/global.css',
