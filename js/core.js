@@ -12,7 +12,9 @@ let accessToken    = null;
 let wizOrigen      = null;
 const _rawSearch   = window.location.search || window.location.href.split('?')[1]?.split('#')[0] || '';
 const _urlParams   = new URLSearchParams(_rawSearch);
-let inviteCode     = _urlParams.get('invite') || null;
+const _inviteFromUrl = _urlParams.get('invite');
+if (_inviteFromUrl) sessionStorage.setItem('quindes_invite', _inviteFromUrl);
+let inviteCode = sessionStorage.getItem('quindes_invite') || null;
 let fotoSubiendo   = false;
 let cropper;
 
