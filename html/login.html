@@ -1,0 +1,54 @@
+<!-- LOGIN -->
+<div id="loginScreen" style="display:none;">
+  <div class="login-bg">
+    <span class="login-bg-ring login-bg-ring-1"></span>
+    <span class="login-bg-ring login-bg-ring-2"></span>
+  </div>
+  <div class="login-content">
+    <div class="login-hero">
+      <img src="icons/icon-192x192.png" alt="Quindes" class="login-logo">
+      <h1 class="login-title">Quindes Volcánicos</h1>
+      <p class="login-sub">Roller Derby Quito</p>
+    </div>
+    <div class="login-cta-box">
+      <p class="login-instruction">
+        <span class="login-instruction-icon">👇</span>
+        Inicia sesión con tu cuenta de Google
+      </p>
+      <div id="google-signin-btn" class="login-google-btn-wrap"></div>
+      <p class="login-disclaimer">
+        Solo cuentas registradas pueden acceder.<br>
+        Si no tienes acceso, puedes crear tu cuenta.
+      </p>
+      <div class="login-divider"><span></span><em>o</em><span></span></div>
+      <button class="login-register-btn" onclick="mostrarRegistroDesdeLogin()">
+        <span class="material-icons" style="font-size:18px;margin-right:6px;">person_add</span>
+        Crear mi perfil
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NO ENCONTRADO -->
+<div id="noEncontradoScreen" style="display:none;">
+  <div class="login-bg">
+    <span class="login-bg-ring login-bg-ring-1"></span>
+    <span class="login-bg-ring login-bg-ring-2"></span>
+  </div>
+  <div class="no-enc-content">
+    <div class="no-enc-hero">
+      <div class="no-enc-emoji">🤔</div>
+      <h2 class="no-enc-title">Cuenta no registrada</h2>
+      <span class="no-enc-email-badge" id="no-enc-email"></span>
+    </div>
+    <div class="no-enc-cta-box">
+      <p class="no-enc-instruction">¿Iniciaste sesión con la cuenta correcta? Intenta con otra:</p>
+      <div id="google-resignin-btn"></div>
+      <div class="no-enc-or"><span></span><em>o</em><span></span></div>
+      <button id="btn-ir-registro" class="no-enc-register-btn">
+        <span class="material-icons" style="font-size:18px;">person_add</span>
+        Crear mi perfil
+      </button>
+    </div>
+  </div>
+</div>

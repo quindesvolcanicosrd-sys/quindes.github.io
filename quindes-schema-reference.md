@@ -1,6 +1,6 @@
 # Quindes Volcánicos — Referencia de Schema para Supabase
 
-> Última actualización: 2026-03-22
+> Última actualización: 2026-03-27
 > Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 ---
@@ -14,7 +14,7 @@
 - Víctor es cómodo con el código pero prefiere instrucciones claras y directas, no explicaciones largas
 
 ### Cómo dar instrucciones de código — SIEMPRE así
-Cuando hay que modificar `app.js`, `index.html`, `style.css` o cualquier archivo, Claude debe dar instrucciones en formato **buscar/reemplazar**, nunca pegar archivos enteros. El formato es:
+Cuando hay que modificar cualquier archivo, Claude debe dar instrucciones en formato **buscar/reemplazar**, nunca pegar archivos enteros. El formato es:
 
 **Buscá exactamente esto:**
 ```
@@ -38,7 +38,7 @@ Cuando hay que modificar `app.js`, `index.html`, `style.css` o cualquier archivo
 - No pedir confirmación innecesaria — si el cambio es claro, darlo directamente
 
 ### Cómo manejar archivos grandes
-- Los archivos `app.js`, `index.html` y `style.css` son largos — nunca pedirlos completos
+- Los archivos JS y HTML son largos — nunca pedirlos completos
 - Si Claude necesita contexto, pedir: "Pegame el bloque de la función X" o "Pegame desde la línea que dice Y hasta Z"
 - Víctor puede pegar fragmentos específicos cuando Claude los pida
 
@@ -49,7 +49,7 @@ Cuando hay que modificar `app.js`, `index.html`, `style.css` o cualquier archivo
 
 ---
 
-## Estado actual del proyecto (al 2026-03-22)
+## Estado actual del proyecto (al 2026-03-27)
 
 ### Lo que ya está hecho ✅
 
@@ -78,79 +78,43 @@ Cuando hay que modificar `app.js`, `index.html`, `style.css` o cualquier archivo
 ```
 quindes.github.io/
   css/
-    global.css    ← variables, reset, animaciones globales, temas forzados
-    nav.css       ← bottom nav (vacío por ahora, styles están en style.css)
-    ajustes.css   ← todos los estilos de ajustes/perfil/wizard
+    global.css      ← variables, reset, animaciones globales, temas forzados
+    nav.css         ← bottom nav
+    ajustes.css     ← estilos de ajustes/perfil/wizard
+    loader.css      ← estilos del derby loader
+    login.css       ← estilos de login y no encontrado
+    wizard.css      ← estilos del wizard de registro
   js/
-    core.js       ← vacío, para futuro
-    ajustes.js    ← vacío, para futuro
-  index.html
-  app.js
-  style.css       ← CSS COMPLETO activo (los archivos en css/ existen pero no están linkeados aún)
-  sw.js
+    core.js         ← config, globals, SW, derby loader, cargarParciales()
+    api.js          ← apiCall, gasCall, gasCallNoToken
+    ui.js           ← componentes visuales: loader, toast, chips, selects,
+                       bottom sheet, edit sheet, date picker, install banner
+    auth.js         ← Google Auth, sesión, login screens, borrar perfil
+    wizard.js       ← flujo de registro completo
+    perfil.js       ← render, navegación, edición, fotos, archivos, init
+    ajustes.js      ← ajustes, privacidad, notificaciones, nav
+  html/
+    login.html      ← loginScreen + noEncontradoScreen (parcial dinámico)
+    wizard.html     ← registroScreen completo (parcial dinámico)
+    nav.html        ← bottom nav (parcial dinámico, se inyecta en appContent)
+    modals.html     ← date picker + modal crop (parcial dinámico)
+  index.html        ← head + loadingScreen + appContent (vistas) + scripts
+  sw.js             ← service worker (quindes-v9)
   manifest.json
 ```
 
-**IMPORTANTE sobre la refactorización CSS:**
-- Se intentó dividir `style.css` en `css/global.css` + `css/nav.css` + `css/ajustes.css`
-- GitHub Pages cachea `style.css` agresivamente — al cambiar el link en `index.html` se rompió el estilo
-- **Solución pendiente**: agregar los nuevos archivos como links ADICIONALES después de `style.css`, no reemplazarlo
-- Por ahora todo el CSS está en `style.css` y funciona correctamente
-- Los archivos en `css/` están listos con el contenido correcto pero no están activos
-- Cuando se reactive: agregar `<link rel="stylesheet" href="css/nav.css">` etc. DESPUÉS de `style.css` en index.html
+**Cómo funciona la carga de parciales:**
+- `cargarParciales()` está en `core.js` y se llama desde el `DOMContentLoaded` de `perfil.js`
+- Inyecta `login.html` y `wizard.html` después de `#loadingScreen`, `modals.html` al final del body, y `nav.html` dentro de `#appContent`
+- Solo después de que los parciales cargan se inicializan los listeners (`initRegistroListeners`, `initDatePickerListeners`) y se carga el script de Google Auth
 
 #### Estructura de navegación actual
 - `view-home` = pantalla de **Ajustes** (home temporal)
 - `view-perfil` = Mi Perfil con hero card + menú de secciones
 - `view-estadisticas`, `view-generales`, `view-personales`, `view-contacto`, `view-salud`, `view-rendimiento` = secciones del perfil
 - `view-invitacion`, `view-apariencia`, `view-privacidad`, `view-notificaciones`, `view-acerca` = secciones de ajustes
-- **Bottom nav** con 4 ítems: Ajustes, Equipo, Eventos, Tareas — función `navIr(seccion)` en app.js
+- **Bottom nav** con 4 ítems: Ajustes, Equipo, Eventos, Tareas — función `navIr(seccion)` en `ajustes.js`
 - La nav muestra la pill animada con `nav-active` y glass effect
-
-#### Bottom Nav — CSS en style.css (al final)
-```css
-/* ══ BOTTOM NAV ══ */
-.bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:200; height:64px; display:flex; ... }
-.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; ... }
-.nav-item.nav-active { color: var(--accent); }
-.nav-item.nav-active::before { opacity:1; animation: nav-pill-in ... }
-@keyframes nav-pill-in { 0% { clip-path: circle(0%...) } 100% { clip-path: circle(100%...) } }
-```
-
-#### Bottom Nav — HTML en index.html (antes de `</div><!-- /appContent -->`)
-```html
-<nav class="bottom-nav" id="bottom-nav">
-  <div class="nav-item nav-active" onclick="navIr('ajustes')" id="nav-ajustes">
-    <span class="material-icons">settings</span>
-    <span class="nav-item-label">Ajustes</span>
-  </div>
-  <div class="nav-item" onclick="navIr('equipo')" id="nav-equipo">
-    <span class="material-icons">groups</span>
-    <span class="nav-item-label">Equipo</span>
-  </div>
-  <div class="nav-item" onclick="navIr('eventos')" id="nav-eventos">
-    <span class="material-icons">event</span>
-    <span class="nav-item-label">Eventos</span>
-  </div>
-  <div class="nav-item" onclick="navIr('tareas')" id="nav-tareas">
-    <span class="material-icons">task_alt</span>
-    <span class="nav-item-label">Tareas</span>
-  </div>
-</nav>
-```
-
-#### Bottom Nav — JS en app.js
-```javascript
-let _navSeccionActual = 'ajustes';
-function navIr(seccion) {
-  if (_navSeccionActual === seccion) return;
-  _navSeccionActual = seccion;
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
-  const navEl = document.getElementById('nav-' + seccion);
-  if (navEl) { void navEl.offsetWidth; navEl.classList.add('nav-active'); }
-  // TODO: mostrar sección correspondiente
-}
-```
 
 #### Backend Node.js (Railway)
 - URL: `https://quindesgithubio-production.up.railway.app`
@@ -165,6 +129,10 @@ function navIr(seccion) {
 #### Supabase
 - URL: `znprcowxveyzanpvotms.supabase.co`
 - Schema v2: 13 tablas creadas y funcionando
+
+#### Service Worker
+- Versión actual: `quindes-v9`
+- Cachea: `index.html`, todos los CSS en `css/`, todos los JS en `js/`, todos los HTML en `html/`, íconos y manifest
 
 ---
 
@@ -197,13 +165,6 @@ Falta implementar:
 - `cambiarLogoEquipo()` y `abrirColorPicker()` → toast "🚧 Próximamente"
 - `solicitarPermisoPush()` → pide permiso pero no registra SW push subscription
 - Privacidad → toggles solo en localStorage, no sincronizados con Supabase
-- Limpieza menor en `inicializarAjustes()`: borrar líneas huérfanas de accesibilidad
-
-#### Refactorización CSS (pausada)
-- Archivos `css/global.css`, `css/nav.css`, `css/ajustes.css` ya existen con contenido correcto
-- No están activos — todo sigue en `style.css`
-- Para activar: agregar links adicionales en `index.html` DESPUÉS de `style.css` (no reemplazarlo)
-- `sw.js` ya actualizado a `quindes-v8` con los nuevos paths de CSS incluidos
 
 #### Próximas secciones a desarrollar
 - **Equipo** (lista de jugadoras) — PRÓXIMA
@@ -228,7 +189,7 @@ RAILWAY_URL=https://quindesgithubio-production.up.railway.app
 
 ### Repo de GitHub
 `https://github.com/quindesvolcanicosrd-sys/quindes.github.io`
-- Frontend: raíz del repo (`index.html`, `app.js`, `style.css`)
+- Frontend: raíz del repo (`index.html`, `css/`, `js/`, `html/`)
 - Backend: carpeta `/api` (`index.js`, `package.json`, `.env`)
 
 ### Para retomar el desarrollo local
@@ -284,16 +245,70 @@ Liga → Equipo(s) → Miembros → Perfiles
 
 ---
 
-## Notas técnicas importantes (app.js)
+## Notas técnicas importantes
 
+### Globals y configuración (core.js)
 - `CONFIG.API_URL = 'https://quindesgithubio-production.up.railway.app'`
-- `gasCallNoToken` es alias de `gasCall`
-- `aplicarPermisos()` usa `CURRENT_USER.rolApp` — valores: `'Admin'`, `'SemiAdmin'`, `'Invitado'`
-- `mostrarToastGuardado(msg)` acepta mensaje opcional, default `'✅ Guardado'`
-- `inicializarAjustes()` se llama después de `aplicarPermisos()` en `inicializarApp()`
-- Fotos: `normalizarDriveUrl()` convierte URL de Drive a `lh3.googleusercontent.com/d/...=w500`
-- Archivos van a Supabase Storage bucket `archivos` vía `POST /archivo`
-- Modal "Borrar perfil" tiene animación de entrada (scale + fade)
+- `CURRENT_USER` — objeto con `{ id, email, rolApp, equipoId, ... }`
+- `accessToken` — JWT de Google
+- `wizOrigen` — `'login'` | `'noEncontrado'` | `null`
+- `inviteCode` — leído de `?invite=` en la URL
+- `edicionActiva` — objeto con estado de edición por sección
+- `DERBY_MSGS` — array de mensajes del loader
+- `cargarParciales()` — carga los 4 HTML parciales de `html/`
+
+### Funciones clave por archivo
+
+**api.js**
+- `apiCall(endpoint, method, body)` — fetch al backend Railway
+- `gasCall(action, data)` — wrapper semántico sobre apiCall
+- `gasCallNoToken` — alias de gasCall
+
+**auth.js**
+- `initGoogleAuth()` — inicializa Google, maneja sesión guardada
+- `onGoogleSignIn(response)` — callback de Google, guarda sesión
+- `cerrarSesion()` — limpia estado y vuelve al login
+- `confirmarBorrarPerfil()` / `ejecutarBorrarPerfil()` — flujo de borrado
+
+**perfil.js**
+- `inicializarApp(email)` — flujo principal post-login
+- `renderTodo(profile)` — renderiza todos los campos del perfil
+- `aplicarPermisos()` — muestra/oculta elementos según `rolApp`
+- `editarCampo(fieldKey, opciones)` — entry point del tap-to-edit
+- `navegarSeccion(seccion)` / `navegarDesdePerfilASeccion(seccion)` / `volverHome()`
+- `pushSentinel()` — maneja el back gesture del navegador
+- `configurarTodasLasSubidas()` — inicializa inputs de archivo
+- `normalizarDriveUrl(url)` — convierte URL de Drive a lh3.googleusercontent.com
+- `CHIPS_OPTIONS` — config de todos los campos con chips/select/toggle
+- `CAMPOS_SECCION` — mapeo de campos a secciones
+
+**ui.js**
+- `iniciarDerbyLoader()` / `detenerDerbyLoader()`
+- `mostrarToastGuardado(msg)`
+- `abrirBottomSheet(label, options, valorActual, onSelect)`
+- `abrirEditSheet(fieldKey, opciones)`
+- `abrirDatePicker(valorActual, onConfirm)` / `cerrarDatePicker()`
+- `initDatePickerListeners()` — se llama después de cargar modals.html
+- `habilitarChips` / `habilitarMultiSelect` / `habilitarSelect` / `habilitarToggle`
+- `mostrarInstallBannerSiCorresponde()` / `detectarEntorno()`
+- `MESES` / `MESES_CORTO` — arrays de nombres de meses
+- `dpState` — estado del date picker
+
+**wizard.js**
+- `mostrarRegistroWizard()` / `wizIntroStart()` / `wizNext()` / `wizBack()`
+- `submitRegistro()` — envía el registro al backend
+- `initRegistroListeners()` — se llama después de cargar wizard.html
+- `regData` — objeto con los datos del formulario de registro
+- `WIZ_STEPS_BASE` / `wizStepSequence` / `wizStep`
+
+**ajustes.js**
+- `inicializarAjustes()` — sincroniza UI con localStorage al cargar
+- `cargarAjustes()` / `guardarAjuste(key, val)`
+- `setTheme(tema)` / `aplicarTema(tema)`
+- `getPriv(key)` / `setPriv(key, val)` / `togglePrivacidad(key)`
+- `navIr(seccion)` — navegación de la bottom nav
+- `AJUSTES_KEY = 'quindes_ajustes'`
+- `PRIV_DEFAULTS` — valores por defecto de privacidad
 
 ### Variables globales del wizard
 ```javascript

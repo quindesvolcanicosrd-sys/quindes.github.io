@@ -1,19 +1,30 @@
-const CACHE = 'quindes-v8';
+const CACHE = 'quindes-v9';
 const ASSETS = [
   './index.html',
   './css/global.css',
   './css/nav.css',
   './css/ajustes.css',
   './manifest.json',
+  './js/core.js',
+  './js/api.js',
+  './js/ui.js',
+  './js/auth.js',
+  './js/wizard.js',
+  './js/perfil.js',
+  './js/ajustes.js',
   './icons/icon-192x192.png',
   './icons/icon-512x512.png',
   './icons/icon-maskable-192x192.png',
   './icons/icon-maskable-512x512.png',
   './icons/apple-touch-icon.png',
   './icons/logo-loading.png',
+  './html/login.html',
+  './html/wizard.html',
+  './html/nav.html',
+  './html/modals.html',
 ];
 
-const NO_CACHE = ['app.js', 'workers.dev', 'script.google.com'];
+const NO_CACHE = ['workers.dev', 'script.google.com'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
