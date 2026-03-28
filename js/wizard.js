@@ -88,6 +88,78 @@ function mostrarRegistroWizard() {
   history.pushState({ wizSentinel: true }, '', location.pathname + '#_wiz');
 }
 
+function wizStep0Volver() {
+  const step0 = document.getElementById('wiz-step-0');
+  if (step0) step0.style.display = 'none';
+  if (wizOrigen === 'noEncontrado') {
+    const noEnc = document.getElementById('noEncontradoScreen');
+    if (noEnc) noEnc.style.display = 'flex';
+  } else {
+    const loginEl = document.getElementById('loginScreen');
+    if (loginEl) loginEl.style.display = 'flex';
+  }
+  const regEl = document.getElementById('registroScreen');
+  if (regEl) regEl.style.display = 'none';
+}
+
+function wizIntroVolver() {
+  const introEl = document.getElementById('wiz-intro');
+  if (introEl) {
+    introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+    introEl.style.opacity    = '0';
+    introEl.style.transform  = 'translateY(24px)';
+    setTimeout(() => {
+      introEl.style.display = 'none';
+      introEl.style.transition = introEl.style.transform = introEl.style.opacity = '';
+    }, 310);
+  }
+  const regEl = document.getElementById('registroScreen');
+  if (regEl) regEl.style.display = 'none';
+  if (wizOrigen === 'noEncontrado') {
+    const noEnc = document.getElementById('noEncontradoScreen');
+    if (noEnc) noEnc.style.display = 'flex';
+  } else {
+    const loginEl = document.getElementById('loginScreen');
+    if (loginEl) loginEl.style.display = 'flex';
+  }
+}
+
+function wizStep0Volver() {
+  const step0 = document.getElementById('wiz-step-0');
+  if (step0) step0.style.display = 'none';
+  if (wizOrigen === 'noEncontrado') {
+    const noEnc = document.getElementById('noEncontradoScreen');
+    if (noEnc) noEnc.style.display = 'flex';
+  } else {
+    const loginEl = document.getElementById('loginScreen');
+    if (loginEl) loginEl.style.display = 'flex';
+  }
+  const regEl = document.getElementById('registroScreen');
+  if (regEl) regEl.style.display = 'none';
+}
+
+function wizIntroVolver() {
+  const introEl = document.getElementById('wiz-intro');
+  if (introEl) {
+    introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+    introEl.style.opacity    = '0';
+    introEl.style.transform  = 'translateY(24px)';
+    setTimeout(() => {
+      introEl.style.display = 'none';
+      introEl.style.transition = introEl.style.transform = introEl.style.opacity = '';
+    }, 310);
+  }
+  const regEl = document.getElementById('registroScreen');
+  if (regEl) regEl.style.display = 'none';
+  if (wizOrigen === 'noEncontrado') {
+    const noEnc = document.getElementById('noEncontradoScreen');
+    if (noEnc) noEnc.style.display = 'flex';
+  } else {
+    const loginEl = document.getElementById('loginScreen');
+    if (loginEl) loginEl.style.display = 'flex';
+  }
+}
+
 function wizIntroStart() {
   const introEl    = document.getElementById('wiz-intro');
   const headerEl   = document.getElementById('wiz-header');
