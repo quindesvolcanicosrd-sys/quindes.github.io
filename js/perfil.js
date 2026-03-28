@@ -46,10 +46,10 @@ function navegarSeccion(seccion) {
       home.classList.remove('active');
     });
   });
-  dest.addEventListener('transitionend', () => {
+  setTimeout(() => {
     home.classList.remove('slide-out');
     home.style.display = 'none';
-  }, { once: true });
+  }, 350);
   vistaActual = seccion;
 }
 

@@ -204,6 +204,15 @@ function initGoogleAuth() {
         if (!user || !user.found) throw new Error('user not found');
 
         CURRENT_USER = { ...user, rolApp: user.rol };
+
+        if (inviteCode) {
+          detenerDerbyLoader();
+          document.getElementById('loadingScreen').style.display = 'none';
+          wizOrigen = 'noEncontrado';
+          mostrarRegistroWizard();
+          return;
+        }
+
         const profile = await gasCallNoToken('getMyProfile', { rowNumber: user.id });
         window.myProfile = profile;
 
