@@ -63,8 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
   mostrarInstallBannerSiCorresponde();
 });
 
-function initDatePickerListeners() {
-
 // ── TOAST ─────────────────────────────────────────────────────
 function mostrarToastGuardado(msg) {
   const t = document.createElement('div');
