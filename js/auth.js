@@ -147,7 +147,7 @@ function mostrarModalCuentaBorrada() {
   document.querySelectorAll('[data-dialogo-borrar]').forEach(el => el.remove());
 
   const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;opacity:0;transition:opacity 0.4s ease;';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;opacity:0;transform:scale(0.92) translateY(24px);transition:opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);';
   modal.innerHTML = `
     <span style="font-size:56px;margin-bottom:16px;">🗑️</span>
     <h2 style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:12px;">Cuenta borrada</h2>
@@ -156,7 +156,12 @@ function mostrarModalCuentaBorrada() {
   `;
   document.body.appendChild(modal);
 
-  requestAnimationFrame(() => { modal.style.opacity = '1'; });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      modal.style.opacity = '1';
+      modal.style.transform = 'scale(1) translateY(0)';
+    });
+  });
 
   document.getElementById('btn-aceptar-borrada').addEventListener('click', () => {
     modal.style.opacity = '0';
