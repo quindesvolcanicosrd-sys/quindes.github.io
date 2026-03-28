@@ -1,4 +1,4 @@
-const CACHE = 'quindes-v10';
+const CACHE = 'quindes-v11';
 const ASSETS = [
   './index.html',
   './css/global.css',
@@ -42,7 +42,6 @@ self.addEventListener('activate', e => {
       ))
       .then(() => self.clients.claim())
       .then(() => self.clients.matchAll({ type: 'window' }))
-      .then(clients => clients.forEach(client => client.navigate(client.url)))
   );
 });
 
@@ -68,6 +67,9 @@ self.addEventListener('fetch', e => {
   }
 
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request, { ignoreSearch: false }).then(cached => {
+      if (cached && !e.request.url.includes('?')) return cached;
+      return fetch(e.request).catch(() => caches.match('./index.html'));
+    })
   );
 });
