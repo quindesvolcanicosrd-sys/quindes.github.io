@@ -380,5 +380,44 @@ app.post('/archivo', async (req, res) => {
   }
 }); 
 
+// ── GET /codigo-invitacion?equipoId=xxx ───────────────────────
+app.get('/codigo-invitacion', async (req, res) => {
+  try {
+    const { equipoId } = req.query;
+    if (!equipoId) return res.status(400).json({ error: 'Falta equipoId' });
+
+    const { data, error } = await supabase
+      .from('codigos_invitacion')
+      .select('codigo, usos_actuales, usos_max, activo')
+      .eq('equipo_id', equipoId)
+      .eq('activo', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) return res.status(404).json({ error: 'No hay código activo para este equipo' });
+
+    const agotado = data.usos_max && data.usos_actuales >= data.usos_max;
+
+    res.json({
+      codigo:        data.codigo,
+      usosActuales:  data.usos_actuales,
+      usosMax:       data.usos_max,
+      agotado:       agotado,
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`API corriendo en puerto ${PORT}`));
+```
+
+---
+
+Eso es todo en el backend. Hacé deploy y probá con:
+```
+https://quindesgithubio-production.up.railway.app/codigo-invitacion?equipoId=03161fd2-3120-49f7-b165-27f23bcdae2d
 app.listen(PORT, () => console.log(`API corriendo en puerto ${PORT}`));
