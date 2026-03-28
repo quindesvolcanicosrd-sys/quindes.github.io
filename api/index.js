@@ -245,6 +245,7 @@ app.post('/registrar', async (req, res) => {
     }
 
     // 3. Crear perfil
+    console.log('fechaNacimiento recibida:', fechaNacimiento, '→ convertida:', convertirFecha(fechaNacimiento));
     const { data: perfil, error: perfilError } = await supabase
       .from('perfiles')
       .insert({
