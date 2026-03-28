@@ -413,11 +413,3 @@ app.get('/codigo-invitacion', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`API corriendo en puerto ${PORT}`));
-```
-
----
-
-Eso es todo en el backend. Hacé deploy y probá con:
-```
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`API corriendo en puerto ${PORT}`));
