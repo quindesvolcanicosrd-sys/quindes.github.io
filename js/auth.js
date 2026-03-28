@@ -279,6 +279,11 @@ function mostrarLoginScreen() {
     detenerDerbyLoader();
     document.getElementById('loadingScreen').style.display = 'none';
     mostrarRegistroDesdeLogin();
+    const step0 = document.getElementById('wiz-step-0');
+    if (step0) {
+      const volverBtn = step0.querySelector('.wiz-btn-skip');
+      if (volverBtn) volverBtn.style.display = 'none';
+    }
     return;
   }
   const loginScr = document.getElementById('loginScreen');
@@ -306,6 +311,8 @@ function mostrarLoginScreen() {
 function mostrarRegistroDesdeLogin() {
   window._registroDesdeLogin = true;
   wizOrigen = 'login';
+  const btnVolver = document.getElementById('wiz-step0-volver');
+  if (btnVolver) btnVolver.style.display = inviteCode ? 'none' : '';
   document.getElementById('loginScreen').style.display    = 'none';
   document.getElementById('registroScreen').style.display = 'flex';
   document.getElementById('wiz-intro').style.display      = 'none';
