@@ -185,6 +185,7 @@ function mostrarModalCuentaBorrada() {
 
 // ── GOOGLE AUTH ───────────────────────────────────────────────
 function initGoogleAuth() {
+  console.log('[INVITE] inviteCode al init:', inviteCode);
   fixGoogleButtonFlicker();
 
   const savedEmail = localStorage.getItem('quindes_email');
