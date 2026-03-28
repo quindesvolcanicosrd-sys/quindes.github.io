@@ -221,7 +221,7 @@ app.post('/registrar', async (req, res) => {
       .eq('codigo', codigoInvitacion)
       .single();
 
-    if (codigoError || !codigo) return res.status(400).json({ error: 'Código de invitación inválido' });
+    if (codigoError || !codigo) { console.error('ERROR codigoError:', JSON.stringify(codigoError)); return res.status(400).json({ error: 'Código de invitación inválido' }); }
     if (!codigo.activo) return res.status(400).json({ error: 'Código de invitación inactivo' });
     if (codigo.expira_at && new Date(codigo.expira_at) < new Date()) return res.status(400).json({ error: 'Código de invitación expirado' });
     if (codigo.usos_max && codigo.usos_actuales >= codigo.usos_max) return res.status(400).json({ error: 'Código de invitación agotado' });
@@ -259,7 +259,7 @@ app.post('/registrar', async (req, res) => {
         pais_origen:        pais,
         codigo_pais:        codigoPais,
         telefono:           telefono,
-        fecha_nacimiento:   fechaNacimiento || null,
+        fecha_nacimiento:   convertirFecha(fechaNacimiento) || null,
         mostrar_cumple:     mostrarCumple === 'Sí',
         mostrar_edad:       mostrarEdad === 'Sí',
         alergias:           alergias,
@@ -284,7 +284,7 @@ app.post('/registrar', async (req, res) => {
         codigo_invitacion_id: codigo.id,
       });
 
-    if (miembroError) return res.status(500).json({ error: miembroError.message });
+    if (miembroError) { console.error('ERROR miembroError:', JSON.stringify(miembroError)); return res.status(500).json({ error: miembroError.message }); }
 
     // 5. Actualizar usos del código
     await supabase
