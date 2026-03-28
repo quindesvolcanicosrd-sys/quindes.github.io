@@ -111,6 +111,7 @@ function confirmarBorrarPerfil() {
       ">Cancelar</button>
     </div>
   `;
+  overlay.dataset.dialogoBorrar = '1';
   document.body.appendChild(overlay);
   const card = overlay.querySelector('div');
   if (card) {
@@ -130,8 +131,8 @@ function confirmarBorrarPerfil() {
 }
 
 async function ejecutarBorrarPerfil() {
-  const overlay = document.querySelector('[style*="position:fixed"][style*="9999"]');
-  if (overlay) overlay.remove();
+  document.querySelectorAll('[data-dialogo-borrar]').forEach(el => el.remove());
+  document.querySelectorAll('[style*="position:fixed"][style*="9999"]').forEach(el => el.remove());
   try {
     await gasCall('borrarPerfil', { rowNumber: CURRENT_USER.id });
     cerrarSesion();
@@ -142,15 +143,25 @@ async function ejecutarBorrarPerfil() {
 }
 
 function mostrarModalCuentaBorrada() {
+  // Cerrar cualquier diálogo previo
+  document.querySelectorAll('[data-dialogo-borrar]').forEach(el => el.remove());
+
   const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;opacity:0;transition:opacity 0.4s ease;';
   modal.innerHTML = `
     <span style="font-size:56px;margin-bottom:16px;">🗑️</span>
     <h2 style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:12px;">Cuenta borrada</h2>
     <p style="font-size:15px;color:var(--text-secondary);line-height:1.5;margin-bottom:32px;">Podés crear una nueva cuenta o solicitar un código de registro al administradorx de tu equipo.</p>
-    <button onclick="this.closest('div[style]').remove()" style="background:var(--accent);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;width:100%;max-width:280px;">Aceptar</button>
+    <button id="btn-aceptar-borrada" style="background:var(--accent);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;width:100%;max-width:280px;">Aceptar</button>
   `;
   document.body.appendChild(modal);
+
+  requestAnimationFrame(() => { modal.style.opacity = '1'; });
+
+  document.getElementById('btn-aceptar-borrada').addEventListener('click', () => {
+    modal.style.opacity = '0';
+    setTimeout(() => modal.remove(), 400);
+  });
 }
 
 // ── GOOGLE AUTH ───────────────────────────────────────────────

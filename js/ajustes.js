@@ -279,8 +279,10 @@ function abrirTerminos()   { window.open('https://quindesvolcanicos.com/terminos
 // ── Admin ─────────────────────────────────────────────────────
 function actualizarSeccionAdmin() {
   const adminSection = document.getElementById('apariencia-admin-section');
-  if (!adminSection) return;
-  adminSection.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'block' : 'none';
+  if (adminSection) adminSection.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'block' : 'none';
+
+  const rowInvitacion = document.querySelector('[onclick="navegarSeccion(\'invitacion\')"]')?.closest('.settings-row');
+  if (rowInvitacion) rowInvitacion.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'flex' : 'none';
 }
 
 function cambiarLogoEquipo() { mostrarToastGuardado('🚧 Próximamente'); }
