@@ -73,6 +73,14 @@
           </div>
           <span class="settings-row-arrow"></span>
         </div>
+        <div class="settings-row settings-row-grouped" id="row-mi-liga" onclick="navegarSeccion('liga')" style="display:none;">
+          <div class="settings-row-ico ico-red"><span class="material-icons">shield</span></div>
+          <div class="settings-row-body">
+            <span class="settings-row-title">Mi Liga</span>
+            <span class="settings-row-sub" id="sub-miliga">Equipos, códigos, administración</span>
+          </div>
+          <span class="settings-row-arrow"></span>
+        </div>
         <div class="settings-row settings-row-grouped" onclick="navegarSeccion('invitacion')">
           <div class="settings-row-ico ico-green"><span class="material-icons">card_giftcard</span></div>
           <div class="settings-row-body">
@@ -509,6 +517,48 @@
       <div style="height:32px;"></div>
     </div>
   </div>
+
+<!-- VISTA MI LIGA -->
+<div id="view-liga" class="app-view">
+  <header class="app-header app-header-section">
+    <div class="header-row-top">
+      <button class="header-back" onclick="volverHome()"><span class="material-icons">arrow_back</span></button>
+      <span class="app-header-title">Mi Liga</span>
+    </div>
+  </header>
+  <div class="app-scroll">
+
+    <div class="sec-group" style="margin-bottom:0;">
+      <div class="sec-row" style="border-bottom:none;">
+        <div class="sec-row-body">
+          <span class="sec-row-label">Liga</span>
+          <span class="sec-val sec-val-bold" id="liga-nombre">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label-header" style="margin-top:24px;">Equipos</div>
+    <div id="liga-equipos-list" class="sec-group"></div>
+
+    <div style="padding:16px 0 0;">
+      <button class="inv-btn inv-btn-secondary" style="width:100%;" onclick="abrirCrearEquipo()">
+        <span class="material-icons">add</span>
+        Crear nuevo equipo
+      </button>
+    </div>
+
+    <div style="height:48px;"></div>
+
+    <div style="padding:0 0 16px;">
+      <button class="home-btn-delete" style="width:100%;" onclick="confirmarEliminarLiga()">
+        <span class="material-icons">delete_forever</span>
+        Eliminar liga y todos los datos
+      </button>
+    </div>
+
+    <div style="height:32px;"></div>
+  </div>
+</div>
 
 <!-- VISTA CÓDIGO DE INVITACIÓN -->
 <div id="view-invitacion" class="app-view">

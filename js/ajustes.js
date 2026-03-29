@@ -283,10 +283,129 @@ function actualizarSeccionAdmin() {
 
   const rowInvitacion = document.querySelector('[onclick="navegarSeccion(\'invitacion\')"]')?.closest('.settings-row');
   if (rowInvitacion) rowInvitacion.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'flex' : 'none';
+
+  const rowLiga = document.getElementById('row-mi-liga');
+  if (rowLiga) rowLiga.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'flex' : 'none';
 }
 
 function cambiarLogoEquipo() { mostrarToastGuardado('🚧 Próximamente'); }
 function abrirColorPicker()  { mostrarToastGuardado('🚧 Próximamente'); }
+
+// ── Mi Liga ───────────────────────────────────────────────────
+let _ligaData = null;
+
+async function cargarMiLiga() {
+  const ligaId = CURRENT_USER?.ligaId;
+  if (!ligaId) return;
+  try {
+    const data = await apiCall(`/liga/${ligaId}`, 'GET');
+    _ligaData = data;
+    renderMiLiga(data);
+  } catch(e) {
+    console.error('Error cargando liga:', e);
+  }
+}
+
+function renderMiLiga(data) {
+  const nombreEl = document.getElementById('liga-nombre');
+  if (nombreEl) nombreEl.textContent = data.nombre || '—';
+
+  const lista = document.getElementById('liga-equipos-list');
+  if (!lista) return;
+
+  if (!data.equipos || data.equipos.length === 0) {
+    lista.innerHTML = '<div class="sec-row"><div class="sec-row-body"><span class="sec-row-label" style="opacity:0.5;">No hay equipos aún</span></div></div>';
+    return;
+  }
+
+  lista.innerHTML = data.equipos.map((eq, i) => {
+    const esActivo = eq.id === CURRENT_USER?.equipoId;
+    const esBorde  = i === data.equipos.length - 1 ? 'border-bottom:none;' : '';
+    return `
+      <div class="sec-row" style="${esBorde}">
+        <div class="sec-row-body">
+          <span class="sec-row-label" style="font-weight:${esActivo ? '700' : '500'};">
+            ${eq.nombre}
+            ${esActivo ? '<span style="font-size:11px;color:var(--accent);font-weight:600;margin-left:6px;">· Activo</span>' : ''}
+          </span>
+          <span class="sec-row-sub" style="font-size:12px;margin-top:2px;">
+            Código: <strong>${eq.codigo || '—'}</strong>
+            ${eq.usosMax ? ` · ${eq.usosActuales}/${eq.usosMax} usos` : ` · ${eq.usosActuales} usos`}
+          </span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+          ${!esActivo ? `<button class="inv-btn inv-btn-secondary" style="padding:6px 12px;font-size:12px;min-width:0;" onclick="switchearEquipo('${eq.id}','${eq.nombre}')">Cambiar</button>` : ''}
+          <button class="home-btn-delete" style="padding:6px 10px;min-width:0;font-size:12px;" onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')">
+            <span class="material-icons" style="font-size:16px;">delete</span>
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function switchearEquipo(equipoId, nombreEquipo) {
+  CURRENT_USER.equipoId = equipoId;
+  localStorage.setItem('quindes_equipo_activo', equipoId);
+  mostrarToastGuardado(`✅ Ahora gestionás "${nombreEquipo}"`);
+  renderMiLiga(_ligaData);
+}
+
+function abrirCrearEquipo() {
+  const nombre = prompt('Nombre del nuevo equipo:');
+  if (!nombre || !nombre.trim()) return;
+  crearEquipo(nombre.trim());
+}
+
+async function crearEquipo(nombre) {
+  try {
+    const result = await apiCall('/crear-equipo', 'POST', {
+      nombre,
+      ligaId: CURRENT_USER?.ligaId,
+    });
+    if (!result?.ok) throw new Error('Error creando equipo');
+    _ligaData.equipos.push(result.equipo);
+    renderMiLiga(_ligaData);
+    mostrarToastGuardado(`✅ Equipo "${nombre}" creado`);
+  } catch(e) {
+    mostrarToastGuardado('❌ Error al crear el equipo');
+    console.error(e);
+  }
+}
+
+function confirmarEliminarEquipo(equipoId, nombreEquipo) {
+  if (!confirm(`¿Eliminar el equipo "${nombreEquipo}"? Esto borrará todos sus miembros, perfiles y datos. Esta acción no se puede deshacer.`)) return;
+  eliminarEquipo(equipoId, nombreEquipo);
+}
+
+async function eliminarEquipo(equipoId, nombreEquipo) {
+  try {
+    await apiCall(`/equipo/${equipoId}`, 'DELETE');
+    _ligaData.equipos = _ligaData.equipos.filter(e => e.id !== equipoId);
+    renderMiLiga(_ligaData);
+    mostrarToastGuardado(`✅ Equipo "${nombreEquipo}" eliminado`);
+  } catch(e) {
+    mostrarToastGuardado('❌ Error al eliminar el equipo');
+    console.error(e);
+  }
+}
+
+function confirmarEliminarLiga() {
+  const nombre = _ligaData?.nombre || 'la liga';
+  if (!confirm(`⚠️ ¿Eliminar "${nombre}" y TODOS sus datos?\n\nEsto borrará equipos, miembros, perfiles, entrenamientos y toda la información. Esta acción es IRREVERSIBLE.`)) return;
+  if (!confirm(`Confirmación final: ¿estás segura de que querés eliminar "${nombre}" para siempre?`)) return;
+  eliminarLiga();
+}
+
+async function eliminarLiga() {
+  try {
+    await apiCall(`/liga/${CURRENT_USER?.ligaId}`, 'DELETE');
+    mostrarToastGuardado('Liga eliminada');
+    setTimeout(() => cerrarSesion(), 1500);
+  } catch(e) {
+    mostrarToastGuardado('❌ Error al eliminar la liga');
+    console.error(e);
+  }
+}
 
 // ── Helper toggle ─────────────────────────────────────────────
 function sincronizarToggle(wrapperId, isOn) {

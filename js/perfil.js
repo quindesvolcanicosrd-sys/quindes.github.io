@@ -39,6 +39,7 @@ function navegarSeccion(seccion) {
   if (_navegando) return;
   _navegando = true;
   setTimeout(() => { _navegando = false; }, 400);
+  if (seccion === 'liga') cargarMiLiga();
   const home = document.getElementById('view-home');
   const dest = document.getElementById('view-' + seccion);
   if (!dest) return;
@@ -186,7 +187,7 @@ async function inicializarApp(email) {
       return;
     }
 
-    CURRENT_USER = { ...user, rolApp: user.rol };
+    CURRENT_USER = { ...user, rolApp: user.rol, ligaId: user.ligaId };
     const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = user.email;
 
     const profile = await gasCall('getMyProfile', { rowNumber: user.id });

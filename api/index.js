@@ -66,6 +66,7 @@ app.get('/usuario', async (req, res) => {
       id: perfil.id,
       authUserId: perfil.auth_user_id,
       equipoId: perfil.equipo_id,
+      ligaId: miembro?.liga_id || null,
       nombreDerby: perfil.nombre_derby,
       rol: miembro?.rol,
       estadoMiembro: miembro?.estado,
