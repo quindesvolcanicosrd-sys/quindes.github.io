@@ -308,7 +308,11 @@ async function cargarMiLiga() {
 
 function renderMiLiga(data) {
   const nombreEl = document.getElementById('liga-nombre');
-  if (nombreEl) nombreEl.textContent = data.nombre || '—';
+  if (nombreEl) {
+    nombreEl.textContent = data.nombre || '—';
+    nombreEl.style.cssText = 'cursor:pointer;border-bottom:1.5px dashed var(--border);padding-bottom:2px;';
+    nombreEl.onclick = () => editarNombreLiga(data);
+  }
 
   const lista = document.getElementById('liga-equipos-list');
   if (!lista) return;
@@ -324,7 +328,7 @@ function renderMiLiga(data) {
     return `
       <div class="sec-row" style="${esBorde}">
         <div class="sec-row-body">
-          <span class="sec-row-label" style="font-weight:${esActivo ? '700' : '500'};">
+          <span class="sec-row-label" style="font-weight:${esActivo ? '700' : '500'};cursor:pointer;border-bottom:1.5px dashed var(--border);padding-bottom:1px;" onclick="editarNombreEquipo(${JSON.stringify(eq).replace(/"/g,'&quot;')})">
             ${eq.nombre}
             ${esActivo ? '<span style="font-size:11px;color:var(--accent);font-weight:600;margin-left:6px;">· Activo</span>' : ''}
           </span>
@@ -343,6 +347,28 @@ function renderMiLiga(data) {
   }).join('');
 }
 
+async function editarNombreLiga(data) {
+  const nuevo = prompt('Nuevo nombre de la liga:', data.nombre);
+  if (!nuevo || !nuevo.trim() || nuevo.trim() === data.nombre) return;
+  try {
+    await apiCall(`/liga/${data.id}/nombre`, 'PUT', { nombre: nuevo.trim() });
+    data.nombre = nuevo.trim();
+    renderMiLiga(data);
+    mostrarToastGuardado('✅ Nombre de liga actualizado');
+  } catch(e) { mostrarToastGuardado('❌ Error al actualizar'); }
+}
+
+async function editarNombreEquipo(eq) {
+  const nuevo = prompt('Nuevo nombre del equipo:', eq.nombre);
+  if (!nuevo || !nuevo.trim() || nuevo.trim() === eq.nombre) return;
+  try {
+    await apiCall(`/equipo/${eq.id}/nombre`, 'PUT', { nombre: nuevo.trim() });
+    eq.nombre = nuevo.trim();
+    renderMiLiga(_ligaData);
+    mostrarToastGuardado('✅ Nombre de equipo actualizado');
+  } catch(e) { mostrarToastGuardado('❌ Error al actualizar'); }
+}
+
 function switchearEquipo(equipoId, nombreEquipo) {
   CURRENT_USER.equipoId = equipoId;
   localStorage.setItem('quindes_equipo_activo', equipoId);
@@ -350,26 +376,207 @@ function switchearEquipo(equipoId, nombreEquipo) {
   renderMiLiga(_ligaData);
 }
 
+// ── Wizard Crear Equipo ───────────────────────────────────────
+let _wizEquipo = { nombre: '', categoria: '', logoBase64: null };
+let _wizEquipoPaso = 1;
+
 function abrirCrearEquipo() {
-  const nombre = prompt('Nombre del nuevo equipo:');
-  if (!nombre || !nombre.trim()) return;
-  crearEquipo(nombre.trim());
+  _wizEquipo = { nombre: '', categoria: '', logoBase64: null };
+  _wizEquipoPaso = 1;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'wiz-equipo-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;opacity:0;transform:translateY(24px);transition:opacity 0.35s ease,transform 0.35s cubic-bezier(0.34,1.56,0.64,1);';
+  overlay.innerHTML = `
+    <header style="display:flex;align-items:center;padding:16px 16px 0;gap:12px;flex-shrink:0;">
+      <button onclick="cerrarWizEquipo()" style="background:none;border:none;color:var(--text2);cursor:pointer;padding:8px;margin:-8px;">
+        <span class="material-icons">close</span>
+      </button>
+      <span style="font-size:13px;font-weight:600;color:var(--text2);" id="wiz-eq-paso-label">Paso 1 de 3</span>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-left:4px;">
+        <div id="wiz-eq-progress" style="height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease;width:33%;"></div>
+      </div>
+    </header>
+    <div id="wiz-eq-contenido" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:24px;overflow-y:auto;">
+    </div>
+    <div style="padding:16px 24px 32px;flex-shrink:0;display:flex;gap:12px;">
+      <button id="wiz-eq-btn-back" onclick="wizEquipoPasoAnterior()" style="flex:1;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:none;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;display:none;">Atrás</button>
+      <button id="wiz-eq-btn-next" onclick="wizEquipoPasoSiguiente()" style="flex:1;padding:14px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;">Continuar</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+    overlay.style.transform = 'translateY(0)';
+  }));
+  renderWizEquipoPaso(1);
 }
 
-async function crearEquipo(nombre) {
+function cerrarWizEquipo() {
+  const overlay = document.getElementById('wiz-equipo-overlay');
+  if (!overlay) return;
+  overlay.style.opacity = '0';
+  overlay.style.transform = 'translateY(24px)';
+  setTimeout(() => overlay.remove(), 350);
+}
+
+function renderWizEquipoPaso(paso) {
+  _wizEquipoPaso = paso;
+  const contenido = document.getElementById('wiz-eq-contenido');
+  const btnBack   = document.getElementById('wiz-eq-btn-back');
+  const btnNext   = document.getElementById('wiz-eq-btn-next');
+  const pasoLabel = document.getElementById('wiz-eq-paso-label');
+  const progress  = document.getElementById('wiz-eq-progress');
+  if (!contenido) return;
+
+  if (btnBack) btnBack.style.display = paso > 1 ? 'block' : 'none';
+  if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de 3`;
+  if (progress) progress.style.width = (paso / 3 * 100) + '%';
+  if (btnNext) btnNext.textContent = paso === 3 ? 'Crear equipo 🏒' : 'Continuar';
+
+  if (paso === 1) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🏒</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu equipo?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Este será el nombre que verán todas las integrantes.</p>
+      </div>
+      <input id="wiz-eq-nombre" type="text" placeholder="Nombre del equipo" value="${_wizEquipo.nombre}"
+        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
+        oninput="_wizEquipo.nombre=this.value">
+    `;
+    setTimeout(() => document.getElementById('wiz-eq-nombre')?.focus(), 100);
+  }
+
+  if (paso === 2) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🏆</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Qué categoría es tu equipo?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Seleccioná la categoría en la que compite tu equipo.</p>
+      </div>
+      <div style="display:flex;gap:12px;width:100%;justify-content:center;">
+        ${['A','B','C'].map(cat => `
+          <button onclick="seleccionarCategoriaEquipo('${cat}')"
+            id="wiz-eq-cat-${cat}"
+            style="flex:1;padding:20px 8px;border-radius:16px;border:2px solid ${_wizEquipo.categoria === cat ? 'var(--accent)' : 'var(--border)'};
+                   background:${_wizEquipo.categoria === cat ? 'var(--accent)' : 'var(--card)'};
+                   color:${_wizEquipo.categoria === cat ? '#fff' : 'var(--text)'};
+                   font-size:22px;font-weight:800;cursor:pointer;transition:all 0.2s ease;">
+            ${cat}
+          </button>`).join('')}
+      </div>
+    `;
+  }
+
+  if (paso === 3) {
+    const preview = _wizEquipo.logoBase64
+      ? `<img src="${_wizEquipo.logoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
+      : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🎨</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¡Poné personalidad Derby!</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Subí el logo de tu equipo. Podés cambiarlo después.</p>
+      </div>
+      <label style="width:120px;height:120px;border-radius:20px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--card);" id="wiz-eq-logo-label">
+        ${preview}
+        <input type="file" accept="image/*" style="display:none;" onchange="previewLogoEquipo(this)">
+      </label>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — podés saltarte este paso</p>
+    `;
+    if (btnNext) btnNext.textContent = 'Crear equipo 🏒';
+  }
+}
+
+function seleccionarCategoriaEquipo(cat) {
+  _wizEquipo.categoria = cat;
+  ['A','B','C'].forEach(c => {
+    const btn = document.getElementById('wiz-eq-cat-' + c);
+    if (!btn) return;
+    const activo = c === cat;
+    btn.style.borderColor = activo ? 'var(--accent)' : 'var(--border)';
+    btn.style.background  = activo ? 'var(--accent)' : 'var(--card)';
+    btn.style.color       = activo ? '#fff' : 'var(--text)';
+  });
+}
+
+function previewLogoEquipo(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _wizEquipo.logoBase64 = e.target.result;
+    const label = document.getElementById('wiz-eq-logo-label');
+    if (label) label.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;"><input type="file" accept="image/*" style="display:none;" onchange="previewLogoEquipo(this)">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function wizEquipoPasoSiguiente() {
+  if (_wizEquipoPaso === 1) {
+    if (!_wizEquipo.nombre.trim()) { mostrarToastGuardado('⚠️ Escribí el nombre del equipo'); return; }
+  }
+  if (_wizEquipoPaso === 2) {
+    if (!_wizEquipo.categoria) { mostrarToastGuardado('⚠️ Seleccioná una categoría'); return; }
+  }
+  if (_wizEquipoPaso === 3) {
+    crearEquipo(); return;
+  }
+  renderWizEquipoPaso(_wizEquipoPaso + 1);
+}
+
+function wizEquipoPasoAnterior() {
+  if (_wizEquipoPaso > 1) renderWizEquipoPaso(_wizEquipoPaso - 1);
+}
+
+async function crearEquipo() {
+  const btnNext = document.getElementById('wiz-eq-btn-next');
+  if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
   try {
     const result = await apiCall('/crear-equipo', 'POST', {
-      nombre,
-      ligaId: CURRENT_USER?.ligaId,
+      nombre:      _wizEquipo.nombre.trim(),
+      ligaId:      CURRENT_USER?.ligaId,
+      categoria:   _wizEquipo.categoria,
+      logoBase64:  _wizEquipo.logoBase64,
+      email:       CURRENT_USER?.email,
     });
     if (!result?.ok) throw new Error('Error creando equipo');
     _ligaData.equipos.push(result.equipo);
-    renderMiLiga(_ligaData);
-    mostrarToastGuardado(`✅ Equipo "${nombre}" creado`);
+    cerrarWizEquipo();
+    setTimeout(() => {
+      renderMiLiga(_ligaData);
+      mostrarEquipoCreado(result.equipo);
+    }, 400);
   } catch(e) {
     mostrarToastGuardado('❌ Error al crear el equipo');
+    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Crear equipo 🏒'; }
     console.error(e);
   }
+}
+
+function mostrarEquipoCreado(equipo) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;opacity:0;transition:opacity 0.4s ease;';
+  overlay.innerHTML = `
+    <div style="text-align:center;max-width:320px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+      <div style="font-size:64px;animation:wiz-fade-up 0.5s ease 0.1s both;">🎉</div>
+      <h2 style="font-size:24px;font-weight:800;color:var(--text);margin:0;animation:wiz-fade-up 0.5s ease 0.2s both;">¡Equipo creado!</h2>
+      <p style="font-size:15px;color:var(--text2);line-height:1.6;margin:0;animation:wiz-fade-up 0.5s ease 0.3s both;">
+        <strong style="color:var(--text);">${equipo.nombre}</strong> está listo. Ahora podés invitar integrantes compartiendo el código:
+      </p>
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 24px;animation:wiz-fade-up 0.5s ease 0.4s both;">
+        <p style="font-size:12px;color:var(--text3);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.05em;">🔑 Código de invitación</p>
+        <p style="font-size:28px;font-weight:900;color:var(--accent);margin:0;letter-spacing:0.1em;">${equipo.codigo}</p>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin:0;animation:wiz-fade-up 0.5s ease 0.5s both;">Podés gestionar este equipo desde Mi Liga en Ajustes.</p>
+      <button onclick="this.closest('[style]').remove()" 
+        style="margin-top:8px;padding:14px 32px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;animation:wiz-fade-up 0.5s ease 0.6s both;width:100%;">
+        ¡Listo!
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => requestAnimationFrame(() => { overlay.style.opacity = '1'; }));
 }
 
 function confirmarEliminarEquipo(equipoId, nombreEquipo) {
