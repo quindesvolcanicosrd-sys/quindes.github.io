@@ -506,6 +506,74 @@ app.get('/liga/:ligaId', async (req, res) => {
 // ── POST /crear-equipo ────────────────────────────────────────
 app.post('/crear-equipo', async (req, res) => {
   try {
+    const { nombre, ligaId, categoria, logoBase64, email } = req.body;
+    if (!nombre || !ligaId) return res.status(400).json({ error: 'Faltan datos' });
+
+    const { data: equipo, error: equipoError } = await supabase
+      .from('equipos')
+      .insert({ nombre, liga_id: ligaId, categoria: categoria || null })
+      .select('id, nombre, categoria')
+      .single();
+
+    if (equipoError) return res.status(500).json({ error: equipoError.message });
+
+    // Subir logo si viene
+    let logoUrl = null;
+    if (logoBase64 && email) {
+      try {
+        const base64 = logoBase64.replace(/^data:.+;base64,/, '');
+        const buffer = Buffer.from(base64, 'base64');
+        const mimeMatch = logoBase64.match(/^data:(.+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const ext = mimeType.split('/')[1] || 'jpg';
+        const fileName = `equipos/${equipo.id}/logo.${ext}`;
+        const { error: storageError } = await supabase.storage
+          .from('archivos')
+          .upload(fileName, buffer, { contentType: mimeType, upsert: true });
+        if (!storageError) {
+          const { data: urlData } = supabase.storage.from('archivos').getPublicUrl(fileName);
+          logoUrl = urlData.publicUrl;
+          await supabase.from('equipos').update({ logo_url: logoUrl }).eq('id', equipo.id);
+        }
+      } catch(e) { console.error('Error subiendo logo:', e.message); }
+    }
+
+    // Crear código de invitación automático
+    const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+    await supabase.from('codigos_invitacion').insert({
+      equipo_id: equipo.id, codigo, activo: true, usos_actuales: 0,
+    });
+
+    res.json({ ok: true, equipo: { ...equipo, codigo, usosActuales: 0, usosMax: null, logoUrl } });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PUT /liga/:id/nombre ──────────────────────────────────────
+app.put('/liga/:id/nombre', async (req, res) => {
+  try {
+    const { nombre } = req.body;
+    if (!nombre) return res.status(400).json({ error: 'Falta nombre' });
+    const { error } = await supabase.from('ligas').update({ nombre }).eq('id', req.params.id);
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ ok: true });
+  } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── PUT /equipo/:id/nombre ────────────────────────────────────
+app.put('/equipo/:id/nombre', async (req, res) => {
+  try {
+    const { nombre } = req.body;
+    if (!nombre) return res.status(400).json({ error: 'Falta nombre' });
+    const { error } = await supabase.from('equipos').update({ nombre }).eq('id', req.params.id);
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ ok: true });
+  } catch(err) { res.status(500).json({ error: err.message }); }
+});
+app.post('/crear-equipo', async (req, res) => {
+  try {
     const { nombre, ligaId } = req.body;
     if (!nombre || !ligaId) return res.status(400).json({ error: 'Faltan datos' });
 
