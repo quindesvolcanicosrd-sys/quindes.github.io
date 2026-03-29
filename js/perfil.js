@@ -33,8 +33,12 @@ const SEARCH_FIELDS = ['pais', 'codigoPais'];
 // ── NAVEGACIÓN ────────────────────────────────────────────────
 let vistaActual    = 'home';
 let _vistaAnterior = 'home';
+let _navegando     = false;
 
 function navegarSeccion(seccion) {
+  if (_navegando) return;
+  _navegando = true;
+  setTimeout(() => { _navegando = false; }, 400);
   const home = document.getElementById('view-home');
   const dest = document.getElementById('view-' + seccion);
   if (!dest) return;
@@ -55,6 +59,9 @@ function navegarSeccion(seccion) {
 }
 
 function navegarDesdePerfilASeccion(seccion) {
+  if (_navegando) return;
+  _navegando = true;
+  setTimeout(() => { _navegando = false; }, 400);
   const perfil = document.getElementById('view-perfil');
   const dest   = document.getElementById('view-' + seccion);
   if (!dest || !perfil) return;
@@ -76,6 +83,9 @@ function navegarDesdePerfilASeccion(seccion) {
 }
 
 function volverHome(fromPopState = false) {
+  if (_navegando) return;
+  _navegando = true;
+  setTimeout(() => { _navegando = false; }, 400);
   if (edicionActiva[vistaActual]) cancelarEdicionSeccion(vistaActual);
   const destId = _vistaAnterior && _vistaAnterior !== 'home' ? _vistaAnterior : 'home';
   const dest   = document.getElementById('view-' + destId);
