@@ -388,7 +388,7 @@ function abrirEditSheetGenerico(label, valorActual, onGuardar) {
       <div class="edit-field-body">
         <input id="edit-generic-input" type="text" class="edit-field-input" value="${valorActual || ''}" placeholder="${label}">
       </div>
-      <div style="padding:12px 20px 32px;">
+      <div style="padding:12px 0 0;">
         <button id="edit-generic-save" style="width:100%;padding:17px;border-radius:16px;border:none;background:var(--accent);color:#fff;font-size:16px;font-weight:700;font-family:var(--font);cursor:pointer;-webkit-tap-highlight-color:transparent;">Guardar</button>
       </div>
     </div>
