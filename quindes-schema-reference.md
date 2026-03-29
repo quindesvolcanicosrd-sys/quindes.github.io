@@ -1,7 +1,79 @@
 # Quindes Volcánicos — Referencia de Schema para Supabase
 
-> Última actualización: 2026-03-28
+> Última actualización: 2026-03-29
 > Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
+
+---
+
+## ⚠️ REGLAS DE CÓDIGO — LEER ANTES DE ESCRIBIR UNA LÍNEA
+
+Estas reglas son **no negociables** y aplican a cada cambio, por pequeño que sea.
+
+### Separación estricta de responsabilidades
+
+```
+CSS  → solo en archivos css/
+JS   → solo en archivos js/
+HTML → solo en archivos html/ o index.html
+```
+
+**Nunca:**
+- `style=` inline en HTML (excepto `display:none` para estado inicial controlado por JS)
+- `style.cssText = '...'` en JS para construir elementos con estilos
+- `innerHTML` con atributos `style=` dentro de JS
+- Bloques `<style>` o `<script>` dentro de archivos HTML
+
+**Siempre:**
+- Si un elemento dinámico necesita estilos → crear la clase en el CSS correspondiente y asignar con `className` o `classList`
+- Si el estado cambia → usar `classList.toggle('clase', condicion)` en vez de `style.opacity / style.pointerEvents`
+
+### Reutilizar antes de crear
+
+Antes de escribir cualquier clase CSS o componente nuevo, verificar si ya existe en:
+- `global.css` — tokens, reset, navegación, sec-group/sec-row, toggles, chips, date picker, toasts, modals
+- `ajustes.css` — ajustes, perfil, hero card, badges, inv-*, apr-*, acerca-*, notif-*
+- `wizard.css` — wizard de registro
+- `nav.css` / `loader.css` / `login.css` — sus contextos específicos
+
+**El sistema de componentes ya definido:**
+
+| Componente | Clases base | Dónde está |
+|---|---|---|
+| Grupo de filas | `.sec-group` | `global.css` |
+| Fila base | `.sec-row` | `global.css` |
+| Fila de navegación (con ícono) | `.sec-row.sec-row--nav` | `global.css` + `ajustes.css` |
+| Fila tappable | `.sec-row.sec-row-tappable` | `global.css` |
+| Fila toggle | `.sec-row-toggle` | `global.css` |
+| Ícono de color (settings) | `.sec-row-ico.ico-*` | `ajustes.css` |
+| Label de sección | `.sec-label-header` | `global.css` |
+| Nota informativa | `.sec-note` | `global.css` |
+| Spacer | `.spacer` / `.spacer-lg` | `global.css` |
+| Estado deshabilitado | `.is-disabled` | `global.css` |
+| Sin borde inferior | `.sec-row--no-border` | `global.css` |
+| Toast | `.toast-guardado` + `mostrarToastGuardado(msg)` | `global.css` + `ui.js` |
+| Bottom sheet editor | `.edit-field-overlay` / `.edit-field-sheet` | `global.css` |
+| Modal confirmación | `.bs-overlay` / `.bs-panel` | `global.css` |
+| Botón primario | `.inv-btn.inv-btn-primary` | `ajustes.css` |
+| Botón secundario | `.inv-btn.inv-btn-secondary` | `ajustes.css` |
+| Botón ghost | `.inv-btn.inv-btn-ghost` | `ajustes.css` |
+| Botón peligro | `.home-btn-delete` | `global.css` |
+| Toggle switch | `.toggle-btn` / `.toggle-on` / `.toggle-off` | `global.css` |
+| Chips selector | `.chip` / `.chip-active` / `.chip-inactive` | `global.css` |
+| Overlay fullscreen | — pendiente extraer del JS (ver pendientes) | — |
+
+**Colores de íconos disponibles:** `ico-blue`, `ico-purple`, `ico-teal`, `ico-red`, `ico-orange`, `ico-yellow`, `ico-green`, `ico-gray`
+
+### Clases de estado — siempre con classList
+
+```js
+// ✅ Correcto
+el.classList.toggle('is-disabled', !activo);
+el.classList.add('visible');
+
+// ❌ Incorrecto
+el.style.opacity = '0.4';
+el.style.pointerEvents = 'none';
+```
 
 ---
 
@@ -88,7 +160,7 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 
 ---
 
-## Estado actual del proyecto (al 2026-03-28)
+## Estado actual del proyecto (al 2026-03-29)
 
 ### Lo que ya está hecho ✅
 
@@ -105,6 +177,7 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - Instalación PWA con banner contextual por navegador/OS
 - **Sección Ajustes completa** — es la pantalla principal (home temporal):
   - Mi perfil → lleva a `view-perfil`
+  - **Mi Liga** → `view-liga` (solo Admin) — lista equipos, editar nombre de liga/equipo, crear equipo, eliminar equipo/liga
   - Código de invitación → ver/copiar/compartir código del equipo (solo visible para Admin)
   - Apariencia → tema (auto/claro/oscuro)
   - Privacidad → visibilidad perfil, email, teléfono, cumpleaños/edad, eliminar cuenta
@@ -114,14 +187,32 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - `inicializarAjustes()` se llama desde `inicializarApp()` después de `aplicarPermisos()`
 - **Bottom Nav implementada** — glass effect con backdrop-filter, pill animada al activar
 - **Modal de cuenta borrada** — aparece con fade+scale in, desaparece con fade out, reemplaza el diálogo de confirmación
+- **Vista Mi Liga implementada** (`view-liga`) con:
+  - Nombre de liga editable (tap para editar)
+  - Lista de equipos con código, usos y estado activo
+  - Nombre de equipo editable por ítem
+  - Botón eliminar equipo con modal de confirmación
+  - Botón "Gestionar" para switchear equipo activo
+  - Wizard de creación de equipo (3 pasos: nombre, categoría, logo)
+  - Modal de confirmación genérico `mostrarModalConfirmacion()`
+  - Pantalla "equipo creado" con código de invitación
+  - Botón eliminar liga (con confirmación)
+- **Limpieza de código completada (sesión 2026-03-29)**:
+  - `index.html` sin inline styles (excepto `display:none` de estado inicial)
+  - Familia `settings-*` completamente migrada a `sec-*` — no quedan clases `settings-` en el proyecto
+  - Sistema unificado de clases: un solo lenguaje visual para toda la app
+  - `ajustes.js`: estados de privacidad usan `classList.toggle('is-disabled')` en lugar de `style.opacity/pointerEvents`
 
 #### Arquitectura de archivos (estado actual)
 ```
 quindes.github.io/
   css/
-    global.css      ← variables, reset, animaciones globales, temas forzados
+    global.css      ← variables, reset, animaciones globales, temas forzados,
+                       sec-group/sec-row/sec-row-toggle, toggles, chips, date picker,
+                       toasts, edit-field, bs-overlay, spacers, is-disabled, sec-row--no-border
     nav.css         ← bottom nav
-    ajustes.css     ← estilos de ajustes/perfil/wizard
+    ajustes.css     ← ajustes/perfil/hero card/wizard de equipo/inv-*/apr-*/acerca-*/notif-*
+                       sec-row--nav, sec-row-ico, sec-note-icon, priv-bloque, liga-btn-*
     loader.css      ← estilos del derby loader
     login.css       ← estilos de login y no encontrado
     wizard.css      ← estilos del wizard de registro
@@ -133,13 +224,13 @@ quindes.github.io/
     auth.js         ← Google Auth, sesión, login screens, borrar perfil
     wizard.js       ← flujo de registro completo
     perfil.js       ← render, navegación, edición, fotos, archivos, init
-    ajustes.js      ← ajustes, privacidad, notificaciones, nav
+    ajustes.js      ← ajustes, privacidad, notificaciones, nav, mi liga, wizard equipo
   html/
     login.html      ← loginScreen + noEncontradoScreen (parcial dinámico)
     wizard.html     ← registroScreen completo (parcial dinámico)
     nav.html        ← bottom nav (parcial dinámico, se inyecta en appContent)
     modals.html     ← date picker + modal crop (parcial dinámico)
-  index.html        ← head + loadingScreen + appContent (vistas) + scripts
+  index.html        ← head + loadingScreen + appContent (todas las vistas) + scripts
   sw.js             ← service worker (quindes-v10)
   manifest.json
 ```
@@ -153,6 +244,7 @@ quindes.github.io/
 - `view-home` = pantalla de **Ajustes** (home temporal)
 - `view-perfil` = Mi Perfil con hero card + menú de secciones
 - `view-estadisticas`, `view-generales`, `view-personales`, `view-contacto`, `view-salud`, `view-rendimiento` = secciones del perfil
+- `view-liga` = Mi Liga (solo Admin) — equipos, wizard crear equipo
 - `view-invitacion`, `view-apariencia`, `view-privacidad`, `view-notificaciones`, `view-acerca` = secciones de ajustes
 - **Bottom nav** con 4 ítems: Ajustes, Equipo, Eventos, Tareas — función `navIr(seccion)` en `ajustes.js`
 - La nav muestra la pill animada con `nav-active` y glass effect
@@ -162,7 +254,7 @@ quindes.github.io/
 - Express v4 (downgradeado desde v5 por incompatibilidades)
 - Endpoints activos:
   - `GET /health` → status del servidor
-  - `GET /usuario?email=xxx` → `{ found, id, authUserId, equipoId, nombreDerby, rol, estadoMiembro }`
+  - `GET /usuario?email=xxx` → `{ found, id, authUserId, equipoId, ligaId, nombreDerby, rol, estadoMiembro }`
   - `GET /perfil/:id` → perfil completo con stats
   - `PUT /perfil/:id` → actualizar perfil
   - `POST /registrar` → crear perfil (valida `codigoInvitacion`, sube foto si viene en base64)
@@ -170,6 +262,12 @@ quindes.github.io/
   - `POST /archivo` → subir a Supabase Storage bucket `archivos`
   - `GET /codigo-invitacion?equipoId=xxx` → `{ codigo, usosActuales, usosMax, agotado }`
   - `POST /validar-codigo` → `{ valido, error? }` — valida código antes de avanzar en wizard
+  - `GET /liga/:ligaId` → `{ id, nombre, equipos: [{ id, nombre, codigo, usosActuales, usosMax }] }`
+  - `PUT /liga/:ligaId/nombre` → actualizar nombre de liga
+  - `PUT /equipo/:equipoId/nombre` → actualizar nombre de equipo
+  - `DELETE /equipo/:equipoId` → eliminar equipo y sus miembros
+  - `DELETE /liga/:ligaId` → eliminar liga completa (todos sus datos)
+  - `POST /crear-equipo` → `{ nombre, ligaId, categoria, logoBase64?, email }` → `{ ok, equipo }`
 
 #### Supabase
 - URL: `znprcowxveyzanpvotms.supabase.co`
@@ -183,6 +281,23 @@ quindes.github.io/
 ---
 
 ### Pendientes 🔜
+
+#### Pendiente — Limpieza JS en progreso
+Los siguientes elementos en `ajustes.js` todavía tienen CSS inline que hay que extraer a clases:
+- `renderMiLiga()` — genera HTML de cada equipo con `style=` inline → clases pendientes: `.equipo-item`, `.equipo-header`, `.equipo-nombre`, `.equipo-activo-badge`, `.equipo-btn-delete`, `.equipo-footer`, `.equipo-codigo`, `.equipo-btn-gestionar`
+- `abrirCrearEquipo()` — overlay fullscreen con `style.cssText` → clase pendiente: `.wiz-equipo-overlay`
+- `mostrarEquipoCreado()` — pantalla fullscreen con `style.cssText` → clase pendiente: `.equipo-creado-screen`
+- `mostrarModalConfirmacion()` — bottom sheet con `style.cssText` → ya existe `.bs-overlay`/`.bs-panel` en `global.css`, hay que migrar a esas clases
+- `abrirEditSheetGenerico()` — el botón guardar usa `style=` inline → ya existe `.edit-field-save` en `global.css`
+- `auth.js` — `confirmarBorrarPerfil()` construye modal con `style.cssText` → debe usar `mostrarModalConfirmacion()` de `ajustes.js`
+
+#### Pendiente — Toast duplicado
+Hay 3 implementaciones de toast en el proyecto:
+- `mostrarToastGuardado()` en `ui.js` — usa `style.cssText` inline
+- 2 instancias en `perfil.js` — también con `style.cssText` inline
+- La clase `.toast-guardado` ya existe en `global.css` pero ninguna la usa
+
+**Solución pendiente:** `mostrarToastGuardado()` debe crear el elemento, asignarle `className = 'toast-guardado'`, agregarlo al DOM, y usar `classList.add('visible')` para animarlo. Las instancias en `perfil.js` deben eliminarse y usar la función central.
 
 #### Próximo a desarrollar — Onboarding desde login
 - Pantalla de login con dos opciones: "Unirse a un equipo" y "Crear un equipo/liga"
@@ -304,10 +419,10 @@ Liga → Equipo(s) → Miembros → Perfiles
 
 ### Globals y configuración (core.js)
 - `CONFIG.API_URL = 'https://quindesgithubio-production.up.railway.app'`
-- `CURRENT_USER` — objeto con `{ id, email, rolApp, equipoId, ... }`
+- `CURRENT_USER` — objeto con `{ id, email, rolApp, equipoId, ligaId, ... }`
 - `accessToken` — JWT de Google
 - `wizOrigen` — `'login'` | `'noEncontrado'` | `null`
-- `inviteCode` — leído de `?invite=` en la URL
+- `inviteCode` — leído de `?invite=` en la URL (también de `sessionStorage`)
 - `edicionActiva` — objeto con estado de edición por sección
 - `DERBY_MSGS` — array de mensajes del loader
 - `cargarParciales()` — carga los 4 HTML parciales de `html/`
@@ -342,7 +457,7 @@ Liga → Equipo(s) → Miembros → Perfiles
 
 **ui.js**
 - `iniciarDerbyLoader()` / `detenerDerbyLoader()`
-- `mostrarToastGuardado(msg)`
+- `mostrarToastGuardado(msg)` — ⚠️ pendiente migrar a usar `.toast-guardado` de global.css
 - `abrirBottomSheet(label, options, valorActual, onSelect)`
 - `abrirEditSheet(fieldKey, opciones)`
 - `abrirDatePicker(valorActual, onConfirm)` / `cerrarDatePicker()`
@@ -365,16 +480,23 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `inicializarAjustes()` — sincroniza UI con localStorage al cargar
 - `cargarAjustes()` / `guardarAjuste(key, val)`
 - `setTheme(tema)` / `aplicarTema(tema)`
-- `getPriv(key)` / `setPriv(key, val)` / `togglePrivacidad(key)`
+- `getPriv(key)` / `setPriv(key, val)` / `togglePrivacidad(key)` / `toggleSeccionPriv(seccion)`
+- `actualizarVisibilidadSeccionesPrivacidad(perfilVisible)` — usa `classList.toggle('is-disabled')`
 - `navIr(seccion)` — navegación de la bottom nav
-- `actualizarSeccionAdmin()` — oculta "Código de invitación" y sección admin para no-Admins
+- `actualizarSeccionAdmin()` — oculta secciones admin para no-Admins
+- `cargarMiLiga()` / `renderMiLiga(data)` — carga y renderiza vista Mi Liga
+- `abrirEditSheetGenerico(label, valorActual, onGuardar)` — sheet editor genérico
+- `abrirCrearEquipo()` / `cerrarWizEquipo()` / `renderWizEquipoPaso(paso)` — wizard de equipo
+- `mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onConfirmar })` — modal genérico
+- `sincronizarToggle(wrapperId, isOn)` — actualiza estado visual de un toggle
 - `AJUSTES_KEY = 'quindes_ajustes'`
 - `PRIV_DEFAULTS` — valores por defecto de privacidad
+- `_ligaData` — cache local de datos de la liga
 
 ### Variables globales del wizard
 ```javascript
 const _urlParams = new URLSearchParams(window.location.search);
-let inviteCode = _urlParams.get('invite') || null;
+let inviteCode = sessionStorage.getItem('quindes_invite') || null;
 const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,10,11];
 ```
 
@@ -396,6 +518,8 @@ Del perfil: `email`, `nombre`, `nombreDerby`, `numero`, `pronombres`, `rolJugado
 
 De estadísticas: `puntosMes`, `puntosTrimestre`, `puntosAnio`,
 `horasPatinadas`, `asistenciaAnual`, `labelMes`, `labelTrimestre`, `labelAnio`
+
+De usuario: `found`, `id`, `authUserId`, `equipoId`, `ligaId`, `nombreDerby`, `rol`, `estadoMiembro`
 
 ---
 
