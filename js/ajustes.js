@@ -346,7 +346,7 @@ function renderMiLiga(data) {
           </span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-          ${!esActivo ? `<button class="inv-btn inv-btn-secondary" style="padding:6px 12px;font-size:12px;min-width:0;" onclick="switchearEquipo('${eq.id}','${eq.nombre}')">Cambiar</button>` : ''}
+          ${!esActivo ? `<button onclick="switchearEquipo('${eq.id}','${eq.nombre}')" style="padding:8px 14px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Gestionar este equipo</button>` : ''}
           <button class="home-btn-delete" style="padding:6px 10px;min-width:0;font-size:12px;" onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')">
             <span class="material-icons" style="font-size:16px;">delete</span>
           </button>
