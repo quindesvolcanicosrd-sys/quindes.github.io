@@ -389,8 +389,7 @@ function abrirEditSheetGenerico(label, valorActual, onGuardar) {
         <input id="edit-generic-input" type="text" class="edit-field-input" value="${valorActual || ''}" placeholder="${label}">
       </div>
       <div class="edit-field-actions">
-        <button class="edit-field-btn-cancel" onclick="this.closest('.edit-field-overlay').remove()">Cancelar</button>
-        <button class="edit-field-btn-save" id="edit-generic-save">Guardar</button>
+        <button class="edit-save-btn" id="edit-generic-save">Guardar</button>
       </div>
     </div>
   `;
