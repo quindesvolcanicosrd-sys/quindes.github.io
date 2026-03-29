@@ -318,7 +318,7 @@ function renderMiLiga(data) {
   const nombreEl = document.getElementById('liga-nombre');
   if (nombreEl) {
     nombreEl.textContent = data.nombre || '—';
-    nombreEl.style.cssText = 'cursor:pointer;border-bottom:1.5px dashed var(--border);padding-bottom:2px;';
+    nombreEl.style.cssText = 'cursor:pointer;';
     nombreEl.onclick = () => editarNombreLiga(data);
   }
 
