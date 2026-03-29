@@ -355,26 +355,64 @@ function renderMiLiga(data) {
   }).join('');
 }
 
-async function editarNombreLiga(data) {
-  const nuevo = prompt('Nuevo nombre de la liga:', data.nombre);
-  if (!nuevo || !nuevo.trim() || nuevo.trim() === data.nombre) return;
-  try {
-    await apiCall(`/liga/${data.id}/nombre`, 'PUT', { nombre: nuevo.trim() });
-    data.nombre = nuevo.trim();
+function editarNombreLiga(data) {
+  abrirEditSheetGenerico('Nombre de la liga', data.nombre, async (nuevo) => {
+    await apiCall(`/liga/${data.id}/nombre`, 'PUT', { nombre: nuevo });
+    data.nombre = nuevo;
     renderMiLiga(data);
     mostrarToastGuardado('✅ Nombre de liga actualizado');
-  } catch(e) { mostrarToastGuardado('❌ Error al actualizar'); }
+  });
 }
 
-async function editarNombreEquipo(eq) {
-  const nuevo = prompt('Nuevo nombre del equipo:', eq.nombre);
-  if (!nuevo || !nuevo.trim() || nuevo.trim() === eq.nombre) return;
-  try {
-    await apiCall(`/equipo/${eq.id}/nombre`, 'PUT', { nombre: nuevo.trim() });
-    eq.nombre = nuevo.trim();
+function editarNombreEquipo(eq) {
+  abrirEditSheetGenerico('Nombre del equipo', eq.nombre, async (nuevo) => {
+    await apiCall(`/equipo/${eq.id}/nombre`, 'PUT', { nombre: nuevo });
+    eq.nombre = nuevo;
     renderMiLiga(_ligaData);
     mostrarToastGuardado('✅ Nombre de equipo actualizado');
-  } catch(e) { mostrarToastGuardado('❌ Error al actualizar'); }
+  });
+}
+
+function abrirEditSheetGenerico(label, valorActual, onGuardar) {
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-field-overlay';
+  overlay.innerHTML = `
+    <div class="edit-field-sheet" id="edit-generic-sheet">
+      <div class="edit-field-handle"></div>
+      <div class="edit-field-header">
+        <span class="edit-field-label">${label}</span>
+        <button class="edit-field-close" onclick="this.closest('.edit-field-overlay').remove()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="edit-field-body">
+        <input id="edit-generic-input" type="text" class="edit-field-input" value="${valorActual || ''}" placeholder="${label}">
+      </div>
+      <div class="edit-field-actions">
+        <button class="edit-field-btn-cancel" onclick="this.closest('.edit-field-overlay').remove()">Cancelar</button>
+        <button class="edit-field-btn-save" id="edit-generic-save">Guardar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+    document.getElementById('edit-generic-sheet')?.classList.add('visible');
+  });
+  const input = document.getElementById('edit-generic-input');
+  setTimeout(() => input?.focus(), 300);
+  document.getElementById('edit-generic-save').onclick = async () => {
+    const nuevo = input.value.trim();
+    if (!nuevo) { mostrarToastGuardado('⚠️ El nombre no puede estar vacío'); return; }
+    if (nuevo === valorActual) { overlay.remove(); return; }
+    try {
+      await onGuardar(nuevo);
+    } catch(e) {
+      mostrarToastGuardado('❌ Error al guardar');
+    }
+    overlay.remove();
+  };
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
 function switchearEquipo(equipoId, nombreEquipo) {
