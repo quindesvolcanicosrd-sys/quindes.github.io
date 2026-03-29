@@ -117,6 +117,14 @@ function copiarCodigo() {
     .catch(() => prompt('Copia este código:', _codigoReal));
 }
 
+function copiarLink() {
+  if (!_codigoReal) { mostrarToastGuardado('⚠️ No hay código disponible'); return; }
+  const url = 'https://app.quindesvolcanicos.com?invite=' + _codigoReal;
+  navigator.clipboard.writeText(url)
+    .then(() => mostrarToastGuardado('✅ Link copiado'))
+    .catch(() => prompt('Copia este link:', url));
+}
+
 function compartirLink() {
   if (!_codigoReal) { mostrarToastGuardado('⚠️ No hay código disponible'); return; }
   const url = 'https://app.quindesvolcanicos.com?invite=' + _codigoReal;
