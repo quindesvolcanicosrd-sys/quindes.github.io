@@ -336,7 +336,7 @@ function renderMiLiga(data) {
     return `
       <div class="sec-row" style="${esBorde}">
         <div class="sec-row-body">
-          <span class="sec-row-label" style="font-weight:${esActivo ? '700' : '500'};cursor:pointer;border-bottom:1.5px dashed var(--border);padding-bottom:1px;" onclick="editarNombreEquipo(${JSON.stringify(eq).replace(/"/g,'&quot;')})">
+          <span class="sec-row-label" style="font-weight:${esActivo ? '700' : '500'};cursor:pointer;" onclick="editarNombreEquipo(${JSON.stringify(eq).replace(/"/g,'&quot;')})">
             ${eq.nombre}
             ${esActivo ? '<span style="font-size:11px;color:var(--accent);font-weight:600;margin-left:6px;">· Activo</span>' : ''}
           </span>
