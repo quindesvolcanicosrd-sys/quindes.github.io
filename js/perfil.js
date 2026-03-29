@@ -51,6 +51,7 @@ function navegarSeccion(seccion) {
     home.style.display = 'none';
   }, 350);
   vistaActual = seccion;
+  pushSentinel();
 }
 
 function navegarDesdePerfilASeccion(seccion) {
@@ -71,6 +72,7 @@ function navegarDesdePerfilASeccion(seccion) {
   }, { once: true });
   vistaActual = seccion;
   _vistaAnterior = 'perfil';
+  pushSentinel();
 }
 
 function volverHome(fromPopState = false) {
@@ -97,7 +99,7 @@ function pushSentinel() {
 }
 
 window.addEventListener('popstate', (e) => {
-  history.go(1);
+  if (e.state && e.state.sentinel) history.go(1);
   const dpModal = document.getElementById('date-picker-modal');
   if (dpModal && dpModal.classList.contains('active')) { cerrarDatePicker(); return; }
   const editOverlay = document.querySelector('.edit-field-overlay');
