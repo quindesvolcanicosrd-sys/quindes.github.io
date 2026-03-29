@@ -58,71 +58,71 @@
   <div id="view-home" class="app-view active">
     <header class="app-header app-header-section">
       <div class="header-row-top">
-        <span class="material-icons" style="font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);opacity:0.85;">settings</span>
+        <span class="material-icons app-header-icon">settings</span>
         <span class="app-header-title">Ajustes</span>
       </div>
     </header>
     <div class="app-scroll">
       <!-- Hero card con stats integradas -->
-      <div class="settings-group">
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('perfil')">
-          <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Mi perfil</span>
-            <span class="settings-row-sub" id="sub-miperfil">Nombre, foto, datos personales</span>
+      <div class="sec-group">
+        <div class="sec-row sec-row--nav" onclick="navegarSeccion('perfil')">
+          <div class="sec-row-ico ico-blue"><span class="material-icons">person</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Mi perfil</span>
+            <span class="sec-row-sub" id="sub-miperfil">Nombre, foto, datos personales</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" id="row-mi-liga" onclick="navegarSeccion('liga')" style="display:none;">
-          <div class="settings-row-ico ico-red"><span class="material-icons">shield</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Mi Liga</span>
-            <span class="settings-row-sub" id="sub-miliga">Equipos, códigos, administración</span>
+        <div class="sec-row sec-row--nav" id="row-mi-liga" onclick="navegarSeccion('liga')" style="display:none;">
+          <div class="sec-row-ico ico-red"><span class="material-icons">shield</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Mi Liga</span>
+            <span class="sec-row-sub" id="sub-miliga">Equipos, códigos, administración</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('invitacion')">
-          <div class="settings-row-ico ico-green"><span class="material-icons">card_giftcard</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Código de invitación</span>
-            <span class="settings-row-sub">Gestiona el código de acceso</span>
+        <div class="sec-row sec-row--nav" onclick="navegarSeccion('invitacion')">
+          <div class="sec-row-ico ico-green"><span class="material-icons">card_giftcard</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Código de invitación</span>
+            <span class="sec-row-sub">Gestiona el código de acceso</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('apariencia')">
-          <div class="settings-row-ico ico-purple"><span class="material-icons">palette</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Apariencia</span>
-            <span class="settings-row-sub">Tema, colores, personalización</span>
+        <div class="sec-row sec-row--nav" onclick="navegarSeccion('apariencia')">
+          <div class="sec-row-ico ico-purple"><span class="material-icons">palette</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Apariencia</span>
+            <span class="sec-row-sub">Tema, colores, personalización</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('privacidad')">
-          <div class="settings-row-ico ico-teal"><span class="material-icons">shield</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Privacidad</span>
-            <span class="settings-row-sub">Visibilidad y privacidad de tus datos</span>
+        <div class="sec-row sec-row--nav" onclick="navegarSeccion('privacidad')">
+          <div class="sec-row-ico ico-teal"><span class="material-icons">shield</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Privacidad</span>
+            <span class="sec-row-sub">Visibilidad y privacidad de tus datos</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarSeccion('notificaciones')">
-          <div class="settings-row-ico ico-yellow"><span class="material-icons">notifications</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Notificaciones</span>
-            <span class="settings-row-sub">Controla qué quieres recibir</span>
+        <div class="sec-row sec-row--nav" onclick="navegarSeccion('notificaciones')">
+          <div class="sec-row-ico ico-yellow"><span class="material-icons">notifications</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Notificaciones</span>
+            <span class="sec-row-sub">Controla qué quieres recibir</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped settings-row-last" onclick="navegarSeccion('acerca')">
-          <div class="settings-row-ico ico-gray"><span class="material-icons">info</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Acerca de la app</span>
-            <span class="settings-row-sub">Versión, desarrollador, feedback</span>
+        <div class="sec-row sec-row--nav" onclick="navegarSeccion('acerca')">
+          <div class="sec-row-ico ico-gray"><span class="material-icons">info</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Acerca de la app</span>
+            <span class="sec-row-sub">Versión, desarrollador, feedback</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
       </div>
-      <div style="height:32px;"></div>
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -152,65 +152,65 @@
           <span class="pf-badge pf-badge-red" id="hero-rol">—</span>
           <span class="pf-badge pf-badge-ghost" id="hero-pronombres">—</span>
         </div>
-        <input type="file" id="p-fotoPerfil" accept="image/*" style="display:none;">
+        <input type="file" id="p-fotoPerfil" accept="image/*" class="hidden-input">
       </div>
-      <div class="settings-group">
-        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('estadisticas')">
-          <div class="settings-row-ico ico-yellow"><span class="material-icons">bar_chart</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Estadísticas</span>
-            <span class="settings-row-sub" id="sub-estadisticas">Mes, Trimestre, Año</span>
+      <div class="sec-group">
+        <div class="sec-row sec-row--nav" onclick="navegarDesdePerfilASeccion('estadisticas')">
+          <div class="sec-row-ico ico-yellow"><span class="material-icons">bar_chart</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Estadísticas</span>
+            <span class="sec-row-sub" id="sub-estadisticas">Mes, Trimestre, Año</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('generales')">
-          <div class="settings-row-ico ico-blue"><span class="material-icons">person</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Datos Generales</span>
-            <span class="settings-row-sub" id="sub-generales">Nombre Derby, Número, Rol</span>
+        <div class="sec-row sec-row--nav" onclick="navegarDesdePerfilASeccion('generales')">
+          <div class="sec-row-ico ico-blue"><span class="material-icons">person</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Datos Generales</span>
+            <span class="sec-row-sub" id="sub-generales">Nombre Derby, Número, Rol</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('personales')">
-          <div class="settings-row-ico ico-purple"><span class="material-icons">badge</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Datos Personales</span>
-            <span class="settings-row-sub" id="sub-personales">Documento, Nacionalidad</span>
+        <div class="sec-row sec-row--nav" onclick="navegarDesdePerfilASeccion('personales')">
+          <div class="sec-row-ico ico-purple"><span class="material-icons">badge</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Datos Personales</span>
+            <span class="sec-row-sub" id="sub-personales">Documento, Nacionalidad</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('contacto')">
-          <div class="settings-row-ico ico-teal"><span class="material-icons">contacts</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Contacto</span>
-            <span class="settings-row-sub" id="sub-contacto">Email, Teléfono</span>
+        <div class="sec-row sec-row--nav" onclick="navegarDesdePerfilASeccion('contacto')">
+          <div class="sec-row-ico ico-teal"><span class="material-icons">contacts</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Contacto</span>
+            <span class="sec-row-sub" id="sub-contacto">Email, Teléfono</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped" onclick="navegarDesdePerfilASeccion('salud')">
-          <div class="settings-row-ico ico-red"><span class="material-icons">favorite</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Salud y Emergencia</span>
-            <span class="settings-row-sub" id="sub-salud">Contacto de emergencia</span>
+        <div class="sec-row sec-row--nav" onclick="navegarDesdePerfilASeccion('salud')">
+          <div class="sec-row-ico ico-red"><span class="material-icons">favorite</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Salud y Emergencia</span>
+            <span class="sec-row-sub" id="sub-salud">Contacto de emergencia</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
-        <div class="settings-row settings-row-grouped settings-row-last" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarDesdePerfilASeccion('rendimiento')">
-          <div class="settings-row-ico ico-orange"><span class="material-icons">bar_chart</span></div>
-          <div class="settings-row-body">
-            <span class="settings-row-title">Estado y Rendimiento</span>
-            <span class="settings-row-sub" id="sub-rendimiento">Estado, Cuota, Asistencia</span>
+        <div class="sec-row sec-row--nav" id="row-rendimiento" data-role="Admin SemiAdmin" onclick="navegarDesdePerfilASeccion('rendimiento')">
+          <div class="sec-row-ico ico-orange"><span class="material-icons">bar_chart</span></div>
+          <div class="sec-row-body">
+            <span class="sec-row-title">Estado y Rendimiento</span>
+            <span class="sec-row-sub" id="sub-rendimiento">Estado, Cuota, Asistencia</span>
           </div>
-          <span class="settings-row-arrow"></span>
+          <span class="sec-row-arrow"></span>
         </div>
       </div>
-      <div class="home-danger-zone" style="margin-top:8px;">
+      <div class="home-danger-zone">
         <button class="home-btn-signout" onclick="cerrarSesion()">
           <span class="material-icons">logout</span>
           Cerrar sesión
         </button>
       </div>
-      <div style="height:32px;"></div>
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -236,7 +236,7 @@
             <span id="p-puntosTrim" class="sec-val"></span>
           </div>
         </div>
-        <div class="sec-row" style="border-bottom:none;">
+        <div class="sec-row sec-row--no-border">
           <div class="sec-row-body">
             <span class="sec-row-label">Año <span id="stat-anio-nombre">—</span></span>
             <span id="p-puntosAnio" class="sec-val"></span>
@@ -250,14 +250,14 @@
             <span id="p-horasPatinadas" class="sec-val"></span>
           </div>
         </div>
-        <div class="sec-row" style="border-bottom:none;">
+        <div class="sec-row sec-row--no-border">
           <div class="sec-row-body">
             <span class="sec-row-label">Asistencia anual</span>
             <span id="p-asistenciaAnual" class="sec-val"></span>
           </div>
         </div>
       </div>
-      <div style="height:32px;"></div>
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -321,7 +321,7 @@
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
-      <div style="height:32px;"></div>
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -371,7 +371,7 @@
         </div>
       </div>
       
-      <div style="height:32px;"></div>
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -406,7 +406,7 @@
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
-      <div style="height:32px;"></div>
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -450,9 +450,9 @@
         </div>
       </div>
       <div class="sec-group">
-        <div class="sec-row-toggle" data-role="Admin" onclick="editarCampo('aptoDeporte', {label:'Apto para el deporte', tipo:'toggle'})" style="cursor:pointer;">
+        <div class="sec-row-toggle" data-role="Admin" onclick="editarCampo('aptoDeporte', {label:'Apto para el deporte', tipo:'toggle'})">
           <span class="sec-toggle-label">Apto para el deporte</span>
-          <input id="p-aptoDeporte" style="display:none;">
+          <input id="p-aptoDeporte" class="hidden-input">
         </div>
       </div>
       <div class="sec-group">
@@ -464,7 +464,7 @@
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
       </div>
-      <div style="height:32px;"></div>
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -509,12 +509,12 @@
         </div>
       </div>
       <div class="sec-group">
-        <div class="sec-row-toggle" onclick="editarCampo('pagaCuota', {label:'Paga cuota', tipo:'toggle'})" style="cursor:pointer;">
+        <div class="sec-row-toggle" onclick="editarCampo('pagaCuota', {label:'Paga cuota', tipo:'toggle'})">
           <span class="sec-toggle-label">Paga cuota</span>
-          <input id="p-pagaCuota" style="display:none;">
+          <input id="p-pagaCuota" class="hidden-input">
         </div>
       </div>
-      <div style="height:32px;"></div>
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -528,8 +528,8 @@
   </header>
   <div class="app-scroll">
 
-    <div class="sec-group" style="margin-bottom:0;">
-      <div class="sec-row" style="border-bottom:none;">
+    <div class="sec-group sec-group--flush">
+      <div class="sec-row sec-row--no-border">
         <div class="sec-row-body">
           <span class="sec-row-label">Liga</span>
           <span class="sec-val sec-val-bold" id="liga-nombre">—</span>
@@ -537,26 +537,22 @@
       </div>
     </div>
 
-    <div class="sec-label-header" style="margin-top:24px;">Equipos</div>
+    <div class="sec-label-header sec-label-header--top">Equipos</div>
     <div id="liga-equipos-list" class="sec-group"></div>
 
-    <div style="padding:16px 0 0;">
-      <button class="inv-btn inv-btn-secondary" style="width:100%;" onclick="abrirCrearEquipo()">
-        <span class="material-icons">add</span>
-        Crear nuevo equipo
-      </button>
-    </div>
+    <button class="inv-btn inv-btn-secondary liga-btn-crear" onclick="abrirCrearEquipo()">
+      <span class="material-icons">add</span>
+      Crear nuevo equipo
+    </button>
 
-    <div style="height:48px;"></div>
+    <div class="spacer-lg"></div>
 
-    <div style="padding:0 0 16px;">
-      <button class="home-btn-delete" style="width:100%;" onclick="confirmarEliminarLiga()">
-        <span class="material-icons">delete_forever</span>
-        Eliminar liga y todos los datos
-      </button>
-    </div>
+    <button class="home-btn-delete liga-btn-eliminar" onclick="confirmarEliminarLiga()">
+      <span class="material-icons">delete_forever</span>
+      Eliminar liga y todos los datos
+    </button>
 
-    <div style="height:32px;"></div>
+    <div class="spacer"></div>
   </div>
 </div>
 
@@ -572,22 +568,22 @@
 
     <div class="inv-hero">
       <div class="inv-hero-ico">🔑</div>
-      <h2 style="font-size:20px;font-weight:800;color:var(--text);margin:0 0 8px;text-align:center;">Código de invitación</h2>
+      <h2 class="inv-hero-title">Código de invitación</h2>
       <p class="inv-hero-desc">Compartí este código o link con quien quieras invitar al equipo. Cada nueva integrante lo necesitará para crear su perfil.</p>
     </div>
 
     <div class="sec-group">
-      <div class="sec-row" style="flex-direction:column;align-items:center;padding:24px 16px;gap:12px;">
-        <p style="font-size:12px;color:var(--text3);margin:0;text-transform:uppercase;letter-spacing:0.08em;">Tu código</p>
-        <div class="inv-code-row" style="justify-content:center;">
-          <span class="inv-code-text" id="inv-codigo-display" style="font-size:32px;letter-spacing:0.15em;font-weight:900;">••••••••••</span>
+      <div class="sec-row inv-code-card">
+        <p class="inv-sublabel">Tu código</p>
+        <div class="inv-code-row inv-code-row--centered">
+          <span class="inv-code-text inv-code-text--lg" id="inv-codigo-display">••••••••••</span>
           <button class="inv-code-toggle" id="inv-toggle-btn" onclick="toggleCodigoVisible()" aria-label="Mostrar código">
             <span class="material-icons" id="inv-toggle-ico">visibility</span>
           </button>
         </div>
-        <div style="width:100%;background:var(--border);height:1px;margin:4px 0;"></div>
-        <p style="font-size:12px;color:var(--text3);margin:0;text-transform:uppercase;letter-spacing:0.08em;">Link de registro</p>
-        <span class="inv-link-text" id="inv-link-display" style="text-align:center;word-break:break-all;">••••••••••••••••••••••••</span>
+        <div class="inv-divider"></div>
+        <p class="inv-sublabel">Link de registro</p>
+        <span class="inv-link-text" id="inv-link-display">••••••••••••••••••••••••</span>
       </div>
     </div>
 
@@ -600,7 +596,7 @@
         <span class="material-icons">share</span>
         Compartir link de registro
       </button>
-      <button class="inv-btn" style="background:var(--card);border:1.5px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;width:100%;" onclick="copiarLink()">
+      <button class="inv-btn inv-btn-ghost" onclick="copiarLink()">
         <span class="material-icons">link</span>
         Copiar link
       </button>
@@ -611,7 +607,7 @@
       El código no tiene fecha de vencimiento hasta que un administradorx lo regenere. Cada invitadx necesitará aprobación de un administradorx antes de acceder a todas las funciones del equipo.
     </div>
 
-    <div style="height:32px;"></div>
+    <div class="spacer"></div>
   </div>
 </div>
 
@@ -639,7 +635,7 @@
           </div>
           <span class="material-icons sec-row-arrow">chevron_right</span>
         </div>
-        <div class="sec-row sec-row-tappable" style="border-bottom:none;" onclick="abrirColorPicker()">
+        <div class="sec-row sec-row-tappable sec-row--no-border" onclick="abrirColorPicker()">
           <div class="sec-row-body">
             <span class="sec-row-label">Color principal</span>
             <span class="sec-row-sub">Acento de la app</span>
@@ -653,7 +649,7 @@
     <!-- Sección todos: tema -->
     <div class="sec-label-header">Tema</div>
     <div class="sec-group">
-      <div class="sec-row" style="border-bottom:none;">
+      <div class="sec-row sec-row--no-border">
         <div class="sec-row-body">
           <span class="sec-row-label">Modo</span>
         </div>
@@ -667,7 +663,7 @@
 
     
 
-    <div style="height:32px;"></div>
+    <div class="spacer"></div>
   </div>
 </div>
 
@@ -682,26 +678,26 @@
   <div class="app-scroll">
 
     <div class="sec-note sec-note-top">
-      <span class="material-icons" style="font-size:16px;opacity:0.5;">admin_panel_settings</span>
+      <span class="material-icons sec-note-icon">admin_panel_settings</span>
       Les admins del equipo siempre pueden ver todos tus datos, independientemente de tu configuración de privacidad.
     </div>
 
     <!-- PERFIL -->
     <div class="sec-group">
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('perfilVisible')">
+      <div class="sec-row-toggle" onclick="togglePrivacidad('perfilVisible')">
         <div class="sec-row-body">
           <span class="sec-toggle-label">Perfil público</span>
-          <span class="sec-row-sub" style="font-size:12px;">Si está apagado, el equipo no verá los datos de tu perfil</span>
+          <span class="sec-row-sub">Si está apagado, el equipo no verá los datos de tu perfil</span>
         </div>
         <div id="toggle-priv-perfilVisible" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
         </div>
       </div>
-      <div id="priv-bloque-estadisticas" style="transition:opacity 0.35s ease, max-height 0.4s cubic-bezier(0.4,0,0.2,1);overflow:hidden;border-top:1px solid var(--border);">
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarEstadisticas')">
+      <div id="priv-bloque-estadisticas" class="priv-bloque priv-bloque--bordered">
+      <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarEstadisticas')">
         <div class="sec-row-body">
           <span class="sec-toggle-label">Mostrar estadísticas</span>
-          <span class="sec-row-sub" style="font-size:12px;">Puntos, asistencia y horas patinadas</span>
+          <span class="sec-row-sub">Puntos, asistencia y horas patinadas</span>
         </div>
         <div id="toggle-priv-mostrarEstadisticas" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
@@ -711,20 +707,20 @@
     </div>
 
     <!-- CONTACTO -->
-    <div id="priv-bloque-contacto" style="transition:opacity 0.35s ease, max-height 0.4s cubic-bezier(0.4,0,0.2,1);">
+    <div id="priv-bloque-contacto" class="priv-bloque">
     <div class="sec-label-header">Contacto</div>
     <div class="sec-group" id="priv-grupo-contacto">
-      <div class="sec-row-toggle priv-seccion-toggle" style="cursor:pointer;" onclick="toggleSeccionPriv('contacto')">
+      <div class="sec-row-toggle priv-seccion-toggle" onclick="toggleSeccionPriv('contacto')">
         <div class="sec-row-body">
-          <span class="sec-toggle-label" style="font-weight:700;">Mostrar datos de contacto</span>
-          <span class="sec-row-sub" style="font-size:12px;">Activa o desactiva toda la sección</span>
+          <span class="sec-toggle-label sec-toggle-label--strong">Mostrar datos de contacto</span>
+          <span class="sec-row-sub">Activa o desactiva toda la sección</span>
         </div>
         <div id="toggle-priv-seccion-contacto" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
         </div>
       </div>
       <div class="priv-seccion-items" id="priv-items-contacto">
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarEmail')">
+        <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarEmail')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Email</span>
           </div>
@@ -732,7 +728,7 @@
             <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
           </div>
         </div>
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarTelefono')">
+        <div class="sec-row-toggle"  onclick="togglePrivacidad('mostrarTelefono')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Teléfono</span>
           </div>
@@ -746,20 +742,20 @@
     </div><!-- /priv-bloque-contacto -->
 
     <!-- DATOS PERSONALES -->
-    <div id="priv-bloque-personales" style="transition:opacity 0.35s ease, max-height 0.4s cubic-bezier(0.4,0,0.2,1);">
+    <div id="priv-bloque-personales" class="priv-bloque">
     <div class="sec-label-header">Datos personales</div>
     <div class="sec-group" id="priv-grupo-personales">
-      <div class="sec-row-toggle priv-seccion-toggle" style="cursor:pointer;" onclick="toggleSeccionPriv('personales')">
+      <div class="sec-row-toggle priv-seccion-toggle" onclick="toggleSeccionPriv('personales')">
         <div class="sec-row-body">
-          <span class="sec-toggle-label" style="font-weight:700;">Mostrar datos personales</span>
-          <span class="sec-row-sub" style="font-size:12px;">Activa o desactiva toda la sección</span>
+          <span class="sec-toggle-label sec-toggle-label--strong">Mostrar datos personales</span>
+          <span class="sec-row-sub">Activa o desactiva toda la sección</span>
         </div>
         <div id="toggle-priv-seccion-personales" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
         </div>
       </div>
       <div class="priv-seccion-items" id="priv-items-personales">
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarDocumento')">
+        <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarDocumento')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Número de documento</span>
           </div>
@@ -767,7 +763,7 @@
             <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
           </div>
         </div>
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarNacionalidad')">
+        <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarNacionalidad')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Nacionalidad</span>
           </div>
@@ -775,7 +771,7 @@
             <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
           </div>
         </div>
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="editarCampo('mostrarCumple', {label:'Mostrar cumpleaños', tipo:'toggle'})">
+        <div class="sec-row-toggle" onclick="editarCampo('mostrarCumple', {label:'Mostrar cumpleaños', tipo:'toggle'})">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Cumpleaños</span>
           </div>
@@ -783,7 +779,7 @@
             <button type="button" class="toggle-btn toggle-off" aria-pressed="false" id="btn-toggle-cumple"><span class="toggle-thumb"></span></button>
           </div>
         </div>
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="editarCampo('mostrarEdad', {label:'Mostrar edad', tipo:'toggle'})">
+        <div class="sec-row-toggle" onclick="editarCampo('mostrarEdad', {label:'Mostrar edad', tipo:'toggle'})">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Edad</span>
           </div>
@@ -797,20 +793,20 @@
     </div><!-- /priv-bloque-personales -->
 
     <!-- SALUD Y EMERGENCIA -->
-    <div id="priv-bloque-salud" style="transition:opacity 0.35s ease, max-height 0.4s cubic-bezier(0.4,0,0.2,1);">
+    <div id="priv-bloque-salud" class="priv-bloque">
     <div class="sec-label-header">Salud y emergencia</div>
     <div class="sec-group" id="priv-grupo-salud">
-      <div class="sec-row-toggle priv-seccion-toggle" style="cursor:pointer;" onclick="toggleSeccionPriv('salud')">
+      <div class="sec-row-toggle priv-seccion-toggle" onclick="toggleSeccionPriv('salud')">
         <div class="sec-row-body">
-          <span class="sec-toggle-label" style="font-weight:700;">Mostrar datos de salud</span>
-          <span class="sec-row-sub" style="font-size:12px;">Activa o desactiva toda la sección</span>
+          <span class="sec-toggle-label sec-toggle-label--strong">Mostrar datos de salud</span>
+          <span class="sec-row-sub">Activa o desactiva toda la sección</span>
         </div>
         <div id="toggle-priv-seccion-salud" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
         </div>
       </div>
-      <div class="priv-seccion-items" id="priv-items-salud" style="opacity:0.4;pointer-events:none;">
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarEmergencia')">
+      <div class="priv-seccion-items is-disabled" id="priv-items-salud">
+        <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarEmergencia')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Contacto de emergencia</span>
           </div>
@@ -818,7 +814,7 @@
             <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
           </div>
         </div>
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarGrupoSanguineo')">
+        <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarGrupoSanguineo')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Grupo sanguíneo</span>
           </div>
@@ -826,7 +822,7 @@
             <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
           </div>
         </div>
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarAlergias')">
+        <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarAlergias')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Alergias</span>
           </div>
@@ -834,7 +830,7 @@
             <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
           </div>
         </div>
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarDieta')">
+        <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarDieta')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Dieta</span>
           </div>
@@ -842,7 +838,7 @@
             <button type="button" class="toggle-btn toggle-off" aria-pressed="false"><span class="toggle-thumb"></span></button>
           </div>
         </div>
-        <div class="sec-row-toggle" style="cursor:pointer;" onclick="togglePrivacidad('mostrarPruebaFisica')">
+        <div class="sec-row-toggle" onclick="togglePrivacidad('mostrarPruebaFisica')">
           <div class="sec-row-body">
             <span class="sec-toggle-label">Adjunto prueba física</span>
           </div>
@@ -861,11 +857,9 @@
       Borrar datos y perfil
     </button>
 
-    <div style="height:32px;"></div>
+    <div class="spacer"></div>
   </div>
 </div>
-
-<!-- VISTA NOTIFICACIONES -->
 
 <!-- VISTA NOTIFICACIONES -->
 <div id="view-notificaciones" class="app-view">
@@ -888,28 +882,28 @@
 
     <div class="sec-label-header">Equipo y eventos</div>
     <div class="sec-group">
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('nuevosEventos')">
+      <div class="sec-row-toggle" onclick="toggleNotif('nuevosEventos')">
         <div class="sec-row-body">
           <span class="sec-toggle-label">Nuevos eventos</span>
-          <span class="sec-row-sub" style="font-size:12px;">Entrenamientos, partidos y más</span>
+          <span class="sec-row-sub">Entrenamientos, partidos y más</span>
         </div>
         <div id="toggle-notif-nuevosEventos" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
         </div>
       </div>
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('actualizacionesEventos')">
+      <div class="sec-row-toggle" onclick="toggleNotif('actualizacionesEventos')">
         <div class="sec-row-body">
           <span class="sec-toggle-label">Actualizaciones de eventos</span>
-          <span class="sec-row-sub" style="font-size:12px;">Cambios de hora, lugar o detalles</span>
+          <span class="sec-row-sub">Cambios de hora, lugar o detalles</span>
         </div>
         <div id="toggle-notif-actualizacionesEventos" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
         </div>
       </div>
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('cancelaciones')">
+      <div class="sec-row-toggle" onclick="toggleNotif('cancelaciones')">
         <div class="sec-row-body">
           <span class="sec-toggle-label">Cancelaciones</span>
-          <span class="sec-row-sub" style="font-size:12px;">Cuando un evento es cancelado</span>
+          <span class="sec-row-sub">Cuando un evento es cancelado</span>
         </div>
         <div id="toggle-notif-cancelaciones" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
@@ -919,19 +913,19 @@
 
     <div class="sec-label-header">Social</div>
     <div class="sec-group">
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('cumpleanios')">
+      <div class="sec-row-toggle" onclick="toggleNotif('cumpleanios')">
         <div class="sec-row-body">
           <span class="sec-toggle-label">Cumpleaños del equipo</span>
-          <span class="sec-row-sub" style="font-size:12px;">Cuando alguien del equipo cumple años</span>
+          <span class="sec-row-sub">Cuando alguien del equipo cumple años</span>
         </div>
         <div id="toggle-notif-cumpleanios" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
         </div>
       </div>
-      <div class="sec-row-toggle" style="cursor:pointer;" onclick="toggleNotif('tareas')">
+      <div class="sec-row-toggle" onclick="toggleNotif('tareas')">
         <div class="sec-row-body">
           <span class="sec-toggle-label">Nuevas tareas disponibles</span>
-          <span class="sec-row-sub" style="font-size:12px;">Cuando el equipo publica tareas</span>
+          <span class="sec-row-sub">Cuando el equipo publica tareas</span>
         </div>
         <div id="toggle-notif-tareas" class="toggle-wrap">
           <button type="button" class="toggle-btn toggle-on" aria-pressed="true"><span class="toggle-thumb"></span></button>
@@ -939,7 +933,7 @@
       </div>
     </div>
 
-    <div style="height:32px;"></div>
+    <div class="spacer"></div>
   </div>
 </div>
 
@@ -960,7 +954,7 @@
     </div>
 
     <div class="sec-group">
-      <div class="sec-row" style="border-bottom:none;">
+      <div class="sec-row sec-row--no-border">
         <div class="sec-row-body">
           <span class="sec-row-label">Desarrollado por</span>
           <span class="sec-val">Shusho 2000</span>
@@ -979,8 +973,8 @@
       </button>
     </div>
 
-    <div class="sec-group" style="margin-top:24px;">
-      <div class="sec-row sec-row-tappable" style="border-bottom:none;" onclick="abrirTerminos()">
+    <div class="sec-group sec-group--top">
+      <div class="sec-row sec-row-tappable sec-row--no-border" onclick="abrirTerminos()">
         <div class="sec-row-body">
           <span class="sec-row-label">Términos y condiciones</span>
         </div>
@@ -988,7 +982,7 @@
       </div>
     </div>
 
-    <div style="height:32px;"></div>
+    <div class="spacer"></div>
   </div>
 </div>
 

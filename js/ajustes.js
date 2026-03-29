@@ -41,7 +41,7 @@ function inicializarAjustes() {
   sincronizarToggle('toggle-priv-mostrarEmail',     getPriv('mostrarEmail'));
   sincronizarToggle('toggle-priv-mostrarTelefono',  getPriv('mostrarTelefono'));
   const itemsContacto = document.getElementById('priv-items-contacto');
-  if (itemsContacto) { itemsContacto.style.opacity = secContacto ? '1' : '0.4'; itemsContacto.style.pointerEvents = secContacto ? 'auto' : 'none'; }
+  if (itemsContacto) itemsContacto.classList.toggle('is-disabled', !secContacto);
 
   const secPersonales = getPriv('seccionPersonales');
   sincronizarToggle('toggle-priv-seccion-personales',  secPersonales);
@@ -50,8 +50,9 @@ function inicializarAjustes() {
   sincronizarToggle('toggle-mostrarCumple',            getPriv('mostrarCumple'));
   sincronizarToggle('toggle-mostrarEdad',              getPriv('mostrarEdad'));
   const itemsPersonales = document.getElementById('priv-items-personales');
-  if (itemsPersonales) { itemsPersonales.style.opacity = secPersonales ? '1' : '0.4'; itemsPersonales.style.pointerEvents = secPersonales ? 'auto' : 'none'; }
+  if (itemsPersonales) itemsPersonales.classList.toggle('is-disabled', !secPersonales);
 
+  
   const secSalud = getPriv('seccionSalud');
   sincronizarToggle('toggle-priv-seccion-salud',         secSalud);
   sincronizarToggle('toggle-priv-mostrarEmergencia',     getPriv('mostrarEmergencia'));
@@ -59,8 +60,9 @@ function inicializarAjustes() {
   sincronizarToggle('toggle-priv-mostrarAlergias',       getPriv('mostrarAlergias'));
   sincronizarToggle('toggle-priv-mostrarDieta',          getPriv('mostrarDieta'));
   sincronizarToggle('toggle-priv-mostrarPruebaFisica',   getPriv('mostrarPruebaFisica'));
-  const itemsSalud = document.getElementById('priv-items-salud');
-  if (itemsSalud) { itemsSalud.style.opacity = secSalud ? '1' : '0.4'; itemsSalud.style.pointerEvents = secSalud ? 'auto' : 'none'; }
+  const itemsSalud = document.getElementById('priv-items-Salud');
+  if (itemsSalud) itemsSalud.classList.toggle('is-disabled', !secSalud);
+
 }
 
 // ── Código de invitación ──────────────────────────────────────
@@ -232,8 +234,7 @@ function togglePrivacidad(key) {
 function actualizarVisibilidadSeccionesPrivacidad(perfilVisible) {
   ['priv-bloque-estadisticas','priv-bloque-contacto','priv-bloque-personales','priv-bloque-salud'].forEach(id => {
     const el = document.getElementById(id); if (!el) return;
-    el.style.opacity       = perfilVisible ? '1'    : '0.35';
-    el.style.pointerEvents = perfilVisible ? 'auto' : 'none';
+    el.classList.toggle('is-disabled', !perfilVisible);
   });
 }
 
@@ -244,8 +245,7 @@ function toggleSeccionPriv(seccion) {
   sincronizarToggle('toggle-priv-seccion-' + seccion, nuevo);
   const items = document.getElementById('priv-items-' + seccion);
   if (items) {
-    items.style.opacity       = nuevo ? '1'    : '0.4';
-    items.style.pointerEvents = nuevo ? 'auto' : 'none';
+    items.classList.toggle('is-disabled', !nuevo);
   }
 }
 
@@ -289,8 +289,7 @@ function actualizarSeccionAdmin() {
   const adminSection = document.getElementById('apariencia-admin-section');
   if (adminSection) adminSection.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'block' : 'none';
 
-  const rowInvitacion = document.querySelector('[onclick="navegarSeccion(\'invitacion\')"]')?.closest('.settings-row');
-  if (rowInvitacion) rowInvitacion.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'flex' : 'none';
+  const rowInvitacion = document.querySelector('[onclick="navegarSeccion(\'invitacion\')"]')?.closest('.sec-row');  if (rowInvitacion) rowInvitacion.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'flex' : 'none';
 
   const rowLiga = document.getElementById('row-mi-liga');
   if (rowLiga) rowLiga.style.display = CURRENT_USER?.rolApp === 'Admin' ? 'flex' : 'none';
