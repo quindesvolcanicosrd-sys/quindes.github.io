@@ -1,4 +1,4 @@
-/* "MI PERFIL" — indentar igual que los títulos con flecha atrás
+  /* "MI PERFIL" — indentar igual que los títulos con flecha atrás
    (8px container + 44px botón + 4px gap = 56px desde el borde) */
 .app-header .home-header-row {
   display: flex; align-items: center;
