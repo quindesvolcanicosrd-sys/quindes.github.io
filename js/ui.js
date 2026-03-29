@@ -71,15 +71,8 @@ function isEditing(id) {
 
 // ── TOAST ─────────────────────────────────────────────────────
 function mostrarToastGuardado(msg) {
-  const t = document.createElement('div');
-  t.style.cssText = `
-    position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--card);border:1px solid var(--border);border-radius:14px;
-    padding:12px 20px;font-size:14px;font-weight:600;color:var(--text);
-    z-index:9999;white-space:nowrap;opacity:0;
-    transition:opacity 0.25s ease, transform 0.25s ease;
-    box-shadow:0 4px 20px rgba(0,0,0,0.2);
-  `;
+    const t = document.createElement('div');
+  t.className = 'toast';
   t.textContent = msg || '✅ Guardado';
   document.body.appendChild(t);
   requestAnimationFrame(() => {
@@ -91,46 +84,6 @@ function mostrarToastGuardado(msg) {
     t.style.transform = 'translateX(-50%) translateY(10px)';
     setTimeout(() => t.remove(), 300);
   }, 2500);
-}
-
-// ── CHIPS / SELECTS / TOGGLES ─────────────────────────────────
-function habilitarChips(id, valorInicial = '') {
-  const input = document.getElementById(id);
-  if (!input) return;
-  const key    = id.replace(/^p-/, '');
-  const config = CHIPS_OPTIONS[key];
-  if (!config) return;
-  input.style.display = 'none';
-  const editing = isEditing(id);
-
-  const container = input.closest('.sec-row-body') || input.parentNode;
-  let wrapper = container.querySelector('.chip-wrapper');
-  if (!wrapper) {
-    wrapper = document.createElement('div');
-    wrapper.className = 'chip-wrapper';
-    input.parentNode.insertBefore(wrapper, input.nextSibling);
-  }
-  wrapper.innerHTML = '';
-  const selected = new Set(
-    valorInicial ? valorInicial.split(',').map(v => v.trim()).filter(Boolean) : []
-  );
-  config.options.forEach(opt => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.textContent = opt;
-    chip.className = 'chip ' + (selected.has(opt) ? 'chip-active' : 'chip-inactive');
-    if (!editing) chip.classList.add('opacity-50');
-    chip.addEventListener('click', () => {
-      if (!isEditing(id)) return;
-      if (config.multi) { selected.has(opt) ? selected.delete(opt) : selected.add(opt); }
-      else              { selected.clear(); selected.add(opt); }
-      input.value = Array.from(selected).join(',');
-      Array.from(wrapper.children).forEach(c => {
-        c.className = 'chip ' + (selected.has(c.textContent) ? 'chip-active' : 'chip-inactive');
-      });
-    });
-    wrapper.appendChild(chip);
-  });
 }
 
 function habilitarMultiSelect(id, valorInicial = '') {

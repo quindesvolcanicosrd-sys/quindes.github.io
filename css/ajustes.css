@@ -503,3 +503,146 @@
   margin: 0 0 8px !important;
   text-align: center;
 }
+
+/* ── Wizard Crear Equipo ── */
+.wiz-equipo-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: var(--bg); display: flex; flex-direction: column;
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.wiz-equipo-overlay.visible { opacity: 1; transform: translateY(0); }
+.wiz-equipo-header {
+  display: flex; align-items: center;
+  padding: 16px 16px 0; gap: 12px; flex-shrink: 0;
+}
+.wiz-equipo-contenido {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 24px; gap: 24px; overflow-y: auto;
+}
+.wiz-equipo-footer {
+  padding: 16px 24px 32px; flex-shrink: 0; display: flex; gap: 12px;
+}
+.wiz-equipo-progress {
+  flex: 1; height: 3px; background: var(--border);
+  border-radius: 2px; overflow: hidden; margin-left: 4px;
+}
+.wiz-equipo-progress-bar {
+  height: 100%; background: var(--accent);
+  border-radius: 2px; transition: width 0.4s ease;
+}
+
+/* ── Overlay fullscreen éxito ── */
+.overlay-fullscreen-success {
+  position: fixed; inset: 0; z-index: 600;
+  background: var(--bg); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 32px;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.overlay-fullscreen-success.visible { opacity: 1; }
+
+/* ── Modal confirmación (bottom sheet) ── */
+.modal-confirm-overlay {
+  position: fixed; inset: 0; z-index: 700;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(0,0,0,0); transition: background 0.25s ease;
+}
+.modal-confirm-overlay.visible { background: rgba(0,0,0,0.6); }
+.modal-confirm-sheet {
+  width: 100%; max-width: 480px;
+  background: var(--card); border-radius: 24px 24px 0 0;
+  padding: 32px 24px 40px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-confirm-sheet.visible { transform: translateY(0); }
+.modal-confirm-emoji { font-size: 48px; line-height: 1; }
+.modal-confirm-title {
+  font-size: 20px; font-weight: 800;
+  color: var(--text); margin: 0; text-align: center;
+}
+.modal-confirm-msg {
+  font-size: 14px; color: var(--text2);
+  margin: 0; text-align: center; line-height: 1.6;
+}
+.modal-confirm-btn-primary {
+  width: 100%; padding: 17px; border-radius: 16px;
+  border: none; background: var(--accent); color: #fff;
+  font-size: 16px; font-weight: 700; font-family: var(--font);
+  cursor: pointer; margin-top: 8px;
+}
+.modal-confirm-btn-secondary {
+  width: 100%; padding: 17px; border-radius: 16px;
+  border: none; background: var(--card2); color: var(--text);
+  font-size: 16px; font-weight: 600; font-family: var(--font); cursor: pointer;
+}
+
+/* ── Modal borrar perfil / cuenta borrada (auth) ── */
+.dialog-borrar-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; transition: background 0.25s ease;
+}
+.dialog-borrar-overlay.visible { background: rgba(0,0,0,0.6); }
+.dialog-borrar-card {
+  background: var(--bg); border-radius: 20px;
+  padding: 28px 24px; max-width: 340px; width: 100%; text-align: center;
+  transform: scale(0.88) translateY(16px); opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s ease;
+}
+.dialog-borrar-card.visible { transform: scale(1) translateY(0); opacity: 1; }
+.dialog-borrar-btn-confirm {
+  width: 100%; padding: 14px; border-radius: 12px; border: none;
+  background: var(--accent); color: #fff;
+  font-size: 15px; font-weight: 700; font-family: inherit;
+  cursor: pointer; margin-bottom: 10px;
+}
+.dialog-borrar-btn-cancel {
+  width: 100%; padding: 14px; border-radius: 12px; border: none;
+  background: var(--card); color: var(--text);
+  font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer;
+}
+.modal-cuenta-borrada {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 32px; text-align: center;
+  opacity: 0; transform: scale(0.92) translateY(24px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-cuenta-borrada.visible { opacity: 1; transform: scale(1) translateY(0); }
+.modal-cuenta-borrada-btn {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 14px; padding: 14px 32px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  width: 100%; max-width: 280px;
+}
+
+.wiz-eq-close-btn {
+  background: none; border: none; color: var(--text2);
+  cursor: pointer; padding: 8px; margin: -8px; flex-shrink: 0;
+}
+.wiz-eq-paso-label {
+  font-size: 13px; font-weight: 600; color: var(--text2);
+}
+.wiz-eq-btn-back {
+  flex: 1; padding: 14px; border-radius: 14px;
+  border: 1.5px solid var(--border); background: none;
+  color: var(--text); font-size: 15px; font-weight: 600;
+  cursor: pointer; font-family: var(--font);
+}
+.wiz-eq-btn-next {
+  flex: 1; padding: 14px; border-radius: 14px;
+  border: none; background: var(--accent); color: #fff;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: var(--font);
+}
+
+.edit-search-check {
+  font-size: 18px !important;
+  margin-left: auto;
+  color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+}

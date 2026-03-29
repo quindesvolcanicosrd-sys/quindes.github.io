@@ -40,6 +40,7 @@ function navegarSeccion(seccion) {
   _navegando = true;
   setTimeout(() => { _navegando = false; }, 400);
   if (seccion === 'liga') cargarMiLiga();
+  if (seccion === 'invitacion') inicializarCodigoInvitacion();
   const home = document.getElementById('view-home');
   const dest = document.getElementById('view-' + seccion);
   if (!dest) return;
@@ -227,21 +228,19 @@ async function inicializarApp(email) {
 function mostrarCuentaYaRegistrada(email, user) {
   const overlay = document.createElement('div');
   overlay.id = 'ya-registrada-screen';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:32px;';
+  overlay.className = 'ya-registrada-screen';
   overlay.innerHTML = `
-    <div class="login-bg" style="display:block;">
+    <div class="login-bg">
       <span class="login-bg-ring login-bg-ring-1"></span>
       <span class="login-bg-ring login-bg-ring-2"></span>
     </div>
-    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:360px;text-align:center;">
-      <img src="icons/splash-512x512.png" alt="Quindes"
-           style="width:88px;height:88px;border-radius:22px;object-fit:contain;margin-bottom:20px;
-                  animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.1s both;">
-      <h2 style="font-size:24px;font-weight:800;color:var(--text);margin:0 0 10px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.2s both;">¡Ya tienes una cuenta!</h2>
-      <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:0 0 28px;animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.3s both;">
+    <div class="ya-registrada-content">
+      <img src="icons/splash-512x512.png" alt="Quindes" class="ya-registrada-logo">
+      <h2 class="ya-registrada-title">¡Ya tienes una cuenta!</h2>
+      <p class="ya-registrada-desc">
         La cuenta <strong style="color:var(--text);">${email}</strong> ya está registrada. Ingresando…
       </p>
-      <div style="animation:wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.4s both;width:100%;">
+      <div class="ya-registrada-loader-wrap">
         <div class="derby-loader">
           <div class="derby-icons" id="ya-reg-icons">
             <span class="derby-icon di-active" id="ya-di-0">🛼</span>
@@ -413,7 +412,6 @@ function renderTodo(profile) {
     const id     = 'p-' + key;
     const config = CHIPS_OPTIONS[key];
     const valor  = profile[key] || '';
-    if (config.ui === 'chips')       habilitarChips(id, valor);
     if (config.ui === 'multiselect') habilitarMultiSelect(id, valor);
     if (config.ui === 'select')      habilitarSelect(id, valor);
     if (config.ui === 'toggle')      habilitarToggle(id, valor);
@@ -566,7 +564,7 @@ function abrirPaginaArchivo(fieldKey, opciones) {
             onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
         </label>`}
       <div id="file-page-status" class="file-page-status-msg"></div>
-      <div style="height:32px;"></div>
+      <div class="spacer-32"></div>
     </div>
   `;
 
@@ -663,7 +661,7 @@ function abrirSelectorConBusqueda(fieldKey, opciones) {
     <div class="edit-search-item ${o === current ? 'active' : ''}"
          onclick="seleccionarOpcionBusqueda('${fieldKey}', this, '${o.replace(/'/g,"\\'")}')">
       ${o}
-      ${o === current ? '<span class="material-icons" style="font-size:18px;margin-left:auto;color:var(--accent);">check</span>' : ''}
+      ${o === current ? '<span class="material-icons edit-search-check">check</span>' : ''}
     </div>`).join('');
 
   requestAnimationFrame(() => {
@@ -684,7 +682,7 @@ async function seleccionarOpcionBusqueda(fieldKey, el, value) {
   const fieldEl = document.getElementById('p-' + fieldKey);
   if (fieldEl) {
     const orig = fieldEl.textContent;
-    fieldEl.innerHTML = '<span style="font-size:12px;color:var(--text4);font-style:italic;">Guardando…</span>';
+    fieldEl.innerHTML = '<span class="sec-val-saving">Guardando…</span>';
     try {
       const datos = recogerTodosLosDatos();
       datos[fieldKey] = value;

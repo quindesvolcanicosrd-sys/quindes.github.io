@@ -60,7 +60,7 @@ function inicializarAjustes() {
   sincronizarToggle('toggle-priv-mostrarAlergias',       getPriv('mostrarAlergias'));
   sincronizarToggle('toggle-priv-mostrarDieta',          getPriv('mostrarDieta'));
   sincronizarToggle('toggle-priv-mostrarPruebaFisica',   getPriv('mostrarPruebaFisica'));
-  const itemsSalud = document.getElementById('priv-items-Salud');
+  const itemsSalud = document.getElementById('priv-items-salud');
   if (itemsSalud) itemsSalud.classList.toggle('is-disabled', !secSalud);
 
 }
@@ -431,28 +431,26 @@ function abrirCrearEquipo() {
 
   const overlay = document.createElement('div');
   overlay.id = 'wiz-equipo-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;opacity:0;transform:translateY(24px);transition:opacity 0.35s ease,transform 0.35s cubic-bezier(0.34,1.56,0.64,1);';
+  overlay.className = 'wiz-equipo-overlay';
   overlay.innerHTML = `
-    <header style="display:flex;align-items:center;padding:16px 16px 0;gap:12px;flex-shrink:0;">
-      <button onclick="cerrarWizEquipo()" style="background:none;border:none;color:var(--text2);cursor:pointer;padding:8px;margin:-8px;">
+    <header class="wiz-equipo-header">
+      <button onclick="cerrarWizEquipo()" class="wiz-eq-close-btn">
         <span class="material-icons">close</span>
       </button>
-      <span style="font-size:13px;font-weight:600;color:var(--text2);" id="wiz-eq-paso-label">Paso 1 de 3</span>
-      <div style="flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-left:4px;">
-        <div id="wiz-eq-progress" style="height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease;width:33%;"></div>
+      <span id="wiz-eq-paso-label" class="wiz-eq-paso-label">Paso 1 de 3</span>
+      <div class="wiz-equipo-progress">
+        <div id="wiz-eq-progress" class="wiz-equipo-progress-bar" style="width:33%;"></div>
       </div>
     </header>
-    <div id="wiz-eq-contenido" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:24px;overflow-y:auto;">
-    </div>
-    <div style="padding:16px 24px 32px;flex-shrink:0;display:flex;gap:12px;">
-      <button id="wiz-eq-btn-back" onclick="wizEquipoPasoAnterior()" style="flex:1;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:none;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;display:none;">Atrás</button>
-      <button id="wiz-eq-btn-next" onclick="wizEquipoPasoSiguiente()" style="flex:1;padding:14px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;">Continuar</button>
+    <div id="wiz-eq-contenido" class="wiz-equipo-contenido"></div>
+    <div class="wiz-equipo-footer">
+      <button id="wiz-eq-btn-back" onclick="wizEquipoPasoAnterior()" class="wiz-eq-btn-back" style="display:none;">Atrás</button>
+      <button id="wiz-eq-btn-next" onclick="wizEquipoPasoSiguiente()" class="wiz-eq-btn-next">Continuar</button>
     </div>
   `;
   document.body.appendChild(overlay);
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    overlay.style.opacity = '1';
-    overlay.style.transform = 'translateY(0)';
+    overlay.classList.add('visible');
   }));
   renderWizEquipoPaso(1);
 }
@@ -460,8 +458,7 @@ function abrirCrearEquipo() {
 function cerrarWizEquipo() {
   const overlay = document.getElementById('wiz-equipo-overlay');
   if (!overlay) return;
-  overlay.style.opacity = '0';
-  overlay.style.transform = 'translateY(24px)';
+  overlay.classList.remove('visible');
   setTimeout(() => overlay.remove(), 350);
 }
 
@@ -601,7 +598,7 @@ async function crearEquipo() {
 
 function mostrarEquipoCreado(equipo) {
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;opacity:0;transition:opacity 0.4s ease;';
+  overlay.className = 'overlay-fullscreen-success';
   overlay.innerHTML = `
     <div style="text-align:center;max-width:320px;display:flex;flex-direction:column;align-items:center;gap:16px;">
       <div style="font-size:64px;animation:wiz-fade-up 0.5s ease 0.1s both;">🎉</div>
@@ -621,30 +618,30 @@ function mostrarEquipoCreado(equipo) {
     </div>
   `;
   document.body.appendChild(overlay);
-  requestAnimationFrame(() => requestAnimationFrame(() => { overlay.style.opacity = '1'; }));
+  requestAnimationFrame(() => requestAnimationFrame(() => { overlay.classList.add('visible'); }));
 }
 
 function mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onConfirmar }) {
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:700;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0);transition:background 0.25s ease;';
+  overlay.className = 'modal-confirm-overlay';
   overlay.innerHTML = `
-    <div style="width:100%;max-width:480px;background:var(--card);border-radius:24px 24px 0 0;padding:32px 24px 40px;display:flex;flex-direction:column;align-items:center;gap:16px;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);">
-      <div style="font-size:48px;line-height:1;">${emoji}</div>
-      <h2 style="font-size:20px;font-weight:800;color:var(--text);margin:0;text-align:center;">${titulo}</h2>
-      <p style="font-size:14px;color:var(--text2);margin:0;text-align:center;line-height:1.6;">${mensaje}</p>
-      <button id="modal-confirm-btn" style="width:100%;padding:17px;border-radius:16px;border:none;background:var(--accent);color:#fff;font-size:16px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:8px;">${labelConfirmar}</button>
-      <button id="modal-cancel-btn" style="width:100%;padding:17px;border-radius:16px;border:none;background:var(--card2);color:var(--text);font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;">Cancelar</button>
+    <div class="modal-confirm-sheet" id="modal-confirm-sheet">
+      <div class="modal-confirm-emoji">${emoji}</div>
+      <h2 class="modal-confirm-title">${titulo}</h2>
+      <p class="modal-confirm-msg">${mensaje}</p>
+      <button id="modal-confirm-btn" class="modal-confirm-btn-primary">${labelConfirmar}</button>
+      <button id="modal-cancel-btn" class="modal-confirm-btn-secondary">Cancelar</button>
     </div>
   `;
   document.body.appendChild(overlay);
-  const sheet = overlay.firstElementChild;
+  const sheet = document.getElementById('modal-confirm-sheet');
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    overlay.style.background = 'rgba(0,0,0,0.6)';
-    sheet.style.transform = 'translateY(0)';
+    overlay.classList.add('visible');
+    sheet.classList.add('visible');
   }));
   const cerrar = () => {
-    overlay.style.background = 'rgba(0,0,0,0)';
-    sheet.style.transform = 'translateY(100%)';
+    overlay.classList.remove('visible');
+    sheet.classList.remove('visible');
     setTimeout(() => overlay.remove(), 350);
   };
   overlay.addEventListener('click', e => { if (e.target === overlay) cerrar(); });

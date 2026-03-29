@@ -40,7 +40,3 @@ async function gasCall(action, data = {}) {
   }
   throw new Error('Acción no soportada: ' + action);
 }
-
-async function gasCallNoToken(action, data = {}) {
-  return gasCall(action, data);
-}

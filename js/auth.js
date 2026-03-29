@@ -105,41 +105,25 @@ function cerrarSesion() {
 // ── BORRAR PERFIL ─────────────────────────────────────────────
 function confirmarBorrarPerfil() {
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;padding:24px;transition:background 0.25s ease;';
+overlay.className = 'dialog-borrar-overlay';
+  overlay.dataset.dialogoBorrar = '1';
   overlay.innerHTML = `
-    <div style="background:var(--bg);border-radius:20px;padding:28px 24px;max-width:340px;width:100%;text-align:center;">
+    <div class="dialog-borrar-card" id="dialog-borrar-card">
       <span class="material-icons" style="font-size:48px;color:var(--accent);margin-bottom:12px;display:block;">warning</span>
       <h3 style="font-size:20px;font-weight:800;color:var(--text);margin:0 0 10px;">¿Borrar tu perfil?</h3>
       <p style="font-size:14px;color:var(--text2);line-height:1.6;margin:0 0 24px;">
         Esta acción eliminará <strong>todos tus datos</strong> de la app y de la planilla. No se puede deshacer.
       </p>
-      <button onclick="ejecutarBorrarPerfil()" style="
-        width:100%;padding:14px;border-radius:12px;border:none;
-        background:var(--accent);color:#fff;font-size:15px;font-weight:700;
-        font-family:inherit;cursor:pointer;margin-bottom:10px;
-      ">Sí, borrar mi perfil</button>
-      <button onclick="this.closest('[style*=fixed]').remove()" style="
-        width:100%;padding:14px;border-radius:12px;border:none;
-        background:var(--card);color:var(--text);font-size:15px;font-weight:600;
-        font-family:inherit;cursor:pointer;
-      ">Cancelar</button>
+      <button onclick="ejecutarBorrarPerfil()" class="dialog-borrar-btn-confirm">Sí, borrar mi perfil</button>
+      <button onclick="this.closest('.dialog-borrar-overlay').remove()" class="dialog-borrar-btn-cancel">Cancelar</button>
     </div>
   `;
-  overlay.dataset.dialogoBorrar = '1';
   document.body.appendChild(overlay);
-  const card = overlay.querySelector('div');
-  if (card) {
-    card.style.transform = 'scale(0.88) translateY(16px)';
-    card.style.opacity = '0';
-    card.style.transition = 'transform 0.28s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s ease';
-  }
+  const card = document.getElementById('dialog-borrar-card');
   requestAnimationFrame(() => {
-    overlay.style.background = 'rgba(0,0,0,0.6)';
+    overlay.classList.add('visible');
     requestAnimationFrame(() => {
-      if (card) {
-        card.style.transform = 'scale(1) translateY(0)';
-        card.style.opacity = '1';
-      }
+      if (card) card.classList.add('visible');
     });
   });
 }
@@ -161,19 +145,18 @@ function mostrarModalCuentaBorrada() {
   document.querySelectorAll('[data-dialogo-borrar]').forEach(el => el.remove());
 
   const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;opacity:0;transform:scale(0.92) translateY(24px);transition:opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);';
+  modal.className = 'modal-cuenta-borrada';
   modal.innerHTML = `
     <span style="font-size:56px;margin-bottom:16px;">🗑️</span>
     <h2 style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:12px;">Cuenta borrada</h2>
-    <p style="font-size:15px;color:var(--text-secondary);line-height:1.5;margin-bottom:32px;">Podés crear una nueva cuenta o solicitar un código de registro al administradorx de tu equipo.</p>
-    <button id="btn-aceptar-borrada" style="background:var(--accent);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;width:100%;max-width:280px;">Aceptar</button>
+    <p style="font-size:15px;color:var(--text2);line-height:1.5;margin-bottom:32px;">Podés crear una nueva cuenta o solicitar un código de registro al administradorx de tu equipo.</p>
+    <button id="btn-aceptar-borrada" class="modal-cuenta-borrada-btn">Aceptar</button>
   `;
   document.body.appendChild(modal);
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      modal.style.opacity = '1';
-      modal.style.transform = 'scale(1) translateY(0)';
+      modal.classList.add('visible');
     });
   });
 
@@ -203,7 +186,7 @@ function initGoogleAuth() {
         detenerDerbyLoader();
         iniciarDerbyLoader();
 
-        const user = await gasCallNoToken('getCurrentUser', { email: savedEmail });
+        const user = await gasCall('getCurrentUser', { email: savedEmail });
         if (!user || !user.found) throw new Error('user not found');
 
         CURRENT_USER = { ...user, rolApp: user.rol };
@@ -217,7 +200,7 @@ function initGoogleAuth() {
           return;
         }
 
-        const profile = await gasCallNoToken('getMyProfile', { rowNumber: user.id });
+        const profile = await gasCall('getMyProfile', { rowNumber: user.id });
         window.myProfile = profile;
 
         configurarTodasLasSubidas();
