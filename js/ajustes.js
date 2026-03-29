@@ -340,8 +340,8 @@ function renderMiLiga(data) {
             ${eq.nombre}
             ${esActivo ? '<span style="font-size:11px;color:var(--accent);font-weight:600;margin-left:6px;">· Activo</span>' : ''}
           </span>
-          <button class="home-btn-delete" style="padding:6px 10px;min-width:0;font-size:12px;flex-shrink:0;" onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')">
-            <span class="material-icons" style="font-size:16px;">delete</span>
+          <button onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')" style="width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+            <span class="material-icons" style="font-size:18px;color:#f87171;">delete</span>
           </button>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
@@ -625,9 +625,42 @@ function mostrarEquipoCreado(equipo) {
   requestAnimationFrame(() => requestAnimationFrame(() => { overlay.style.opacity = '1'; }));
 }
 
+function mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onConfirmar }) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:700;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0);transition:background 0.25s ease;';
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:480px;background:var(--card);border-radius:24px 24px 0 0;padding:32px 24px 40px;display:flex;flex-direction:column;align-items:center;gap:16px;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+      <div style="font-size:48px;line-height:1;">${emoji}</div>
+      <h2 style="font-size:20px;font-weight:800;color:var(--text);margin:0;text-align:center;">${titulo}</h2>
+      <p style="font-size:14px;color:var(--text2);margin:0;text-align:center;line-height:1.6;">${mensaje}</p>
+      <button id="modal-confirm-btn" style="width:100%;padding:17px;border-radius:16px;border:none;background:var(--accent);color:#fff;font-size:16px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:8px;">${labelConfirmar}</button>
+      <button id="modal-cancel-btn" style="width:100%;padding:17px;border-radius:16px;border:none;background:var(--card2);color:var(--text);font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;">Cancelar</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const sheet = overlay.firstElementChild;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.style.background = 'rgba(0,0,0,0.6)';
+    sheet.style.transform = 'translateY(0)';
+  }));
+  const cerrar = () => {
+    overlay.style.background = 'rgba(0,0,0,0)';
+    sheet.style.transform = 'translateY(100%)';
+    setTimeout(() => overlay.remove(), 350);
+  };
+  overlay.addEventListener('click', e => { if (e.target === overlay) cerrar(); });
+  document.getElementById('modal-cancel-btn').onclick = cerrar;
+  document.getElementById('modal-confirm-btn').onclick = () => { cerrar(); setTimeout(onConfirmar, 350); };
+}
+
 function confirmarEliminarEquipo(equipoId, nombreEquipo) {
-  if (!confirm(`¿Eliminar el equipo "${nombreEquipo}"? Esto borrará todos sus miembros, perfiles y datos. Esta acción no se puede deshacer.`)) return;
-  eliminarEquipo(equipoId, nombreEquipo);
+  mostrarModalConfirmacion({
+    emoji: '⚠️',
+    titulo: `¿Eliminar "${nombreEquipo}"?`,
+    mensaje: 'Esto borrará todos sus miembros, perfiles y datos. Esta acción no se puede deshacer.',
+    labelConfirmar: 'Sí, eliminar equipo',
+    onConfirmar: () => eliminarEquipo(equipoId, nombreEquipo),
+  });
 }
 
 async function eliminarEquipo(equipoId, nombreEquipo) {
@@ -644,9 +677,13 @@ async function eliminarEquipo(equipoId, nombreEquipo) {
 
 function confirmarEliminarLiga() {
   const nombre = _ligaData?.nombre || 'la liga';
-  if (!confirm(`⚠️ ¿Eliminar "${nombre}" y TODOS sus datos?\n\nEsto borrará equipos, miembros, perfiles, entrenamientos y toda la información. Esta acción es IRREVERSIBLE.`)) return;
-  if (!confirm(`Confirmación final: ¿estás segura de que querés eliminar "${nombre}" para siempre?`)) return;
-  eliminarLiga();
+  mostrarModalConfirmacion({
+    emoji: '⚠️',
+    titulo: `¿Eliminar "${nombre}" y TODOS sus datos?`,
+    mensaje: 'Esto borrará equipos, miembros, perfiles, entrenamientos y toda la información. Esta acción es IRREVERSIBLE.',
+    labelConfirmar: 'Sí, eliminar liga para siempre',
+    onConfirmar: () => eliminarLiga(),
+  });
 }
 
 async function eliminarLiga() {
