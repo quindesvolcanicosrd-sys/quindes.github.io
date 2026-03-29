@@ -461,5 +461,114 @@ app.get('/codigo-invitacion', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+// ── GET /liga/:ligaId ─────────────────────────────────────────
+app.get('/liga/:ligaId', async (req, res) => {
+  try {
+    const { ligaId } = req.params;
+
+    const { data: liga, error: ligaError } = await supabase
+      .from('ligas')
+      .select('id, nombre')
+      .eq('id', ligaId)
+      .single();
+
+    if (ligaError || !liga) return res.status(404).json({ error: 'Liga no encontrada' });
+
+    const { data: equipos, error: equiposError } = await supabase
+      .from('equipos')
+      .select('id, nombre')
+      .eq('liga_id', ligaId)
+      .order('created_at', { ascending: true });
+
+    if (equiposError) return res.status(500).json({ error: equiposError.message });
+
+    // Para cada equipo traer su código de invitación activo
+    const equiposConCodigo = await Promise.all((equipos || []).map(async (eq) => {
+      const { data: cod } = await supabase
+        .from('codigos_invitacion')
+        .select('codigo, usos_actuales, usos_max')
+        .eq('equipo_id', eq.id)
+        .eq('activo', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      return { ...eq, codigo: cod?.codigo || null, usosActuales: cod?.usos_actuales ?? 0, usosMax: cod?.usos_max ?? null };
+    }));
+
+    res.json({ id: liga.id, nombre: liga.nombre, equipos: equiposConCodigo });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /crear-equipo ────────────────────────────────────────
+app.post('/crear-equipo', async (req, res) => {
+  try {
+    const { nombre, ligaId } = req.body;
+    if (!nombre || !ligaId) return res.status(400).json({ error: 'Faltan datos' });
+
+    const { data: equipo, error: equipoError } = await supabase
+      .from('equipos')
+      .insert({ nombre, liga_id: ligaId })
+      .select('id, nombre')
+      .single();
+
+    if (equipoError) return res.status(500).json({ error: equipoError.message });
+
+    // Crear código de invitación automático para el nuevo equipo
+    const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+    await supabase.from('codigos_invitacion').insert({
+      equipo_id:     equipo.id,
+      codigo,
+      activo:        true,
+      usos_actuales: 0,
+    });
+
+    res.json({ ok: true, equipo: { ...equipo, codigo, usosActuales: 0, usosMax: null } });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /equipo/:id ────────────────────────────────────────
+app.delete('/equipo/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Borrar en orden para respetar foreign keys
+    await supabase.from('codigos_invitacion').delete().eq('equipo_id', id);
+    await supabase.from('asistencias').delete().eq('equipo_id', id);
+    await supabase.from('tareas').delete().eq('equipo_id', id);
+    await supabase.from('cuotas').delete().eq('equipo_id', id);
+    await supabase.from('movimientos').delete().eq('equipo_id', id);
+    await supabase.from('puntos_resumen').delete().eq('equipo_id', id);
+    await supabase.from('entrenamientos').delete().eq('equipo_id', id);
+    await supabase.from('miembros').delete().eq('equipo_id', id);
+    await supabase.from('perfiles').delete().eq('equipo_id', id);
+    await supabase.from('equipos').delete().eq('id', id);
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /liga/:id ──────────────────────────────────────────
+app.delete('/liga/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Traer todos los equipos de la liga
+    const { data: equipos } = await supabase
+      .from('equipos')
+      .select('id')
+      .eq('liga_id', id);
+
+    const equipoIds = (equipos || []).map(e => e.id);
+
+    if (equipoIds.length > 0) {
+      await supabase
 app.listen(PORT, () => console.log(`API corriendo en puerto ${PORT}`));
