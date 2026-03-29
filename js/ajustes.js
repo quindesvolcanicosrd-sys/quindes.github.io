@@ -334,22 +334,23 @@ function renderMiLiga(data) {
     const esActivo = eq.id === CURRENT_USER?.equipoId;
     const esBorde  = i === data.equipos.length - 1 ? 'border-bottom:none;' : '';
     return `
-      <div class="sec-row" style="${esBorde}">
-        <div class="sec-row-body">
-          <span class="sec-row-label" style="font-weight:${esActivo ? '700' : '500'};cursor:pointer;" onclick="editarNombreEquipo(${JSON.stringify(eq).replace(/"/g,'&quot;')})">
+      <div style="padding:14px 16px;${esBorde ? 'border-bottom:none;' : 'border-bottom:1px solid var(--border3);'}display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:15px;font-weight:${esActivo ? '700' : '600'};color:var(--text);cursor:pointer;" onclick="editarNombreEquipo(${JSON.stringify(eq).replace(/"/g,'&quot;')})">
             ${eq.nombre}
             ${esActivo ? '<span style="font-size:11px;color:var(--accent);font-weight:600;margin-left:6px;">· Activo</span>' : ''}
           </span>
-          <span class="sec-row-sub" style="font-size:12px;margin-top:2px;">
-            Código: <strong>${eq.codigo || '—'}</strong>
-            ${eq.usosMax ? ` · ${eq.usosActuales}/${eq.usosMax} usos` : ` · ${eq.usosActuales} usos`}
-          </span>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-          ${!esActivo ? `<button onclick="switchearEquipo('${eq.id}','${eq.nombre}')" style="padding:8px 14px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Gestionar este equipo</button>` : ''}
-          <button class="home-btn-delete" style="padding:6px 10px;min-width:0;font-size:12px;" onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')">
+          <button class="home-btn-delete" style="padding:6px 10px;min-width:0;font-size:12px;flex-shrink:0;" onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')">
             <span class="material-icons" style="font-size:16px;">delete</span>
           </button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:12px;color:var(--text3);">
+            🔑 <strong style="color:var(--text2);letter-spacing:0.05em;">${eq.codigo || '—'}</strong>
+            <span style="color:var(--border);margin:0 4px;">·</span>
+            ${eq.usosMax ? `${eq.usosActuales}/${eq.usosMax} usos` : `${eq.usosActuales} usos`}
+          </span>
+          ${!esActivo ? `<button onclick="switchearEquipo('${eq.id}','${eq.nombre}')" style="padding:6px 12px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">Gestionar</button>` : ''}
         </div>
       </div>`;
   }).join('');
