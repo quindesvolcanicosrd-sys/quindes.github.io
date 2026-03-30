@@ -666,14 +666,14 @@
 }
 .equipo-btn-delete {
   width: 36px; height: 36px; border-radius: 10px;
-  border: 1.5px solid rgba(239,68,68,0.3);
-  background: rgba(239,68,68,0.1);
+  border: 1.5px solid var(--border);
+  background: var(--accent-dim);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; flex-shrink: 0;
 }
 .equipo-btn-delete .material-icons {
-  font-size: 18px !important; color: #f87171 !important;
-  -webkit-text-fill-color: #f87171 !important;
+  font-size: 18px !important; color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
 }
 .equipo-footer {
   display: flex; align-items: center;
