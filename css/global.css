@@ -442,7 +442,7 @@ html {
 .dp-nav { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 4px; }
 #dp-nav-arrows { display: none !important; }
 .dp-nav-chips { display: flex; gap: 2px; align-items: center; }
-.dp-nav-chip { display: inline-flex !important; align-items: center !important; gap: 4px !important; padding: 8px 14px !important; border-radius: 99px !important; border: 1.5px solid var(--border) !important; background: var(--card) !important; font-size: 15px !important; font-weight: 700 !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important; cursor: pointer !important; pointer-events: all !important; transition: background 0.15s, border-color 0.15s !important; -webkit-tap-highlight-color: transparent !important; }
+.dp-nav-chip { display: inline-flex !important; align-items: center !important; gap: 4px !important; padding: 8px 14px !important; border-radius: 99px !important;  background: var(--card) !important; font-size: 15px !important; font-weight: 700 !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important; cursor: pointer !important; pointer-events: all !important; transition: background 0.15s, border-color 0.15s !important; -webkit-tap-highlight-color: transparent !important; }
 .dp-nav-chip:active { background: var(--chip-bg) !important; border-color: var(--accent) !important; }
 .dp-nav-chip::after { content: none; }
 .dp-nav-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
@@ -498,7 +498,7 @@ html {
 /* ══ HOME: DANGER ZONE ══ */
 .home-danger-zone { display: flex; flex-direction: column; gap: 10px; padding: 0; margin-top: 8px; }
 .home-btn-signout, .home-btn-delete { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; border: none; transition: opacity 0.15s; }
-.home-btn-signout { background: var(--card); color: var(--text); border: 1.5px solid var(--border) !important; }
+.home-btn-signout { background: var(--card); color: var(--text);  }
 .home-btn-delete  { background: transparent; color: var(--accent); border: 1.5px solid var(--accent) !important; }
 .home-btn-signout:active, .home-btn-delete:active { opacity: 0.7; }
 
