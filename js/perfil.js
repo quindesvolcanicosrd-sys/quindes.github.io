@@ -224,7 +224,7 @@ async function inicializarApp(email) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       appEl.classList.add('visible');
       loadingEl.classList.add('fadeout');
-      setTimeout(() => { loadingEl.style.display = 'none'; }, 420);
+      setTimeout(() => { loadingEl.style.display = 'none'; }, 750);
     }));
 
   } catch (err) {
