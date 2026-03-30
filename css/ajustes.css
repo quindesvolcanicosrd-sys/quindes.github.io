@@ -665,7 +665,7 @@
 }
 .equipo-nombre--activo { font-weight: 700; }
 .equipo-activo-badge {
-  font-size: 11px; color: var(--accent);
+  font-size: 11px; color: #44ef87;
   font-weight: 600; margin-left: 6px;
 }
 .equipo-btn-delete {

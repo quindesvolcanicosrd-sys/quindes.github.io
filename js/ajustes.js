@@ -336,7 +336,7 @@ function renderMiLiga(data) {
           <span class="equipo-nombre ${esActivo ? 'equipo-nombre--activo' : ''}"
                 onclick="editarNombreEquipo(${JSON.stringify(eq).replace(/"/g,'&quot;')})">
             ${eq.nombre}
-            ${esActivo ? '<span class="equipo-activo-badge">· Activo en este equipo</span>' : ''}
+            ${esActivo ? '<span class="equipo-activo-badge">· Activo</span>' : ''}
           </span>
           <button class="equipo-btn-delete" onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')">
             <span class="material-icons">delete</span>
