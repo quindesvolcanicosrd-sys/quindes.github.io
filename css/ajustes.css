@@ -222,7 +222,7 @@
 .file-page-btn-replace {
   background: var(--card) !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  border: 1.5px solid var(--border) !important;
+  
 }
 .file-page-btn-replace .material-icons { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; }
 
@@ -326,7 +326,7 @@
 .acerca-btn-secondary {
   background: var(--card) !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  border: 1.5px solid var(--border) !important;
+  
 }
 .acerca-btn-secondary .material-icons { color: #f87171 !important; -webkit-text-fill-color: #f87171 !important; }
 
@@ -438,7 +438,7 @@
 .inv-btn-secondary {
   background: var(--card) !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  border: 1.5px solid var(--border) !important;
+  
 }
 .inv-btn-secondary .material-icons { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; }
 
