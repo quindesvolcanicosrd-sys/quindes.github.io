@@ -524,7 +524,6 @@ async function guardarColorPrimario() {
 
   try {
     await apiCall(`/equipo/${equipoId}/color`, 'PUT', { color: _cpColorActual });
-    aplicarColorPrimario(_cpColorActual, true);
     // Actualizar swatch en la fila de ajustes
     const swatch = document.getElementById('apr-color-swatch');
     if (swatch) swatch.style.background = _cpColorActual;
