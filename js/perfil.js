@@ -880,8 +880,18 @@ function confirmarCrop() {
   if (!cropper) return;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) btnAplicar.disabled = true;
+
+  // Comprimir hasta que entre en 4MB
+  const MAX_BYTES = 4 * 1024 * 1024;
   const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-  const base64DataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  let quality = 0.85;
+  let base64DataUrl = canvas.toDataURL('image/jpeg', quality);
+
+  while (base64DataUrl.length * 0.75 > MAX_BYTES && quality > 0.2) {
+    quality = Math.round((quality - 0.1) * 10) / 10;
+    base64DataUrl = canvas.toDataURL('image/jpeg', quality);
+  }
+
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
   if (cropTarget === 'registro') { cropTarget = 'app'; regRecibirFotoRecortada(base64DataUrl); }
