@@ -86,7 +86,7 @@
 .hero-sub  { font-size: 12px !important; font-weight: 500 !important; font-style: normal !important; text-transform: none !important; color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; }
 
 .pf-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; font-size: 11px !important; font-weight: 700 !important; font-style: normal !important; text-transform: uppercase !important; letter-spacing: 0.3px !important; }
-.pf-badge-red  { background: var(--accent-dim); color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; border: 1px solid rgba(239,68,68,0.3); }
+.pf-badge-red  { background: var(--accent-dim); color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;}
 .pf-badge-ghost { background: var(--chip-bg); color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; border: 1px solid var(--border); }
 
 /* ══ HOME: SETTINGS GROUP ══ */
