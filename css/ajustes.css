@@ -347,7 +347,6 @@
 
 .apr-logo-preview {
   width: 44px; height: 44px; border-radius: 12px; overflow: hidden;
-  border: 1px solid var(--border); flex-shrink: 0;
 }
 .apr-logo-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
