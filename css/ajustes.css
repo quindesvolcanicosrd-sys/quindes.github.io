@@ -59,7 +59,7 @@
 /* ══ HOME: HERO CARD ══ */
 .hero-card { background: var(--card); border-radius: 20px; padding: 18px 18px 16px; }
 .hero-card-clickable { position: relative; cursor: pointer; }
-.hero-card-clickable::after { content: ''; position: absolute; top: 18px; right: 18px; width: 8px; height: 8px; border-right: 2.5px solid var(--text3); border-top: 2.5px solid var(--text3); transform: rotate(45deg); border-radius: 1px; pointer-events: none; }
+.hero-card-clickable::after { content: ''; position: absolute; top: 63px; right: 18px; width: 8px; height: 8px; border-right: 2.5px solid var(--text3); border-top: 2.5px solid var(--text3); transform: rotate(45deg); border-radius: 1px; pointer-events: none; }
 .hero-flat-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
 .hero-flat-info { flex: 1; min-width: 0; }
 .hero-flat-info .hero-name { text-align: left !important; font-size: 22px !important; margin-bottom: 2px !important; }
@@ -475,7 +475,6 @@
 
 .inv-btn-ghost {
   background: var(--card);
-  border: 1.5px solid var(--border);
   color: var(--text);
 }
 
