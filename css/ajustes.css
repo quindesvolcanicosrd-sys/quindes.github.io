@@ -492,7 +492,6 @@
 }
 .priv-bloque--bordered {
   overflow: hidden;
-  border-top: 1px solid var(--border);
 }
 
 .inv-hero-title {
