@@ -227,6 +227,8 @@ async function inicializarApp(email) {
     const accentColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--accent').trim();
     irisEl.style.background = accentColor;
+    irisEl.style.width  = '100px';
+    irisEl.style.height = '100px';
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
       // 1. El iris se expande cubriendo TODO (loader incluido)
