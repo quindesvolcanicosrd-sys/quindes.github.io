@@ -16,7 +16,6 @@
   background: var(--header-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
 }
 html.theme-dark  .bottom-nav { background: var(--header-bg); }
 html.theme-light .bottom-nav { background: var(--header-bg); }
