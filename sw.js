@@ -1,4 +1,4 @@
-const CACHE = 'quindes-v12';
+const CACHE = 'pivot-v13';
 const ASSETS = [
   './index.html',
   './css/global.css',
