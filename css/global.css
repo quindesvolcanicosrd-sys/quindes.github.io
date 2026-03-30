@@ -569,7 +569,7 @@ html {
 
 .sec-group--flush  { margin-bottom: 0 !important; }
 .sec-group--top    { margin-top: 24px !important; }
-.sec-label-header--top { margin-top: 24px; }
+.sec-label-header--top { margin-top: 5px; }
 
 .is-disabled {
   opacity: 0.4;
