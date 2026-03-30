@@ -216,15 +216,32 @@ async function inicializarApp(email) {
 
     detenerDerbyLoader();
 
-    // Mostrar appContent debajo mientras loadingScreen hace fade out
     const loadingEl = document.getElementById('loadingScreen');
     const appEl     = document.getElementById('appContent');
-    appEl.style.display = 'block';
+    const irisEl    = document.getElementById('iris-overlay');
 
+    // Mostrar app debajo antes de la animación
+    appEl.style.display = 'block';
+    appEl.classList.add('visible');
+
+    // Setear color del iris al acento actual
+    const accentColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--accent').trim();
+    irisEl.style.background = accentColor;
+    irisEl.style.width  = '100px';
+    irisEl.style.height = '100px';
+
+    // Lanzar iris
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      appEl.classList.add('visible');
-      loadingEl.classList.add('fadeout');
-      setTimeout(() => { loadingEl.style.display = 'none'; }, 1100);
+      irisEl.classList.add('iris-expand');
+      // Fade out del loader cuando el iris ya casi terminó
+      setTimeout(() => { loadingEl.classList.add('fadeout'); }, 600);
+      setTimeout(() => {
+        loadingEl.style.display = 'none';
+        irisEl.classList.remove('iris-expand');
+        irisEl.style.width  = '0';
+        irisEl.style.height = '0';
+      }, 1100);
     }));
 
   } catch (err) {

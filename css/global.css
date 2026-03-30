@@ -271,7 +271,7 @@ input[type="file"] { display: none !important; }
   overflow: hidden; overscroll-behavior: none;
   background: var(--bg);
   opacity: 0;
-  transition: opacity 0.8s ease 0.3s;
+  transition: opacity 0.3s ease;
 }
 #appContent.visible { opacity: 1; }
 .app-view {

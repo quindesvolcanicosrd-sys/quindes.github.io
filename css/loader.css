@@ -5,10 +5,31 @@
   align-items: center; justify-content: center;
   background: var(--bg); z-index: 200;
   opacity: 1;
-  transition: opacity 1s ease, background 1s ease;
+  overflow: hidden;
 }
-#loadingScreen { transition: opacity 1s ease; }
-#loadingScreen.fadeout { opacity: 0; pointer-events: none; }
+#loadingScreen.fadeout {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease 0.75s;
+}
+
+/* Iris — círculo que se expande desde el centro */
+#iris-overlay {
+  position: absolute;
+  border-radius: 50%;
+  width: 0; height: 0;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  z-index: 10;
+  pointer-events: none;
+}
+#iris-overlay.iris-expand {
+  animation: iris-grow 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes iris-grow {
+  0%   { transform: translate(-50%, -50%) scale(0);   opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(40);  opacity: 1; }
+}
 #loadingScreen h2 { display: none; }
 .loading-logo {
   width: 160px; height: 160px;
