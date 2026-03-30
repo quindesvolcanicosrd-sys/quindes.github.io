@@ -14,7 +14,6 @@
   padding: 0 8px;
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--header-bg);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 html.theme-dark  .bottom-nav { background: var(--header-bg); }

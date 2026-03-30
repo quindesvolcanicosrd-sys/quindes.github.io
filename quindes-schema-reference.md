@@ -1,6 +1,6 @@
 # Quindes Volcánicos — Referencia de Schema para Supabase
 
-> Última actualización: 2026-03-29
+> Última actualización: 2026-03-30
 > Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 ---
@@ -30,7 +30,7 @@ HTML → solo en archivos html/ o index.html
 ### Reutilizar antes de crear
 
 Antes de escribir cualquier clase CSS o componente nuevo, verificar si ya existe en:
-- `global.css` — tokens, reset, animaciones globales, temas forzados, sec-group/sec-row/sec-row-toggle, toggles, chips, date picker, toasts, edit-field, bs-overlay, spacers, is-disabled
+- `global.css` — tokens, reset, animaciones globales, temas forzados, sec-group/sec-row/sec-row-toggle, toggles, chips, date picker, toasts, edit-field, bs-overlay, spacers, is-disabled, color picker
 - `ajustes.css` — ajustes, perfil, hero card, wizard de equipo, inv-*, apr-*, acerca-*, notif-*, equipo-*, liga-*
 - `wizard.css` — wizard de registro
 - `nav.css` / `loader.css` / `login.css` — sus contextos específicos
@@ -67,6 +67,8 @@ Antes de escribir cualquier clase CSS o componente nuevo, verificar si ya existe
 | Pantalla ya registrada | `.ya-registrada-screen` / `.ya-registrada-content` | `global.css` |
 | Estado guardando | `.sec-val-saving` | `global.css` |
 | Check en selector | `.edit-search-check` | `ajustes.css` |
+| Color picker admin | `.color-picker-overlay` / `.color-picker-sheet` / `.color-swatch-btn` | `global.css` |
+| Badge estado archivo | `.file-badge` / `.file-badge-ok` / `.file-badge-missing` | `ajustes.css` |
 
 **Colores de íconos disponibles:** `ico-blue`, `ico-purple`, `ico-teal`, `ico-red`, `ico-orange`, `ico-yellow`, `ico-green`, `ico-gray`
 
@@ -178,7 +180,7 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 
 ---
 
-## Estado actual del proyecto (al 2026-03-29)
+## Estado actual del proyecto (al 2026-03-30)
 
 ### Lo que ya está hecho ✅
 
@@ -189,47 +191,111 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - Wizard de registro con código de invitación
 - Validación del código de invitación contra el backend antes de avanzar
 - Perfil completo editable (tap-to-edit) con secciones: Estadísticas, Datos Generales, Datos Personales, Contacto, Salud y Emergencia, Estado y Rendimiento
-- Subida de fotos con cropper (Cropper.js)
+- Subida de fotos con cropper (Cropper.js) — **compresión automática hasta 4MB antes del upload**
 - Subida de archivos a Supabase Storage vía Railway
 - Navegación por secciones con animaciones (slide)
 - Instalación PWA con banner contextual por navegador/OS
+- **Scrollbar nativa oculta** en `.app-scroll` (`scrollbar-width: none` + `::-webkit-scrollbar`)
 - **Sección Ajustes completa** — pantalla principal (home temporal):
   - Mi perfil → `view-perfil`
   - Mi Liga → `view-liga` (solo Admin)
   - Código de invitación → `view-invitacion` (solo Admin)
-  - Apariencia → tema (auto/claro/oscuro)
+  - Apariencia → tema (auto/claro/oscuro) + **color principal del equipo (solo Admin)**
   - Privacidad → visibilidad perfil, toggles por campo, eliminar cuenta
   - Notificaciones → push banner + toggles por categoría
   - Acerca de → versión, desarrollador, feedback, donaciones, términos
 - **Vista Mi Liga** con lista de equipos, edición de nombres, crear equipo (wizard 3 pasos), eliminar equipo/liga
-- **Bottom Nav** con 4 ítems: Ajustes, Equipo, Eventos, Tareas
+
+#### Sistema de colores dinámico ✅ (nuevo — sesión 2026-03-30)
+El admin puede elegir un color primario para el equipo desde Apariencia. Todo el sistema de colores se deriva automáticamente en JS.
+
+**Arquitectura:**
+- Admin elige color → se guarda en `equipos.color_primario` (Supabase)
+- `GET /usuario` devuelve `colorPrimario` en la respuesta
+- `inicializarApp()` llama `aplicarColorPrimario(user.colorPrimario)` antes de renderizar
+- JS deriva todos los tokens CSS automáticamente para dark y light mode
+
+**Funciones en `ajustes.js`:**
+- `hexToHsl(hex)` → convierte hex a [h, s, l]
+- `hslToHex(h, s, l)` → convierte HSL a hex
+- `aplicarColorPrimario(hex)` → deriva y setea todos los tokens CSS via `setProperty()`
+- `aplicarTema(tema)` → re-llama `aplicarColorPrimario()` al cambiar dark/light para recalcular tokens
+- `abrirColorPicker()` → abre sheet con 12 presets + picker personalizado, preview en vivo
+- `seleccionarColorPreset(color)` → selecciona preset y previsualiza
+- `cerrarColorPicker(e)` → cierra y revierte si cancela
+- `guardarColorPrimario()` → llama `PUT /equipo/:id/color`, muestra spinner, toast al guardar
+
+**Tokens CSS derivados (seteados por JS en `:root`):**
+```
+--accent, --accent2, --accent-dim
+--accent-gradient-from, --accent-gradient-to
+--bg, --card, --card2
+--border, --border2, --border3
+--chip-bg, --stat-bg, --section-hd, --header-bg
+--text2, --text3, --text4, --label
+--badge-ok-color, --badge-ok-bg, --badge-ok-border  ← complementario 120° del acento
+--overlay-dark, --overlay-medium, --overlay-light   ← fijos, no dependen del color
+```
+
+**Tokens en CSS (`:root` inicial, antes de que JS cargue):**
+- Solo los overlays y gradientes tienen valores default en CSS
+- `--badge-ok-*` NO tienen default en CSS — solo los setea JS (fallback en `.file-badge-ok`)
+- Temas forzados `html.theme-dark` / `html.theme-light` también tienen los tokens completos
+
+**Color picker UI (`global.css`):**
+- `.color-picker-overlay` / `.color-picker-sheet` — sheet bottom con animación slide
+- `.color-picker-swatches` — grid 6 columnas de swatches circulares
+- `.color-swatch-btn` / `.color-swatch-btn.selected` — swatch con borde y scale al seleccionar
+- `.color-picker-custom` — fila de color personalizado con input hidden
+- `.color-picker-footer` — botones cancelar/aplicar
+- `.color-picker-saving` / `.color-picker-spinner` — estado de guardado
+
+**Swatch en la fila de ajustes:**
+- `.apr-color-swatch` en `ajustes.css` — círculo con `var(--accent)` que se actualiza al guardar
+
+#### Limpieza de colores hardcodeados ✅ (nuevo — sesión 2026-03-30)
+Todos los colores hardcodeados de `global.css`, `nav.css` y `ajustes.css` fueron reemplazados por variables CSS:
+
+- `crop-handle`, `crop-hint`, `crop-btn-cancel`, `crop-btn-rotate` → usan `var(--border)`, `var(--text3)`, `var(--chip-bg)`, `var(--text2)`
+- `crop-btn-confirm`, `btn-save` → usan `var(--accent-gradient-from/to)`
+- `#modal-crop`, `#date-picker-modal` → usan `var(--overlay-dark/light)`
+- `.bottom-nav` background y border → usan `var(--header-bg)` y `var(--border)`
+- `.nav-item::before` (píldora activa) → usa `var(--chip-bg)`
+- `.equipo-activo-badge` → usa `var(--accent)`
+- `.equipo-btn-delete` border/background/icon → usan `var(--border)`, `var(--accent-dim)`, `var(--accent)`
+- `.file-badge-ok` → usa `var(--badge-ok-*)` derivado del acento
+- `.file-badge-missing` → usa `var(--accent-dim)` y `var(--border)`
+- `.material-icons` override global eliminado — acotado solo a `.crop-btn-rotate .material-icons`
+
+#### Transición de carga ✅ (parcialmente implementado — sesión 2026-03-30)
+- `#loadingScreen` hace fade out con `.fadeout` → `opacity: 0`
+- `#appContent` arranca con `opacity: 0` y hace fade in con `.visible`
+- Color ya aplicado debajo del loader antes de que aparezca la app
+- **⚠️ PENDIENTE**: animación iris (círculo que se expande desde el logo revelando el nuevo color) — no funciona aún, requiere revisión en próxima sesión
 
 #### Limpieza de código completada (sesión 2026-03-29)
 - Todo el CSS inline extraído a clases en los archivos CSS correspondientes
 - `gasCallNoToken` eliminado — reemplazado por `gasCall` directo
-- `habilitarChips()` eliminado — era código muerto (ningún campo usa `ui: 'chips'`)
+- `habilitarChips()` eliminado — era código muerto
 - `.pf-header` viejo eliminado de `global.css`
-- `renderMiLiga()` completamente limpio — sin `style=` inline, usa clases `.equipo-*`
-- `abrirCrearEquipo()`, `mostrarEquipoCreado()`, `mostrarModalConfirmacion()` usan clases CSS
-- `confirmarBorrarPerfil()` y `mostrarModalCuentaBorrada()` usan clases CSS
-- `mostrarCuentaYaRegistrada()` usa clases `.ya-registrada-*`
+- `renderMiLiga()` completamente limpio — sin `style=` inline
 - Toast unificado: una sola implementación con clase `.toast` en `global.css`
-- `mostrarToastGuardado()` es la función central en `ui.js`
-- Install banner en `ui.js` — CSS inline mantenido intencionalmente (componente autónomo, no en flujo principal)
 
 #### Arquitectura de archivos (estado actual)
 ```
 quindes.github.io/
   css/
-    global.css      ← variables, reset, animaciones, temas, sec-group/sec-row,
-                       toggles, chips, date picker, toast, edit-field, bs-overlay,
-                       spacers, is-disabled, ya-registrada-*, sec-val-saving, home-btn-*
-    nav.css         ← bottom nav
+    global.css      ← variables/tokens, reset, animaciones, temas forzados,
+                       sec-group/sec-row, toggles, chips, date picker, toast,
+                       edit-field, bs-overlay, spacers, is-disabled,
+                       ya-registrada-*, sec-val-saving, home-btn-*,
+                       color-picker-*, apr-color-swatch, overlay-* vars
+    nav.css         ← bottom nav (usa var(--header-bg), var(--border), var(--chip-bg))
     ajustes.css     ← ajustes, perfil, hero card, wizard equipo, inv-*, apr-*,
                        acerca-*, notif-*, equipo-*, liga-*, modal-confirm-*,
                        dialog-borrar-*, modal-cuenta-borrada, overlay-fullscreen-success,
-                       wiz-equipo-*, edit-search-check
-    loader.css      ← derby loader
+                       wiz-equipo-*, edit-search-check, file-badge-*
+    loader.css      ← derby loader, #loadingScreen con fade
     login.css       ← login y no encontrado
     wizard.css      ← wizard de registro
   js/
@@ -239,25 +305,28 @@ quindes.github.io/
                        edit sheet, date picker, install banner
     auth.js         ← Google Auth, sesión, login screens, borrar perfil
     wizard.js       ← flujo de registro completo
-    perfil.js       ← render, navegación, edición, fotos, archivos, init
-    ajustes.js      ← ajustes, privacidad, notificaciones, nav, mi liga, wizard equipo
+    perfil.js       ← render, navegación, edición, fotos (compresión auto canvas),
+                       archivos, init, transición fade loader→app
+    ajustes.js      ← ajustes, privacidad, notificaciones, nav, mi liga, wizard equipo,
+                       hexToHsl, hslToHex, aplicarColorPrimario, aplicarTema,
+                       abrirColorPicker, guardarColorPrimario, setTheme
   html/
     login.html      ← loginScreen + noEncontradoScreen
     wizard.html     ← registroScreen completo
     nav.html        ← bottom nav
-    modals.html     ← date picker + modal crop
-  index.html        ← head + loadingScreen + appContent (todas las vistas) + scripts
-  sw.js             ← service worker (quindes-v10)
+    modals.html     ← date picker + modal crop + color-picker-overlay
+  index.html        ← head + loadingScreen (#iris-overlay dentro) + appContent + scripts
+  sw.js             ← service worker (quindes-v12) — addAll reemplazado por Promise.allSettled
   manifest.json
 ```
 
 #### Estructura de navegación
 - `view-home` = Ajustes (home temporal)
 - `view-perfil` = Mi Perfil con hero card + menú de secciones
-- `view-estadisticas`, `view-generales`, `view-personales`, `view-contacto`, `view-salud`, `view-rendimiento` = secciones del perfil (navegadas desde `view-perfil`)
+- `view-estadisticas`, `view-generales`, `view-personales`, `view-contacto`, `view-salud`, `view-rendimiento` = secciones del perfil
 - `view-liga` = Mi Liga (solo Admin)
 - `view-invitacion`, `view-apariencia`, `view-privacidad`, `view-notificaciones`, `view-acerca` = secciones de ajustes
-- `navegarSeccion(seccion)` → desde home; llama `cargarMiLiga()` si liga, `inicializarCodigoInvitacion()` si invitacion
+- `navegarSeccion(seccion)` → desde home
 - `navegarDesdePerfilASeccion(seccion)` → desde view-perfil, setea `_vistaAnterior = 'perfil'`
 - `volverHome()` → vuelve a `_vistaAnterior` o home
 
@@ -265,7 +334,7 @@ quindes.github.io/
 - URL: `https://quindesgithubio-production.up.railway.app`
 - Endpoints activos:
   - `GET /health`
-  - `GET /usuario?email=xxx` → `{ found, id, authUserId, equipoId, ligaId, nombreDerby, rol, estadoMiembro }`
+  - `GET /usuario?email=xxx` → `{ found, id, authUserId, equipoId, ligaId, nombreDerby, rol, estadoMiembro, colorPrimario }`
   - `GET /perfil/:id` → perfil completo con stats
   - `PUT /perfil/:id` → actualizar perfil
   - `POST /registrar` → crear perfil
@@ -276,40 +345,49 @@ quindes.github.io/
   - `GET /liga/:ligaId` → `{ id, nombre, equipos: [...] }`
   - `PUT /liga/:ligaId/nombre`
   - `PUT /equipo/:equipoId/nombre`
+  - `PUT /equipo/:equipoId/color` → `{ color }` — **nuevo**
   - `DELETE /equipo/:equipoId`
   - `DELETE /liga/:ligaId`
-  - `POST /crear-equipo` → `{ nombre, ligaId, categoria, logoBase64?, email }` → `{ ok, equipo }`
+  - `POST /crear-equipo`
 
 #### Supabase
 - URL: `znprcowxveyzanpvotms.supabase.co`
 - Schema v2: 13 tablas
+- **Nuevo campo**: `equipos.color_primario` (text, default `#ef4444`, nullable)
 
 #### Service Worker
-- Versión actual: `quindes-v10`
+- Versión actual: `quindes-v12`
+- `addAll` reemplazado por `Promise.allSettled` — ya no bloquea si un archivo falla
 
 ---
 
 ### Pendientes 🔜
+
+#### Animación iris al cargar ⚠️ (próxima sesión)
+- Objetivo: círculo del color de acento que se expande desde el centro del logo cuando cambia el color durante la carga
+- Velocidad deseada: 0.8s, `cubic-bezier(0.4,0,0.2,1)`
+- El círculo es del **nuevo color de acento**
+- Se intenta implementar pero no funcionó — retomar en próxima sesión
+- Elemento `#iris-overlay` ya está en `index.html` dentro de `#loadingScreen`
+- CSS parcial en `loader.css` con `#iris-overlay` y `.iris-expand`
 
 #### Frontend — Sección Equipo (próxima a desarrollar)
 - Vista `view-equipo` accesible desde la bottom nav
 - Lista de jugadoras con foto, nombre derby, rol, estado
 - Requiere endpoint `GET /equipo/:equipoId/miembros` en Railway
 
+#### Personalización del equipo — Logo (pendiente)
+- Admin podrá cambiar el logo del equipo desde Apariencia
+- `cambiarLogoEquipo()` existe pero muestra toast "🚧 Próximamente"
+- Cuando se implemente, el logo también cambiará durante la animación iris
+
 #### Backend pendiente
 - `GET /equipo/:equipoId/miembros` — necesario para sección Equipo
 - `PUT /miembro/:id/aprobar` — flujo de aprobación admin
 - `POST /crear-liga` — crear liga + equipo + admin en un solo paso
 
-#### Frontend — Flujo de aprobación de nuevas jugadoras
-1. Admin crea código → manda link `?invite=CODIGO`
-2. Usuario se registra → queda con `estado: 'pendiente'`
-3. En `inicializarApp`: verificar `estadoMiembro`. Si es `'pendiente'`, mostrar pantalla "Tu cuenta está en revisión"
-4. Vista admin para listar pendientes
-5. Endpoint `PUT /miembro/:id/aprobar`
-
 #### Ajustes (placeholders activos)
-- `cambiarLogoEquipo()` y `abrirColorPicker()` → toast "🚧 Próximamente"
+- `cambiarLogoEquipo()` → toast "🚧 Próximamente"
 - `solicitarPermisoPush()` → pide permiso pero no registra SW push subscription
 - Privacidad → toggles solo en localStorage, no sincronizados con Supabase
 
@@ -392,13 +470,16 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `tipo_usuario` — text, default `'Invitado'`
 - `foto_perfil_url` — URL pública en Supabase Storage
 
+### Columnas relevantes de `equipos`
+- `color_primario` — text, default `'#ef4444'`, nullable — **nuevo**
+
 ---
 
 ## Notas técnicas importantes
 
 ### Globals (core.js)
 - `CONFIG.API_URL = 'https://quindesgithubio-production.up.railway.app'`
-- `CURRENT_USER` — `{ id, email, rolApp, equipoId, ligaId, ... }`
+- `CURRENT_USER` — `{ id, email, rolApp, equipoId, ligaId, colorPrimario, ... }`
 - `accessToken` — JWT de Google
 - `wizOrigen` — `'login'` | `'noEncontrado'` | `null`
 - `inviteCode` — leído de `?invite=` en la URL
@@ -419,13 +500,14 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `mostrarModalCuentaBorrada()`
 
 **perfil.js**
-- `inicializarApp(email)` — flujo principal post-login
+- `inicializarApp(email)` — flujo principal post-login; llama `aplicarColorPrimario()` y maneja transición fade loader→app
 - `renderTodo(profile)` — renderiza todos los campos
 - `aplicarPermisos()` — muestra/oculta según `rolApp`
 - `editarCampo(fieldKey, opciones)` — entry point tap-to-edit
 - `navegarSeccion(seccion)` / `navegarDesdePerfilASeccion(seccion)` / `volverHome()`
 - `CHIPS_OPTIONS` — config de campos con select/toggle/multiselect
 - `CAMPOS_SECCION` — mapeo de campos a secciones
+- `confirmarCrop()` — comprime imagen en canvas hasta 4MB antes de subir
 
 **ui.js**
 - `iniciarDerbyLoader()` / `detenerDerbyLoader()`
@@ -444,17 +526,22 @@ Liga → Equipo(s) → Miembros → Perfiles
 
 **ajustes.js**
 - `inicializarAjustes()` — sincroniza UI con localStorage al cargar
-- `setTheme(tema)` / `aplicarTema(tema)`
+- `setTheme(tema)` / `aplicarTema(tema)` — re-aplica color primario al cambiar tema
+- `hexToHsl(hex)` / `hslToHex(h,s,l)` — utilidades de conversión de color
+- `aplicarColorPrimario(hex)` — deriva y setea todos los tokens CSS en `:root`
+- `abrirColorPicker()` / `cerrarColorPicker()` / `guardarColorPrimario()`
+- `seleccionarColorPreset(color)` / `actualizarSwatchesSeleccion(color)`
 - `getPriv(key)` / `setPriv(key, val)` / `togglePrivacidad(key)` / `toggleSeccionPriv(seccion)`
 - `navIr(seccion)` — navegación bottom nav
 - `actualizarSeccionAdmin()` — oculta secciones admin para no-Admins
 - `cargarMiLiga()` / `renderMiLiga(data)` — usa clases `.equipo-*`, sin inline styles
 - `abrirEditSheetGenerico(label, valorActual, onGuardar)`
-- `abrirCrearEquipo()` / `renderWizEquipoPaso(paso)` — usa `.wiz-equipo-*`
+- `abrirCrearEquipo()` / `renderWizEquipoPaso(paso)`
 - `mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onConfirmar })`
 - `sincronizarToggle(wrapperId, isOn)`
 - `AJUSTES_KEY = 'quindes_ajustes'`
 - `PRIV_DEFAULTS` — valores por defecto de privacidad
+- `COLOR_PICKER_PRESETS` — array de 12 colores preset
 
 ---
 
@@ -470,7 +557,7 @@ Del perfil: `email`, `nombre`, `nombreDerby`, `numero`, `pronombres`, `rolJugado
 De estadísticas: `puntosMes`, `puntosTrimestre`, `puntosAnio`,
 `horasPatinadas`, `asistenciaAnual`, `labelMes`, `labelTrimestre`, `labelAnio`
 
-De usuario: `found`, `id`, `authUserId`, `equipoId`, `ligaId`, `nombreDerby`, `rol`, `estadoMiembro`
+De usuario: `found`, `id`, `authUserId`, `equipoId`, `ligaId`, `nombreDerby`, `rol`, `estadoMiembro`, `colorPrimario`
 
 ---
 
@@ -496,6 +583,13 @@ Mínimos por frecuencia:
 - $15/mes por jugadora activa
 - Seguimiento mensual: pagado/no pagado/exento
 
+### Sistema de colores dinámico
+- 1 color primario hex → JS deriva todos los tokens para dark y light
+- Color complementario para badge "ok": `hOk = (h + 120) % 360`
+- Guardado en `equipos.color_primario` en Supabase
+- Aplicado en `inicializarApp()` antes de renderizar la UI
+
 ### Notas de compatibilidad
 - Express v4 (no v5 — v5 causaba crashes en Railway)
 - `convertirFecha()` en backend convierte `DD/MM/YYYY` → `YYYY-MM-DD` antes de insertar en Supabase
+- SW usa `Promise.allSettled` en install — no bloquea si un asset falla
