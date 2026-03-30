@@ -1,4 +1,4 @@
-const CACHE = 'quindes-v11';
+const CACHE = 'quindes-v12';
 const ASSETS = [
   './index.html',
   './css/global.css',
@@ -28,9 +28,14 @@ const NO_CACHE = ['workers.dev', 'script.google.com'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE)
-      .then(c => c.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE).then(c =>
+      Promise.allSettled(ASSETS.map(url =>
+        fetch(url).then(res => {
+          if (!res.ok) throw new Error(`${res.status} ${url}`);
+          return c.put(url, res);
+        }).catch(err => console.warn('[SW] No se pudo cachear:', err.message))
+      ))
+    ).then(() => self.skipWaiting())
   );
 });
 
