@@ -215,8 +215,17 @@ async function inicializarApp(email) {
     );
 
     detenerDerbyLoader();
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('appContent').style.display    = 'block';
+
+    // Mostrar appContent debajo mientras loadingScreen hace fade out
+    const loadingEl = document.getElementById('loadingScreen');
+    const appEl     = document.getElementById('appContent');
+    appEl.style.display = 'block';
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      appEl.classList.add('visible');
+      loadingEl.classList.add('fadeout');
+      setTimeout(() => { loadingEl.style.display = 'none'; }, 420);
+    }));
 
   } catch (err) {
     console.error(err);

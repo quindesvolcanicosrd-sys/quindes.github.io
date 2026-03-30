@@ -4,7 +4,10 @@
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   background: var(--bg); z-index: 200;
+  opacity: 1;
+  transition: opacity 0.4s ease;
 }
+#loadingScreen.fadeout { opacity: 0; pointer-events: none; }
 #loadingScreen h2 { display: none; }
 .loading-logo {
   width: 160px; height: 160px;
