@@ -173,10 +173,26 @@ function hslToHex(h, s, l) {
   return '#' + [f(0),f(8),f(4)].map(x => Math.round(x*255).toString(16).padStart(2,'0')).join('');
 }
 
-function aplicarColorPrimario(hex) {
+function aplicarColorPrimario(hex, conFade = false) {
   if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return;
   const [h, s, l] = hexToHsl(hex);
   const root = document.documentElement;
+  const appEl = document.getElementById('appContent');
+
+  if (conFade && appEl && appEl.classList.contains('visible')) {
+    appEl.classList.add('color-transition-out');
+    setTimeout(() => {
+      _aplicarTokensColor(hex, h, s, l, root);
+      root.dataset.colorPrimario = hex;
+      appEl.classList.remove('color-transition-out');
+    }, 250);
+    return;
+  }
+  _aplicarTokensColor(hex, h, s, l, root);
+  root.dataset.colorPrimario = hex;
+}
+
+function _aplicarTokensColor(hex, h, s, l, root) {
 
   // Acento principal y variante oscura
   const accent        = hex;
@@ -258,9 +274,7 @@ function aplicarColorPrimario(hex) {
     root.style.setProperty('--header-bg',            `rgba(${alr},${alg},${alb},0.08)`);
   }
 
-  // Guardar para re-aplicar cuando cambie el tema
-  root.dataset.colorPrimario = hex;
-}
+  }
 
 function aplicarTema(tema) {
   const root = document.documentElement;
@@ -510,6 +524,7 @@ async function guardarColorPrimario() {
 
   try {
     await apiCall(`/equipo/${equipoId}/color`, 'PUT', { color: _cpColorActual });
+    aplicarColorPrimario(_cpColorActual, true);
     // Actualizar swatch en la fila de ajustes
     const swatch = document.getElementById('apr-color-swatch');
     if (swatch) swatch.style.background = _cpColorActual;
