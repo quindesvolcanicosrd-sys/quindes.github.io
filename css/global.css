@@ -239,7 +239,7 @@ input[type="file"] { display: none !important; }
 .crop-hint { font-size: 11px !important; font-weight: 500 !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; text-align: center; margin: 10px 0 0 !important; letter-spacing: 0.02em !important; }
 .crop-actions { display: flex; align-items: center; gap: 10px; padding: 14px 20px calc(20px + env(safe-area-inset-bottom, 0px)); }
 .crop-btn-cancel { flex: 1; padding: 16px; border-radius: 14px; border: none; background: var(--chip-bg); border: 1px solid var(--border); color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; font-size: 13px !important; font-weight: 700 !important; font-family: inherit !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.material-icons { font-size: 22px !important; color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; }
+.crop-btn-rotate .material-icons { font-size: 22px !important; color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; }
 .crop-btn-confirm { flex: 1.6; padding: 16px; border-radius: 14px; border: none; background: linear-gradient(135deg, var(--accent-gradient-from) 0%, var(--accent-gradient-to) 100%); color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: 13px !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; font-family: inherit !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .crop-btn-cancel:active { opacity: 0.7; }
 .crop-btn-confirm:active { transform: scale(0.97); }
