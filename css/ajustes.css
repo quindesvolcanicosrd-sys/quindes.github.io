@@ -255,7 +255,7 @@
 /* ══ NOTIFICACIONES ══ */
 .notif-push-banner {
   display: flex; align-items: center; gap: 14px;
-  background: var(--accent-dim); border: 1.5px solid rgba(239,68,68,0.3);
+  background: var(--accent-dim);
   border-radius: 16px; padding: 14px 16px;
 }
 .notif-push-banner .material-icons {
@@ -660,7 +660,8 @@
 }
 .equipo-nombre--activo { font-weight: 700; }
 .equipo-activo-badge {
-  font-size: 11px; color: #44ef87;
+  font-size: 11px; color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
   font-weight: 600; margin-left: 6px;
 }
 .equipo-btn-delete {
