@@ -933,7 +933,6 @@ function cancelarCrop() {
   if (cropper) { cropper.destroy(); cropper = null; }
   document.getElementById('modal-crop').style.display = 'none';
 }
-function rotarImagen() { if (cropper) cropper.rotate(90); }
 
 // ── DOMContentLoaded ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {

@@ -207,6 +207,10 @@ function aplicarColorPrimario(hex) {
       window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   if (isDark) {
+    root.style.setProperty('--text2',                hslToHex(h, Math.min(s, 35), 63));
+    root.style.setProperty('--text3',                hslToHex(h, Math.min(s, 28), 45));
+    root.style.setProperty('--text4',                hslToHex(h, Math.min(s, 22), 35));
+    root.style.setProperty('--label',                hslToHex(h, Math.min(s, 35), 63));
     root.style.setProperty('--accent',               accent);
     root.style.setProperty('--accent2',              accent2);
     root.style.setProperty('--accent-dim',           `rgba(${ar},${ag},${ab},0.18)`);
@@ -224,6 +228,10 @@ function aplicarColorPrimario(hex) {
     root.style.setProperty('--header-bg',            `rgba(${ar},${ag},${ab},0.10)`);
   } else {
     const [alr, alg, alb] = toRgb(accentLight);
+    root.style.setProperty('--text2',                hslToHex(h, Math.min(s, 50), 38));
+    root.style.setProperty('--text3',                hslToHex(h, Math.min(s, 40), 55));
+    root.style.setProperty('--text4',                hslToHex(h, Math.min(s, 30), 69));
+    root.style.setProperty('--label',                hslToHex(h, Math.min(s, 40), 55));
     root.style.setProperty('--accent',               accentLight);
     root.style.setProperty('--accent2',              accent2Light);
     root.style.setProperty('--accent-dim',           `rgba(${alr},${alg},${alb},0.10)`);
