@@ -6,7 +6,7 @@
   background: var(--bg); z-index: 200;
   opacity: 1;
   overflow: hidden;
-  transition: opacity 0.45s ease;
+  transition: opacity 0.45s ease, background 0.4s ease;
 }
 #loadingScreen.fadeout {
   opacity: 0;
