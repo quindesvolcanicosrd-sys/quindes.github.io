@@ -358,12 +358,26 @@ function renderTodo(profile) {
   initFechaTrigger();
   set('p-contactoEmergencia', profile.contactoEmergencia);
 
-  const setFileBadge = (id, url) => {
-    const el = document.getElementById(id); if (!el) return;
-    if (url) el.innerHTML = '<span class="file-badge file-badge-ok">Archivo cargado</span>';
-    else     el.innerHTML = '<span class="file-badge file-badge-missing">Archivo no cargado</span>';
-    el.classList.remove('sec-input-empty');
-  };
+const setFileBadge = (id, url) => {
+  const el = document.getElementById(id); 
+  if (!el) return;
+
+  if (url) {
+    el.innerHTML = `
+      <span class="file-badge file-badge-ok">
+        <span class="material-icons">file_present</span>
+        Archivo cargado
+      </span>`;
+  } else {
+    el.innerHTML = `
+      <span class="file-badge file-badge-missing">
+        <span class="material-icons">file_copy_off</span>
+        Archivo no cargado
+      </span>`;
+  }
+
+  el.classList.remove('sec-input-empty');
+};
   setFileBadge('p-adjCedula',       profile.adjCedula);
   setFileBadge('p-adjPruebaFisica', profile.adjPruebaFisica);
 
