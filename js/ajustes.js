@@ -206,7 +206,13 @@ function aplicarColorPrimario(hex) {
     (!root.classList.contains('theme-light') &&
       window.matchMedia('(prefers-color-scheme: dark)').matches);
 
+  // Color "ok" — complementario armónico (120° de distancia)
+  const hOk = (h + 120) % 360;
+
   if (isDark) {
+    root.style.setProperty('--badge-ok-color',  hslToHex(hOk, 70, 72));
+    root.style.setProperty('--badge-ok-bg',     `rgba(${[...Array(3)].map((_,i) => parseInt(hslToHex(hOk,70,72).slice(1+i*2,3+i*2),16)).join(',')},0.16)`);
+    root.style.setProperty('--badge-ok-border', `rgba(${[...Array(3)].map((_,i) => parseInt(hslToHex(hOk,70,72).slice(1+i*2,3+i*2),16)).join(',')},0.35)`);
     root.style.setProperty('--text2',                hslToHex(h, Math.min(s, 35), 63));
     root.style.setProperty('--text3',                hslToHex(h, Math.min(s, 28), 45));
     root.style.setProperty('--text4',                hslToHex(h, Math.min(s, 22), 35));
@@ -228,6 +234,9 @@ function aplicarColorPrimario(hex) {
     root.style.setProperty('--header-bg',            `rgba(${ar},${ag},${ab},0.10)`);
   } else {
     const [alr, alg, alb] = toRgb(accentLight);
+    root.style.setProperty('--badge-ok-color',  hslToHex(hOk, 60, 35));
+    root.style.setProperty('--badge-ok-bg',     `rgba(${[...Array(3)].map((_,i) => parseInt(hslToHex(hOk,60,35).slice(1+i*2,3+i*2),16)).join(',')},0.12)`);
+    root.style.setProperty('--badge-ok-border', `rgba(${[...Array(3)].map((_,i) => parseInt(hslToHex(hOk,60,35).slice(1+i*2,3+i*2),16)).join(',')},0.30)`);
     root.style.setProperty('--text2',                hslToHex(h, Math.min(s, 50), 38));
     root.style.setProperty('--text3',                hslToHex(h, Math.min(s, 40), 55));
     root.style.setProperty('--text4',                hslToHex(h, Math.min(s, 30), 69));

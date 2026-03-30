@@ -169,18 +169,15 @@
   -webkit-text-fill-color: currentColor;
 }
 .file-badge-ok {
-  background: rgba(34,197,94,0.16) !important;
-  color: #22c55e !important; -webkit-text-fill-color: #22c55e !important;
-  border: 2px solid rgba(34,197,94,0.35) !important;
+  background: var(--badge-ok-bg) !important;
+  color: var(--badge-ok-color) !important;
+  -webkit-text-fill-color: var(--badge-ok-color) !important;
+  border: 2px solid var(--badge-ok-border) !important;
 }
 .file-badge-missing {
-  background: rgba(239,68,68,0.14) !important;
+  background: var(--accent-dim) !important;
   color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  border: 2px solid rgba(239,68,68,0.30) !important;
-}
-@media (prefers-color-scheme: light) {
-  .file-badge-ok    { background: rgba(22,163,74,0.12) !important; color: #15803d !important; -webkit-text-fill-color: #15803d !important; border-color: rgba(22,163,74,0.30) !important; }
-  .file-badge-missing { background: rgba(220,38,38,0.10) !important; color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; border-color: rgba(220,38,38,0.25) !important; }
+  border: 2px solid var(--border) !important;
 }
 /* sec-val containing a badge: allow it to shrink to badge height */
 .sec-val:has(.file-badge) { min-height: 0; }
