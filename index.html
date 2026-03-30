@@ -976,6 +976,25 @@
   </div>
 </div>
 
+<!-- Color Picker Sheet -->
+<div class="color-picker-overlay" id="color-picker-overlay" onclick="cerrarColorPicker(event)">
+  <div class="color-picker-sheet" id="color-picker-sheet">
+    <div class="color-picker-handle"></div>
+    <div class="color-picker-title">Color principal</div>
+    <div class="color-picker-swatches" id="color-picker-swatches"></div>
+    <div class="color-picker-custom" onclick="document.getElementById('color-picker-input').click()">
+      <div class="color-picker-custom-preview" id="color-picker-custom-preview"></div>
+      <span class="color-picker-custom-label">Color personalizado</span>
+      <span class="color-picker-custom-hex" id="color-picker-custom-hex">#ef4444</span>
+      <input type="color" id="color-picker-input" class="color-picker-input-hidden">
+    </div>
+    <div class="color-picker-footer" id="color-picker-footer">
+      <button class="btn-cancel" onclick="cerrarColorPicker()">Cancelar</button>
+      <button class="btn-save"   onclick="guardarColorPrimario()">Aplicar</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /appContent -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>

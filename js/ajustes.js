@@ -146,11 +146,113 @@ function setTheme(tema) {
   marcarChipActivo('apr-theme-chips', tema);
 }
 
+function hexToHsl(hex) {
+  let r = parseInt(hex.slice(1,3),16)/255;
+  let g = parseInt(hex.slice(3,5),16)/255;
+  let b = parseInt(hex.slice(5,7),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h, s, l = (max+min)/2;
+  if (max === min) { h = s = 0; }
+  else {
+    const d = max - min;
+    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max) {
+      case r: h = ((g-b)/d + (g<b?6:0))/6; break;
+      case g: h = ((b-r)/d + 2)/6; break;
+      case b: h = ((r-g)/d + 4)/6; break;
+    }
+  }
+  return [Math.round(h*360), Math.round(s*100), Math.round(l*100)];
+}
+
+function hslToHex(h, s, l) {
+  s /= 100; l /= 100;
+  const k = n => (n + h/30) % 12;
+  const a = s * Math.min(l, 1-l);
+  const f = n => l - a*Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1)));
+  return '#' + [f(0),f(8),f(4)].map(x => Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
+
+function aplicarColorPrimario(hex) {
+  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return;
+  const [h, s, l] = hexToHsl(hex);
+  const root = document.documentElement;
+
+  // Acento principal y variante oscura
+  const accent        = hex;
+  const accent2       = hslToHex(h, s, Math.max(l - 10, 10));
+
+  // Gradiente botones primarios
+  const gradFrom      = hslToHex(h, Math.min(s + 5, 100), Math.min(l + 6, 90));
+  const gradTo        = hslToHex(h, s, Math.max(l - 14, 10));
+
+  // Tokens con opacidad (como rgba)
+  const toRgb = hx => [parseInt(hx.slice(1,3),16), parseInt(hx.slice(3,5),16), parseInt(hx.slice(5,7),16)];
+  const [ar, ag, ab] = toRgb(accent);
+
+  // Dark mode tokens
+  const bgDark        = hslToHex(h, Math.min(s, 40), 8);
+  const cardDark      = hslToHex(h, Math.min(s, 35), 11);
+  const card2Dark     = hslToHex(h, Math.min(s, 30), 14);
+
+  // Light mode tokens
+  const bgLight       = hslToHex(h, Math.min(s, 30), 97);
+  const cardLight     = '#ffffff';
+  const card2Light    = hslToHex(h, Math.min(s, 25), 95);
+  const accentLight   = hslToHex(h, Math.min(s, 80), Math.max(l - 8, 25));
+  const accent2Light  = hslToHex(h, Math.min(s, 80), Math.max(l - 14, 18));
+
+  const isDark = root.classList.contains('theme-dark') ||
+    (!root.classList.contains('theme-light') &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  if (isDark) {
+    root.style.setProperty('--accent',               accent);
+    root.style.setProperty('--accent2',              accent2);
+    root.style.setProperty('--accent-dim',           `rgba(${ar},${ag},${ab},0.18)`);
+    root.style.setProperty('--accent-gradient-from', gradFrom);
+    root.style.setProperty('--accent-gradient-to',   gradTo);
+    root.style.setProperty('--bg',                   bgDark);
+    root.style.setProperty('--card',                 cardDark);
+    root.style.setProperty('--card2',                card2Dark);
+    root.style.setProperty('--border',               `rgba(${ar},${ag},${ab},0.18)`);
+    root.style.setProperty('--border2',              `rgba(${ar},${ag},${ab},0.12)`);
+    root.style.setProperty('--border3',              `rgba(${ar},${ag},${ab},0.07)`);
+    root.style.setProperty('--chip-bg',              `rgba(${ar},${ag},${ab},0.08)`);
+    root.style.setProperty('--stat-bg',              `rgba(${ar},${ag},${ab},0.06)`);
+    root.style.setProperty('--section-hd',           `rgba(${ar},${ag},${ab},0.05)`);
+    root.style.setProperty('--header-bg',            `rgba(${ar},${ag},${ab},0.10)`);
+  } else {
+    const [alr, alg, alb] = toRgb(accentLight);
+    root.style.setProperty('--accent',               accentLight);
+    root.style.setProperty('--accent2',              accent2Light);
+    root.style.setProperty('--accent-dim',           `rgba(${alr},${alg},${alb},0.10)`);
+    root.style.setProperty('--accent-gradient-from', hslToHex(h, Math.min(s+5,100), Math.max(l-6,20)));
+    root.style.setProperty('--accent-gradient-to',   hslToHex(h, s, Math.max(l-18,12)));
+    root.style.setProperty('--bg',                   bgLight);
+    root.style.setProperty('--card',                 cardLight);
+    root.style.setProperty('--card2',                card2Light);
+    root.style.setProperty('--border',               `rgba(${alr},${alg},${alb},0.15)`);
+    root.style.setProperty('--border2',              `rgba(${alr},${alg},${alb},0.10)`);
+    root.style.setProperty('--border3',              `rgba(${alr},${alg},${alb},0.06)`);
+    root.style.setProperty('--chip-bg',              `rgba(${alr},${alg},${alb},0.07)`);
+    root.style.setProperty('--stat-bg',              `rgba(${alr},${alg},${alb},0.05)`);
+    root.style.setProperty('--section-hd',           `rgba(${alr},${alg},${alb},0.04)`);
+    root.style.setProperty('--header-bg',            `rgba(${alr},${alg},${alb},0.08)`);
+  }
+
+  // Guardar para re-aplicar cuando cambie el tema
+  root.dataset.colorPrimario = hex;
+}
+
 function aplicarTema(tema) {
   const root = document.documentElement;
   root.classList.remove('theme-light', 'theme-dark');
   if (tema === 'light') root.classList.add('theme-light');
   if (tema === 'dark')  root.classList.add('theme-dark');
+  // Re-derivar tokens si ya hay un color primario guardado
+  const colorGuardado = root.dataset.colorPrimario;
+  if (colorGuardado) aplicarColorPrimario(colorGuardado);
 }
 
 function marcarChipActivo(containerId, valor) {
@@ -296,7 +398,118 @@ function actualizarSeccionAdmin() {
 }
 
 function cambiarLogoEquipo() { mostrarToastGuardado('🚧 Próximamente'); }
-function abrirColorPicker()  { mostrarToastGuardado('🚧 Próximamente'); }
+const COLOR_PICKER_PRESETS = [
+  '#ef4444','#f97316','#eab308','#22c55e',
+  '#06b6d4','#3b82f6','#8b5cf6','#ec4899',
+  '#14b8a6','#f43f5e','#a855f7','#64748b',
+];
+
+let _cpColorActual = '#ef4444';
+let _cpColorOriginal = '#ef4444';
+
+function abrirColorPicker() {
+  _cpColorOriginal = document.documentElement.dataset.colorPrimario || '#ef4444';
+  _cpColorActual   = _cpColorOriginal;
+
+  // Renderizar swatches
+  const wrap = document.getElementById('color-picker-swatches');
+  wrap.innerHTML = COLOR_PICKER_PRESETS.map(c => `
+    <button class="color-swatch-btn ${c === _cpColorActual ? 'selected' : ''}"
+      style="background:${c}"
+      onclick="seleccionarColorPreset('${c}')"
+      data-color="${c}">
+    </button>
+  `).join('');
+
+  // Sincronizar custom picker
+  const input = document.getElementById('color-picker-input');
+  input.value = _cpColorActual;
+  document.getElementById('color-picker-custom-preview').style.background = _cpColorActual;
+  document.getElementById('color-picker-custom-hex').textContent = _cpColorActual;
+
+  input.oninput = (e) => {
+    _cpColorActual = e.target.value;
+    document.getElementById('color-picker-custom-preview').style.background = _cpColorActual;
+    document.getElementById('color-picker-custom-hex').textContent = _cpColorActual;
+    actualizarSwatchesSeleccion(_cpColorActual);
+    aplicarColorPrimario(_cpColorActual);
+  };
+
+  mostrarFooterColorPicker();
+
+  const overlay = document.getElementById('color-picker-overlay');
+  const sheet   = document.getElementById('color-picker-sheet');
+  overlay.style.pointerEvents = 'all';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+    sheet.classList.add('visible');
+  }));
+}
+
+function seleccionarColorPreset(color) {
+  _cpColorActual = color;
+  actualizarSwatchesSeleccion(color);
+  document.getElementById('color-picker-input').value = color;
+  document.getElementById('color-picker-custom-preview').style.background = color;
+  document.getElementById('color-picker-custom-hex').textContent = color;
+  aplicarColorPrimario(color);
+}
+
+function actualizarSwatchesSeleccion(color) {
+  document.querySelectorAll('.color-swatch-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.color === color);
+  });
+}
+
+function mostrarFooterColorPicker() {
+  document.getElementById('color-picker-footer').innerHTML = `
+    <button class="btn-cancel" onclick="cerrarColorPicker()">Cancelar</button>
+    <button class="btn-save"   onclick="guardarColorPrimario()">Aplicar</button>
+  `;
+}
+
+function cerrarColorPicker(e) {
+  if (e && e.target !== document.getElementById('color-picker-overlay')) return;
+  // Revertir preview si cancela
+  aplicarColorPrimario(_cpColorOriginal);
+  const overlay = document.getElementById('color-picker-overlay');
+  const sheet   = document.getElementById('color-picker-sheet');
+  overlay.classList.remove('visible');
+  sheet.classList.remove('visible');
+  setTimeout(() => { overlay.style.pointerEvents = 'none'; }, 300);
+}
+
+async function guardarColorPrimario() {
+  const equipoId = CURRENT_USER?.equipoId;
+  if (!equipoId) return;
+
+  // Mostrar spinner
+  document.getElementById('color-picker-footer').innerHTML = `
+    <div class="color-picker-saving">
+      <div class="color-picker-spinner"></div>
+      Guardando color…
+    </div>
+  `;
+
+  try {
+    await apiCall(`/equipo/${equipoId}/color`, 'PUT', { color: _cpColorActual });
+    // Actualizar swatch en la fila de ajustes
+    const swatch = document.getElementById('apr-color-swatch');
+    if (swatch) swatch.style.background = _cpColorActual;
+    // Cerrar y confirmar
+    const overlay = document.getElementById('color-picker-overlay');
+    const sheet   = document.getElementById('color-picker-sheet');
+    overlay.classList.remove('visible');
+    sheet.classList.remove('visible');
+    setTimeout(() => {
+      overlay.style.pointerEvents = 'none';
+      mostrarToastGuardado('Color actualizado ✓');
+    }, 300);
+  } catch(e) {
+    mostrarFooterColorPicker();
+    mostrarToastGuardado('Error al guardar el color');
+  }
+}
 
 // ── Mi Liga ───────────────────────────────────────────────────
 let _ligaData = null;

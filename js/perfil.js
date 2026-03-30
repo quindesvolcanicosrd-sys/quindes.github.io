@@ -189,6 +189,7 @@ async function inicializarApp(email) {
     }
 
     CURRENT_USER = { ...user, rolApp: user.rol, ligaId: user.ligaId };
+    aplicarColorPrimario(user.colorPrimario || '#ef4444');
     const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = user.email;
 
     const profile = await gasCall('getMyProfile', { rowNumber: user.id });

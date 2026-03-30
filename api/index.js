@@ -61,6 +61,13 @@ app.get('/usuario', async (req, res) => {
       .eq('auth_user_id', authUserId)
       .single();
 
+    // 4. Traer color del equipo
+    const { data: equipo } = await supabase
+      .from('equipos')
+      .select('color_primario')
+      .eq('id', perfil.equipo_id)
+      .single();
+
     res.json({
       found: true,
       id: perfil.id,
@@ -70,6 +77,7 @@ app.get('/usuario', async (req, res) => {
       nombreDerby: perfil.nombre_derby,
       rol: miembro?.rol,
       estadoMiembro: miembro?.estado,
+      colorPrimario: equipo?.color_primario || '#ef4444',
     });
 
   } catch (err) {
@@ -557,6 +565,21 @@ app.put('/liga/:id/nombre', async (req, res) => {
     const { nombre } = req.body;
     if (!nombre) return res.status(400).json({ error: 'Falta nombre' });
     const { error } = await supabase.from('ligas').update({ nombre }).eq('id', req.params.id);
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ ok: true });
+  } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── PUT /equipo/:id/color ─────────────────────────────────────
+app.put('/equipo/:id/color', async (req, res) => {
+  try {
+    const { color } = req.body;
+    if (!color || !/^#[0-9a-fA-F]{6}$/.test(color))
+      return res.status(400).json({ error: 'Color inválido' });
+    const { error } = await supabase
+      .from('equipos')
+      .update({ color_primario: color })
+      .eq('id', req.params.id);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ ok: true });
   } catch(err) { res.status(500).json({ error: err.message }); }
