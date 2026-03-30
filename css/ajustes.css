@@ -171,12 +171,12 @@
 .file-badge-ok {
   background: rgba(34,197,94,0.16) !important;
   color: #22c55e !important; -webkit-text-fill-color: #22c55e !important;
-  border: 1.5px solid rgba(34,197,94,0.35) !important;
+  border: 2px solid rgba(34,197,94,0.35) !important;
 }
 .file-badge-missing {
   background: rgba(239,68,68,0.14) !important;
   color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important;
-  border: 1.5px solid rgba(239,68,68,0.30) !important;
+  border: 2px solid rgba(239,68,68,0.30) !important;
 }
 @media (prefers-color-scheme: light) {
   .file-badge-ok    { background: rgba(22,163,74,0.12) !important; color: #15803d !important; -webkit-text-fill-color: #15803d !important; border-color: rgba(22,163,74,0.30) !important; }
