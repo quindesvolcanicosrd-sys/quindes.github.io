@@ -75,3 +75,12 @@
   animation: derby-text-pulse 2s ease-in-out infinite;
 }
 @keyframes derby-text-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+/* Fade out del loading screen al terminar */
+#loadingScreen {
+  transition: opacity 0.4s ease;
+}
+#loadingScreen.fadeout {
+  opacity: 0;
+  pointer-events: none;
+}

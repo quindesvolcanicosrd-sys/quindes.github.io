@@ -283,7 +283,7 @@ function aplicarTema(tema) {
   if (tema === 'dark')  root.classList.add('theme-dark');
   // Re-derivar tokens si ya hay un color primario guardado
   const colorGuardado = root.dataset.colorPrimario;
-  if (colorGuardado) aplicarColorPrimario(colorGuardado);
+  if (colorGuardado) aplicarColorPrimario(colorGuardado, true);
 }
 
 function marcarChipActivo(containerId, valor) {

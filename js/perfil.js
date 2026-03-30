@@ -220,17 +220,17 @@ async function inicializarApp(email) {
     const appEl     = document.getElementById('appContent');
     const irisEl    = document.getElementById('iris-overlay');
 
-    // Mostrar app debajo
+    // Mostrar app (aún tapada por el loader)
     appEl.style.display = 'block';
-    appEl.classList.add('visible');
 
-    // Fade out del loader sobre la app ya lista
+    // Pequeña pausa para que el browser pinte la app debajo, luego fade out del loader
     requestAnimationFrame(() => requestAnimationFrame(() => {
+      appEl.classList.add('visible');
       loadingEl.classList.add('fadeout');
       setTimeout(() => {
         loadingEl.style.display = 'none';
         loadingEl.classList.remove('fadeout');
-      }, 400);
+      }, 450);
     }));
 
   } catch (err) {
