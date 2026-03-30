@@ -6,11 +6,11 @@
   background: var(--bg); z-index: 200;
   opacity: 1;
   overflow: hidden;
+  transition: opacity 0.45s ease;
 }
 #loadingScreen.fadeout {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease 0.75s;
 }
 
 /* Iris — círculo que se expande desde el centro */
@@ -75,13 +75,3 @@
   animation: derby-text-pulse 2s ease-in-out infinite;
 }
 @keyframes derby-text-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
-
-/* Fade out del loading screen al terminar */
-#loadingScreen {
-  transition: opacity 0.5s ease;
-  background: var(--bg);
-}
-#loadingScreen.fadeout {
-  opacity: 0;
-  pointer-events: none;
-}
