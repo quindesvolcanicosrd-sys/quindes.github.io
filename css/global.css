@@ -58,9 +58,6 @@
 
     --accent-gradient-from: #e53935;
     --accent-gradient-to:   #b71c1c;
-    --badge-ok-bg:    rgba(22,163,74,0.12);
-    --badge-ok-color: #15803d;
-    --badge-ok-border:rgba(22,163,74,0.30);
 
     --overlay-dark:   rgba(0,0,0,0.85);
     --overlay-medium: rgba(0,0,0,0.60);
@@ -180,9 +177,6 @@ html.theme-light {
   --section-hd: rgba(198,40,40,0.04);
   --accent-gradient-from: #e53935;
   --accent-gradient-to:   #b71c1c;
-  --badge-ok-bg:    rgba(22,163,74,0.12);
-  --badge-ok-color: #15803d;
-  --badge-ok-border:rgba(22,163,74,0.30);
   --overlay-dark:   rgba(0,0,0,0.85);
   --overlay-medium: rgba(0,0,0,0.60);
   --overlay-light:  rgba(0,0,0,0.50);
@@ -199,9 +193,6 @@ html.theme-dark {
   --section-hd: rgba(239,68,68,0.05);
   --accent-gradient-from: #ff4d4d;
   --accent-gradient-to:   #d61f1f;
-  --badge-ok-bg:    rgba(34,197,94,0.16);
-  --badge-ok-color: #4ade80;
-  --badge-ok-border:rgba(34,197,94,0.35);
   --overlay-dark:   rgba(0,0,0,0.85);
   --overlay-medium: rgba(0,0,0,0.60);
   --overlay-light:  rgba(0,0,0,0.50);
