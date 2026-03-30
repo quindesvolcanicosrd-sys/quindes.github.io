@@ -180,37 +180,7 @@ function initGoogleAuth() {
         const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
         console.log('[AUTH] valData:', valData);
         if (!valData.found) throw new Error('invalid session');
-
-        document.getElementById('loadingScreen').style.display  = 'flex';
-        document.getElementById('loginScreen').style.display    = 'none';
-        detenerDerbyLoader();
-        iniciarDerbyLoader();
-
-        const user = await gasCall('getCurrentUser', { email: savedEmail });
-        if (!user || !user.found) throw new Error('user not found');
-
-        CURRENT_USER = { ...user, rolApp: user.rol };
-
-        if (inviteCode) {
-          detenerDerbyLoader();
-          document.getElementById('loadingScreen').style.display = 'none';
-          wizOrigen = 'noEncontrado';
-          console.log('[INVITE] llamando mostrarRegistroWizard, registroScreen:', document.getElementById('registroScreen'));
-          mostrarRegistroWizard();
-          return;
-        }
-
-        const profile = await gasCall('getMyProfile', { rowNumber: user.id });
-        window.myProfile = profile;
-
-        configurarTodasLasSubidas();
-        renderTodo(profile);
-        aplicarPermisos();
-        inicializarAjustes();
-        detenerDerbyLoader();
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('appContent').style.display    = 'block';
-
+        inicializarApp(savedEmail);
       } catch(e) {
         console.error('[SESSION] Saved session failed:', e);
         localStorage.removeItem('quindes_email');

@@ -220,28 +220,33 @@ async function inicializarApp(email) {
     const appEl     = document.getElementById('appContent');
     const irisEl    = document.getElementById('iris-overlay');
 
-    // Mostrar app debajo antes de la animación
+    // App visible pero aún tapada por el loader
     appEl.style.display = 'block';
-    appEl.classList.add('visible');
 
-    // Setear color del iris al acento actual
+    // Lanzar iris — el loader se queda encima hasta que el iris lo cubre todo
     const accentColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--accent').trim();
     irisEl.style.background = accentColor;
-    irisEl.style.width  = '100px';
-    irisEl.style.height = '100px';
 
-    // Lanzar iris
     requestAnimationFrame(() => requestAnimationFrame(() => {
+      // 1. El iris se expande cubriendo TODO (loader incluido)
       irisEl.classList.add('iris-expand');
-      // Fade out del loader cuando el iris ya casi terminó
-      setTimeout(() => { loadingEl.classList.add('fadeout'); }, 600);
+
+      // 2. Cuando el iris ya cubrió todo, hacemos visible la app debajo
+      setTimeout(() => {
+        appEl.classList.add('visible');
+      }, 500);
+
+      // 3. Fade out del iris — revela la app ya lista
+      setTimeout(() => {
+        irisEl.classList.add('iris-fadeout');
+      }, 650);
+
+      // 4. Limpiar
       setTimeout(() => {
         loadingEl.style.display = 'none';
-        irisEl.classList.remove('iris-expand');
-        irisEl.style.width  = '0';
-        irisEl.style.height = '0';
-      }, 1100);
+        irisEl.classList.remove('iris-expand', 'iris-fadeout');
+      }, 1000);
     }));
 
   } catch (err) {
