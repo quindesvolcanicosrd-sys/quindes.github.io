@@ -287,12 +287,8 @@ input[type="file"] { display: none !important; }
 /* Safe-area: el header absorbe env(safe-area-inset-top) con padding-top.
    El fondo del body cubre el espacio restante con el mismo color. */
 
-/* Línea entre status bar y nav: cubrirla con el color de fondo */
 html {
-  background: #1a1212;
-}
-@media (prefers-color-scheme: light) {
-  html { background: #fcf0f0; }
+  background: var(--bg);
 }
 .app-view.active { display: flex; transform: translateX(0); }
 .app-view.slide-out { transform: translateX(-30%); }
