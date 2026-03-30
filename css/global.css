@@ -561,7 +561,7 @@ html {
 
 /* Spacers */
 .spacer    { height: 32px; }
-.spacer-lg { height: 48px; }
+.spacer-lg { height: 12px; }
 
 .sec-row--no-border { border-bottom: none !important; }
 

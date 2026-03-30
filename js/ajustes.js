@@ -317,7 +317,7 @@ function renderMiLiga(data) {
   const nombreEl = document.getElementById('liga-nombre');
   if (nombreEl) {
     nombreEl.textContent = data.nombre || '—';
-    nombreEl.style.cssText = 'cursor:pointer;';
+    nombreEl.classList.add('liga-nombre-editable');
     nombreEl.onclick = () => editarNombreLiga(data);
   }
 
@@ -325,31 +325,30 @@ function renderMiLiga(data) {
   if (!lista) return;
 
   if (!data.equipos || data.equipos.length === 0) {
-    lista.innerHTML = '<div class="sec-row"><div class="sec-row-body"><span class="sec-row-label" style="opacity:0.5;">No hay equipos aún</span></div></div>';
-    return;
+    lista.innerHTML = '<div class="sec-row"><div class="sec-row-body"><span class="sec-row-label equipo-empty-label">No hay equipos aún</span></div></div>';    return;
   }
 
-  lista.innerHTML = data.equipos.map((eq, i) => {
+  lista.innerHTML = data.equipos.map((eq) => {
     const esActivo = eq.id === CURRENT_USER?.equipoId;
-    const esBorde  = i === data.equipos.length - 1 ? 'border-bottom:none;' : '';
     return `
-      <div style="padding:14px 16px;${esBorde ? 'border-bottom:none;' : 'border-bottom:1px solid var(--border3);'}display:flex;flex-direction:column;gap:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <span style="font-size:15px;font-weight:${esActivo ? '700' : '600'};color:var(--text);cursor:pointer;" onclick="editarNombreEquipo(${JSON.stringify(eq).replace(/"/g,'&quot;')})">
+      <div class="equipo-item">
+        <div class="equipo-header">
+          <span class="equipo-nombre ${esActivo ? 'equipo-nombre--activo' : ''}"
+                onclick="editarNombreEquipo(${JSON.stringify(eq).replace(/"/g,'&quot;')})">
             ${eq.nombre}
-            ${esActivo ? '<span style="font-size:11px;color:var(--accent);font-weight:600;margin-left:6px;">· Activo</span>' : ''}
+            ${esActivo ? '<span class="equipo-activo-badge">· Activo en este equipo</span>' : ''}
           </span>
-          <button onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')" style="width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-            <span class="material-icons" style="font-size:18px;color:#f87171;">delete</span>
+          <button class="equipo-btn-delete" onclick="confirmarEliminarEquipo('${eq.id}','${eq.nombre}')">
+            <span class="material-icons">delete</span>
           </button>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-          <span style="font-size:12px;color:var(--text3);">
-            🔑 <strong style="color:var(--text2);letter-spacing:0.05em;">${eq.codigo || '—'}</strong>
-            <span style="color:var(--border);margin:0 4px;">·</span>
+        <div class="equipo-footer">
+          <span class="equipo-codigo">
+            🔑 <strong>${eq.codigo || '—'}</strong>
+            <span class="equipo-codigo-sep">·</span>
             ${eq.usosMax ? `${eq.usosActuales}/${eq.usosMax} usos` : `${eq.usosActuales} usos`}
           </span>
-          ${!esActivo ? `<button onclick="switchearEquipo('${eq.id}','${eq.nombre}')" style="padding:6px 12px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">Gestionar</button>` : ''}
+          ${!esActivo ? `<button class="equipo-btn-gestionar" onclick="switchearEquipo('${eq.id}','${eq.nombre}')">Gestionar</button>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -474,11 +473,11 @@ function renderWizEquipoPaso(paso) {
   if (btnBack) btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de 3`;
   if (progress) progress.style.width = (paso / 3 * 100) + '%';
-  if (btnNext) btnNext.textContent = paso === 3 ? 'Crear equipo 🏒' : 'Continuar';
+  if (btnNext) btnNext.textContent = paso === 3 ? 'Crear equipo' : 'Continuar';
 
   if (paso === 1) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🏒</div>
+      <div style="font-size:48px;text-align:center;">🛼</div>
       <div style="text-align:center;">
         <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu equipo?</h2>
         <p style="font-size:14px;color:var(--text2);margin:0;">Este será el nombre que verán todas las integrantes.</p>
@@ -527,7 +526,7 @@ function renderWizEquipoPaso(paso) {
       </label>
       <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — podés saltarte este paso</p>
     `;
-    if (btnNext) btnNext.textContent = 'Crear equipo 🏒';
+    if (btnNext) btnNext.textContent = 'Crear equipo 🛼';
   }
 }
 
@@ -591,7 +590,7 @@ async function crearEquipo() {
     }, 400);
   } catch(e) {
     mostrarToastGuardado('❌ Error al crear el equipo');
-    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Crear equipo 🏒'; }
+    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Crear equipo 🛼'; }
     console.error(e);
   }
 }
