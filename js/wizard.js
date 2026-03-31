@@ -72,6 +72,7 @@ function wizPositionInSequence() { return wizStepSequence.indexOf(wizStep) + 1; 
 function mostrarRegistroWizard() {
   wizStep = 'inv';
   if (!wizOrigen) wizOrigen = 'login';
+  const desdeCrearLiga = wizOrigen === 'crearLiga';
   wizRecalcSequence();
   Object.assign(regData, {
     nombre:'', pronombres:[], pais:'', codigoPais:'',
@@ -119,9 +120,18 @@ function mostrarRegistroWizard() {
   const introEl    = document.getElementById('wiz-intro');
   const headerEl   = document.getElementById('wiz-header');
   const viewportEl = document.getElementById('wiz-viewport');
-  if (introEl)    introEl.style.display    = 'flex';
-  if (headerEl)   headerEl.style.display   = 'none';
-  if (viewportEl) viewportEl.style.display = 'none';
+  if (desdeCrearLiga) {
+    if (introEl)    introEl.style.display    = 'none';
+    if (headerEl)   headerEl.style.display   = 'flex';
+    if (viewportEl) viewportEl.style.display = 'block';
+    regData.codigoInvitacion = inviteCode;
+    wizUpdateHeader();
+    wizGoTo(1, true);
+  } else {
+    if (introEl)    introEl.style.display    = 'flex';
+    if (headerEl)   headerEl.style.display   = 'none';
+    if (viewportEl) viewportEl.style.display = 'none';
+  }
 
   history.pushState({ wizSentinel: true }, '', location.pathname + '#_wiz');
 }
