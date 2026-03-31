@@ -579,7 +579,10 @@ app.post('/crear-equipo', async (req, res) => {
 app.post('/crear-liga', async (req, res) => {
   try {
     const { nombreLiga, nombreEquipo, categoria, email, logoBase64, ligaImagenBase64,
-            pais, ciudad, anioFundacion, descripcion, contacto } = req.body;
+            pais, ciudad, anioFundacion, descripcion, contacto,
+            nombre, pronombres, rolJugadorx, nombreDerby, numero,
+            codigoPais, telefono, fechaNacimiento, mostrarCumple, mostrarEdad,
+            alergias, dieta, contactoEmergencia, fotoBase64 } = req.body;
     if (!nombreLiga || !nombreEquipo || !email)
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
 
@@ -664,20 +667,54 @@ app.post('/crear-liga', async (req, res) => {
       } catch(e) { console.error('Error subiendo logo:', e.message); }
     }
 
-    // 6. Crear perfil como Admin
+    // 6. Subir foto de perfil si viene
+    let fotoPerfil = null;
+    if (fotoBase64) {
+      try {
+        const base64 = fotoBase64.replace(/^data:.+;base64,/, '');
+        const buffer = Buffer.from(base64, 'base64');
+        const mimeMatch = fotoBase64.match(/^data:(.+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const ext = mimeType.split('/')[1] || 'jpg';
+        const fileName = `${email}/fotoPerfil.${ext}`;
+        const { error: storageError } = await supabase.storage
+          .from('archivos').upload(fileName, buffer, { contentType: mimeType, upsert: true });
+        if (!storageError) {
+          const { data: urlData } = supabase.storage.from('archivos').getPublicUrl(fileName);
+          fotoPerfil = urlData.publicUrl;
+        }
+      } catch(e) { console.error('Error subiendo foto:', e.message); }
+    }
+
+    // 7. Crear perfil como Admin
     const { data: perfil, error: perfilError } = await supabase
       .from('perfiles')
       .insert({
-        auth_user_id: authUserId,
-        equipo_id:    equipo.id,
-        tipo_usuario: 'Admin',
-        estado:       'Activx',
+        auth_user_id:        authUserId,
+        equipo_id:           equipo.id,
+        tipo_usuario:        'Admin',
+        estado:              'Activx',
+        nombre:              nombre || null,
+        nombre_derby:        nombreDerby || null,
+        numero_derby:        numero || null,
+        pronombres:          pronombres || null,
+        rol_jugadorx:        rolJugadorx || null,
+        pais_origen:         pais || null,
+        codigo_pais:         codigoPais || null,
+        telefono:            telefono || null,
+        fecha_nacimiento:    convertirFecha(fechaNacimiento) || null,
+        mostrar_cumple:      mostrarCumple === 'Sí',
+        mostrar_edad:        mostrarEdad === 'Sí',
+        alergias:            alergias || null,
+        dieta:               dieta || null,
+        contacto_emergencia: contactoEmergencia || null,
+        foto_perfil_url:     fotoPerfil || null,
       })
       .select('id')
       .single();
     if (perfilError) return res.status(500).json({ error: perfilError.message });
 
-    // 7. Crear membresía como Admin aprobado
+    // 8. Crear membresía como Admin aprobado
     const { error: miembroError } = await supabase
       .from('miembros')
       .insert({
@@ -689,7 +726,7 @@ app.post('/crear-liga', async (req, res) => {
       });
     if (miembroError) return res.status(500).json({ error: miembroError.message });
 
-    // 8. Crear código de invitación automático
+    // 9. Crear código de invitación automático
     const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
     await supabase.from('codigos_invitacion').insert({
       equipo_id: equipo.id, codigo, activo: true, usos_actuales: 0,
