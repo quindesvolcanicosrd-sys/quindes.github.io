@@ -847,14 +847,17 @@ function mostrarEquipoCreado(equipo) {
       <div style="font-size:64px;animation:wiz-fade-up 0.5s ease 0.1s both;">🎉</div>
       <h2 style="font-size:24px;font-weight:800;color:var(--text);margin:0;animation:wiz-fade-up 0.5s ease 0.2s both;">¡Equipo creado!</h2>
       <p style="font-size:15px;color:var(--text2);line-height:1.6;margin:0;animation:wiz-fade-up 0.5s ease 0.3s both;">
-        <strong style="color:var(--text);">${equipo.nombre}</strong> está listo. Ahora podés invitar integrantes compartiendo el código:
+        <strong style="color:var(--text);">${equipo.nombre}</strong> está listo. Ahora puedes invitar integrantes compartiendo el código:
       </p>
       <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 24px;animation:wiz-fade-up 0.5s ease 0.4s both;">
         <p style="font-size:12px;color:var(--text3);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.05em;">🔑 Código de invitación</p>
-        <p style="font-size:28px;font-weight:900;color:var(--accent);margin:0;letter-spacing:0.1em;">${equipo.codigo}</p>
+        <p id="equipo-creado-codigo" style="font-size:28px;font-weight:900;color:var(--accent);margin:0;letter-spacing:0.1em;">${equipo.codigo}</p>
+        <button id="equipo-creado-copiar" style="margin-top:10px;padding:8px 20px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;">
+          Copiar código
+        </button>
       </div>
-      <p style="font-size:12px;color:var(--text3);margin:0;animation:wiz-fade-up 0.5s ease 0.5s both;">Podés gestionar este equipo desde Mi Liga en Ajustes.</p>
-      <button onclick="this.closest('[style]').remove()" 
+      <p style="font-size:12px;color:var(--text3);margin:0;animation:wiz-fade-up 0.5s ease 0.5s both;">Puedes gestionar este equipo desde Mi Liga en Ajustes.</p>
+      <button id="equipo-creado-listo"
         style="margin-top:8px;padding:14px 32px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;animation:wiz-fade-up 0.5s ease 0.6s both;width:100%;">
         ¡Listo!
       </button>
@@ -862,6 +865,19 @@ function mostrarEquipoCreado(equipo) {
   `;
   document.body.appendChild(overlay);
   requestAnimationFrame(() => requestAnimationFrame(() => { overlay.classList.add('visible'); }));
+
+  document.getElementById('equipo-creado-listo').onclick = () => {
+    overlay.classList.remove('visible');
+    setTimeout(() => overlay.remove(), 350);
+  };
+
+  document.getElementById('equipo-creado-copiar').onclick = () => {
+    navigator.clipboard.writeText(equipo.codigo).then(() => {
+      mostrarToastGuardado('✅ Código copiado');
+    }).catch(() => {
+      mostrarToastGuardado('❌ No se pudo copiar');
+    });
+  };
 }
 
 function mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onConfirmar }) {
