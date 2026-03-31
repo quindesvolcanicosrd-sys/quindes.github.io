@@ -1102,7 +1102,7 @@ function renderWizLigaPaso(paso) {
       <div style="font-size:48px;text-align:center;">🛼</div>
       <div style="text-align:center;">
         <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu equipo?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">El primer equipo dentro de la liga. Puedes agregar más después.</p>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Puede tener el mismo nombre que la liga. Puedes agregar más equipos desde la sección de ajustes.</p>
       </div>
       <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo" value="${_wizLiga.nombreEquipo}"
         style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
