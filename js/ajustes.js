@@ -919,6 +919,12 @@ function confirmarEliminarEquipo(equipoId, nombreEquipo) {
 }
 
 async function eliminarEquipo(equipoId, nombreEquipo) {
+  const item = document.querySelector(`.equipo-btn-delete[onclick*="${equipoId}"]`)?.closest('.equipo-item');
+  if (item) {
+    item.classList.add('is-disabled');
+    const footer = item.querySelector('.equipo-footer');
+    if (footer) footer.innerHTML = '<span class="sec-val-saving">Eliminando…</span>';
+  }
   try {
     await apiCall(`/equipo/${equipoId}`, 'DELETE');
     _ligaData.equipos = _ligaData.equipos.filter(e => e.id !== equipoId);
@@ -926,6 +932,10 @@ async function eliminarEquipo(equipoId, nombreEquipo) {
     mostrarToastGuardado(`✅ Equipo "${nombreEquipo}" eliminado`);
   } catch(e) {
     mostrarToastGuardado('❌ Error al eliminar el equipo');
+    if (item) {
+      item.classList.remove('is-disabled');
+      renderMiLiga(_ligaData);
+    }
     console.error(e);
   }
 }
