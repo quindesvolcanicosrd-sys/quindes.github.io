@@ -51,9 +51,14 @@
       <div id="google-resignin-btn"></div>
       <p class="no-enc-instruction">Si no logras ingresar puede que tu cuenta no este registrada o que no estes en un equipo</p>
       <div class="no-enc-or"><span></span><em>o</em><span></span></div>
-      <button id="btn-ir-registro" class="no-enc-register-btn">
-        <span class="material-icons" style="font-size:18px;">person_add</span>
-        Crear mi perfil
+      <button class="login-register-btn" onclick="mostrarRegistroDesdeLogin()">
+        <span class="material-icons" style="font-size:18px;margin-right:6px;">person_add</span>
+        Crear cuenta
+      </button>
+      <div class="login-divider"><span></span><em>o</em><span></span></div>
+      <button class="login-register-btn login-register-btn--secondary" onclick="mostrarWizardLiga()">
+        <span class="material-icons" style="font-size:18px;margin-right:6px;">add_business</span>
+        Crear equipo
       </button>
     </div>
   </div>
