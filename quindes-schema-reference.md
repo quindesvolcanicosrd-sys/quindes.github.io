@@ -1,13 +1,50 @@
 # Pivot App — Referencia de Schema para Supabase
 > ⚠️ App renombrada de "Quindes Volcánicos" a **Pivot** — rebranding en proceso
-> Última actualización: 2026-03-30 (sesión 2)
+> Última actualización: 2026-03-31 (sesión 3)
 > Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 ---
 
-## ⚠️ REGLAS DE CÓDIGO — LEER ANTES DE ESCRIBIR UNA LÍNEA
+## ⚠️ INSTRUCCIONES CRÍTICAS PARA CLAUDE — LEER ANTES DE CUALQUIER COSA
 
-Estas reglas son **no negociables** y aplican a cada cambio, por pequeño que sea.
+### Atención al contexto — NO dar vueltas en círculo
+- **Leer el schema COMPLETO antes de escribir una sola línea de código**
+- **Antes de proponer una solución, verificar si ya existe algo en el código que la resuelva**
+- **Si Víctor dice que algo no funciona o ya lo intentó, NO repetir la misma propuesta**
+- **Si hay un error de sintaxis, pedirle a Víctor el fragmento exacto de las líneas afectadas ANTES de proponer un fix**
+- **NO proponer soluciones que requieran múltiples archivos sin confirmar que Víctor tiene contexto de todos ellos**
+- **Si algo falló varias veces, cambiar de enfoque — no insistir con la misma estrategia**
+
+### Formato de instrucciones de código — SIEMPRE así
+Cuando hay que modificar cualquier archivo, Claude debe dar instrucciones en formato **buscar/reemplazar**, nunca pegar archivos enteros. El formato es:
+
+**Buscar en `archivo.js`:**
+```
+[bloque exacto tal como aparece en el archivo]
+```
+**Reemplazar:**
+```
+[nuevo bloque]
+```
+
+- Usar **Replace** (no Replace All) salvo que se indique explícitamente
+- Si hay múltiples cambios, numerarlos: Cambio 1, Cambio 2, etc.
+- Nunca pegar el archivo completo — solo los bloques afectados
+- Si Claude necesita ver el código actual, pedir solo el fragmento relevante
+- **NUNCA dar un buscar/reemplazar sin haber visto el fragmento exacto del archivo actual**
+
+### Qué evitar
+- No dar bloques de código sin contexto de dónde van
+- No decir "agregá esto al final" sin especificar después de qué
+- No hacer preguntas múltiples en un mismo mensaje — una cosa a la vez
+- No explicar en detalle lo que ya funciona — ir directo a lo que falta
+- No pedir confirmación innecesaria — si el cambio es claro, darlo directamente
+- **No proponer soluciones que ya fallaron antes en la misma sesión**
+- **No pedir archivos completos — pedir solo la función o bloque relevante**
+
+---
+
+## ⚠️ REGLAS DE CÓDIGO — NO NEGOCIABLES
 
 ### Separación estricta de responsabilidades
 
@@ -88,44 +125,13 @@ el.style.fontWeight = '700';
 
 ---
 
-## Cómo trabajar con Claude en este proyecto
+## Entorno de trabajo
 
-### Entorno de trabajo
 - **Editor**: VS Code
 - **Terminal**: integrada en VS Code (Ctrl + `)
 - **Flujo de deploy**: cambios en VS Code → `git add . && git commit -m "..." && git push` → Railway y GitHub Pages se actualizan automáticamente
 
-### Cómo dar instrucciones de código — SIEMPRE así
-Cuando hay que modificar cualquier archivo, Claude debe dar instrucciones en formato **buscar/reemplazar**, nunca pegar archivos enteros. El formato es:
-
-**Buscar en `archivo.js`:**
-```
-[bloque exacto tal como aparece en el archivo]
-```
-**Reemplazar:**
-```
-[nuevo bloque]
-```
-
-- Usar **Replace** (no Replace All) salvo que se indique explícitamente
-- Si hay múltiples cambios, numerarlos: Cambio 1, Cambio 2, etc.
-- Nunca pegar el archivo completo — solo los bloques afectados
-- Si Claude necesita ver el código actual, pedir solo el fragmento relevante
-
-### Qué evitar
-- No dar bloques de código sin contexto de dónde van
-- No decir "agregá esto al final" sin especificar después de qué
-- No hacer preguntas múltiples en un mismo mensaje — una cosa a la vez
-- No explicar en detalle lo que ya funciona — ir directo a lo que falta
-- No pedir confirmación innecesaria — si el cambio es claro, darlo directamente
-
-### Cómo manejar archivos grandes
-- Los archivos JS y HTML son largos — nunca pedirlos completos
-- Si Claude necesita contexto, pedir: "Pegame el bloque de la función X"
-- Víctor puede pegar fragmentos específicos cuando Claude los pida
-
 ### Optimización de uso de datos con Claude
-El objetivo es maximizar el trabajo útil por sesión, especialmente en planes gratuitos.
 
 **Al iniciar una sesión:**
 - Adjuntar solo el schema (este archivo) — no adjuntar código salvo que Claude lo pida
@@ -140,19 +146,11 @@ El objetivo es maximizar el trabajo útil por sesión, especialmente en planes g
 
 **Al cerrar la sesión:**
 - Pedir a Claude que actualice el schema antes de cerrar
-- No hace falta adjuntar todos los archivos para actualizar el schema — Claude lo hace desde memoria de la sesión
 - Guardar el schema actualizado antes de cerrar la conversación
-
-**Qué NO hacer:**
-- No adjuntar archivos completos para "que Claude tenga contexto" — es costoso y rara vez necesario
-- No pedir revisiones generales de todo el código en cada sesión — ir por objetivos concretos
-- No re-enviar archivos que Claude ya vio en la misma sesión
 
 ---
 
 ## Principios de diseño y animación — SIEMPRE respetar
-
-Toda pantalla, modal, toast o elemento nuevo debe seguir estas reglas de animación.
 
 ### Entradas (aparecer)
 ```css
@@ -180,7 +178,7 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 
 ---
 
-## Estado actual del proyecto (al 2026-03-30 — sesión 2)
+## Estado actual del proyecto (al 2026-03-31 — sesión 3)
 
 ### ⚠️ Rebranding en proceso
 - La app se llamaba **Quindes Volcánicos** → ahora se llama **Pivot**
@@ -201,179 +199,102 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - Subida de archivos a Supabase Storage vía Railway
 - Navegación por secciones con animaciones (slide)
 - Instalación PWA con banner contextual por navegador/OS
-- **Scrollbar nativa oculta** en `.app-scroll` (`scrollbar-width: none` + `::-webkit-scrollbar`)
-- **Sección Ajustes completa** — pantalla principal (home temporal):
-  - Mi perfil → `view-perfil`
-  - Mi Liga → `view-liga` (solo Admin)
-  - Código de invitación → `view-invitacion` (solo Admin)
-  - Apariencia → tema (auto/claro/oscuro) + **color principal del equipo (solo Admin)**
-  - Privacidad → visibilidad perfil, toggles por campo, eliminar cuenta
-  - Notificaciones → push banner + toggles por categoría
-  - Acerca de → versión, desarrollador, feedback, donaciones, términos
+- **Sección Ajustes completa** — pantalla principal (home temporal)
 - **Vista Mi Liga** con lista de equipos, edición de nombres, crear equipo (wizard 3 pasos), eliminar equipo/liga
 
-#### Transiciones de carga ✅ (nuevo — sesión 2)
-- **Pantalla en blanco al reabrir corregida**: `auth.js` ahora llama directamente a `inicializarApp()` en vez de duplicar la lógica
-- **Fade del loader**: `#loadingScreen` tiene `transition: opacity 0.45s ease` en el elemento base (no en la clase `.fadeout`). `.fadeout` solo setea `opacity: 0` y `pointer-events: none`
-- **Fade del color de fondo durante carga**: `#loadingScreen` tiene `transition: background 0.4s ease` — cuando `aplicarColorPrimario()` cambia `--bg`, el fondo del loader transiciona suavemente en vez de saltar
-- **Orden correcto de la transición**:
-  1. `aplicarColorPrimario()` mientras loader tapa todo
-  2. `appEl.style.display = 'block'` — app visible pero aún tapada
-  3. `appEl.classList.add('visible')` + `loadingEl.classList.add('fadeout')` en el mismo `rAF`
-  4. Después de 450ms: `loadingEl.style.display = 'none'`
-- **Fade del color de énfasis con app visible**: `aplicarColorPrimario(hex, true)` hace fade out de `#appContent` (clase `.color-transition-out`), aplica tokens, fade in. Usado al cambiar tema claro/oscuro con la app ya cargada
+#### Transiciones de carga ✅
+- Pantalla en blanco al reabrir corregida
+- Fade del loader con `opacity: 0.45s ease`
+- Fade del color de fondo durante carga con `transition: background 0.4s ease`
 
 #### Sistema de colores dinámico ✅
-El admin puede elegir un color primario para el equipo desde Apariencia. Todo el sistema de colores se deriva automáticamente en JS.
-
-**Arquitectura:**
-- Admin elige color → se guarda en `equipos.color_primario` (Supabase)
-- `GET /usuario` devuelve `colorPrimario` en la respuesta
-- `inicializarApp()` llama `aplicarColorPrimario(user.colorPrimario)` antes de renderizar
+- Admin elige color → se guarda en `equipos.color_primario`
 - JS deriva todos los tokens CSS automáticamente para dark y light mode
 
-**Funciones en `ajustes.js`:**
-- `hexToHsl(hex)` / `hslToHex(h, s, l)` — utilidades de conversión
-- `aplicarColorPrimario(hex, conFade = false)` — si `conFade=true` y app visible, hace fade out/in
-- `_aplicarTokensColor(hex, h, s, l, root)` — función interna que setea todos los tokens
-- `aplicarTema(tema)` → re-llama `aplicarColorPrimario(colorGuardado, true)` al cambiar dark/light
-- `abrirColorPicker()` → sheet con 12 presets + picker personalizado, preview en vivo
-- `cerrarColorPicker(e)` → cierra y revierte si cancela
-- `guardarColorPrimario()` → llama `PUT /equipo/:id/color`, muestra spinner, toast al guardar
+#### auth.js — fixes sesión 3 ✅
+- Eliminado `btn-ir-registro` que ya no existía en el HTML (causaba crash al entrar con cuenta no registrada)
+- `mostrarRegistroDesdeLogin()` ahora detecta si viene de `noEncontradoScreen` y setea `wizOrigen` correctamente
+- Oculta `noEncontradoScreen` además de `loginScreen` al abrir el wizard de registro
 
-**Tokens CSS derivados (seteados por JS en `:root`):**
-```
---accent, --accent2, --accent-dim
---accent-gradient-from, --accent-gradient-to
---bg, --card, --card2
---border, --border2, --border3
---chip-bg, --stat-bg, --section-hd, --header-bg
---text2, --text3, --text4, --label
---badge-ok-color, --badge-ok-bg, --badge-ok-border  ← complementario 120° del acento
-```
+#### api/index.js — fixes sesión 3 ✅
+- Slug de liga ahora incluye `Date.now()` para evitar duplicados en constraint `ligas_slug_key`
+- Endpoint `POST /crear-liga` acepta y guarda todos los campos de perfil del Admin fundador
 
-**Clase de transición de color:**
-- `#appContent.color-transition-out` en `global.css` → `opacity: 0; transition: opacity 0.25s ease`
+#### ajustes.js — fixes sesión 3 ✅
+- Agregadas funciones faltantes: `filtrarPaisesLiga`, `seleccionarPaisLiga`, `toggleTipoContactoLiga`
+- `_wizLiga` inicializado con todos los campos de perfil
+- `_WIZ_LIGA_TOTAL = 21` — wizard de liga tiene pasos 1-10 (liga/equipo) + 11-21 (perfil)
+- `crearLigaConPerfil()` — función que llama al backend con todos los datos juntos
 
-#### Arquitectura de archivos (estado actual)
-```
-pivot.github.io/   (antes quindes.github.io)
-  css/
-    global.css      ← variables/tokens, reset, animaciones, temas forzados,
-                       sec-group/sec-row, toggles, chips, date picker, toast,
-                       edit-field, bs-overlay, spacers, is-disabled,
-                       ya-registrada-*, sec-val-saving, home-btn-*,
-                       color-picker-*, apr-color-swatch, overlay-* vars
-    nav.css         ← bottom nav
-    ajustes.css     ← ajustes, perfil, hero card, wizard equipo, inv-*, apr-*,
-                       acerca-*, notif-*, equipo-*, liga-*, modal-confirm-*,
-                       dialog-borrar-*, modal-cuenta-borrada, overlay-fullscreen-success,
-                       wiz-equipo-*, edit-search-check, file-badge-*
-    loader.css      ← derby loader, #loadingScreen (fade + background transition)
-    login.css       ← login y no encontrado
-    wizard.css      ← wizard de registro
-  js/
-    core.js         ← config, globals, SW, derby loader, cargarParciales()
-    api.js          ← apiCall, gasCall
-    ui.js           ← loader, toast, multiselect, select, toggle, bottom sheet,
-                       edit sheet, date picker, install banner
-    auth.js         ← Google Auth, sesión persistente (llama inicializarApp directamente),
-                       login screens, borrar perfil
-    wizard.js       ← flujo de registro completo
-    perfil.js       ← render, navegación, edición, fotos, archivos, init,
-                       transición fade loader→app (rAF doble, visible + fadeout juntos)
-    ajustes.js      ← ajustes, privacidad, notificaciones, nav, mi liga, wizard equipo,
-                       aplicarColorPrimario, _aplicarTokensColor, aplicarTema, setTheme
-  html/
-    login.html      ← loginScreen + noEncontradoScreen
-    wizard.html     ← registroScreen completo
-    nav.html        ← bottom nav
-    modals.html     ← date picker + modal crop + color-picker-overlay
-  index.html        ← head + loadingScreen + appContent + scripts
-  sw.js             ← service worker — versión pendiente de actualizar a pivot-v1
-  manifest.json     ← pendiente actualizar nombre a Pivot
+#### wizard.js — fixes sesión 3 ✅
+- `submitRegistro()` tiene bifurcación: si `wizOrigen === 'crearLiga'` llama a `/crear-liga` en vez de `/registrar`
+- `mostrarRegistroWizard()` detecta `wizOrigen === 'crearLiga'` y salta intro + paso `inv`
+
+---
+
+### ⚠️ PENDIENTE CRÍTICO — Wizard "Crear equipo" (botón en login)
+
+**Objetivo:** El botón "Crear equipo" en la pantalla de login debe crear una liga + equipo + perfil Admin en un solo flujo unificado.
+
+**Flujo correcto (ya acordado, no dar vueltas):**
+1. Usuario toca "Crear equipo" en login
+2. Se abre wizard de liga (`mostrarWizardLiga()` en `ajustes.js`)
+3. Paso 0: Login con Google (si no está logueado)
+4. Pasos 1-10: Datos de liga y equipo
+5. Al terminar paso 10 → **cerrar wizard de liga** y **lanzar `mostrarRegistroWizard()` con `wizOrigen = 'crearLiga'`**
+6. El wizard de perfil (en `registroScreen`) corre normalmente, saltando el paso `inv`
+7. Al hacer submit → `submitRegistro()` detecta `wizOrigen === 'crearLiga'` y llama a `/crear-liga` con `_wizLiga` + `regData`
+8. Backend crea liga + equipo + perfil en un solo request
+9. App entra con el usuario como Admin
+
+**Por qué falló el enfoque anterior (NO repetir):**
+- Se intentó agregar pasos 11-21 directamente en `renderWizLigaPaso` con HTML inline → causó errores de sintaxis (`}` mal puesto), estilos inconsistentes con el wizard de perfil, y pantalla negra al terminar
+- Se intentó llamar `inicializarApp()` al terminar el wizard → fallaba porque el usuario no existía en Supabase Auth todavía
+- Se intentó `crearLigaYEquipo()` al final del paso 10 → error "usuario no encontrado" porque el usuario no estaba registrado en Auth
+
+**Estado actual del código:**
+- `wizLigaPasoSiguiente()` en el paso 10 actualmente llama `crearLigaConPerfil()` que intenta crear todo desde `ajustes.js` — esto hay que cambiarlo para que en cambio llame `mostrarRegistroWizard()` con `wizOrigen = 'crearLiga'`
+- `_wizLiga` es global en `ajustes.js` y persiste mientras la página no se recarga
+- `submitRegistro()` en `wizard.js` YA tiene la bifurcación para `wizOrigen === 'crearLiga'` que llama a `/crear-liga` con `_wizLiga` + `regData`
+
+**El único cambio que falta hacer:**
+
+En `wizLigaPasoSiguiente()` en `ajustes.js`, reemplazar la llamada a `crearLigaConPerfil()` por:
+```javascript
+cerrarWizLiga();
+setTimeout(() => {
+  wizOrigen = 'crearLiga';
+  mostrarRegistroWizard();
+}, 400);
 ```
 
-#### Estructura de navegación
-- `view-home` = Ajustes (home temporal)
-- `view-perfil` = Mi Perfil con hero card + menú de secciones
-- `view-estadisticas`, `view-generales`, `view-personales`, `view-contacto`, `view-salud`, `view-rendimiento` = secciones del perfil
-- `view-liga` = Mi Liga (solo Admin)
-- `view-invitacion`, `view-apariencia`, `view-privacidad`, `view-notificaciones`, `view-acerca` = secciones de ajustes
-- `navegarSeccion(seccion)` → desde home
-- `navegarDesdePerfilASeccion(seccion)` → desde view-perfil, setea `_vistaAnterior = 'perfil'`
-- `volverHome()` → vuelve a `_vistaAnterior` o home
-
-#### Backend Node.js (Railway)
-- URL: `https://quindesgithubio-production.up.railway.app` (pendiente renombrar)
-- Endpoints activos:
-  - `GET /health`
-  - `GET /usuario?email=xxx` → `{ found, id, authUserId, equipoId, ligaId, nombreDerby, rol, estadoMiembro, colorPrimario }`
-  - `GET /perfil/:id` → perfil completo con stats
-  - `PUT /perfil/:id` → actualizar perfil
-  - `POST /registrar` → crear perfil
-  - `DELETE /perfil/:id` → borrar perfil
-  - `POST /archivo` → subir a Supabase Storage
-  - `GET /codigo-invitacion?equipoId=xxx` → `{ codigo, usosActuales, usosMax, agotado }`
-  - `POST /validar-codigo` → `{ valido, error? }`
-  - `GET /liga/:ligaId` → `{ id, nombre, equipos: [...] }`
-  - `PUT /liga/:ligaId/nombre`
-  - `PUT /equipo/:equipoId/nombre`
-  - `PUT /equipo/:equipoId/color` → `{ color }`
-  - `DELETE /equipo/:equipoId`
-  - `DELETE /liga/:ligaId`
-  - `POST /crear-equipo`
-
-#### Supabase
-- URL: `znprcowxveyzanpvotms.supabase.co`
-- Schema v2: 13 tablas
-- Campo: `equipos.color_primario` (text, default `#ef4444`, nullable)
-
-#### Service Worker
-- Versión actual: `quindes-v12` (pendiente actualizar a `pivot-v1`)
+Y verificar que `renderWizLigaPaso` solo tenga pasos 0-10 (NO 11-21 — esos ya los maneja el wizard de perfil existente).
 
 ---
 
 ### Pendientes 🔜
 
-#### Rebranding a Pivot — PRÓXIMA SESIÓN
-- Limpiar todas las referencias a "Quindes" / "Quindes Volcánicos" en:
-  - `index.html` → `<title>`, `apple-mobile-web-app-title`, comentarios
-  - `manifest.json` → `name`, `short_name`
-  - `sw.js` → nombre del caché (`quindes-v12` → `pivot-v1`)
-  - `ajustes.js` → strings hardcodeados (URL de invitación, textos)
-  - `auth.js` / `perfil.js` → comentarios y strings
-  - `core.js` → `CONFIG`, comentarios
-  - URLs de share/invitación en `ajustes.js` (`app.quindesvolcanicos.com`)
-  - Sección "Acerca de" en `index.html` → nombre del equipo
-  - Email de feedback en `ajustes.js`
-
-#### Ajustes — cosa pendiente antes de pasar a Equipo
-- (Víctor sabe qué es — confirmar al inicio de la próxima sesión)
+#### Rebranding a Pivot
+- Limpiar todas las referencias a "Quindes" en: `index.html`, `manifest.json`, `sw.js`, `ajustes.js`, `auth.js`, `perfil.js`, `core.js`
+- URLs de share/invitación en `ajustes.js` (`app.quindesvolcanicos.com`)
+- `AJUSTES_KEY = 'quindes_ajustes'` → renombrar a `'pivot_ajustes'`
+- Service worker: `quindes-v12` → `pivot-v1`
 
 #### Frontend — Sección Equipo (próxima a desarrollar)
-- Vista `view-equipo` accesible desde la bottom nav
+- Vista `view-equipo` accesible desde bottom nav
 - Lista de jugadoras con foto, nombre derby, rol, estado
 - Requiere endpoint `GET /equipo/:equipoId/miembros` en Railway
 
-#### Personalización del equipo — Logo (pendiente)
-- `cambiarLogoEquipo()` existe pero muestra toast "🚧 Próximamente"
-
 #### Backend pendiente
-- `GET /equipo/:equipoId/miembros` — necesario para sección Equipo
+- `GET /equipo/:equipoId/miembros`
 - `PUT /miembro/:id/aprobar` — flujo de aprobación admin
-- `POST /crear-liga` — crear liga + equipo + admin en un solo paso
+
+#### Personalización del equipo
+- `cambiarLogoEquipo()` existe pero muestra toast "🚧 Próximamente"
 
 #### Ajustes (placeholders activos)
 - `solicitarPermisoPush()` → pide permiso pero no registra SW push subscription
 - Privacidad → toggles solo en localStorage, no sincronizados con Supabase
-
-#### Próximas secciones
-- Equipo (lista de jugadoras) — PRÓXIMA (después de terminar Ajustes)
-- Entrenamientos / Calendario
-- Tareas y puntos
-- Cuotas
-- Presupuesto (admin)
 
 ---
 
@@ -458,7 +379,7 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `CONFIG.API_URL = 'https://quindesgithubio-production.up.railway.app'`
 - `CURRENT_USER` — `{ id, email, rolApp, equipoId, ligaId, colorPrimario, ... }`
 - `accessToken` — JWT de Google
-- `wizOrigen` — `'login'` | `'noEncontrado'` | `null`
+- `wizOrigen` — `'login'` | `'noEncontrado'` | `'crearLiga'` | `null`
 - `inviteCode` — leído de `?invite=` en la URL
 - `edicionActiva` — estado de edición por sección
 - `DERBY_MSGS` — array de mensajes del loader
@@ -471,8 +392,10 @@ Liga → Equipo(s) → Miembros → Perfiles
 
 **auth.js**
 - `initGoogleAuth()` — inicializa Google; si hay sesión guardada, llama `inicializarApp()` directamente
-- `onGoogleSignIn(response)` — callback de Google
+- `onGoogleSignIn(response)` — callback de Google; si `wiz-liga-overlay` está abierto, llama `renderWizLigaPaso(1)`
 - `cerrarSesion()` — limpia estado y vuelve al login
+- `mostrarRegistroDesdeLogin()` — detecta si viene de `noEncontradoScreen` y setea `wizOrigen` correctamente
+- `mostrarNoEncontrado(email)` — muestra pantalla cuenta no registrada; ya NO usa `btn-ir-registro`
 - `confirmarBorrarPerfil()` / `ejecutarBorrarPerfil()`
 - `mostrarModalCuentaBorrada()`
 
@@ -494,26 +417,35 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `abrirDatePicker(valorActual, onConfirm)` / `cerrarDatePicker()`
 - `initDatePickerListeners()`
 - `habilitarMultiSelect` / `habilitarSelect` / `habilitarToggle`
-- `mostrarInstallBannerSiCorresponde()` / `detectarEntorno()`
 
 **wizard.js**
-- `mostrarRegistroWizard()` / `wizNext()` / `wizBack()`
-- `submitRegistro()` — envía registro al backend
+- `mostrarRegistroWizard()` — si `wizOrigen === 'crearLiga'`, salta intro y paso `inv`, arranca en paso 1
+- `wizNext()` / `wizBack()`
+- `submitRegistro()` — si `wizOrigen === 'crearLiga'`, llama `/crear-liga` con `_wizLiga` + `regData`; si no, llama `/registrar`
 - `initRegistroListeners()`
+- `REG_PAISES`, `REG_CODIGOS`, `REG_PRONOMBRES`, `REG_ROLES`, `REG_ROLES_JUG`, `REG_ASISTENCIA` — constantes globales usadas también por `ajustes.js`
 
 **ajustes.js**
 - `inicializarAjustes()` — sincroniza UI con localStorage al cargar
-- `setTheme(tema)` / `aplicarTema(tema)` — re-aplica color primario con fade al cambiar tema
-- `hexToHsl(hex)` / `hslToHex(h,s,l)` — utilidades de conversión de color
-- `aplicarColorPrimario(hex, conFade)` — con `conFade=true` hace fade out/in de appContent
-- `_aplicarTokensColor(hex, h, s, l, root)` — setea todos los tokens CSS en `:root`
+- `setTheme(tema)` / `aplicarTema(tema)`
+- `hexToHsl(hex)` / `hslToHex(h,s,l)`
+- `aplicarColorPrimario(hex, conFade)`
+- `_aplicarTokensColor(hex, h, s, l, root)`
 - `abrirColorPicker()` / `cerrarColorPicker()` / `guardarColorPrimario()`
 - `getPriv(key)` / `setPriv(key, val)` / `togglePrivacidad(key)` / `toggleSeccionPriv(seccion)`
-- `navIr(seccion)` — navegación bottom nav
-- `actualizarSeccionAdmin()` — oculta secciones admin para no-Admins
+- `navIr(seccion)`
+- `actualizarSeccionAdmin()`
 - `cargarMiLiga()` / `renderMiLiga(data)`
 - `mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onConfirmar })`
 - `sincronizarToggle(wrapperId, isOn)`
+- `mostrarWizardLiga()` — abre wizard de liga; arranca en paso 0 si no hay sesión, paso 1 si ya está logueado
+- `cerrarWizLiga()`
+- `renderWizLigaPaso(paso)` — pasos 0-10 únicamente (liga + equipo); los pasos de perfil los maneja `registroScreen`
+- `wizLigaPasoSiguiente()` / `wizLigaPasoAnterior()`
+- `filtrarPaisesLiga(query)` / `seleccionarPaisLiga(pais)`
+- `toggleTipoContactoLiga(tipo)`
+- `_wizLiga` — objeto global con datos de liga/equipo; persiste entre wizards
+- `_WIZ_LIGA_TOTAL = 10` — wizard de liga tiene solo 10 pasos (pasos de perfil los maneja wizard.js)
 - `AJUSTES_KEY = 'quindes_ajustes'` ← pendiente renombrar a `'pivot_ajustes'`
 - `PRIV_DEFAULTS` — valores por defecto de privacidad
 - `COLOR_PICKER_PRESETS` — array de 12 colores preset
@@ -533,6 +465,25 @@ De estadísticas: `puntosMes`, `puntosTrimestre`, `puntosAnio`,
 `horasPatinadas`, `asistenciaAnual`, `labelMes`, `labelTrimestre`, `labelAnio`
 
 De usuario: `found`, `id`, `authUserId`, `equipoId`, `ligaId`, `nombreDerby`, `rol`, `estadoMiembro`, `colorPrimario`
+
+### Endpoints activos (backend Railway)
+- `GET /health`
+- `GET /usuario?email=xxx`
+- `GET /perfil/:id`
+- `PUT /perfil/:id`
+- `POST /registrar` — crea perfil con código de invitación
+- `DELETE /perfil/:id`
+- `POST /archivo` — sube a Supabase Storage
+- `GET /codigo-invitacion?equipoId=xxx`
+- `POST /validar-codigo`
+- `GET /liga/:ligaId`
+- `PUT /liga/:ligaId/nombre`
+- `PUT /equipo/:equipoId/nombre`
+- `PUT /equipo/:equipoId/color`
+- `DELETE /equipo/:equipoId`
+- `DELETE /liga/:ligaId`
+- `POST /crear-equipo`
+- `POST /crear-liga` — crea liga + equipo + perfil Admin en un solo request; acepta todos los campos de perfil
 
 ---
 
@@ -563,9 +514,13 @@ Mínimos por frecuencia:
 - Color complementario para badge "ok": `hOk = (h + 120) % 360`
 - Guardado en `equipos.color_primario` en Supabase
 - Aplicado en `inicializarApp()` antes de renderizar la UI
-- Transición suave: `#loadingScreen` tiene `transition: background 0.4s ease`
 
 ### Notas de compatibilidad
 - Express v4 (no v5 — v5 causaba crashes en Railway)
 - `convertirFecha()` en backend convierte `DD/MM/YYYY` → `YYYY-MM-DD` antes de insertar en Supabase
 - SW usa `Promise.allSettled` en install — no bloquea si un asset falla
+- optional chaining `?.` causa `SyntaxError` en algunos contextos — usar forma larga si hay problemas:
+  ```js
+  // En vez de: el?.style
+  // Usar: el && el.style
+  ```
