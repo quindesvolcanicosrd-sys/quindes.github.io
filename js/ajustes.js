@@ -1069,7 +1069,7 @@ function renderWizLigaPaso(paso) {
       <div style="font-size:48px;text-align:center;">🏟️</div>
       <div style="text-align:center;">
         <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu liga?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">El nombre de la organización que agrupa a los equipos.</p>
+        <p style="font-size:14px;color:var(--text2);margin:0;">El nombre de la organización.</p>
       </div>
       <input id="wiz-liga-nombre" type="text" placeholder="Nombre de la liga" value="${_wizLiga.nombreLiga}"
         style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
@@ -1211,7 +1211,7 @@ async function crearLigaYEquipo() {
   if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
   try {
     const email = window._googleEmail || localStorage.getItem('quindes_email');
-    console.log('[WIZ-LIGA] email:', email, 'liga:', _wizLiga.nombreLiga, 'equipo:', _wizLiga.nombreEquipo);
+    window._googleEmail = email;
     const result = await apiCall('/crear-liga', 'POST', {
       nombreLiga:       _wizLiga.nombreLiga.trim(),
       nombreEquipo:     _wizLiga.nombreEquipo.trim(),
