@@ -565,6 +565,128 @@ app.post('/crear-equipo', async (req, res) => {
   }
 });
 
+// ── POST /crear-liga ──────────────────────────────────────────
+app.post('/crear-liga', async (req, res) => {
+  try {
+    const { nombreLiga, nombreEquipo, categoria, email, logoBase64, ligaImagenBase64 } = req.body;
+    if (!nombreLiga || !nombreEquipo || !email)
+      return res.status(400).json({ error: 'Faltan datos obligatorios' });
+
+    // 1. Buscar auth_user_id
+    const { data: authUsers } = await supabase.rpc('get_user_by_email', { p_email: email });
+    if (!authUsers || authUsers.length === 0)
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    const authUserId = authUsers[0].id;
+
+    // 2. Crear liga
+    const slugLiga = nombreLiga
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    const { data: liga, error: ligaError } = await supabase
+      .from('ligas')
+      .insert({ nombre: nombreLiga, slug: slugLiga })
+      .select('id, nombre')
+      .single();
+    if (ligaError) return res.status(500).json({ error: ligaError.message });
+
+    // 3. Subir imagen de liga si viene
+    let ligaImagenUrl = null;
+    if (ligaImagenBase64) {
+      try {
+        const base64 = ligaImagenBase64.replace(/^data:.+;base64,/, '');
+        const buffer = Buffer.from(base64, 'base64');
+        const mimeMatch = ligaImagenBase64.match(/^data:(.+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const ext = mimeType.split('/')[1] || 'jpg';
+        const fileName = `ligas/${liga.id}/imagen.${ext}`;
+        const { error: storageError } = await supabase.storage
+          .from('archivos').upload(fileName, buffer, { contentType: mimeType, upsert: true });
+        if (!storageError) {
+          const { data: urlData } = supabase.storage.from('archivos').getPublicUrl(fileName);
+          ligaImagenUrl = urlData.publicUrl;
+          await supabase.from('ligas').update({ imagen_url: ligaImagenUrl }).eq('id', liga.id);
+        }
+      } catch(e) { console.error('Error subiendo imagen de liga:', e.message); }
+    }
+
+    // 4. Crear equipo
+    const slugEquipo = nombreEquipo
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    const { data: equipo, error: equipoError } = await supabase
+      .from('equipos')
+      .insert({ nombre: nombreEquipo, liga_id: liga.id, categoria: categoria || null, slug: slugEquipo })
+      .select('id, nombre, categoria')
+      .single();
+    if (equipoError) return res.status(500).json({ error: equipoError.message });
+
+    // 5. Subir logo de equipo si viene
+    let logoUrl = null;
+    if (logoBase64) {
+      try {
+        const base64 = logoBase64.replace(/^data:.+;base64,/, '');
+        const buffer = Buffer.from(base64, 'base64');
+        const mimeMatch = logoBase64.match(/^data:(.+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const ext = mimeType.split('/')[1] || 'jpg';
+        const fileName = `equipos/${equipo.id}/logo.${ext}`;
+        const { error: storageError } = await supabase.storage
+          .from('archivos').upload(fileName, buffer, { contentType: mimeType, upsert: true });
+        if (!storageError) {
+          const { data: urlData } = supabase.storage.from('archivos').getPublicUrl(fileName);
+          logoUrl = urlData.publicUrl;
+          await supabase.from('equipos').update({ logo_url: logoUrl }).eq('id', equipo.id);
+        }
+      } catch(e) { console.error('Error subiendo logo:', e.message); }
+    }
+
+    // 6. Crear perfil como Admin
+    const { data: perfil, error: perfilError } = await supabase
+      .from('perfiles')
+      .insert({
+        auth_user_id: authUserId,
+        equipo_id:    equipo.id,
+        tipo_usuario: 'Admin',
+        estado:       'Activx',
+      })
+      .select('id')
+      .single();
+    if (perfilError) return res.status(500).json({ error: perfilError.message });
+
+    // 7. Crear membresía como Admin aprobado
+    const { error: miembroError } = await supabase
+      .from('miembros')
+      .insert({
+        auth_user_id: authUserId,
+        equipo_id:    equipo.id,
+        liga_id:      liga.id,
+        rol:          'Admin',
+        estado:       'aprobado',
+      });
+    if (miembroError) return res.status(500).json({ error: miembroError.message });
+
+    // 8. Crear código de invitación automático
+    const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+    await supabase.from('codigos_invitacion').insert({
+      equipo_id: equipo.id, codigo, activo: true, usos_actuales: 0,
+    });
+
+    res.json({
+      ok: true,
+      liga:   { id: liga.id, nombre: liga.nombre },
+      equipo: { id: equipo.id, nombre: equipo.nombre, categoria: equipo.categoria, codigo, logoUrl },
+      perfil: { id: perfil.id },
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── PUT /liga/:id/nombre ──────────────────────────────────────
 app.put('/liga/:id/nombre', async (req, res) => {
   try {
