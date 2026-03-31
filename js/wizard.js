@@ -2,8 +2,46 @@
 //  QUINDES APP — wizard.js  (flujo de registro)
 // ============================================================
 
-const REG_PAISES  = ['Ecuador','Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','El Salvador','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela','Canadá','Estados Unidos','Alemania','Francia','España','Italia','Reino Unido','Portugal','Suiza','Países Bajos','Suecia','Rusia','China','Japón','Corea del Sur','India','Israel','Emiratos Árabes Unidos','Arabia Saudita','Australia','Sudáfrica','Nigeria'];
-const REG_CODIGOS = ['🇪🇨 +593','🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505','🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58','🇨🇦 +1','🇺🇸 +1','🇩🇪 +49','🇫🇷 +33','🇪🇸 +34','🇮🇹 +39','🇬🇧 +44','🇵🇹 +351','🇨🇭 +41','🇳🇱 +31','🇸🇪 +46','🇷🇺 +7','🇨🇳 +86','🇯🇵 +81','🇰🇷 +82','🇮🇳 +91','🇮🇱 +972','🇦🇪 +971','🇸🇦 +966','🇦🇺 +61','🇿🇦 +27','🇳🇬 +234'];
+const REG_PAISES  = [
+  // América Latina
+  'Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba',
+  'Ecuador','El Salvador','Guatemala','Honduras','México','Nicaragua',
+  'Panamá','Paraguay','Perú','Puerto Rico','República Dominicana','Uruguay','Venezuela',
+  // América del Norte
+  'Canadá','Estados Unidos',
+  // Europa
+  'Alemania','Austria','Bélgica','Croacia','Dinamarca','España','Finlandia',
+  'Francia','Grecia','Hungría','Irlanda','Italia','Noruega','Países Bajos',
+  'Polonia','Portugal','Reino Unido','República Checa','Rumania','Rusia',
+  'Suecia','Suiza','Turquía','Ucrania',
+  // Asia y Oceanía
+  'Australia','China','Corea del Sur','Filipinas','India','Indonesia',
+  'Israel','Japón','Nueva Zelanda','Singapur','Tailandia','Taiwán',
+  // Medio Oriente y África
+  'Arabia Saudita','Egipto','Emiratos Árabes Unidos','Nigeria','Sudáfrica',
+  // Otros
+  'Otro',
+];
+const REG_CODIGOS = [
+  // América Latina
+  '🇦🇷 +54','🇧🇴 +591','🇧🇷 +55','🇨🇱 +56','🇨🇴 +57','🇨🇷 +506','🇨🇺 +53',
+  '🇪🇨 +593','🇸🇻 +503','🇬🇹 +502','🇭🇳 +504','🇲🇽 +52','🇳🇮 +505',
+  '🇵🇦 +507','🇵🇾 +595','🇵🇪 +51','🇵🇷 +1','🇩🇴 +1','🇺🇾 +598','🇻🇪 +58',
+  // América del Norte
+  '🇨🇦 +1','🇺🇸 +1',
+  // Europa
+  '🇩🇪 +49','🇦🇹 +43','🇧🇪 +32','🇭🇷 +385','🇩🇰 +45','🇪🇸 +34','🇫🇮 +358',
+  '🇫🇷 +33','🇬🇷 +30','🇭🇺 +36','🇮🇪 +353','🇮🇹 +39','🇳🇴 +47','🇳🇱 +31',
+  '🇵🇱 +48','🇵🇹 +351','🇬🇧 +44','🇨🇿 +420','🇷🇴 +40','🇷🇺 +7',
+  '🇸🇪 +46','🇨🇭 +41','🇹🇷 +90','🇺🇦 +380',
+  // Asia y Oceanía
+  '🇦🇺 +61','🇨🇳 +86','🇰🇷 +82','🇵🇭 +63','🇮🇳 +91','🇮🇩 +62',
+  '🇮🇱 +972','🇯🇵 +81','🇳🇿 +64','🇸🇬 +65','🇹🇭 +66','🇹🇼 +886',
+  // Medio Oriente y África
+  '🇸🇦 +966','🇪🇬 +20','🇦🇪 +971','🇳🇬 +234','🇿🇦 +27',
+  // Otros
+  '🌐 +0',
+];
 const REG_PRONOMBRES = ['Él', 'Ella', 'Elle', 'No definido'];
 const REG_ROLES      = ['Jammer', 'Bloquer', 'Blammer', 'Ref', 'Coach', 'Bench', 'No definido'];
 const REG_ROLES_JUG  = ['Jammer', 'Bloquer', 'Blammer', 'No definido'];

@@ -987,10 +987,10 @@ function navIr(seccion) {
 // ── Wizard Crear Liga ─────────────────────────────────────────
 let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
 let _wizLigaPaso = 1;
-const _WIZ_LIGA_TOTAL = 5;
+const _WIZ_LIGA_TOTAL = 10;
 
 function mostrarWizardLiga() {
-  _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
+  _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contacto: '', contactoCodigo: '🇪🇨 +593' };
   _wizLigaPaso = 1;
 
   const overlay = document.createElement('div');
@@ -1153,6 +1153,117 @@ function renderWizLigaPaso(paso) {
       <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
   }
+
+  if (paso === 6) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🌎</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿De qué país es tu liga?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Esto nos ayuda a construir una red de ligas por región. Opcional.</p>
+      </div>
+      <div style="width:100%;position:relative;">
+        <input id="wiz-liga-pais-input" type="text" placeholder="Buscar país…" autocomplete="off"
+          value="${_wizLiga.pais}"
+          style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:15px;box-sizing:border-box;outline:none;"
+          oninput="filtrarPaisesLiga(this.value)">
+        <div id="wiz-liga-pais-lista" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--border);border-radius:14px;margin-top:4px;max-height:200px;overflow-y:auto;z-index:10;"></div>
+      </div>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-pais-input')?.focus(), 100);
+  }
+
+  if (paso === 7) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🏙️</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿De qué ciudad?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">La ciudad donde opera principalmente tu liga. Opcional.</p>
+      </div>
+      <input id="wiz-liga-ciudad" type="text" placeholder="Ciudad" value="${_wizLiga.ciudad}"
+        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
+        oninput="_wizLiga.ciudad=this.value"
+        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-ciudad')?.focus(), 100);
+  }
+
+  if (paso === 8) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">📅</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿En qué año se fundó tu liga?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">El año de fundación de la liga. Opcional.</p>
+      </div>
+      <input id="wiz-liga-anio" type="number" placeholder="Ej: 2018" value="${_wizLiga.anioFundacion}"
+        min="1990" max="${new Date().getFullYear()}"
+        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:24px;font-weight:800;box-sizing:border-box;outline:none;text-align:center;"
+        oninput="_wizLiga.anioFundacion=this.value"
+        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-anio')?.focus(), 100);
+  }
+
+  if (paso === 9) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">📖</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Cuéntanos sobre tu liga</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Su misión, origen e ideales. Esta info aparecerá en el directorio de ligas. Opcional.</p>
+      </div>
+      <div style="background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:11px;color:var(--text3);line-height:1.5;">
+        🌐 Esta información es parte del <strong style="color:var(--text2);">Directorio Global de Ligas de Roller Derby</strong> que estamos construyendo para conectar ligas de todo el mundo.
+      </div>
+      <textarea id="wiz-liga-descripcion" placeholder="Ej: Somos una liga inclusiva fundada en 2018 con el objetivo de…" rows="4"
+        style="width:100%;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:14px;box-sizing:border-box;outline:none;resize:none;font-family:var(--font);line-height:1.5;"
+        oninput="_wizLiga.descripcion=this.value"
+        maxlength="500">${_wizLiga.descripcion}</textarea>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-descripcion')?.focus(), 100);
+  }
+
+  if (paso === 10) {
+    const esNumero = _wizLiga.contacto && !_wizLiga.contacto.startsWith('@') && !_wizLiga.contacto.startsWith('http');
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">📬</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo pueden contactarte?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Deja un Instagram o un número de WhatsApp. Opcional.</p>
+      </div>
+      <div style="display:flex;gap:8px;width:100%;justify-content:center;margin-bottom:4px;">
+        <button id="wiz-liga-tipo-social" onclick="toggleTipoContactoLiga('social')"
+          style="flex:1;padding:10px;border-radius:12px;border:2px solid ${!esNumero ? 'var(--accent)' : 'var(--border)'};background:${!esNumero ? 'var(--accent)' : 'var(--card)'};color:${!esNumero ? '#fff' : 'var(--text)'};font-size:13px;font-weight:700;cursor:pointer;">
+          Instagram / Red social
+        </button>
+        <button id="wiz-liga-tipo-tel" onclick="toggleTipoContactoLiga('tel')"
+          style="flex:1;padding:10px;border-radius:12px;border:2px solid ${esNumero ? 'var(--accent)' : 'var(--border)'};background:${esNumero ? 'var(--accent)' : 'var(--card)'};color:${esNumero ? '#fff' : 'var(--text)'};font-size:13px;font-weight:700;cursor:pointer;">
+          WhatsApp / Teléfono
+        </button>
+      </div>
+      <div id="wiz-liga-contacto-social" style="width:100%;display:${!esNumero ? 'block' : 'none'};">
+        <input id="wiz-liga-ig" type="text" placeholder="@tuliga o https://instagram.com/tuliga"
+          value="${!esNumero ? (_wizLiga.contacto || '') : ''}"
+          style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:15px;box-sizing:border-box;outline:none;"
+          oninput="_wizLiga.contacto=this.value"
+          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+      </div>
+      <div id="wiz-liga-contacto-tel" style="width:100%;display:${esNumero ? 'flex' : 'none'};gap:8px;">
+        <button type="button" id="wiz-liga-codigo-btn" onclick="abrirSelectorCodigoLiga()"
+          style="padding:14px 12px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer;min-width:90px;">
+          ${_wizLiga.contactoCodigo}
+        </button>
+        <input id="wiz-liga-tel" type="tel" placeholder="Número" maxlength="20"
+          value="${esNumero ? (_wizLiga.contacto || '') : ''}"
+          style="flex:1;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:15px;box-sizing:border-box;outline:none;"
+          oninput="_wizLiga.contacto=this.value"
+          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+      </div>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
+    `;
+  }
 }
 
 function seleccionarCategoriaLigaWiz(cat) {
@@ -1188,6 +1299,8 @@ function previewLogoLigaWiz(input) {
   };
   reader.readAsDataURL(file);
 }
+
+
 
 function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 1) {
