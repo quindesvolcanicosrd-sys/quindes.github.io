@@ -1086,7 +1086,7 @@ function renderWizLigaPaso(paso) {
     contenido.innerHTML = `
       <div style="font-size:48px;text-align:center;">🖼️</div>
       <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Imagen de la liga</h2>
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Logo de la liga</h2>
         <p style="font-size:14px;color:var(--text2);margin:0;">Sube un logo o ícono que represente a tu liga. Es opcional.</p>
       </div>
       <label style="width:120px;height:120px;border-radius:20px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--card);" id="wiz-liga-img-label">
@@ -1209,7 +1209,8 @@ async function crearLigaYEquipo() {
   const btnNext = document.getElementById('wiz-liga-btn-next');
   if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
   try {
-    const email = window._googleEmail;
+    const email = window._googleEmail || localStorage.getItem('quindes_email');
+    console.log('[WIZ-LIGA] email:', email, 'liga:', _wizLiga.nombreLiga, 'equipo:', _wizLiga.nombreEquipo);
     const result = await apiCall('/crear-liga', 'POST', {
       nombreLiga:       _wizLiga.nombreLiga.trim(),
       nombreEquipo:     _wizLiga.nombreEquipo.trim(),
@@ -1223,7 +1224,7 @@ async function crearLigaYEquipo() {
     setTimeout(() => mostrarLigaCreada(result), 400);
   } catch(e) {
     mostrarToastGuardado('❌ Error al crear: ' + e.message);
-    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Crear todo 🛼'; }
+    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Finalizar'; }
     console.error(e);
   }
 }
