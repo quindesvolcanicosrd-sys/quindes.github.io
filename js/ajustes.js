@@ -1319,6 +1319,39 @@ function wizLigaPasoAnterior() {
   if (_wizLigaPaso > 1) renderWizLigaPaso(_wizLigaPaso - 1);
 }
 
+function filtrarPaisesLiga(query) {
+  const lista = document.getElementById('wiz-liga-pais-lista');
+  if (!lista) return;
+  if (!query || query.length < 2) { lista.style.display = 'none'; return; }
+  const filtrados = REG_PAISES.filter(p => p.toLowerCase().includes(query.toLowerCase()));
+  if (filtrados.length === 0) { lista.style.display = 'none'; return; }
+  lista.style.display = 'block';
+  lista.innerHTML = filtrados.map(p =>
+    `<div class="wiz-liga-pais-item" onclick="seleccionarPaisLiga('${p}')">${p}</div>`
+  ).join('');
+}
+
+function seleccionarPaisLiga(pais) {
+  _wizLiga.pais = pais;
+  const input = document.getElementById('wiz-liga-pais-input');
+  if (input) input.value = pais;
+  const lista = document.getElementById('wiz-liga-pais-lista');
+  if (lista) lista.style.display = 'none';
+}
+
+function toggleTipoContactoLiga(tipo) {
+  const esSocial = tipo === 'social';
+  const btnSocial = document.getElementById('wiz-liga-tipo-social');
+  const btnTel    = document.getElementById('wiz-liga-tipo-tel');
+  const divSocial = document.getElementById('wiz-liga-contacto-social');
+  const divTel    = document.getElementById('wiz-liga-contacto-tel');
+  if (btnSocial) btnSocial.classList.toggle('wiz-liga-tipo-activo', esSocial);
+  if (btnTel)    btnTel.classList.toggle('wiz-liga-tipo-activo', !esSocial);
+  if (divSocial) divSocial.style.display = esSocial ? 'block' : 'none';
+  if (divTel)    divTel.style.display    = !esSocial ? 'flex' : 'none';
+  _wizLiga.contacto = '';
+}
+
 async function crearLigaYEquipo() {
   const btnNext = document.getElementById('wiz-liga-btn-next');
   if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
@@ -1334,6 +1367,7 @@ async function crearLigaYEquipo() {
       email,
     });
     if (!result?.ok) throw new Error(result?.error || 'Error al crear');
+    console.log('[LIGA CREADA] result:', JSON.stringify(result));
     cerrarWizLiga();
     setTimeout(() => mostrarLigaCreada(result), 400);
   } catch(e) {
