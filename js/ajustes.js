@@ -1452,7 +1452,7 @@ if (paso === 11) {
     if (btnNext) btnNext.textContent = '¡Crear todo! 🛼';
     setTimeout(() => document.getElementById('wiz-liga-perfil-emergencia')?.focus(), 100);
   }
-}
+
 
 function abrirFotoLigaWiz() {
   document.getElementById('wiz-liga-foto-input')?.click();
