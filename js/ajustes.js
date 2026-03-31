@@ -1415,7 +1415,9 @@ function mostrarLigaCreada(result) {
     overlay.classList.remove('visible');
     setTimeout(() => {
       overlay.remove();
-      inicializarApp(window._googleEmail);
+      inviteCode = result.equipo.codigo;
+      wizOrigen = 'crearLiga';
+      mostrarRegistroWizard();
     }, 350);
   };
 }
