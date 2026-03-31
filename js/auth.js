@@ -270,11 +270,13 @@ function mostrarLoginScreen() {
 }
 
 function mostrarRegistroDesdeLogin() {
-  window._registroDesdeLogin = true;
-  wizOrigen = 'login';
+  ._registroDesdeLogin = true;
+  const desdeNoEnc = document.getElementById('noEncontradoScreen')?.style.display === 'flex';
+  wizOrigen = desdeNoEnc ? 'noEncontrado' : 'login';
   const btnVolver = document.getElementById('wiz-step0-volver');
   if (btnVolver) btnVolver.style.display = inviteCode ? 'none' : '';
   document.getElementById('loginScreen').style.display    = 'none';
+  document.getElementById('noEncontradoScreen').style.display = 'none';
   document.getElementById('registroScreen').style.display = 'flex';
   document.getElementById('wiz-intro').style.display      = 'none';
   document.getElementById('wiz-step-0').style.display     = 'flex';
@@ -313,11 +315,7 @@ function mostrarNoEncontrado(email) {
   wizOrigen = 'noEncontrado';
   const el = document.getElementById('no-enc-email');
   if (el) el.textContent = email || '';
-  document.getElementById('btn-ir-registro').onclick = () => {
-    wizOrigen = 'noEncontrado';
-    document.getElementById('noEncontradoScreen').style.display = 'none';
-    mostrarRegistroWizard();
-  };
+  
   resetGoogleButton('google-resignin-btn', 'signin_with');
   const screen = document.getElementById('noEncontradoScreen');
   screen.style.opacity = '0';
