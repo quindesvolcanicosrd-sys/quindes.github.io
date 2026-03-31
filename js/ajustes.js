@@ -990,12 +990,6 @@ let _wizLigaPaso = 1;
 const _WIZ_LIGA_TOTAL = 5;
 
 function mostrarWizardLiga() {
-  // Requiere que el usuario ya haya iniciado sesión con Google
-  const email = window._googleEmail || null;
-  if (!email) {
-    mostrarToastGuardado('⚠️ Primero inicia sesión con Google');
-    return;
-  }
   _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
   _wizLigaPaso = 1;
 
@@ -1039,11 +1033,37 @@ function renderWizLigaPaso(paso) {
   const progress   = document.getElementById('wiz-liga-progress');
   if (!contenido) return;
 
+  // Paso 0 es el login con Google — ocultar footer y progress
+  const esLogin = paso === 0;
+  const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
+  if (footer)    footer.style.display  = esLogin ? 'none' : '';
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
-  if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
-  if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
+  if (pasoLabel) pasoLabel.textContent = esLogin ? 'Paso 1 de ' + _WIZ_LIGA_TOTAL : `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
+  if (progress)  progress.style.width  = esLogin ? '0%' : (paso / _WIZ_LIGA_TOTAL * 100) + '%';
   if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo 🛼' : 'Continuar';
 
+  if (paso === 0) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">👋</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Primero, identifícate</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Inicia sesión con tu cuenta de Google para continuar.</p>
+      </div>
+      <div id="wiz-liga-google-btn" style="display:flex;justify-content:center;width:100%;min-height:48px;border-radius:4px;overflow:hidden;color-scheme:light;"></div>
+      <button onclick="cerrarWizLiga()" style="background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:8px;">Cancelar</button>
+    `;
+    requestAnimationFrame(() => {
+      const wrap = document.getElementById('wiz-liga-google-btn');
+      if (wrap && !wrap.dataset.rendered) {
+        wrap.dataset.rendered = 'true';
+        google.accounts.id.renderButton(wrap, {
+          theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
+        });
+      }
+    });
+    return;
+  }
+  
   if (paso === 1) {
     contenido.innerHTML = `
       <div style="font-size:48px;text-align:center;">🏟️</div>

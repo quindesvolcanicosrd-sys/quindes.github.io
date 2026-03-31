@@ -180,6 +180,7 @@ function initGoogleAuth() {
         const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
         console.log('[AUTH] valData:', valData);
         if (!valData.found) throw new Error('invalid session');
+        window._googleEmail = savedEmail;
         inicializarApp(savedEmail);
       } catch(e) {
         console.error('[SESSION] Saved session failed:', e);
@@ -225,6 +226,12 @@ function onGoogleSignIn(response) {
     localStorage.setItem('quindes_token', accessToken);
   } catch(e) {}
   window._googleEmail = email;
+  // Si el wizard de crear liga está abierto, avanzar al paso 1
+  const wizLiga = document.getElementById('wiz-liga-overlay');
+  if (wizLiga) {
+    renderWizLigaPaso(1);
+    return;
+  }
   inicializarApp(email);
 }
 
