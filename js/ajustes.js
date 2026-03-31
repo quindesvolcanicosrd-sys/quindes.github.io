@@ -1265,9 +1265,8 @@ function renderWizLigaPaso(paso) {
       <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
   }
-}
 
-if (paso === 11) {
+  if (paso === 11) {
     const preview = _wizLiga.fotoBase64
       ? `<img src="${_wizLiga.fotoBase64}" class="wiz-liga-avatar-img">`
       : `<span class="material-icons wiz-liga-avatar-ph">add_a_photo</span>`;
