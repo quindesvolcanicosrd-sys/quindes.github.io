@@ -1368,9 +1368,12 @@ async function crearLigaYEquipo() {
       email,
     });
     if (!result?.ok) throw new Error(result?.error || 'Error al crear');
-    console.log('[LIGA CREADA] result:', JSON.stringify(result));
     cerrarWizLiga();
-    setTimeout(() => mostrarLigaCreada(result), 400);
+    setTimeout(() => {
+      inviteCode = result.equipo.codigo;
+      wizOrigen = 'crearLiga';
+      mostrarRegistroWizard();
+    }, 400);
   } catch(e) {
     mostrarToastGuardado('❌ Error al crear: ' + e.message);
     if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Finalizar'; }
