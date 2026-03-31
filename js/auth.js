@@ -271,7 +271,8 @@ function mostrarLoginScreen() {
 
 function mostrarRegistroDesdeLogin() {
   ._registroDesdeLogin = true;
-  const desdeNoEnc = document.getElementById('noEncontradoScreen')?.style.display === 'flex';
+  const noEncEl = document.getElementById('noEncontradoScreen');
+const desdeNoEnc = noEncEl && noEncEl.style.display === 'flex';
   wizOrigen = desdeNoEnc ? 'noEncontrado' : 'login';
   const btnVolver = document.getElementById('wiz-step0-volver');
   if (btnVolver) btnVolver.style.display = inviteCode ? 'none' : '';
