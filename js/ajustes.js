@@ -545,13 +545,13 @@ async function guardarColorPrimario() {
 // ── Mi Liga ───────────────────────────────────────────────────
 let _ligaData = null;
 
-async function cargarMiLiga() {
+async function cargarMiLiga({ render = true } = {}) {
   const ligaId = CURRENT_USER?.ligaId;
   if (!ligaId) return;
   try {
     const data = await apiCall(`/liga/${ligaId}`, 'GET');
     _ligaData = data;
-    renderMiLiga(data);
+    if (render) renderMiLiga(data);
   } catch(e) {
     console.error('Error cargando liga:', e);
   }
@@ -834,7 +834,7 @@ async function crearEquipo() {
     }, 400);
   } catch(e) {
     mostrarToastGuardado('❌ Error al crear el equipo');
-    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Crear equipo 🛼'; }
+    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Crear equipo'; }
     console.error(e);
   }
 }

@@ -517,9 +517,15 @@ app.post('/crear-equipo', async (req, res) => {
     const { nombre, ligaId, categoria, logoBase64, email } = req.body;
     if (!nombre || !ligaId) return res.status(400).json({ error: 'Faltan datos' });
 
+    const slug = nombre
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
     const { data: equipo, error: equipoError } = await supabase
       .from('equipos')
-      .insert({ nombre, liga_id: ligaId, categoria: categoria || null })
+      .insert({ nombre, liga_id: ligaId, categoria: categoria || null, slug })
       .select('id, nombre, categoria')
       .single();
 
@@ -595,34 +601,7 @@ app.put('/equipo/:id/nombre', async (req, res) => {
     res.json({ ok: true });
   } catch(err) { res.status(500).json({ error: err.message }); }
 });
-app.post('/crear-equipo', async (req, res) => {
-  try {
-    const { nombre, ligaId } = req.body;
-    if (!nombre || !ligaId) return res.status(400).json({ error: 'Faltan datos' });
 
-    const { data: equipo, error: equipoError } = await supabase
-      .from('equipos')
-      .insert({ nombre, liga_id: ligaId })
-      .select('id, nombre')
-      .single();
-
-    if (equipoError) return res.status(500).json({ error: equipoError.message });
-
-    // Crear código de invitación automático para el nuevo equipo
-    const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
-    await supabase.from('codigos_invitacion').insert({
-      equipo_id:     equipo.id,
-      codigo,
-      activo:        true,
-      usos_actuales: 0,
-    });
-
-    res.json({ ok: true, equipo: { ...equipo, codigo, usosActuales: 0, usosMax: null } });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // ── DELETE /equipo/:id ────────────────────────────────────────
 app.delete('/equipo/:id', async (req, res) => {

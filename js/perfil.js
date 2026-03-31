@@ -39,7 +39,10 @@ function navegarSeccion(seccion) {
   if (_navegando) return;
   _navegando = true;
   setTimeout(() => { _navegando = false; }, 400);
-  if (seccion === 'liga') cargarMiLiga();
+  if (seccion === 'liga') {
+    if (_ligaData) renderMiLiga(_ligaData);
+    else cargarMiLiga();
+  }
   if (seccion === 'invitacion') inicializarCodigoInvitacion();
   const home = document.getElementById('view-home');
   const dest = document.getElementById('view-' + seccion);
@@ -232,6 +235,9 @@ async function inicializarApp(email) {
         loadingEl.classList.remove('fadeout');
       }, 450);
     }));
+
+    // Prefetch Mi Liga en background para que esté listo al navegar
+    if (CURRENT_USER?.ligaId) cargarMiLiga({ render: false });
 
   } catch (err) {
     console.error(err);
