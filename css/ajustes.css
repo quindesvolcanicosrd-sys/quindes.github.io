@@ -479,6 +479,21 @@
 }
 
 .liga-btn-crear   { margin-top: 16px; }
+
+.wiz-liga-pais-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border3);
+}
+.wiz-liga-pais-item:active { background: var(--card2); }
+
+.wiz-liga-tipo-activo {
+  border-color: var(--accent) !important;
+  background: var(--accent) !important;
+  color: #fff !important;
+}
 .liga-btn-eliminar { margin-bottom: 16px; }
 
 .priv-bloque {

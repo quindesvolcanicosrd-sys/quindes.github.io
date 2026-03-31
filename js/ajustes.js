@@ -991,7 +991,7 @@ const _WIZ_LIGA_TOTAL = 10;
 
 function mostrarWizardLiga() {
   _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contacto: '', contactoCodigo: '🇪🇨 +593' };
-  _wizLigaPaso = 1;
+  _wizLigaPaso = 0;
 
   const overlay = document.createElement('div');
   overlay.id = 'wiz-liga-overlay';
