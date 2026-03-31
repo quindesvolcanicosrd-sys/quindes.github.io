@@ -1311,7 +1311,12 @@ function wizLigaPasoSiguiente() {
     if (!_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   }
   if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
-    crearLigaYEquipo(); return;
+    cerrarWizLiga();
+    setTimeout(() => {
+      wizOrigen = 'crearLiga';
+      mostrarRegistroWizard();
+    }, 400);
+    return;
   }
   renderWizLigaPaso(_wizLigaPaso + 1);
 }
