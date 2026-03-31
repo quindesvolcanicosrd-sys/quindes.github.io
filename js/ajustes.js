@@ -1014,7 +1014,8 @@ function mostrarWizardLiga() {
   `;
   document.body.appendChild(overlay);
   requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
-  renderWizLigaPaso(1);
+  const yaLogueado = !!(window._googleEmail || localStorage.getItem('quindes_email'));
+  renderWizLigaPaso(yaLogueado ? 1 : 0);
 }
 
 function cerrarWizLiga() {
