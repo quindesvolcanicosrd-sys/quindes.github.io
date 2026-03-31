@@ -270,7 +270,7 @@ function mostrarLoginScreen() {
 }
 
 function mostrarRegistroDesdeLogin() {
-  ._registroDesdeLogin = true;
+  window._registroDesdeLogin = true;
   const noEncEl = document.getElementById('noEncontradoScreen');
 const desdeNoEnc = noEncEl && noEncEl.style.display === 'flex';
   wizOrigen = desdeNoEnc ? 'noEncontrado' : 'login';
