@@ -46,7 +46,17 @@
   border-radius: 0; overflow: visible;
   background: transparent;
 }
-.loading-logo-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.loading-logo-img { width: 100%; height: 100%; object-fit: contain; display: none; }
+
+.theme-dark  .logo-dark  { display: block; }
+.theme-light .logo-light { display: block; }
+
+@media (prefers-color-scheme: dark) {
+  html:not(.theme-light) .logo-dark  { display: block; }
+}
+@media (prefers-color-scheme: light) {
+  html:not(.theme-dark) .logo-light { display: block; }
+}
 .loading-logo .material-icons { display: none; }
 
 /* ══ DERBY LOADER ══ */
