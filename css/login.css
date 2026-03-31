@@ -14,7 +14,7 @@
 .login-title { font-size: 22px !important; font-weight: 900 !important; font-style: italic !important; text-transform: uppercase !important; letter-spacing: -0.3px !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important; margin: 0 !important; text-align: center; animation: wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.2s both; }
 .login-sub { font-size: 13px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; margin: 0 !important; text-align: center; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; animation: wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.3s both; }
 .login-cta-box { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; animation: wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) 0.45s both; }
-.login-instruction { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--card); border: 1px solid var(--border2); border-radius: 16px; padding: 14px 18px; font-size: 14px !important; font-weight: 600 !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important; text-align: center; line-height: 1.45 !important; margin: 0 !important; width: 100%; box-sizing: border-box; }
+.login-instruction { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--card); border-radius: 16px; padding: 14px 18px; font-size: 14px !important; font-weight: 600 !important; color: var(--text) !important; -webkit-text-fill-color: var(--text) !important; text-align: center; line-height: 1.45 !important; margin: 0 !important; width: 100%; box-sizing: border-box; }
 .login-instruction-icon { font-size: 20px; flex-shrink: 0; }
 .login-google-btn-wrap {
   display: flex; justify-content: center; align-items: center;
@@ -36,7 +36,7 @@
 .login-divider em { font-style: normal; font-size: 12px; color: var(--text4); font-weight: 600; letter-spacing: 0.08em; }
 .login-register-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 13px 20px; border-radius: 14px; border: 1.5px solid var(--border); background: transparent; color: var(--text); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background 0.18s, border-color 0.18s; }
 .login-register-btn:active { background: var(--card); }
-.login-register-btn--secondary { color: var(--text3); border-color: var(--border2); font-size: 14px; }
+.login-register-btn--secondary { color: var(--text); border-color: var(--border2); font-size: 14px; }
 .login-register-btn--secondary:active { background: var(--card); }
 .login-disclaimer { font-size: 11px !important; color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important; text-align: center; line-height: 1.5 !important; margin: 0 !important;padding-bottom: 15px; }
 .login-card { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 32px; background: var(--card); border-radius: 24px; max-width: 340px; width: 90%; text-align: center; }
