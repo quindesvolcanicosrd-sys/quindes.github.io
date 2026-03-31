@@ -901,7 +901,7 @@ function mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onCo
   const cerrar = () => {
     overlay.classList.remove('visible');
     sheet.classList.remove('visible');
-    setTimeout(() => overlay.remove(), 350);
+    setTimeout(() => overlay.remove(), 280);
   };
   overlay.addEventListener('click', e => { if (e.target === overlay) cerrar(); });
   document.getElementById('modal-cancel-btn').onclick = cerrar;
