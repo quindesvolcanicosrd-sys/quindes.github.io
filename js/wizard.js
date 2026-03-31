@@ -618,6 +618,40 @@ async function submitRegistro() {
 
   try {
     const email = localStorage.getItem('quindes_email') || '';
+
+    if (wizOrigen === 'crearLiga') {
+      const json = await apiCall('/crear-liga', 'POST', {
+        email,
+        nombreLiga:   _wizLiga.nombreLiga,
+        nombreEquipo: _wizLiga.nombreEquipo,
+        categoria:    _wizLiga.categoria || null,
+        ligaImagenBase64: _wizLiga.ligaImagenBase64 || null,
+        logoBase64:   _wizLiga.logoBase64 || null,
+        nombre: regData.nombre.trim(),
+        pronombres: Array.isArray(regData.pronombres) ? regData.pronombres.join(', ') : (regData.pronombres || ''),
+        pais: regData.pais, codigoPais: regData.codigoPais,
+        telefono: regData.telefono.trim(), fechaNacimiento: regData.fechaNacimiento,
+        mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
+        nombreDerby: regData.nombreDerby, numero: regData.numero,
+        rolJugadorx: regData.rolJugadorx, asisteSemana: regData.asisteSemana,
+        alergias: regData.alergias, dieta: regData.dieta,
+        contactoEmergencia: regData.contactoEmergencia,
+        fotoBase64: regData.fotoBase64 || null,
+      });
+      CURRENT_USER = { found: true, id: json.perfil.id, email, rolApp: 'Admin', equipoId: json.equipo.id, ligaId: json.liga.id };
+      const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = email;
+      const profile = await apiCall('/perfil/' + json.perfil.id);
+      window.myProfile = profile;
+      configurarTodasLasSubidas();
+      renderTodo(profile);
+      aplicarPermisos();
+      wizOcultarCargando();
+      document.getElementById('registroScreen').style.display = 'none';
+      document.getElementById('appContent').style.display    = 'block';
+      setTimeout(() => { lanzarConfetti(); mostrarBienvenida(); }, 400);
+      return;
+    }
+
     const json = await apiCall('/registrar', 'POST', {
       email,
       nombre: regData.nombre.trim(),
