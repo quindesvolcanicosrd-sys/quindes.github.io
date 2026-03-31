@@ -224,6 +224,7 @@ function onGoogleSignIn(response) {
     localStorage.setItem('quindes_email', email);
     localStorage.setItem('quindes_token', accessToken);
   } catch(e) {}
+  window._googleEmail = email;
   inicializarApp(email);
 }
 

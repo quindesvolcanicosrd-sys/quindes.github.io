@@ -984,3 +984,268 @@ function navIr(seccion) {
   if (navEl) { void navEl.offsetWidth; navEl.classList.add('nav-active'); }
   // TODO: mostrar sección correspondiente
 }
+// ── Wizard Crear Liga ─────────────────────────────────────────
+let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
+let _wizLigaPaso = 1;
+const _WIZ_LIGA_TOTAL = 5;
+
+function mostrarWizardLiga() {
+  // Requiere que el usuario ya haya iniciado sesión con Google
+  const email = window._googleEmail || null;
+  if (!email) {
+    mostrarToastGuardado('⚠️ Primero inicia sesión con Google');
+    return;
+  }
+  _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
+  _wizLigaPaso = 1;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'wiz-liga-overlay';
+  overlay.className = 'wiz-equipo-overlay';
+  overlay.innerHTML = `
+    <header class="wiz-equipo-header">
+      <button onclick="cerrarWizLiga()" class="wiz-eq-close-btn">
+        <span class="material-icons">close</span>
+      </button>
+      <span id="wiz-liga-paso-label" class="wiz-eq-paso-label">Paso 1 de ${_WIZ_LIGA_TOTAL}</span>
+      <div class="wiz-equipo-progress">
+        <div id="wiz-liga-progress" class="wiz-equipo-progress-bar" style="width:${100/_WIZ_LIGA_TOTAL}%;"></div>
+      </div>
+    </header>
+    <div id="wiz-liga-contenido" class="wiz-equipo-contenido"></div>
+    <div class="wiz-equipo-footer">
+      <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-eq-btn-back" style="display:none;">Atrás</button>
+      <button id="wiz-liga-btn-next" onclick="wizLigaPasoSiguiente()" class="wiz-eq-btn-next">Continuar</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+  renderWizLigaPaso(1);
+}
+
+function cerrarWizLiga() {
+  const overlay = document.getElementById('wiz-liga-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('visible');
+  setTimeout(() => overlay.remove(), 350);
+}
+
+function renderWizLigaPaso(paso) {
+  _wizLigaPaso = paso;
+  const contenido  = document.getElementById('wiz-liga-contenido');
+  const btnBack    = document.getElementById('wiz-liga-btn-back');
+  const btnNext    = document.getElementById('wiz-liga-btn-next');
+  const pasoLabel  = document.getElementById('wiz-liga-paso-label');
+  const progress   = document.getElementById('wiz-liga-progress');
+  if (!contenido) return;
+
+  if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
+  if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
+  if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
+  if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo 🛼' : 'Continuar';
+
+  if (paso === 1) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🏟️</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu liga?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">El nombre de la organización que agrupa a los equipos.</p>
+      </div>
+      <input id="wiz-liga-nombre" type="text" placeholder="Nombre de la liga" value="${_wizLiga.nombreLiga}"
+        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
+        oninput="_wizLiga.nombreLiga=this.value"
+        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-nombre')?.focus(), 100);
+  }
+
+  if (paso === 2) {
+    const preview = _wizLiga.ligaImagenBase64
+      ? `<img src="${_wizLiga.ligaImagenBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
+      : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🖼️</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Imagen de la liga</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Sube un logo o ícono que represente a tu liga. Es opcional.</p>
+      </div>
+      <label style="width:120px;height:120px;border-radius:20px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--card);" id="wiz-liga-img-label">
+        ${preview}
+        <input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">
+      </label>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
+    `;
+  }
+
+  if (paso === 3) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🛼</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu equipo?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">El primer equipo dentro de la liga. Puedes agregar más después.</p>
+      </div>
+      <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo" value="${_wizLiga.nombreEquipo}"
+        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
+        oninput="_wizLiga.nombreEquipo=this.value"
+        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-equipo-nombre')?.focus(), 100);
+  }
+
+  if (paso === 4) {
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🏆</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Qué categoría es tu equipo?</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Selecciona la categoría en la que compite.</p>
+      </div>
+      <div style="display:flex;gap:12px;width:100%;justify-content:center;">
+        ${['A','B','C'].map(cat => `
+          <button onclick="seleccionarCategoriaLigaWiz('${cat}')"
+            id="wiz-liga-cat-${cat}"
+            style="flex:1;padding:20px 8px;border-radius:16px;
+                   border:2px solid ${_wizLiga.categoria === cat ? 'var(--accent)' : 'var(--border)'};
+                   background:${_wizLiga.categoria === cat ? 'var(--accent)' : 'var(--card)'};
+                   color:${_wizLiga.categoria === cat ? '#fff' : 'var(--text)'};
+                   font-size:22px;font-weight:800;cursor:pointer;transition:all 0.2s ease;">
+            ${cat}
+          </button>`).join('')}
+      </div>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
+    `;
+  }
+
+  if (paso === 5) {
+    const preview = _wizLiga.logoBase64
+      ? `<img src="${_wizLiga.logoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
+      : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
+    contenido.innerHTML = `
+      <div style="font-size:48px;text-align:center;">🎨</div>
+      <div style="text-align:center;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Logo del equipo</h2>
+        <p style="font-size:14px;color:var(--text2);margin:0;">Sube el logo de tu equipo. Puedes cambiarlo después.</p>
+      </div>
+      <label style="width:120px;height:120px;border-radius:20px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--card);" id="wiz-liga-logo-label">
+        ${preview}
+        <input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">
+      </label>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
+    `;
+  }
+}
+
+function seleccionarCategoriaLigaWiz(cat) {
+  _wizLiga.categoria = cat;
+  ['A','B','C'].forEach(c => {
+    const btn = document.getElementById('wiz-liga-cat-' + c);
+    if (!btn) return;
+    const activo = c === cat;
+    btn.style.borderColor = activo ? 'var(--accent)' : 'var(--border)';
+    btn.style.background  = activo ? 'var(--accent)' : 'var(--card)';
+    btn.style.color       = activo ? '#fff' : 'var(--text)';
+  });
+}
+
+function previewImagenLiga(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _wizLiga.ligaImagenBase64 = e.target.result;
+    const label = document.getElementById('wiz-liga-img-label');
+    if (label) label.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;"><input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewLogoLigaWiz(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _wizLiga.logoBase64 = e.target.result;
+    const label = document.getElementById('wiz-liga-logo-label');
+    if (label) label.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;"><input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function wizLigaPasoSiguiente() {
+  if (_wizLigaPaso === 1) {
+    if (!_wizLiga.nombreLiga.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
+  }
+  if (_wizLigaPaso === 3) {
+    if (!_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
+  }
+  if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
+    crearLigaYEquipo(); return;
+  }
+  renderWizLigaPaso(_wizLigaPaso + 1);
+}
+
+function wizLigaPasoAnterior() {
+  if (_wizLigaPaso > 1) renderWizLigaPaso(_wizLigaPaso - 1);
+}
+
+async function crearLigaYEquipo() {
+  const btnNext = document.getElementById('wiz-liga-btn-next');
+  if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
+  try {
+    const email = window._googleEmail;
+    const result = await apiCall('/crear-liga', 'POST', {
+      nombreLiga:       _wizLiga.nombreLiga.trim(),
+      nombreEquipo:     _wizLiga.nombreEquipo.trim(),
+      categoria:        _wizLiga.categoria || null,
+      ligaImagenBase64: _wizLiga.ligaImagenBase64,
+      logoBase64:       _wizLiga.logoBase64,
+      email,
+    });
+    if (!result?.ok) throw new Error(result?.error || 'Error al crear');
+    cerrarWizLiga();
+    setTimeout(() => mostrarLigaCreada(result), 400);
+  } catch(e) {
+    mostrarToastGuardado('❌ Error al crear: ' + e.message);
+    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Crear todo 🛼'; }
+    console.error(e);
+  }
+}
+
+function mostrarLigaCreada(result) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay-fullscreen-success';
+  overlay.innerHTML = `
+    <div style="text-align:center;max-width:320px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+      <div style="font-size:64px;animation:wiz-fade-up 0.5s ease 0.1s both;">🎉</div>
+      <h2 style="font-size:24px;font-weight:800;color:var(--text);margin:0;animation:wiz-fade-up 0.5s ease 0.2s both;">¡Todo listo!</h2>
+      <p style="font-size:15px;color:var(--text2);line-height:1.6;margin:0;animation:wiz-fade-up 0.5s ease 0.3s both;">
+        Liga <strong style="color:var(--text);">${result.liga.nombre}</strong> y equipo
+        <strong style="color:var(--text);">${result.equipo.nombre}</strong> creados. Tu cuenta ya está activa como Admin.
+      </p>
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 24px;animation:wiz-fade-up 0.5s ease 0.4s both;width:100%;box-sizing:border-box;">
+        <p style="font-size:12px;color:var(--text3);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.05em;">🔑 Código de invitación del equipo</p>
+        <p id="liga-creada-codigo" style="font-size:28px;font-weight:900;color:var(--accent);margin:0;letter-spacing:0.1em;">${result.equipo.codigo}</p>
+        <button id="liga-creada-copiar" style="margin-top:10px;padding:8px 20px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;">
+          Copiar código
+        </button>
+      </div>
+      <button id="liga-creada-entrar"
+        style="margin-top:8px;padding:14px 32px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;animation:wiz-fade-up 0.5s ease 0.6s both;width:100%;">
+        Entrar a la app
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+
+  document.getElementById('liga-creada-copiar').onclick = () => {
+    navigator.clipboard.writeText(result.equipo.codigo)
+      .then(() => mostrarToastGuardado('✅ Código copiado'))
+      .catch(() => mostrarToastGuardado('❌ No se pudo copiar'));
+  };
+
+  document.getElementById('liga-creada-entrar').onclick = () => {
+    overlay.classList.remove('visible');
+    setTimeout(() => {
+      overlay.remove();
+      inicializarApp(window._googleEmail);
+    }, 350);
+  };
+}
