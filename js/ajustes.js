@@ -987,7 +987,7 @@ function navIr(seccion) {
 // ── Wizard Crear Liga ─────────────────────────────────────────
 let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
 let _wizLigaPaso = 1;
-const _WIZ_LIGA_TOTAL = 10;
+const _WIZ_LIGA_TOTAL = 21;
 
 function mostrarWizardLiga() {
   _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contacto: '', contactoCodigo: '🇪🇨 +593' };
@@ -1267,6 +1267,208 @@ function renderWizLigaPaso(paso) {
   }
 }
 
+if (paso === 11) {
+    const preview = _wizLiga.fotoBase64
+      ? `<img src="${_wizLiga.fotoBase64}" class="wiz-liga-avatar-img">`
+      : `<span class="material-icons wiz-liga-avatar-ph">add_a_photo</span>`;
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">📸</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">¡Ponele cara al nombre!</h2>
+        <p class="wiz-liga-desc">Sube una foto de perfil. Es opcional.</p>
+      </div>
+      <div class="wiz-liga-avatar" id="wiz-liga-avatar" onclick="abrirFotoLigaWiz()">
+        ${preview}
+      </div>
+      <input type="file" id="wiz-liga-foto-input" accept="image/*" style="display:none;" onchange="previewFotoLigaWiz(this)">
+    `;
+  }
+
+  if (paso === 12) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">✨</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">¿Cómo te llamamos?</h2>
+        <p class="wiz-liga-desc">Tu nombre o apodo en el equipo.</p>
+      </div>
+      <input id="wiz-liga-perfil-nombre" type="text" placeholder="Ej: Valentina, Val…" value="${_wizLiga.nombre || ''}"
+        class="wiz-liga-input"
+        oninput="_wizLiga.nombre=this.value"
+        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-perfil-nombre')?.focus(), 100);
+  }
+
+  if (paso === 13) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">🏳️‍🌈</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">¿Con qué pronombres te identificás?</h2>
+        <p class="wiz-liga-desc">Opcional.</p>
+      </div>
+      <div id="wiz-liga-pronombres-chips" class="chip-wrapper wiz-chips"></div>
+    `;
+    regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], v => { _wizLiga.pronombres = v; });
+  }
+
+  if (paso === 14) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">🌎</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">¿De dónde sos?</h2>
+        <p class="wiz-liga-desc">Tu país de origen.</p>
+      </div>
+      <button type="button" id="wiz-liga-perfil-pais-btn" class="wiz-liga-selector-btn">
+        <span id="wiz-liga-perfil-pais-display">${_wizLiga.paisPerfil || 'Seleccionar país…'}</span>
+        <span class="material-icons">expand_more</span>
+      </button>
+    `;
+    document.getElementById('wiz-liga-perfil-pais-btn').onclick = () => {
+      abrirBottomSheet('Nacionalidad', REG_PAISES, _wizLiga.paisPerfil || '', val => {
+        _wizLiga.paisPerfil = val;
+        document.getElementById('wiz-liga-perfil-pais-display').textContent = val;
+      });
+    };
+  }
+
+  if (paso === 15) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">📱</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">Tu número de contacto</h2>
+        <p class="wiz-liga-desc">Prefijo y número.</p>
+      </div>
+      <div class="wiz-liga-phone-row">
+        <button type="button" id="wiz-liga-perfil-codigo-btn" class="wiz-liga-selector-btn wiz-liga-codigo-btn">
+          <span id="wiz-liga-perfil-codigo-display">${_wizLiga.codigoPais || '+?'}</span>
+          <span class="material-icons">expand_more</span>
+        </button>
+        <input id="wiz-liga-perfil-tel" type="tel" placeholder="Número" class="wiz-liga-input"
+          value="${_wizLiga.telefono || ''}"
+          oninput="_wizLiga.telefono=this.value"
+          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+      </div>
+    `;
+    document.getElementById('wiz-liga-perfil-codigo-btn').onclick = () => {
+      abrirBottomSheet('Código de país', REG_CODIGOS, _wizLiga.codigoPais || '', val => {
+        _wizLiga.codigoPais = val;
+        document.getElementById('wiz-liga-perfil-codigo-display').textContent = val;
+      });
+    };
+    setTimeout(() => document.getElementById('wiz-liga-perfil-tel')?.focus(), 100);
+  }
+
+  if (paso === 16) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">🎂</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">Fecha de nacimiento</h2>
+        <p class="wiz-liga-desc">Obligatorio.</p>
+      </div>
+      <button type="button" id="wiz-liga-perfil-fecha-btn" class="wiz-liga-selector-btn">
+        <span id="wiz-liga-perfil-fecha-display">${_wizLiga.fechaNacimiento || 'Seleccionar fecha…'}</span>
+        <span class="material-icons">edit_calendar</span>
+      </button>
+    `;
+    document.getElementById('wiz-liga-perfil-fecha-btn').onclick = () => {
+      abrirDatePicker(_wizLiga.fechaNacimiento || '', val => {
+        _wizLiga.fechaNacimiento = val;
+        document.getElementById('wiz-liga-perfil-fecha-display').textContent = val;
+      });
+    };
+  }
+
+  if (paso === 17) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">⭐</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">Datos Derby</h2>
+        <p class="wiz-liga-desc">Opcional.</p>
+      </div>
+      <input id="wiz-liga-perfil-derby" type="text" placeholder="Nombre Derby" class="wiz-liga-input"
+        value="${_wizLiga.nombreDerby || ''}"
+        oninput="_wizLiga.nombreDerby=this.value"
+        onkeydown="if(event.key==='Enter') document.getElementById('wiz-liga-perfil-numero').focus()">
+      <input id="wiz-liga-perfil-numero" type="text" placeholder="Número Derby" class="wiz-liga-input"
+        value="${_wizLiga.numeroDerby || ''}"
+        oninput="_wizLiga.numeroDerby=this.value"
+        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()" style="margin-top:12px;">
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-perfil-derby')?.focus(), 100);
+  }
+
+  if (paso === 18) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">🏅</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">Tu rol en el equipo</h2>
+        <p class="wiz-liga-desc">Seleccioná tu posición.</p>
+      </div>
+      <div id="wiz-liga-rol-chips" class="chip-wrapper wiz-chips"></div>
+    `;
+    regRenderChips('wiz-liga-rol-chips', REG_ROLES, _wizLiga.rolJugadorx || '', v => { _wizLiga.rolJugadorx = v; });
+  }
+
+  if (paso === 19) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">🏋️</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">¿Cuánto entrenás?</h2>
+        <p class="wiz-liga-desc">Veces por semana.</p>
+      </div>
+      <div id="wiz-liga-asiste-chips" class="chip-wrapper wiz-chips"></div>
+    `;
+    regRenderChips('wiz-liga-asiste-chips', REG_ASISTENCIA, _wizLiga.asisteSemana || '', v => { _wizLiga.asisteSemana = v; });
+  }
+
+  if (paso === 20) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">🩺</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">Tu salud nos importa</h2>
+        <p class="wiz-liga-desc">Opcional.</p>
+      </div>
+      <input id="wiz-liga-perfil-alergias" type="text" placeholder="Alergias o condiciones" class="wiz-liga-input"
+        value="${_wizLiga.alergias || ''}"
+        oninput="_wizLiga.alergias=this.value">
+      <input id="wiz-liga-perfil-dieta" type="text" placeholder="Dieta especial" class="wiz-liga-input"
+        value="${_wizLiga.dieta || ''}"
+        oninput="_wizLiga.dieta=this.value" style="margin-top:12px;">
+    `;
+  }
+
+  if (paso === 21) {
+    contenido.innerHTML = `
+      <div class="wiz-liga-paso-emoji">🆘</div>
+      <div class="wiz-liga-paso-titulo">
+        <h2 class="wiz-liga-h2">Contacto de emergencia</h2>
+        <p class="wiz-liga-desc">Opcional.</p>
+      </div>
+      <input id="wiz-liga-perfil-emergencia" type="text" placeholder="Nombre y teléfono" class="wiz-liga-input"
+        value="${_wizLiga.contactoEmergencia || ''}"
+        oninput="_wizLiga.contactoEmergencia=this.value"
+        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+    `;
+    if (btnNext) btnNext.textContent = '¡Crear todo! 🛼';
+    setTimeout(() => document.getElementById('wiz-liga-perfil-emergencia')?.focus(), 100);
+  }
+}
+
+function abrirFotoLigaWiz() {
+  document.getElementById('wiz-liga-foto-input')?.click();
+}
+
+function previewFotoLigaWiz(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _wizLiga.fotoBase64 = e.target.result;
+    const avatar = document.getElementById('wiz-liga-avatar');
+    if (avatar) avatar.innerHTML = `<img src="${e.target.result}" class="wiz-liga-avatar-img">`;
+  };
+  reader.readAsDataURL(file);
+}
+
 function seleccionarCategoriaLigaWiz(cat) {
   _wizLiga.categoria = cat;
   ['A','B','C'].forEach(c => {
@@ -1310,19 +1512,75 @@ function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 3) {
     if (!_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   }
+  if (_wizLigaPaso === 12) {
+    if (!_wizLiga.nombre?.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
+  }
+  if (_wizLigaPaso === 16) {
+    if (!_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresa tu fecha de nacimiento'); return; }
+  }
   if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
-    cerrarWizLiga();
-    setTimeout(() => {
-      wizOrigen = 'crearLiga';
-      mostrarRegistroWizard();
-    }, 400);
-    return;
+    crearLigaConPerfil(); return;
   }
   renderWizLigaPaso(_wizLigaPaso + 1);
 }
 
 function wizLigaPasoAnterior() {
   if (_wizLigaPaso > 1) renderWizLigaPaso(_wizLigaPaso - 1);
+}
+
+async function crearLigaConPerfil() {
+  const btnNext = document.getElementById('wiz-liga-btn-next');
+  if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
+  try {
+    const email = window._googleEmail || localStorage.getItem('quindes_email');
+    const result = await apiCall('/crear-liga', 'POST', {
+      email,
+      nombreLiga:          _wizLiga.nombreLiga.trim(),
+      nombreEquipo:        _wizLiga.nombreEquipo.trim(),
+      categoria:           _wizLiga.categoria || null,
+      ligaImagenBase64:    _wizLiga.ligaImagenBase64 || null,
+      logoBase64:          _wizLiga.logoBase64 || null,
+      nombre:              _wizLiga.nombre?.trim() || '',
+      pronombres:          Array.isArray(_wizLiga.pronombres) ? _wizLiga.pronombres.join(', ') : '',
+      paisPerfil:          _wizLiga.paisPerfil || '',
+      codigoPais:          _wizLiga.codigoPais || '',
+      telefono:            _wizLiga.telefono || '',
+      fechaNacimiento:     _wizLiga.fechaNacimiento || '',
+      mostrarCumple:       'No',
+      mostrarEdad:         'No',
+      nombreDerby:         _wizLiga.nombreDerby || '',
+      numero:              _wizLiga.numeroDerby || '',
+      rolJugadorx:         _wizLiga.rolJugadorx || '',
+      asisteSemana:        _wizLiga.asisteSemana || '',
+      alergias:            _wizLiga.alergias || '',
+      dieta:               _wizLiga.dieta || '',
+      contactoEmergencia:  _wizLiga.contactoEmergencia || '',
+      fotoBase64:          _wizLiga.fotoBase64 || null,
+    });
+    if (!result?.ok) throw new Error(result?.error || 'Error al crear');
+    cerrarWizLiga();
+    CURRENT_USER = {
+      found: true, id: result.perfil.id, email,
+      rolApp: 'Admin', equipoId: result.equipo.id, ligaId: result.liga.id,
+    };
+    localStorage.setItem('quindes_email', email);
+    const profile = await apiCall('/perfil/' + result.perfil.id);
+    window.myProfile = profile;
+    configurarTodasLasSubidas();
+    renderTodo(profile);
+    aplicarPermisos();
+    inicializarAjustes();
+    setTimeout(() => {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+      lanzarConfetti();
+      mostrarBienvenida();
+    }, 400);
+  } catch(e) {
+    mostrarToastGuardado('❌ Error al crear: ' + e.message);
+    if (btnNext) { btnNext.disabled = false; btnNext.textContent = '¡Crear todo! 🛼'; }
+    console.error(e);
+  }
 }
 
 function filtrarPaisesLiga(query) {
