@@ -477,7 +477,7 @@ app.get('/liga/:ligaId', async (req, res) => {
 
     const { data: liga, error: ligaError } = await supabase
       .from('ligas')
-      .select('id, nombre')
+      .select('id, nombre, pais, ciudad, anio_fundacion, descripcion, contacto, logo_url')
       .eq('id', ligaId)
       .single();
 
@@ -504,7 +504,17 @@ app.get('/liga/:ligaId', async (req, res) => {
       return { ...eq, codigo: cod?.codigo || null, usosActuales: cod?.usos_actuales ?? 0, usosMax: cod?.usos_max ?? null };
     }));
 
-    res.json({ id: liga.id, nombre: liga.nombre, equipos: equiposConCodigo });
+    res.json({
+      id:            liga.id,
+      nombre:        liga.nombre,
+      pais:          liga.pais,
+      ciudad:        liga.ciudad,
+      anioFundacion: liga.anio_fundacion,
+      descripcion:   liga.descripcion,
+      contacto:      liga.contacto,
+      logoUrl:       liga.logo_url,
+      equipos:       equiposConCodigo,
+    });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -568,7 +578,8 @@ app.post('/crear-equipo', async (req, res) => {
 // ── POST /crear-liga ──────────────────────────────────────────
 app.post('/crear-liga', async (req, res) => {
   try {
-    const { nombreLiga, nombreEquipo, categoria, email, logoBase64, ligaImagenBase64 } = req.body;
+    const { nombreLiga, nombreEquipo, categoria, email, logoBase64, ligaImagenBase64,
+            pais, ciudad, anioFundacion, descripcion, contacto } = req.body;
     if (!nombreLiga || !nombreEquipo || !email)
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
 
@@ -586,7 +597,15 @@ app.post('/crear-liga', async (req, res) => {
 
     const { data: liga, error: ligaError } = await supabase
       .from('ligas')
-      .insert({ nombre: nombreLiga, slug: slugLiga })
+      .insert({
+        nombre:         nombreLiga,
+        slug:           slugLiga,
+        pais:           pais || null,
+        ciudad:         ciudad || null,
+        anio_fundacion: anioFundacion ? parseInt(anioFundacion) : null,
+        descripcion:    descripcion || null,
+        contacto:       contacto || null,
+      })
       .select('id, nombre')
       .single();
     if (ligaError) return res.status(500).json({ error: ligaError.message });
@@ -683,6 +702,27 @@ app.post('/crear-liga', async (req, res) => {
     });
 
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PUT /liga/:id/info ────────────────────────────────────────
+app.put('/liga/:id/info', async (req, res) => {
+  try {
+    const { pais, ciudad, anioFundacion, descripcion, contacto } = req.body;
+    const { error } = await supabase
+      .from('ligas')
+      .update({
+        pais:           pais || null,
+        ciudad:         ciudad || null,
+        anio_fundacion: anioFundacion ? parseInt(anioFundacion) : null,
+        descripcion:    descripcion || null,
+        contacto:       contacto || null,
+      })
+      .eq('id', req.params.id);
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ ok: true });
+  } catch(err) {
     res.status(500).json({ error: err.message });
   }
 });
