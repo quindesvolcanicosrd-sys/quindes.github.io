@@ -1098,19 +1098,6 @@ function renderWizLigaPaso(paso) {
   if (footer2) footer2.classList.remove('wiz-hidden');
 
   if (paso === 1) {
-    requestAnimationFrame(() => {
-      const wrap = document.getElementById('wiz-liga-google-btn');
-      if (wrap && !wrap.dataset.rendered) {
-        wrap.dataset.rendered = 'true';
-        google.accounts.id.renderButton(wrap, {
-          theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
-        });
-      }
-    });
-    return;
-  }
-  
-  if (paso === 1) {
     contenido.innerHTML = `
       <div class="wiz-emoji">🏟️</div>
       <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
