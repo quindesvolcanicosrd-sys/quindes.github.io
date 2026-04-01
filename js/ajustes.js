@@ -1041,6 +1041,8 @@ function renderWizLigaPaso(paso) {
   const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
   if (footer)    footer.style.display  = esLogin ? 'none' : '';
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
+  const btnSkip = document.getElementById('wiz-liga-btn-skip');
+  if (btnSkip)   btnSkip.style.display = esOpcional ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = esLogin ? 'Paso 1 de ' + _WIZ_LIGA_TOTAL : 'Paso ' + paso + ' de ' + _WIZ_LIGA_TOTAL;
   if (progress)  progress.style.width  = esLogin ? '0%' : (paso / _WIZ_LIGA_TOTAL * 100) + '%';
 
