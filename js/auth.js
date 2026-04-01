@@ -179,7 +179,11 @@ function initGoogleAuth() {
         console.log('[AUTH] verificando sesión para:', savedEmail);
         const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
         console.log('[AUTH] valData:', valData);
-        if (!valData.found) throw new Error('invalid session');
+        if (!valData.found) {
+          console.log('[AUTH] found:false — wizOrigen:', wizOrigen, '| wiz-liga-overlay:', !!document.getElementById('wiz-liga-overlay'));
+          throw new Error('invalid session');
+        }
+        // (sin cambio real, solo agregar log abajo)
         window._googleEmail = savedEmail;
         inicializarApp(savedEmail);
       } catch(e) {
