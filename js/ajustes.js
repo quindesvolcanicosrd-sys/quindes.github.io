@@ -1610,6 +1610,7 @@ function crearLigaYEquipo() {
   if (!email) { mostrarToastGuardado('⚠️ No se encontró tu sesión'); return; }
   window._googleEmail = email;
   window._enFlujoCrearLiga = true;
+  sessionStorage.setItem('_enFlujoCrearLiga', '1');
   cerrarWizLiga();
   setTimeout(() => {
     wizOrigen = 'crearLiga';

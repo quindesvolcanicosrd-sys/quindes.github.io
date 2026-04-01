@@ -180,7 +180,7 @@ function initGoogleAuth() {
         const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
         console.log('[AUTH] valData:', valData);
         if (!valData.found) {
-          console.log('[AUTH] found:false — wizOrigen:', wizOrigen, '| wiz-liga-overlay:', !!document.getElementById('wiz-liga-overlay'));
+          if (window._enFlujoCrearLiga || wizOrigen === 'crearLiga' || sessionStorage.getItem('_enFlujoCrearLiga')) return;
           throw new Error('invalid session');
         }
         // (sin cambio real, solo agregar log abajo)
