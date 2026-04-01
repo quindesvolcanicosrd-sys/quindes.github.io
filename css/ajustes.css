@@ -850,3 +850,24 @@
 .equipo-empty-label { opacity: 0.5; }
 
 .liga-nombre-editable { cursor: pointer; }
+
+/* ── Wizard unificado — utilidades ── */
+.wiz-liga-google-wrap {
+  display: flex; justify-content: center; width: 100%;
+  min-height: 48px; border-radius: 4px; overflow: hidden; color-scheme: light;
+}
+.wiz-pais-wrap { width: 100%; position: relative; }
+.wiz-pais-lista {
+  display: none; position: absolute; top: 100%; left: 0; right: 0;
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 14px; margin-top: 4px;
+  max-height: 200px; overflow-y: auto; z-index: 10;
+}
+.wiz-hidden { display: none !important; }
+
+/* ── textarea como reg-input ── */
+textarea.reg-input {
+  resize: none;
+  line-height: 1.5;
+  font-family: var(--font);
+}

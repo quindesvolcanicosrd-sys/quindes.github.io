@@ -1043,13 +1043,13 @@ function renderWizLigaPaso(paso) {
 
   if (paso === 0) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">👋</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Primero, identifícate</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Inicia sesión con tu cuenta de Google para continuar.</p>
+      <div class="wiz-emoji">👋</div>
+      <h2 class="wiz-title">Primero, identifícate</h2>
+      <p class="wiz-desc">Inicia sesión con tu cuenta de Google para continuar.</p>
+      <div class="wiz-content">
+        <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+        <button onclick="cerrarWizLiga()" class="wiz-btn-skip">Cancelar</button>
       </div>
-      <div id="wiz-liga-google-btn" style="display:flex;justify-content:center;width:100%;min-height:48px;border-radius:4px;overflow:hidden;color-scheme:light;"></div>
-      <button onclick="cerrarWizLiga()" style="background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:8px;">Cancelar</button>
     `;
     requestAnimationFrame(() => {
       const wrap = document.getElementById('wiz-liga-google-btn');
@@ -1065,15 +1065,15 @@ function renderWizLigaPaso(paso) {
   
   if (paso === 1) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🏟️</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu liga?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">El nombre de la organización.</p>
+      <div class="wiz-emoji">🏟️</div>
+      <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
+      <p class="wiz-desc">El nombre de la organización.</p>
+      <div class="wiz-content">
+        <input id="wiz-liga-nombre" type="text" placeholder="Nombre de la liga" value="${_wizLiga.nombreLiga}"
+          class="reg-input wiz-big-input"
+          oninput="_wizLiga.nombreLiga=this.value"
+          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
       </div>
-      <input id="wiz-liga-nombre" type="text" placeholder="Nombre de la liga" value="${_wizLiga.nombreLiga}"
-        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
-        oninput="_wizLiga.nombreLiga=this.value"
-        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
     `;
     setTimeout(() => document.getElementById('wiz-liga-nombre')?.focus(), 100);
   }
@@ -1083,55 +1083,50 @@ function renderWizLigaPaso(paso) {
       ? `<img src="${_wizLiga.ligaImagenBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
       : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🖼️</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Logo de la liga</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Sube un logo o ícono que represente a tu liga. Es opcional.</p>
+      <div class="wiz-emoji">🖼️</div>
+      <h2 class="wiz-title">Logo de la liga</h2>
+      <p class="wiz-desc">Sube un logo o ícono que represente a tu liga.</p>
+      <div class="wiz-content">
+        <label class="wiz-liga-avatar" id="wiz-liga-img-label">
+          ${preview}
+          <input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">
+        </label>
+        <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
-      <label style="width:120px;height:120px;border-radius:20px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--card);" id="wiz-liga-img-label">
-        ${preview}
-        <input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">
-      </label>
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
   }
 
   if (paso === 3) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🛼</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu equipo?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Puede tener el mismo nombre que la liga. 
-        Puedes agregar más equipos desde la sección de ajustes.</p>
+      <div class="wiz-emoji">🛼</div>
+      <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
+      <p class="wiz-desc">Puede tener el mismo nombre que la liga. Podés agregar más equipos desde ajustes.</p>
+      <div class="wiz-content">
+        <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo" value="${_wizLiga.nombreEquipo}"
+          class="reg-input wiz-big-input"
+          oninput="_wizLiga.nombreEquipo=this.value"
+          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
       </div>
-      <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo" value="${_wizLiga.nombreEquipo}"
-        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
-        oninput="_wizLiga.nombreEquipo=this.value"
-        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
     `;
     setTimeout(() => document.getElementById('wiz-liga-equipo-nombre')?.focus(), 100);
   }
 
   if (paso === 4) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🏆</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Qué categoría es tu equipo?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Selecciona la categoría en la que compite.</p>
+      <div class="wiz-emoji">🏆</div>
+      <h2 class="wiz-title">¿Qué categoría?</h2>
+      <p class="wiz-desc">Selecciona la categoría en la que compite tu equipo.</p>
+      <div class="wiz-content">
+        <div class="wiz-chips">
+          ${['A','B','C'].map(cat => `
+            <button onclick="seleccionarCategoriaLigaWiz('${cat}')"
+              id="wiz-liga-cat-${cat}"
+              class="chip ${_wizLiga.categoria === cat ? 'chip-active' : 'chip-inactive'}">
+              ${cat}
+            </button>`).join('')}
+        </div>
+        <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
-      <div style="display:flex;gap:12px;width:100%;justify-content:center;">
-        ${['A','B','C'].map(cat => `
-          <button onclick="seleccionarCategoriaLigaWiz('${cat}')"
-            id="wiz-liga-cat-${cat}"
-            style="flex:1;padding:20px 8px;border-radius:16px;
-                   border:2px solid ${_wizLiga.categoria === cat ? 'var(--accent)' : 'var(--border)'};
-                   background:${_wizLiga.categoria === cat ? 'var(--accent)' : 'var(--card)'};
-                   color:${_wizLiga.categoria === cat ? '#fff' : 'var(--text)'};
-                   font-size:22px;font-weight:800;cursor:pointer;transition:all 0.2s ease;">
-            ${cat}
-          </button>`).join('')}
-      </div>
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
   }
 
@@ -1140,86 +1135,87 @@ function renderWizLigaPaso(paso) {
       ? `<img src="${_wizLiga.logoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
       : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🎨</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Logo del equipo</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Sube el logo de tu equipo. Puedes cambiarlo desde la sección de ajustes.</p>
+      <div class="wiz-emoji">🎨</div>
+      <h2 class="wiz-title">Logo del equipo</h2>
+      <p class="wiz-desc">Subí el logo de tu equipo. Podés cambiarlo después desde ajustes.</p>
+      <div class="wiz-content">
+        <label class="wiz-liga-avatar" id="wiz-liga-logo-label">
+          ${preview}
+          <input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">
+        </label>
+        <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
-      <label style="width:120px;height:120px;border-radius:20px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--card);" id="wiz-liga-logo-label">
-        ${preview}
-        <input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">
-      </label>
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
   }
 
   if (paso === 6) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🌎</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿De qué país es tu liga?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Esto nos ayuda a construir una red de ligas por región. Opcional.</p>
+      <div class="wiz-emoji">🌎</div>
+      <h2 class="wiz-title">¿De qué país es tu liga?</h2>
+      <p class="wiz-desc">Esto nos ayuda a construir una red de ligas por región.</p>
+      <div class="wiz-content">
+        <div class="wiz-pais-wrap">
+          <input id="wiz-liga-pais-input" type="text" placeholder="Buscar país…" autocomplete="off"
+            value="${_wizLiga.pais}"
+            class="reg-input"
+            oninput="filtrarPaisesLiga(this.value)">
+          <div id="wiz-liga-pais-lista" class="wiz-pais-lista"></div>
+        </div>
+        <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
-      <div style="width:100%;position:relative;">
-        <input id="wiz-liga-pais-input" type="text" placeholder="Buscar país…" autocomplete="off"
-          value="${_wizLiga.pais}"
-          style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:15px;box-sizing:border-box;outline:none;"
-          oninput="filtrarPaisesLiga(this.value)">
-        <div id="wiz-liga-pais-lista" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--border);border-radius:14px;margin-top:4px;max-height:200px;overflow-y:auto;z-index:10;"></div>
-      </div>
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
     setTimeout(() => document.getElementById('wiz-liga-pais-input')?.focus(), 100);
   }
 
   if (paso === 7) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🏙️</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿De qué ciudad?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">La ciudad donde opera principalmente tu liga. Opcional.</p>
+      <div class="wiz-emoji">🏙️</div>
+      <h2 class="wiz-title">¿De qué ciudad?</h2>
+      <p class="wiz-desc">La ciudad donde opera principalmente tu liga.</p>
+      <div class="wiz-content">
+        <input id="wiz-liga-ciudad" type="text" placeholder="Ciudad" value="${_wizLiga.ciudad}"
+          class="reg-input wiz-big-input"
+          oninput="_wizLiga.ciudad=this.value"
+          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
-      <input id="wiz-liga-ciudad" type="text" placeholder="Ciudad" value="${_wizLiga.ciudad}"
-        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
-        oninput="_wizLiga.ciudad=this.value"
-        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
     setTimeout(() => document.getElementById('wiz-liga-ciudad')?.focus(), 100);
   }
 
   if (paso === 8) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">📅</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿En qué año se fundó tu liga?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">El año de fundación de la liga. Opcional.</p>
+      <div class="wiz-emoji">📅</div>
+      <h2 class="wiz-title">¿En qué año se fundó?</h2>
+      <p class="wiz-desc">El año de fundación de la liga.</p>
+      <div class="wiz-content">
+        <input id="wiz-liga-anio" type="number" placeholder="Ej: 2018" value="${_wizLiga.anioFundacion}"
+          min="1990" max="${new Date().getFullYear()}"
+          class="reg-input wiz-big-input"
+          oninput="_wizLiga.anioFundacion=this.value"
+          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
-      <input id="wiz-liga-anio" type="number" placeholder="Ej: 2018" value="${_wizLiga.anioFundacion}"
-        min="1990" max="${new Date().getFullYear()}"
-        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:24px;font-weight:800;box-sizing:border-box;outline:none;text-align:center;"
-        oninput="_wizLiga.anioFundacion=this.value"
-        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
     setTimeout(() => document.getElementById('wiz-liga-anio')?.focus(), 100);
   }
 
   if (paso === 9) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">📖</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Cuéntanos sobre tu liga</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Su misión, origen e ideales. Esta info aparecerá en el directorio de ligas. Opcional.</p>
+      <div class="wiz-emoji">📖</div>
+      <h2 class="wiz-title">Cuéntanos sobre tu liga</h2>
+      <p class="wiz-desc">Su misión, origen e ideales. Aparecerá en el directorio de ligas.</p>
+      <div class="wiz-content">
+        <div class="wiz-step0-note">
+          <span>🌐</span>
+          <span>Parte del <strong>Directorio Global de Ligas de Roller Derby</strong> que estamos construyendo para conectar ligas de todo el mundo.</span>
+        </div>
+        <textarea id="wiz-liga-descripcion" placeholder="Ej: Somos una liga inclusiva fundada en 2018 con el objetivo de…" rows="4"
+          class="reg-input"
+          oninput="_wizLiga.descripcion=this.value"
+          maxlength="500">${_wizLiga.descripcion}</textarea>
+        <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
-      <div style="background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:11px;color:var(--text3);line-height:1.5;">
-        🌐 Esta información es parte del <strong style="color:var(--text2);">Directorio Global de Ligas de Roller Derby</strong> que estamos construyendo para conectar ligas de todo el mundo.
-      </div>
-      <textarea id="wiz-liga-descripcion" placeholder="Ej: Somos una liga inclusiva fundada en 2018 con el objetivo de…" rows="4"
-        style="width:100%;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:14px;box-sizing:border-box;outline:none;resize:none;font-family:var(--font);line-height:1.5;"
-        oninput="_wizLiga.descripcion=this.value"
-        maxlength="500">${_wizLiga.descripcion}</textarea>
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
     setTimeout(() => document.getElementById('wiz-liga-descripcion')?.focus(), 100);
   }
@@ -1227,40 +1223,41 @@ function renderWizLigaPaso(paso) {
   if (paso === 10) {
     const esNumero = _wizLiga.contacto && !_wizLiga.contacto.startsWith('@') && !_wizLiga.contacto.startsWith('http');
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">📬</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo pueden contactarte?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Deja un Instagram o un número de WhatsApp. Opcional.</p>
+      <div class="wiz-emoji">📬</div>
+      <h2 class="wiz-title">¿Cómo pueden contactarte?</h2>
+      <p class="wiz-desc">Dejá un Instagram o un número de WhatsApp.</p>
+      <div class="wiz-content">
+        <div class="wiz-chips">
+          <button id="wiz-liga-tipo-social" onclick="toggleTipoContactoLiga('social')"
+            class="chip ${!esNumero ? 'chip-active' : 'chip-inactive'}">
+            Instagram / Red social
+          </button>
+          <button id="wiz-liga-tipo-tel" onclick="toggleTipoContactoLiga('tel')"
+            class="chip ${esNumero ? 'chip-active' : 'chip-inactive'}">
+            WhatsApp / Teléfono
+          </button>
+        </div>
+        <div id="wiz-liga-contacto-social" class="${!esNumero ? '' : 'wiz-hidden'}">
+          <input id="wiz-liga-ig" type="text" placeholder="@tuliga o https://instagram.com/tuliga"
+            value="${!esNumero ? (_wizLiga.contacto || '') : ''}"
+            class="reg-input"
+            oninput="_wizLiga.contacto=this.value"
+            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        </div>
+        <div id="wiz-liga-contacto-tel" class="reg-phone-row ${esNumero ? '' : 'wiz-hidden'}">
+          <button type="button" id="wiz-liga-codigo-btn" onclick="abrirSelectorCodigoLiga()"
+            class="reg-selector-btn reg-codigo-btn">
+            <span class="reg-selector-val">${_wizLiga.contactoCodigo}</span>
+            <span class="material-icons reg-selector-ico">expand_more</span>
+          </button>
+          <input id="wiz-liga-tel" type="tel" placeholder="Número" maxlength="20"
+            value="${esNumero ? (_wizLiga.contacto || '') : ''}"
+            class="reg-input reg-tel-input"
+            oninput="_wizLiga.contacto=this.value"
+            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        </div>
+        <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
-      <div style="display:flex;gap:8px;width:100%;justify-content:center;margin-bottom:4px;">
-        <button id="wiz-liga-tipo-social" onclick="toggleTipoContactoLiga('social')"
-          style="flex:1;padding:10px;border-radius:12px;border:2px solid ${!esNumero ? 'var(--accent)' : 'var(--border)'};background:${!esNumero ? 'var(--accent)' : 'var(--card)'};color:${!esNumero ? '#fff' : 'var(--text)'};font-size:13px;font-weight:700;cursor:pointer;">
-          Instagram / Red social
-        </button>
-        <button id="wiz-liga-tipo-tel" onclick="toggleTipoContactoLiga('tel')"
-          style="flex:1;padding:10px;border-radius:12px;border:2px solid ${esNumero ? 'var(--accent)' : 'var(--border)'};background:${esNumero ? 'var(--accent)' : 'var(--card)'};color:${esNumero ? '#fff' : 'var(--text)'};font-size:13px;font-weight:700;cursor:pointer;">
-          WhatsApp / Teléfono
-        </button>
-      </div>
-      <div id="wiz-liga-contacto-social" style="width:100%;display:${!esNumero ? 'block' : 'none'};">
-        <input id="wiz-liga-ig" type="text" placeholder="@tuliga o https://instagram.com/tuliga"
-          value="${!esNumero ? (_wizLiga.contacto || '') : ''}"
-          style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:15px;box-sizing:border-box;outline:none;"
-          oninput="_wizLiga.contacto=this.value"
-          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-      </div>
-      <div id="wiz-liga-contacto-tel" style="width:100%;display:${esNumero ? 'flex' : 'none'};gap:8px;">
-        <button type="button" id="wiz-liga-codigo-btn" onclick="abrirSelectorCodigoLiga()"
-          style="padding:14px 12px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer;min-width:90px;">
-          ${_wizLiga.contactoCodigo}
-        </button>
-        <input id="wiz-liga-tel" type="tel" placeholder="Número" maxlength="20"
-          value="${esNumero ? (_wizLiga.contacto || '') : ''}"
-          style="flex:1;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:15px;box-sizing:border-box;outline:none;"
-          oninput="_wizLiga.contacto=this.value"
-          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-      </div>
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — puedes saltarte este paso</p>
     `;
   }
 
@@ -1467,10 +1464,8 @@ function seleccionarCategoriaLigaWiz(cat) {
   ['A','B','C'].forEach(c => {
     const btn = document.getElementById('wiz-liga-cat-' + c);
     if (!btn) return;
-    const activo = c === cat;
-    btn.style.borderColor = activo ? 'var(--accent)' : 'var(--border)';
-    btn.style.background  = activo ? 'var(--accent)' : 'var(--card)';
-    btn.style.color       = activo ? '#fff' : 'var(--text)';
+    btn.classList.toggle('chip-active',   c === cat);
+    btn.classList.toggle('chip-inactive', c !== cat);
   });
 }
 
