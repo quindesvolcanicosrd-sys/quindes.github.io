@@ -125,6 +125,7 @@ function mostrarRegistroWizard() {
     if (headerEl)   headerEl.style.display   = 'flex';
     if (viewportEl) viewportEl.style.display = 'block';
     regData.codigoInvitacion = inviteCode;
+    console.log('[WIZ-REG] desdeCrearLiga — registroScreen display:', document.getElementById('registroScreen')?.style.display);
     wizUpdateHeader();
     wizGoTo(1, true);
   } else {
