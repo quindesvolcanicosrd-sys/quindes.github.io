@@ -987,7 +987,7 @@ function navIr(seccion) {
 // ── Wizard Crear Liga ─────────────────────────────────────────
 let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
 let _wizLigaPaso = 1;
-const _WIZ_LIGA_TOTAL = 21;
+const _WIZ_LIGA_TOTAL = 10;
 
 function mostrarWizardLiga() {
   _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contacto: '', contactoCodigo: '🇪🇨 +593', nombre: '', pronombres: [], paisPerfil: '', codigoPais: '', telefono: '', fechaNacimiento: '', nombreDerby: '', numeroDerby: '', rolJugadorx: '', asisteSemana: '', alergias: '', dieta: '', contactoEmergencia: '', fotoBase64: null };
@@ -1266,22 +1266,18 @@ function renderWizLigaPaso(paso) {
     `;
   }
 
-  if (paso === 11) {
-    const preview = _wizLiga.fotoBase64
-      ? `<img src="${_wizLiga.fotoBase64}" class="wiz-liga-avatar-img">`
-      : `<span class="material-icons wiz-liga-avatar-ph">add_a_photo</span>`;
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">📸</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">¡Ponele cara al nombre!</h2>
-        <p class="wiz-liga-desc">Sube una foto de perfil. Es opcional.</p>
-      </div>
-      <div class="wiz-liga-avatar" id="wiz-liga-avatar" onclick="abrirFotoLigaWiz()">
-        ${preview}
-      </div>
-      <input type="file" id="wiz-liga-foto-input" accept="image/*" style="display:none;" onchange="previewFotoLigaWiz(this)">
-    `;
+function wizLigaPasoSiguiente() {
+  if (_wizLigaPaso === 1) {
+    if (!_wizLiga.nombreLiga.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
   }
+  if (_wizLigaPaso === 3) {
+    if (!_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
+  }
+  if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
+    crearLigaYEquipo(); return;
+  }
+  renderWizLigaPaso(_wizLigaPaso + 1);
+}
 
   if (paso === 12) {
     contenido.innerHTML = `
@@ -1511,14 +1507,8 @@ function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 3) {
     if (!_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   }
-  if (_wizLigaPaso === 12) {
-    if (!_wizLiga.nombre?.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
-  }
-  if (_wizLigaPaso === 16) {
-    if (!_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresa tu fecha de nacimiento'); return; }
-  }
   if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
-    crearLigaConPerfil(); return;
+    crearLigaYEquipo(); return;
   }
   renderWizLigaPaso(_wizLigaPaso + 1);
 }
