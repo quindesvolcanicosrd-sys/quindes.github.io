@@ -1226,11 +1226,6 @@ function renderWizLigaPaso(paso) {
     `);
   }
 }
-  const btnBack    = document.getElementById('wiz-liga-btn-back');
-  const btnNext    = document.getElementById('wiz-liga-btn-next');
-  const pasoLabel  = document.getElementById('wiz-liga-paso-label');
-  const progress   = document.getElementById('wiz-liga-progress');
-  if (!contenido) return;
 
   // Paso 0 es el login con Google — ocultar footer y progress
   const esLogin = paso === 0;
