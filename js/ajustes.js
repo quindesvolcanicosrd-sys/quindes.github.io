@@ -1226,8 +1226,6 @@ function renderWizLigaPaso(paso) {
     `);
   }
 }
-  const esLogin = paso === 0;
-  const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
   if (footer)    footer.style.display  = esLogin ? 'none' : '';
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = esLogin ? 'Paso 1 de ' + _WIZ_LIGA_TOTAL : `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
