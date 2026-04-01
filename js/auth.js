@@ -232,13 +232,11 @@ function onGoogleSignIn(response) {
   window._googleEmail = email;
   // Si el wizard de crear liga está abierto, avanzar al paso 1
   const wizLiga = document.getElementById('wiz-liga-overlay');
-  console.log('[AUTH] onGoogleSignIn — wiz-liga-overlay:', !!wizLiga, '| wizOrigen:', wizOrigen);
   if (wizLiga) {
     renderWizLigaPaso(1);
     return;
   }
-  if (wizOrigen === 'crearLiga') {
-    console.log('[AUTH] onGoogleSignIn — bloqueando inicializarApp por wizOrigen crearLiga');
+  if (wizOrigen === 'crearLiga' || window._enFlujoCrearLiga) {
     return;
   }
   inicializarApp(email);

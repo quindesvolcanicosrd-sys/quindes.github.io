@@ -648,6 +648,7 @@ async function submitRegistro() {
       renderTodo(profile);
       aplicarPermisos();
       wizOcultarCargando();
+      window._enFlujoCrearLiga = false;
       document.getElementById('registroScreen').style.display = 'none';
       document.getElementById('appContent').style.display    = 'block';
       setTimeout(() => { lanzarConfetti(); mostrarBienvenida(); }, 400);
