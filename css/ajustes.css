@@ -500,6 +500,9 @@
 }
 .wiz-liga-phone-row { display: flex; gap: 8px; width: 100%; }
 .wiz-liga-codigo-btn { flex-shrink: 0; width: auto; min-width: 90px; }
+.wiz-liga-avatar-wrap {
+  display: flex; justify-content: center; width: 100%;
+}
 .wiz-liga-avatar {
   width: 120px; height: 120px; border-radius: 20px;
   border: 2px dashed var(--border); background: var(--card);
@@ -852,6 +855,11 @@
 .liga-nombre-editable { cursor: pointer; }
 
 /* ── Wizard unificado — utilidades ── */
+.wiz-liga-intro-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  padding: 8px 0 32px; width: 100%; gap: 0;
+}
 .wiz-liga-google-wrap {
   display: flex; justify-content: center; width: 100%;
   min-height: 48px; border-radius: 4px; overflow: hidden; color-scheme: light;
@@ -864,6 +872,17 @@
   max-height: 200px; overflow-y: auto; z-index: 10;
 }
 .wiz-hidden { display: none !important; }
+.wiz-skip-btn {
+  background: transparent !important; border: none !important;
+  font-size: 12px !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.06em !important;
+  color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important;
+  padding: 10px !important; cursor: pointer !important;
+  font-family: var(--font) !important;
+  -webkit-tap-highlight-color: transparent !important;
+  text-decoration: underline; text-underline-offset: 3px;
+  width: 100%; text-align: center;
+}
 
 /* ── textarea como reg-input ── */
 textarea.reg-input {
@@ -871,3 +890,4 @@ textarea.reg-input {
   line-height: 1.5;
   font-family: var(--font);
 }
+

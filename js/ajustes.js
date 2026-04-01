@@ -1023,6 +1023,12 @@ function cerrarWizLiga() {
   if (!window._enFlujoCrearLiga) sessionStorage.removeItem('_enFlujoCrearLiga');
 }
 
+function wizLigaIntroStart() {
+  const yaLogueado = !!(window._googleEmail || localStorage.getItem('quindes_email'));
+  if (!yaLogueado) { mostrarToastGuardado('⚠️ Primero iniciá sesión con Google'); return; }
+  renderWizLigaPaso(1);
+}
+
 function renderWizLigaPaso(paso) {
   _wizLigaPaso = paso;
   const contenido  = document.getElementById('wiz-liga-contenido');
@@ -1042,15 +1048,54 @@ function renderWizLigaPaso(paso) {
   if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo 🛼' : 'Continuar';
 
   if (paso === 0) {
+    // Paso 0 = intro animada (siempre visible)
+    const yaLogueado = !!(window._googleEmail || localStorage.getItem('quindes_email'));
     contenido.innerHTML = `
-      <div class="wiz-emoji">👋</div>
-      <h2 class="wiz-title">Primero, identifícate</h2>
-      <p class="wiz-desc">Inicia sesión con tu cuenta de Google para continuar.</p>
-      <div class="wiz-content">
-        <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+      <div class="wiz-intro-bg">
+        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
+        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
+        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
+      </div>
+      <div class="wiz-liga-intro-content">
+        <div class="wiz-intro-logo">🏟️</div>
+        <h1 class="wiz-intro-title">Creá<br>tu liga</h1>
+        <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos para entrenar.</p>
+        <div class="wiz-intro-steps">
+          <div class="wiz-intro-step wiz-intro-step-1"><span class="wiz-intro-step-ico">🏟️</span><span class="wiz-intro-step-txt">Datos de tu liga y equipo</span></div>
+          <div class="wiz-intro-step wiz-intro-step-2"><span class="wiz-intro-step-ico">👤</span><span class="wiz-intro-step-txt">Tu perfil como Admin</span></div>
+          <div class="wiz-intro-step wiz-intro-step-3"><span class="wiz-intro-step-ico">🔑</span><span class="wiz-intro-step-txt">Código para invitar a tu equipo</span></div>
+        </div>
+        ${yaLogueado ? '' : `
+          <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+        `}
+        <button onclick="wizLigaIntroStart()" class="wiz-intro-btn">
+          Empezar <span class="material-icons">arrow_forward</span>
+        </button>
         <button onclick="cerrarWizLiga()" class="wiz-btn-skip">Cancelar</button>
       </div>
     `;
+    // ocultar header y footer en intro
+    const footer = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
+    if (footer) footer.classList.add('wiz-hidden');
+    if (btnBack) btnBack.classList.add('wiz-hidden');
+    if (!yaLogueado) {
+      requestAnimationFrame(() => {
+        const wrap = document.getElementById('wiz-liga-google-btn');
+        if (wrap && !wrap.dataset.rendered) {
+          wrap.dataset.rendered = 'true';
+          google.accounts.id.renderButton(wrap, {
+            theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
+          });
+        }
+      });
+    }
+    return;
+  }
+  // A partir del paso 1 — mostrar footer
+  const footer2 = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
+  if (footer2) footer2.classList.remove('wiz-hidden');
+
+  if (paso === 1) {
     requestAnimationFrame(() => {
       const wrap = document.getElementById('wiz-liga-google-btn');
       if (wrap && !wrap.dataset.rendered) {
@@ -1087,10 +1132,12 @@ function renderWizLigaPaso(paso) {
       <h2 class="wiz-title">Logo de la liga</h2>
       <p class="wiz-desc">Sube un logo o ícono que represente a tu liga.</p>
       <div class="wiz-content">
-        <label class="wiz-liga-avatar" id="wiz-liga-img-label">
-          ${preview}
-          <input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">
-        </label>
+        <div class="wiz-liga-avatar-wrap">
+          <label class="wiz-liga-avatar" id="wiz-liga-img-label">
+            ${preview}
+            <input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">
+          </label>
+        </div>
         <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
     `;
@@ -1139,10 +1186,12 @@ function renderWizLigaPaso(paso) {
       <h2 class="wiz-title">Logo del equipo</h2>
       <p class="wiz-desc">Subí el logo de tu equipo. Podés cambiarlo después desde ajustes.</p>
       <div class="wiz-content">
-        <label class="wiz-liga-avatar" id="wiz-liga-logo-label">
-          ${preview}
-          <input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">
-        </label>
+        <div class="wiz-liga-avatar-wrap">
+          <label class="wiz-liga-avatar" id="wiz-liga-logo-label">
+            ${preview}
+            <input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">
+          </label>
+        </div>
         <p class="reg-note">Opcional — puedes saltarte este paso</p>
       </div>
     `;
@@ -1214,11 +1263,27 @@ function renderWizLigaPaso(paso) {
           class="reg-input"
           oninput="_wizLiga.descripcion=this.value"
           maxlength="500">${_wizLiga.descripcion}</textarea>
-        <p class="reg-note">Opcional — puedes saltarte este paso</p>
+        <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
       </div>
     `;
     setTimeout(() => document.getElementById('wiz-liga-descripcion')?.focus(), 100);
   }
+
+  // ── ícono de fondo — se agrega después de renderizar el innerHTML ──
+  const emojis = { 0:'👋', 1:'🏟️', 2:'🖼️', 3:'🛼', 4:'🏆', 5:'🎨', 6:'🌎', 7:'🏙️', 8:'📅', 9:'📖', 10:'📬' };
+  requestAnimationFrame(() => {
+    if (contenido && emojis[paso]) {
+      const existing = contenido.querySelector('.wiz-bg-emoji');
+      if (!existing) {
+        const bg = document.createElement('div');
+        bg.className = 'wiz-bg-emoji';
+        bg.textContent = emojis[paso];
+        contenido.appendChild(bg);
+      } else {
+        existing.textContent = emojis[paso];
+      }
+    }
+  });
 
   if (paso === 10) {
     const esNumero = _wizLiga.contacto && !_wizLiga.contacto.startsWith('@') && !_wizLiga.contacto.startsWith('http');
@@ -1591,10 +1656,10 @@ function toggleTipoContactoLiga(tipo) {
   const btnTel    = document.getElementById('wiz-liga-tipo-tel');
   const divSocial = document.getElementById('wiz-liga-contacto-social');
   const divTel    = document.getElementById('wiz-liga-contacto-tel');
-  if (btnSocial) btnSocial.classList.toggle('wiz-liga-tipo-activo', esSocial);
-  if (btnTel)    btnTel.classList.toggle('wiz-liga-tipo-activo', !esSocial);
-  if (divSocial) divSocial.style.display = esSocial ? 'block' : 'none';
-  if (divTel)    divTel.style.display    = !esSocial ? 'flex' : 'none';
+  if (btnSocial) { btnSocial.classList.toggle('chip-active', esSocial); btnSocial.classList.toggle('chip-inactive', !esSocial); }
+  if (btnTel)    { btnTel.classList.toggle('chip-active', !esSocial);   btnTel.classList.toggle('chip-inactive', esSocial); }
+  if (divSocial) divSocial.classList.toggle('wiz-hidden', !esSocial);
+  if (divTel)    divTel.classList.toggle('wiz-hidden', esSocial);
   _wizLiga.contacto = '';
 }
 

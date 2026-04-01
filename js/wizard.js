@@ -353,6 +353,12 @@ function wizBack() {
   const idx = wizStepSequence.indexOf(wizStep);
   if (idx > 0) {
     wizGoTo(wizStepSequence[idx - 1], false);
+  } else if (wizOrigen === 'crearLiga') {
+    // Volver al último paso del wizard de liga
+    document.getElementById('registroScreen').style.display = 'none';
+    mostrarWizardLiga();
+    setTimeout(() => renderWizLigaPaso(_WIZ_LIGA_TOTAL), 400);
+    return;
   } else {
     const introEl    = document.getElementById('wiz-intro');
     const headerEl   = document.getElementById('wiz-header');
