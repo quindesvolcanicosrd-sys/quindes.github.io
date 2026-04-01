@@ -990,6 +990,7 @@ let _wizLigaPaso = 1;
 const _WIZ_LIGA_TOTAL = 10;
 
 function mostrarWizardLiga() {
+  sessionStorage.setItem('_enFlujoCrearLiga', '1');
   _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contacto: '', contactoCodigo: '🇪🇨 +593', nombre: '', pronombres: [], paisPerfil: '', codigoPais: '', telefono: '', fechaNacimiento: '', nombreDerby: '', numeroDerby: '', rolJugadorx: '', asisteSemana: '', alergias: '', dieta: '', contactoEmergencia: '', fotoBase64: null };
   _wizLigaPaso = 0;
 
@@ -1023,6 +1024,7 @@ function cerrarWizLiga() {
   if (!overlay) return;
   overlay.classList.remove('visible');
   setTimeout(() => overlay.remove(), 350);
+  if (!window._enFlujoCrearLiga) sessionStorage.removeItem('_enFlujoCrearLiga');
 }
 
 function renderWizLigaPaso(paso) {
