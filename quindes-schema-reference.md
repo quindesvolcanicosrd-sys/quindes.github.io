@@ -1,6 +1,6 @@
 # Pivot App — Referencia de Schema para Supabase
 > ⚠️ App renombrada de "Quindes Volcánicos" a **Pivot** — rebranding en proceso
-> Última actualización: 2026-03-31 (sesión 3)
+> Última actualización: 2026-03-31 (sesión 4)
 > Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 ---
@@ -93,13 +93,26 @@ Antes de escribir cualquier clase CSS o componente nuevo, verificar si ya existe
 | Modal borrar perfil | `.dialog-borrar-overlay` / `.dialog-borrar-card` | `ajustes.css` |
 | Modal cuenta borrada | `.modal-cuenta-borrada` | `ajustes.css` |
 | Overlay fullscreen éxito | `.overlay-fullscreen-success` | `ajustes.css` |
-| Wizard crear equipo | `.wiz-equipo-overlay` / `.wiz-equipo-header` / `.wiz-equipo-contenido` / `.wiz-equipo-footer` | `ajustes.css` |
+| Wizard crear equipo/liga | `.wiz-equipo-overlay` / `.wiz-equipo-header` / `.wiz-equipo-contenido` / `.wiz-equipo-footer` | `ajustes.css` |
+| Contenido de paso (wizard liga/equipo) | `.wiz-emoji` / `.wiz-title` / `.wiz-desc` / `.wiz-content` | `wizard.css` — reutilizar |
+| Input de wizard | `.reg-input` / `.wiz-big-input` | `wizard.css` — reutilizar |
+| Selector de wizard | `.reg-selector-btn` / `.reg-selector-val` | `wizard.css` — reutilizar |
+| Fila teléfono | `.reg-phone-row` / `.reg-codigo-btn` / `.reg-tel-input` | `wizard.css` — reutilizar |
+| Chips de wizard | `.wiz-chips` + `.chip` / `.chip-active` / `.chip-inactive` | `wizard.css` + `global.css` |
+| Avatar subida imagen | `.wiz-liga-avatar` / `.wiz-liga-avatar-wrap` / `.wiz-liga-avatar-img` / `.wiz-liga-avatar-ph` | `ajustes.css` |
+| Nota opcional | `.reg-note` | `wizard.css` — reutilizar |
+| Botón omitir | `.wiz-skip-btn` | `ajustes.css` |
+| Botón omitir (wizard.css) | `.wiz-btn-skip` | `wizard.css` |
+| País autocomplete | `.wiz-pais-wrap` / `.wiz-pais-lista` / `.wiz-liga-pais-item` | `ajustes.css` |
+| Intro wizard liga | `.wiz-liga-intro-content` | `ajustes.css` — reutiliza `.wiz-intro-*` de `wizard.css` |
+| Elemento oculto | `.wiz-hidden` | `ajustes.css` |
+| textarea como input | `textarea.reg-input` | `ajustes.css` |
+| Google btn wrap | `.wiz-liga-google-wrap` | `ajustes.css` |
 | Botón primario | `.inv-btn.inv-btn-primary` | `ajustes.css` |
 | Botón secundario | `.inv-btn.inv-btn-secondary` | `ajustes.css` |
 | Botón ghost | `.inv-btn.inv-btn-ghost` | `ajustes.css` |
 | Botón peligro | `.home-btn-delete` | `global.css` |
 | Toggle switch | `.toggle-btn` / `.toggle-on` / `.toggle-off` | `global.css` |
-| Chips selector | `.chip` / `.chip-active` / `.chip-inactive` | `global.css` |
 | Item de equipo (Mi Liga) | `.equipo-item` / `.equipo-header` / `.equipo-nombre` / `.equipo-footer` | `ajustes.css` |
 | Pantalla ya registrada | `.ya-registrada-screen` / `.ya-registrada-content` | `global.css` |
 | Estado guardando | `.sec-val-saving` | `global.css` |
@@ -178,7 +191,7 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 
 ---
 
-## Estado actual del proyecto (al 2026-03-31 — sesión 3)
+## Estado actual del proyecto (al 2026-03-31 — sesión 4)
 
 ### ⚠️ Rebranding en proceso
 - La app se llamaba **Quindes Volcánicos** → ahora se llama **Pivot**
@@ -202,6 +215,19 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - **Sección Ajustes completa** — pantalla principal (home temporal)
 - **Vista Mi Liga** con lista de equipos, edición de nombres, crear equipo (wizard 3 pasos), eliminar equipo/liga
 
+#### Unificación visual de wizards ✅ (sesión 4)
+- Todos los wizards (liga, equipo, perfil) usan las mismas clases de `wizard.css`
+- Eliminados todos los `style=` inline del `innerHTML` de `renderWizLigaPaso` (pasos 0-10)
+- Eliminados todos los `style=` inline del `innerHTML` de `renderWizEquipoPaso` (pasos 1-3)
+- `seleccionarCategoriaEquipo()` y `seleccionarCategoriaLigaWiz()` usan `classList` en vez de `style`
+- `toggleTipoContactoLiga()` usa `classList` en vez de `style.display`
+- Avatares de logo centrados con `.wiz-liga-avatar-wrap`
+- Emoji de fondo transparente (`.wiz-bg-emoji`) agregado dinámicamente en cada paso
+- Botón "Omitir por ahora" (`.wiz-skip-btn`) en pasos opcionales
+- Intro animada en wizard de liga (paso 0) con `.wiz-liga-intro-content` reutilizando `.wiz-intro-*`
+- `wizLigaIntroStart()` — función que valida sesión y avanza al paso 1
+- Back desde paso 1 del wizard de perfil (cuando `wizOrigen === 'crearLiga'`) vuelve al último paso del wizard de liga
+
 #### Transiciones de carga ✅
 - Pantalla en blanco al reabrir corregida
 - Fade del loader con `opacity: 0.45s ease`
@@ -212,63 +238,34 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - JS deriva todos los tokens CSS automáticamente para dark y light mode
 
 #### auth.js — fixes sesión 3 ✅
-- Eliminado `btn-ir-registro` que ya no existía en el HTML (causaba crash al entrar con cuenta no registrada)
-- `mostrarRegistroDesdeLogin()` ahora detecta si viene de `noEncontradoScreen` y setea `wizOrigen` correctamente
+- Eliminado `btn-ir-registro` que ya no existía en el HTML
+- `mostrarRegistroDesdeLogin()` detecta si viene de `noEncontradoScreen`
 - Oculta `noEncontradoScreen` además de `loginScreen` al abrir el wizard de registro
 
 #### api/index.js — fixes sesión 3 ✅
-- Slug de liga ahora incluye `Date.now()` para evitar duplicados en constraint `ligas_slug_key`
+- Slug de liga incluye `Date.now()` para evitar duplicados
 - Endpoint `POST /crear-liga` acepta y guarda todos los campos de perfil del Admin fundador
 
-#### ajustes.js — fixes sesión 3 ✅
-- Agregadas funciones faltantes: `filtrarPaisesLiga`, `seleccionarPaisLiga`, `toggleTipoContactoLiga`
-- `_wizLiga` inicializado con todos los campos de perfil
-- `_WIZ_LIGA_TOTAL = 21` — wizard de liga tiene pasos 1-10 (liga/equipo) + 11-21 (perfil)
-- `crearLigaConPerfil()` — función que llama al backend con todos los datos juntos
+#### ajustes.js — estado sesión 4
+- `renderWizLigaPaso` maneja pasos 0-10 (liga/equipo) con clases unificadas
+- `_WIZ_LIGA_TOTAL = 10`
+- Al terminar paso 10 → llama `crearLigaYEquipo()` → cierra wizard liga → lanza `mostrarRegistroWizard()` con `wizOrigen = 'crearLiga'`
+- `_wizLiga` es global y persiste entre wizards
 
-#### wizard.js — fixes sesión 3 ✅
-- `submitRegistro()` tiene bifurcación: si `wizOrigen === 'crearLiga'` llama a `/crear-liga` en vez de `/registrar`
-- `mostrarRegistroWizard()` detecta `wizOrigen === 'crearLiga'` y salta intro + paso `inv`
+#### wizard.js — estado sesión 4
+- `submitRegistro()` bifurca: `wizOrigen === 'crearLiga'` → llama `/crear-liga` con `_wizLiga` + `regData`
+- `mostrarRegistroWizard()` con `wizOrigen === 'crearLiga'` salta intro y paso `inv`, arranca en paso 1
+- `wizBack()` con `wizOrigen === 'crearLiga'` desde paso 1 → vuelve al último paso del wizard de liga
 
 ---
 
-### ⚠️ PENDIENTE CRÍTICO — Wizard "Crear equipo" (botón en login)
+### ⚠️ BUG PENDIENTE — Wizard liga paso 0→1
 
-**Objetivo:** El botón "Crear equipo" en la pantalla de login debe crear una liga + equipo + perfil Admin en un solo flujo unificado.
+**Síntoma:** Al hacer click en "Empezar" desde la intro del wizard de liga, el footer (botón Continuar) aparece pero el contenido no transiciona al paso 1. Se ve el contenido de la intro con el botón Continuar superpuesto, y al hacer click en Continuar aparece la validación "Escribe el nombre de la liga" como si el paso 1 estuviera renderizado pero invisible debajo.
 
-**Flujo correcto (ya acordado, no dar vueltas):**
-1. Usuario toca "Crear equipo" en login
-2. Se abre wizard de liga (`mostrarWizardLiga()` en `ajustes.js`)
-3. Paso 0: Login con Google (si no está logueado)
-4. Pasos 1-10: Datos de liga y equipo
-5. Al terminar paso 10 → **cerrar wizard de liga** y **lanzar `mostrarRegistroWizard()` con `wizOrigen = 'crearLiga'`**
-6. El wizard de perfil (en `registroScreen`) corre normalmente, saltando el paso `inv`
-7. Al hacer submit → `submitRegistro()` detecta `wizOrigen === 'crearLiga'` y llama a `/crear-liga` con `_wizLiga` + `regData`
-8. Backend crea liga + equipo + perfil en un solo request
-9. App entra con el usuario como Admin
+**Causa probable:** `wizLigaIntroStart()` llama `renderWizLigaPaso(1)` pero la intro está dentro del mismo `contenido` div — el `innerHTML` del paso 1 se renderiza pero la intro no se limpia primero.
 
-**Por qué falló el enfoque anterior (NO repetir):**
-- Se intentó agregar pasos 11-21 directamente en `renderWizLigaPaso` con HTML inline → causó errores de sintaxis (`}` mal puesto), estilos inconsistentes con el wizard de perfil, y pantalla negra al terminar
-- Se intentó llamar `inicializarApp()` al terminar el wizard → fallaba porque el usuario no existía en Supabase Auth todavía
-- Se intentó `crearLigaYEquipo()` al final del paso 10 → error "usuario no encontrado" porque el usuario no estaba registrado en Auth
-
-**Estado actual del código:**
-- `wizLigaPasoSiguiente()` en el paso 10 actualmente llama `crearLigaConPerfil()` que intenta crear todo desde `ajustes.js` — esto hay que cambiarlo para que en cambio llame `mostrarRegistroWizard()` con `wizOrigen = 'crearLiga'`
-- `_wizLiga` es global en `ajustes.js` y persiste mientras la página no se recarga
-- `submitRegistro()` en `wizard.js` YA tiene la bifurcación para `wizOrigen === 'crearLiga'` que llama a `/crear-liga` con `_wizLiga` + `regData`
-
-**El único cambio que falta hacer:**
-
-En `wizLigaPasoSiguiente()` en `ajustes.js`, reemplazar la llamada a `crearLigaConPerfil()` por:
-```javascript
-cerrarWizLiga();
-setTimeout(() => {
-  wizOrigen = 'crearLiga';
-  mostrarRegistroWizard();
-}, 400);
-```
-
-Y verificar que `renderWizLigaPaso` solo tenga pasos 0-10 (NO 11-21 — esos ya los maneja el wizard de perfil existente).
+**Fix pendiente:** En `wizLigaIntroStart()`, limpiar `contenido.innerHTML = ''` antes de llamar `renderWizLigaPaso(1)`, o animar la salida de la intro primero.
 
 ---
 
@@ -348,6 +345,7 @@ Liga → Equipo(s) → Miembros → Perfiles
 
 ## Schema de Supabase (v2)
 
+### Tablas principales
 | Tabla | Propósito |
 |---|---|
 | `ligas` | Nivel superior — agrupa equipos |
@@ -395,7 +393,7 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `onGoogleSignIn(response)` — callback de Google; si `wiz-liga-overlay` está abierto, llama `renderWizLigaPaso(1)`
 - `cerrarSesion()` — limpia estado y vuelve al login
 - `mostrarRegistroDesdeLogin()` — detecta si viene de `noEncontradoScreen` y setea `wizOrigen` correctamente
-- `mostrarNoEncontrado(email)` — muestra pantalla cuenta no registrada; ya NO usa `btn-ir-registro`
+- `mostrarNoEncontrado(email)` — muestra pantalla cuenta no registrada
 - `confirmarBorrarPerfil()` / `ejecutarBorrarPerfil()`
 - `mostrarModalCuentaBorrada()`
 
@@ -421,6 +419,7 @@ Liga → Equipo(s) → Miembros → Perfiles
 **wizard.js**
 - `mostrarRegistroWizard()` — si `wizOrigen === 'crearLiga'`, salta intro y paso `inv`, arranca en paso 1
 - `wizNext()` / `wizBack()`
+- `wizBack()` — si `wizOrigen === 'crearLiga'` y `idx === 0` → cierra registroScreen y vuelve al último paso del wizard de liga
 - `submitRegistro()` — si `wizOrigen === 'crearLiga'`, llama `/crear-liga` con `_wizLiga` + `regData`; si no, llama `/registrar`
 - `initRegistroListeners()`
 - `REG_PAISES`, `REG_CODIGOS`, `REG_PRONOMBRES`, `REG_ROLES`, `REG_ROLES_JUG`, `REG_ASISTENCIA` — constantes globales usadas también por `ajustes.js`
@@ -429,8 +428,7 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `inicializarAjustes()` — sincroniza UI con localStorage al cargar
 - `setTheme(tema)` / `aplicarTema(tema)`
 - `hexToHsl(hex)` / `hslToHex(h,s,l)`
-- `aplicarColorPrimario(hex, conFade)`
-- `_aplicarTokensColor(hex, h, s, l, root)`
+- `aplicarColorPrimario(hex, conFade)` / `_aplicarTokensColor(hex, h, s, l, root)`
 - `abrirColorPicker()` / `cerrarColorPicker()` / `guardarColorPrimario()`
 - `getPriv(key)` / `setPriv(key, val)` / `togglePrivacidad(key)` / `toggleSeccionPriv(seccion)`
 - `navIr(seccion)`
@@ -438,14 +436,18 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `cargarMiLiga()` / `renderMiLiga(data)`
 - `mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onConfirmar })`
 - `sincronizarToggle(wrapperId, isOn)`
-- `mostrarWizardLiga()` — abre wizard de liga; arranca en paso 0 si no hay sesión, paso 1 si ya está logueado
+- `mostrarWizardLiga()` — abre wizard; paso 0 = intro animada siempre
 - `cerrarWizLiga()`
-- `renderWizLigaPaso(paso)` — pasos 0-10 únicamente (liga + equipo); los pasos de perfil los maneja `registroScreen`
+- `wizLigaIntroStart()` — valida sesión Google y avanza a paso 1 ⚠️ BUG: no limpia contenido antes de renderizar
+- `renderWizLigaPaso(paso)` — pasos 0-10; usa clases de `wizard.css`; agrega `.wiz-bg-emoji` dinámicamente
 - `wizLigaPasoSiguiente()` / `wizLigaPasoAnterior()`
 - `filtrarPaisesLiga(query)` / `seleccionarPaisLiga(pais)`
-- `toggleTipoContactoLiga(tipo)`
+- `toggleTipoContactoLiga(tipo)` — usa `classList` (chip-active/chip-inactive + wiz-hidden)
+- `seleccionarCategoriaLigaWiz(cat)` — usa `classList`
+- `seleccionarCategoriaEquipo(cat)` — usa `classList`
+- `renderWizEquipoPaso(paso)` — pasos 1-3; usa clases de `wizard.css`
 - `_wizLiga` — objeto global con datos de liga/equipo; persiste entre wizards
-- `_WIZ_LIGA_TOTAL = 10` — wizard de liga tiene solo 10 pasos (pasos de perfil los maneja wizard.js)
+- `_WIZ_LIGA_TOTAL = 10`
 - `AJUSTES_KEY = 'quindes_ajustes'` ← pendiente renombrar a `'pivot_ajustes'`
 - `PRIV_DEFAULTS` — valores por defecto de privacidad
 - `COLOR_PICKER_PRESETS` — array de 12 colores preset
@@ -483,7 +485,7 @@ De usuario: `found`, `id`, `authUserId`, `equipoId`, `ligaId`, `nombreDerby`, `r
 - `DELETE /equipo/:equipoId`
 - `DELETE /liga/:ligaId`
 - `POST /crear-equipo`
-- `POST /crear-liga` — crea liga + equipo + perfil Admin en un solo request; acepta todos los campos de perfil
+- `POST /crear-liga` — crea liga + equipo + perfil Admin en un solo request
 
 ---
 
@@ -519,8 +521,4 @@ Mínimos por frecuencia:
 - Express v4 (no v5 — v5 causaba crashes en Railway)
 - `convertirFecha()` en backend convierte `DD/MM/YYYY` → `YYYY-MM-DD` antes de insertar en Supabase
 - SW usa `Promise.allSettled` en install — no bloquea si un asset falla
-- optional chaining `?.` causa `SyntaxError` en algunos contextos — usar forma larga si hay problemas:
-  ```js
-  // En vez de: el?.style
-  // Usar: el && el.style
-  ```
+- optional chaining `?.` causa `SyntaxError` en algunos contextos — usar forma larga si hay problemas
