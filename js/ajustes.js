@@ -687,9 +687,8 @@ function abrirCrearEquipo() {
     </header>
     <div id="wiz-eq-contenido" class="wiz-equipo-contenido"></div>
     <div class="wiz-equipo-footer">
-        <button id="wiz-liga-btn-next" onclick="wizLigaPasoSiguiente()" class="wiz-eq-btn-next">Continuar</button>
-        <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-eq-btn-back" style="display:none;">Atrás</button>
-        <button id="wiz-liga-btn-skip" onclick="wizLigaPasoSiguiente()" class="wiz-btn-skip" style="display:none;">Omitir por ahora</button>
+      <button id="wiz-eq-btn-back" onclick="wizEquipoPasoAnterior()" class="wiz-eq-btn-back" style="display:none;">Atrás</button>
+      <button id="wiz-eq-btn-next" onclick="wizEquipoPasoSiguiente()" class="wiz-eq-btn-next">Continuar</button>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -1041,8 +1040,6 @@ function renderWizLigaPaso(paso) {
   const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
   if (footer)    footer.style.display  = esLogin ? 'none' : '';
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
-  const btnSkip = document.getElementById('wiz-liga-btn-skip');
-  if (btnSkip)   btnSkip.style.display = esOpcional ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = esLogin ? 'Paso 1 de ' + _WIZ_LIGA_TOTAL : 'Paso ' + paso + ' de ' + _WIZ_LIGA_TOTAL;
   if (progress)  progress.style.width  = esLogin ? '0%' : (paso / _WIZ_LIGA_TOTAL * 100) + '%';
 
@@ -1226,6 +1223,20 @@ function renderWizLigaPaso(paso) {
     `);
   }
 }
+  const btnBack    = document.getElementById('wiz-liga-btn-back');
+  const btnNext    = document.getElementById('wiz-liga-btn-next');
+  const pasoLabel  = document.getElementById('wiz-liga-paso-label');
+  const progress   = document.getElementById('wiz-liga-progress');
+  if (!contenido) return;
+
+  // Paso 0 es el login con Google — ocultar footer y progress
+  const esLogin = paso === 0;
+  const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
+  if (footer)    footer.style.display  = esLogin ? 'none' : '';
+  if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
+  if (pasoLabel) pasoLabel.textContent = esLogin ? 'Paso 1 de ' + _WIZ_LIGA_TOTAL : `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
+  if (progress)  progress.style.width  = esLogin ? '0%' : (paso / _WIZ_LIGA_TOTAL * 100) + '%';
+  if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo 🛼' : 'Continuar';
 
   if (paso === 0) {
     contenido.innerHTML = `
@@ -1450,7 +1461,20 @@ function renderWizLigaPaso(paso) {
     `;
   }
 
-if (paso === 12) {
+function wizLigaPasoSiguiente() {
+  if (_wizLigaPaso === 1) {
+    if (!_wizLiga.nombreLiga.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
+  }
+  if (_wizLigaPaso === 3) {
+    if (!_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
+  }
+  if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
+    crearLigaYEquipo(); return;
+  }
+  renderWizLigaPaso(_wizLigaPaso + 1);
+}
+
+  if (paso === 12) {
     contenido.innerHTML = `
       <div class="wiz-liga-paso-emoji">✨</div>
       <div class="wiz-liga-paso-titulo">
