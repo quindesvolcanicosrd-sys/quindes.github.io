@@ -1457,20 +1457,7 @@ function renderWizLigaPaso(paso) {
     `;
   }
 
-function wizLigaPasoSiguiente() {
-  if (_wizLigaPaso === 1) {
-    if (!_wizLiga.nombreLiga.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
-  }
-  if (_wizLigaPaso === 3) {
-    if (!_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
-  }
-  if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
-    crearLigaYEquipo(); return;
-  }
-  renderWizLigaPaso(_wizLigaPaso + 1);
-}
-
-  if (paso === 12) {
+if (paso === 12) {
     contenido.innerHTML = `
       <div class="wiz-liga-paso-emoji">✨</div>
       <div class="wiz-liga-paso-titulo">
