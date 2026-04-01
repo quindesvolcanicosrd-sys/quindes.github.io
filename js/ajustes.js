@@ -1226,8 +1226,6 @@ function renderWizLigaPaso(paso) {
     `);
   }
 }
-
-  // Paso 0 es el login con Google — ocultar footer y progress
   const esLogin = paso === 0;
   const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
   if (footer)    footer.style.display  = esLogin ? 'none' : '';
