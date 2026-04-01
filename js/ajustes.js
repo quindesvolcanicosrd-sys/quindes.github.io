@@ -752,21 +752,21 @@ if (paso === 1) {
     `;
   }
 
-  if (paso === 3) {
+if (paso === 3) {
     const preview = _wizEquipo.logoBase64
-      ? `<img src="${_wizEquipo.logoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
-      : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
+      ? `<img src="${_wizEquipo.logoBase64}" class="wiz-liga-avatar-img">`
+      : `<span class="material-icons wiz-liga-avatar-ph">add_photo_alternate</span>`;
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🎨</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¡Poné personalidad Derby!</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Subí el logo de tu equipo. Podés cambiarlo después.</p>
+      <div class="wiz-emoji">🎨</div>
+      <h2 class="wiz-title">¡Poné personalidad!</h2>
+      <p class="wiz-desc">Subí el logo de tu equipo. Podés cambiarlo después.</p>
+      <div class="wiz-content">
+        <label class="wiz-liga-avatar" id="wiz-eq-logo-label">
+          ${preview}
+          <input type="file" accept="image/*" style="display:none;" onchange="previewLogoEquipo(this)">
+        </label>
+        <p class="reg-note">Opcional — podés saltarte este paso</p>
       </div>
-      <label style="width:120px;height:120px;border-radius:20px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--card);" id="wiz-eq-logo-label">
-        ${preview}
-        <input type="file" accept="image/*" style="display:none;" onchange="previewLogoEquipo(this)">
-      </label>
-      <p style="font-size:12px;color:var(--text3);text-align:center;margin:0;">Opcional — podés saltarte este paso</p>
     `;
     if (btnNext) btnNext.textContent = 'Crear equipo 🛼';
   }
@@ -777,10 +777,8 @@ function seleccionarCategoriaEquipo(cat) {
   ['A','B','C'].forEach(c => {
     const btn = document.getElementById('wiz-eq-cat-' + c);
     if (!btn) return;
-    const activo = c === cat;
-    btn.style.borderColor = activo ? 'var(--accent)' : 'var(--border)';
-    btn.style.background  = activo ? 'var(--accent)' : 'var(--card)';
-    btn.style.color       = activo ? '#fff' : 'var(--text)';
+    btn.classList.toggle('chip-active',   c === cat);
+    btn.classList.toggle('chip-inactive', c !== cat);
   });
 }
 
