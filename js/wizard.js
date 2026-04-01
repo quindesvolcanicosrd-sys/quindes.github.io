@@ -619,8 +619,10 @@ async function submitRegistro() {
 
   try {
     const email = window._googleEmail || localStorage.getItem('quindes_email') || '';
+    console.log('[SUBMIT] email:', email, '| wizOrigen:', wizOrigen, '| _wizLiga:', JSON.stringify(_wizLiga));
 
     if (wizOrigen === 'crearLiga') {
+      console.log('[SUBMIT] entrando a crearLiga');
       const json = await apiCall('/crear-liga', 'POST', {
         email,
         nombreLiga:   _wizLiga.nombreLiga,
