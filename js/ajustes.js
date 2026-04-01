@@ -1025,7 +1025,9 @@ function cerrarWizLiga() {
 
 function wizLigaIntroStart() {
   const yaLogueado = !!(window._googleEmail || localStorage.getItem('quindes_email'));
-  if (!yaLogueado) { mostrarToastGuardado('⚠️ Primero iniciá sesión con Google'); return; }
+  if (!yaLogueado) { mostrarToastGuardado('⚠️ Primero inicia sesión con Google'); return; }
+  const contenido = document.querySelector('.wiz-equipo-contenido');
+  if (contenido) contenido.innerHTML = '';
   renderWizLigaPaso(1);
 }
 
