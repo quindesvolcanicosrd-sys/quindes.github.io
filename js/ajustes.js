@@ -1613,6 +1613,7 @@ function crearLigaYEquipo() {
   window._googleEmail = email;
   window._enFlujoCrearLiga = true;
   sessionStorage.setItem('_enFlujoCrearLiga', '1');
+  document.getElementById('loginScreen').style.display = 'none';
   cerrarWizLiga();
   setTimeout(() => {
     wizOrigen = 'crearLiga';
