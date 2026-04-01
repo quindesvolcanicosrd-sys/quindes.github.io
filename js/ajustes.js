@@ -1605,32 +1605,15 @@ function toggleTipoContactoLiga(tipo) {
   _wizLiga.contacto = '';
 }
 
-async function crearLigaYEquipo() {
-  const btnNext = document.getElementById('wiz-liga-btn-next');
-  if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
-  try {
-    const email = window._googleEmail || localStorage.getItem('quindes_email');
-    window._googleEmail = email;
-    const result = await apiCall('/crear-liga', 'POST', {
-      nombreLiga:       _wizLiga.nombreLiga.trim(),
-      nombreEquipo:     _wizLiga.nombreEquipo.trim(),
-      categoria:        _wizLiga.categoria || null,
-      ligaImagenBase64: _wizLiga.ligaImagenBase64,
-      logoBase64:       _wizLiga.logoBase64,
-      email,
-    });
-    if (!result?.ok) throw new Error(result?.error || 'Error al crear');
-    cerrarWizLiga();
-    setTimeout(() => {
-      inviteCode = result.equipo.codigo;
-      wizOrigen = 'crearLiga';
-      mostrarRegistroWizard();
-    }, 400);
-  } catch(e) {
-    mostrarToastGuardado('❌ Error al crear: ' + e.message);
-    if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Finalizar'; }
-    console.error(e);
-  }
+function crearLigaYEquipo() {
+  const email = window._googleEmail || localStorage.getItem('quindes_email');
+  if (!email) { mostrarToastGuardado('⚠️ No se encontró tu sesión'); return; }
+  localStorage.setItem('quindes_email', email);
+  cerrarWizLiga();
+  setTimeout(() => {
+    wizOrigen = 'crearLiga';
+    mostrarRegistroWizard();
+  }, 400);
 }
 
 function mostrarLigaCreada(result) {
