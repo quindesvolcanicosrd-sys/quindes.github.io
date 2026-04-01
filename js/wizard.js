@@ -617,7 +617,7 @@ async function submitRegistro() {
   wizMostrarCargando();
 
   try {
-    const email = localStorage.getItem('quindes_email') || '';
+    const email = window._googleEmail || localStorage.getItem('quindes_email') || '';
 
     if (wizOrigen === 'crearLiga') {
       const json = await apiCall('/crear-liga', 'POST', {
@@ -638,6 +638,7 @@ async function submitRegistro() {
         contactoEmergencia: regData.contactoEmergencia,
         fotoBase64: regData.fotoBase64 || null,
       });
+      localStorage.setItem('quindes_email', email);
       CURRENT_USER = { found: true, id: json.perfil.id, email, rolApp: 'Admin', equipoId: json.equipo.id, ligaId: json.liga.id };
       const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = email;
       const profile = await apiCall('/perfil/' + json.perfil.id);

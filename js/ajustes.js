@@ -1608,7 +1608,7 @@ function toggleTipoContactoLiga(tipo) {
 function crearLigaYEquipo() {
   const email = window._googleEmail || localStorage.getItem('quindes_email');
   if (!email) { mostrarToastGuardado('⚠️ No se encontró tu sesión'); return; }
-  localStorage.setItem('quindes_email', email);
+  window._googleEmail = email;
   cerrarWizLiga();
   setTimeout(() => {
     wizOrigen = 'crearLiga';
