@@ -717,7 +717,7 @@ function renderWizEquipoPaso(paso) {
   if (btnBack) btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de 3`;
   if (progress) progress.style.width = (paso / 3 * 100) + '%';
-  if (btnNext) btnNext.textContent = paso === 3 ? 'Crear equipo' : 'Continuar';
+  if (btnNext) btnNext.textContent = paso === 4 ? 'Crear equipo' : 'Continuar';
 
 if (paso === 1) {
     contenido.innerHTML = `
@@ -983,7 +983,7 @@ function navIr(seccion) {
 // ── Wizard Crear Liga ─────────────────────────────────────────
 let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
 let _wizLigaPaso = 1;
-const _WIZ_LIGA_TOTAL = 10;
+const _WIZ_LIGA_TOTAL = 11;
 
 function mostrarWizardLiga() {
   sessionStorage.setItem('_enFlujoCrearLiga', '1');
@@ -1113,6 +1113,50 @@ function renderWizLigaPaso(paso) {
   }
 
   if (paso === 2) {
+    contenido.innerHTML = `
+      <div class="wiz-intro-bg">
+        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
+        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
+        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
+      </div>
+      <div class="wiz-liga-intro-content">
+        <div class="wiz-intro-logo">👤</div>
+        <h1 class="wiz-intro-title">Vamos a<br>registrarte</h1>
+        <p class="wiz-intro-sub">Inicia sesión con Google para continuar. Solo toma un momento.</p>
+        <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+      </div>
+    `;
+    const footer2 = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
+    if (footer2) footer2.classList.add('wiz-hidden');
+    if (btnBack) btnBack.classList.remove('wiz-hidden');
+    requestAnimationFrame(() => {
+      const wrap = document.getElementById('wiz-liga-google-btn');
+      if (wrap) {
+        wrap.dataset.rendered = '';
+        google.accounts.id.renderButton(wrap, {
+          theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
+        });
+      }
+    });
+    return;
+  }
+
+  if (paso === 3) {
+    contenido.innerHTML = `
+      <div class="wiz-emoji">🛼</div>
+      <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
+      <p class="wiz-desc">Puede tener el mismo nombre que la liga. Podés agregar más equipos desde ajustes.</p>
+      <div class="wiz-content">
+        <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo" value="${_wizLiga.nombreEquipo}"
+          class="reg-input wiz-big-input"
+          oninput="_wizLiga.nombreEquipo=this.value"
+          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+      </div>
+    `;
+    setTimeout(() => document.getElementById('wiz-liga-equipo-nombre')?.focus(), 100);
+  }
+
+  if (paso === 4) {
     const preview = _wizLiga.ligaImagenBase64
       ? `<img src="${_wizLiga.ligaImagenBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
       : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
@@ -1132,22 +1176,7 @@ function renderWizLigaPaso(paso) {
     `;
   }
 
-  if (paso === 3) {
-    contenido.innerHTML = `
-      <div class="wiz-emoji">🛼</div>
-      <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
-      <p class="wiz-desc">Puede tener el mismo nombre que la liga. Podés agregar más equipos desde ajustes.</p>
-      <div class="wiz-content">
-        <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo" value="${_wizLiga.nombreEquipo}"
-          class="reg-input wiz-big-input"
-          oninput="_wizLiga.nombreEquipo=this.value"
-          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-      </div>
-    `;
-    setTimeout(() => document.getElementById('wiz-liga-equipo-nombre')?.focus(), 100);
-  }
-
-  if (paso === 4) {
+  if (paso === 5) {
     contenido.innerHTML = `
       <div class="wiz-emoji">🏆</div>
       <h2 class="wiz-title">¿Qué categoría?</h2>
@@ -1166,7 +1195,7 @@ function renderWizLigaPaso(paso) {
     `;
   }
 
-  if (paso === 5) {
+  if (paso === 6) {
     const preview = _wizLiga.logoBase64
       ? `<img src="${_wizLiga.logoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
       : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
@@ -1186,7 +1215,7 @@ function renderWizLigaPaso(paso) {
     `;
   }
 
-  if (paso === 6) {
+  if (paso === 7) {
     contenido.innerHTML = `
       <div class="wiz-emoji">🌎</div>
       <h2 class="wiz-title">¿De qué país es tu liga?</h2>
@@ -1205,7 +1234,7 @@ function renderWizLigaPaso(paso) {
     setTimeout(() => document.getElementById('wiz-liga-pais-input')?.focus(), 100);
   }
 
-  if (paso === 7) {
+  if (paso === 8) {
     contenido.innerHTML = `
       <div class="wiz-emoji">🏙️</div>
       <h2 class="wiz-title">¿De qué ciudad?</h2>
@@ -1221,7 +1250,7 @@ function renderWizLigaPaso(paso) {
     setTimeout(() => document.getElementById('wiz-liga-ciudad')?.focus(), 100);
   }
 
-  if (paso === 8) {
+  if (paso === 9) {
     contenido.innerHTML = `
       <div class="wiz-emoji">📅</div>
       <h2 class="wiz-title">¿En qué año se fundó?</h2>
@@ -1238,7 +1267,7 @@ function renderWizLigaPaso(paso) {
     setTimeout(() => document.getElementById('wiz-liga-anio')?.focus(), 100);
   }
 
-  if (paso === 9) {
+  if (paso === 10) {
     contenido.innerHTML = `
       <div class="wiz-emoji">📖</div>
       <h2 class="wiz-title">Cuéntanos sobre tu liga</h2>
@@ -1259,7 +1288,7 @@ function renderWizLigaPaso(paso) {
   }
 
   // ── ícono de fondo — se agrega después de renderizar el innerHTML ──
-  const emojis = { 0:'👋', 1:'🏟️', 2:'🖼️', 3:'🛼', 4:'🏆', 5:'🎨', 6:'🌎', 7:'🏙️', 8:'📅', 9:'📖', 10:'📬' };
+  const emojis = { 0:'👋', 1:'🏟️', 2:'👤', 3:'🛼', 4:'🏆', 5:'🎨', 6:'🌎', 7:'🏙️', 8:'📅', 9:'📖', 10:'💬', 11:'📬' };
   requestAnimationFrame(() => {
     if (contenido && emojis[paso]) {
       const existing = contenido.querySelector('.wiz-bg-emoji');
@@ -1274,7 +1303,7 @@ function renderWizLigaPaso(paso) {
     }
   });
 
-  if (paso === 10) {
+  if (paso === 11) {
     const esNumero = _wizLiga.contacto && !_wizLiga.contacto.startsWith('@') && !_wizLiga.contacto.startsWith('http');
     contenido.innerHTML = `
       <div class="wiz-emoji">📬</div>
@@ -1315,20 +1344,7 @@ function renderWizLigaPaso(paso) {
     `;
   }
 
-function wizLigaPasoSiguiente() {
-  if (_wizLigaPaso === 1) {
-    if (!_wizLiga.nombreLiga.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
-  }
-  if (_wizLigaPaso === 3) {
-    if (!_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
-  }
-  if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
-    crearLigaYEquipo(); return;
-  }
-  renderWizLigaPaso(_wizLigaPaso + 1);
-}
-
-  if (paso === 12) {
+if (paso === 12) {
     contenido.innerHTML = `
       <div class="wiz-liga-paso-emoji">✨</div>
       <div class="wiz-liga-paso-titulo">
