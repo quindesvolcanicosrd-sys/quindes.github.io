@@ -1226,11 +1226,6 @@ function renderWizLigaPaso(paso) {
     `);
   }
 }
-  if (footer)    footer.style.display  = esLogin ? 'none' : '';
-  if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
-  if (pasoLabel) pasoLabel.textContent = esLogin ? 'Paso 1 de ' + _WIZ_LIGA_TOTAL : `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
-  if (progress)  progress.style.width  = esLogin ? '0%' : (paso / _WIZ_LIGA_TOTAL * 100) + '%';
-  if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo 🛼' : 'Continuar';
 
   if (paso === 0) {
     contenido.innerHTML = `
