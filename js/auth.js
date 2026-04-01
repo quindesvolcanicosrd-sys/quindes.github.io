@@ -232,10 +232,10 @@ function onGoogleSignIn(response) {
     localStorage.setItem('quindes_token', accessToken);
   } catch(e) {}
   window._googleEmail = email;
-  // Si el wizard de crear liga está abierto, avanzar al paso 3 (nombre del equipo)
+  // Si el wizard de crear liga está abierto en paso 1 (login), avanzar al paso 2
   const wizLiga = document.getElementById('wiz-liga-overlay');
   if (wizLiga) {
-    renderWizLigaPaso(3);
+    if (_wizLigaPaso === 1) renderWizLigaPaso(2);
     return;
   }
   if (wizOrigen === 'crearLiga' || window._enFlujoCrearLiga) {
