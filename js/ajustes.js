@@ -1607,11 +1607,13 @@ function toggleTipoContactoLiga(tipo) {
 
 function crearLigaYEquipo() {
   const email = window._googleEmail || localStorage.getItem('quindes_email');
+  console.log('[WIZ-LIGA] crearLigaYEquipo — email:', email, '| wizOrigen antes:', wizOrigen);
   if (!email) { mostrarToastGuardado('⚠️ No se encontró tu sesión'); return; }
   window._googleEmail = email;
   cerrarWizLiga();
   setTimeout(() => {
     wizOrigen = 'crearLiga';
+    console.log('[WIZ-LIGA] llamando mostrarRegistroWizard — wizOrigen:', wizOrigen);
     mostrarRegistroWizard();
   }, 400);
 }
