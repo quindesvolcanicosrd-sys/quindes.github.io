@@ -128,6 +128,9 @@ function mostrarRegistroWizard() {
     console.log('[WIZ-REG] desdeCrearLiga — registroScreen display:', document.getElementById('registroScreen')?.style.display);
     wizUpdateHeader();
     wizGoTo(1, true);
+    setTimeout(() => {
+      console.log('[WIZ-REG] 500ms después — registroScreen:', document.getElementById('registroScreen')?.style.display, '| loginScreen:', document.getElementById('loginScreen')?.style.display);
+    }, 500);
   } else {
     if (introEl)    introEl.style.display    = 'flex';
     if (headerEl)   headerEl.style.display   = 'none';
