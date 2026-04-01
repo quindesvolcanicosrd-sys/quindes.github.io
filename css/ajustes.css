@@ -588,7 +588,7 @@
   display: flex !important; align-items: center !important; justify-content: center !important;
   gap: 8px !important; width: 100% !important; padding: 18px 24px !important;
   border-radius: 9999px !important; border: none !important;
-  background: linear-gradient(135deg,#ff3b3b 0%,#c41212 100%) !important;
+  background: linear-gradient(135deg, var(--accent-gradient-from) 0%, var(--accent-gradient-to) 100%) !important;
   color: #fff !important; -webkit-text-fill-color: #fff !important;
   font-size: 13px !important; font-weight: 900 !important;
   text-transform: uppercase !important; letter-spacing: 0.1em !important;
@@ -642,7 +642,7 @@
   display: flex !important; align-items: center !important; justify-content: center !important;
   gap: 8px !important; width: 100% !important; padding: 18px 24px !important;
   border-radius: 9999px !important; border: none !important;
-  background: linear-gradient(135deg,#ff3b3b 0%,#c41212 100%) !important;
+  background: linear-gradient(135deg, var(--accent-gradient-from) 0%, var(--accent-gradient-to) 100%) !important;
   color: #fff !important; -webkit-text-fill-color: #fff !important;
   font-size: 13px !important; font-weight: 900 !important;
   text-transform: uppercase !important; letter-spacing: 0.1em !important;

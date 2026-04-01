@@ -719,37 +719,35 @@ function renderWizEquipoPaso(paso) {
   if (progress) progress.style.width = (paso / 3 * 100) + '%';
   if (btnNext) btnNext.textContent = paso === 3 ? 'Crear equipo' : 'Continuar';
 
-  if (paso === 1) {
+if (paso === 1) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🛼</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Cómo se llama tu equipo?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Este será el nombre que verán todas las integrantes.</p>
+      <div class="wiz-emoji">🛼</div>
+      <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
+      <p class="wiz-desc">El nombre que verán todas las integrantes.</p>
+      <div class="wiz-content">
+        <input id="wiz-eq-nombre" type="text" placeholder="Nombre del equipo" value="${_wizEquipo.nombre}"
+          class="reg-input wiz-big-input"
+          oninput="_wizEquipo.nombre=this.value"
+          onkeydown="if(event.key==='Enter') wizEquipoPasoSiguiente()">
       </div>
-      <input id="wiz-eq-nombre" type="text" placeholder="Nombre del equipo" value="${_wizEquipo.nombre}"
-        style="width:100%;padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:17px;font-weight:600;box-sizing:border-box;outline:none;text-align:center;"
-        oninput="_wizEquipo.nombre=this.value">
     `;
     setTimeout(() => document.getElementById('wiz-eq-nombre')?.focus(), 100);
   }
 
   if (paso === 2) {
     contenido.innerHTML = `
-      <div style="font-size:48px;text-align:center;">🏆</div>
-      <div style="text-align:center;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">¿Qué categoría es tu equipo?</h2>
-        <p style="font-size:14px;color:var(--text2);margin:0;">Seleccioná la categoría en la que compite tu equipo.</p>
-      </div>
-      <div style="display:flex;gap:12px;width:100%;justify-content:center;">
-        ${['A','B','C'].map(cat => `
-          <button onclick="seleccionarCategoriaEquipo('${cat}')"
-            id="wiz-eq-cat-${cat}"
-            style="flex:1;padding:20px 8px;border-radius:16px;border:2px solid ${_wizEquipo.categoria === cat ? 'var(--accent)' : 'var(--border)'};
-                   background:${_wizEquipo.categoria === cat ? 'var(--accent)' : 'var(--card)'};
-                   color:${_wizEquipo.categoria === cat ? '#fff' : 'var(--text)'};
-                   font-size:22px;font-weight:800;cursor:pointer;transition:all 0.2s ease;">
-            ${cat}
-          </button>`).join('')}
+      <div class="wiz-emoji">🏆</div>
+      <h2 class="wiz-title">¿Qué categoría?</h2>
+      <p class="wiz-desc">Seleccioná la categoría en la que compite tu equipo.</p>
+      <div class="wiz-content">
+        <div class="wiz-chips">
+          ${['A','B','C'].map(cat => `
+            <button onclick="seleccionarCategoriaEquipo('${cat}')"
+              id="wiz-eq-cat-${cat}"
+              class="chip ${_wizEquipo.categoria === cat ? 'chip-active' : 'chip-inactive'}">
+              ${cat}
+            </button>`).join('')}
+        </div>
       </div>
     `;
   }
