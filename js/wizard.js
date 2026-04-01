@@ -120,17 +120,14 @@ function mostrarRegistroWizard() {
   const introEl    = document.getElementById('wiz-intro');
   const headerEl   = document.getElementById('wiz-header');
   const viewportEl = document.getElementById('wiz-viewport');
-  if (desdeCrearLiga) {
+if (desdeCrearLiga) {
+    document.getElementById('loginScreen').style.display = 'none';
     if (introEl)    introEl.style.display    = 'none';
     if (headerEl)   headerEl.style.display   = 'flex';
     if (viewportEl) viewportEl.style.display = 'block';
     regData.codigoInvitacion = inviteCode;
-    console.log('[WIZ-REG] desdeCrearLiga — registroScreen display:', document.getElementById('registroScreen')?.style.display);
     wizUpdateHeader();
     wizGoTo(1, true);
-    setTimeout(() => {
-      console.log('[WIZ-REG] 500ms después — registroScreen:', document.getElementById('registroScreen')?.style.display, '| loginScreen:', document.getElementById('loginScreen')?.style.display);
-    }, 500);
   } else {
     if (introEl)    introEl.style.display    = 'flex';
     if (headerEl)   headerEl.style.display   = 'none';
