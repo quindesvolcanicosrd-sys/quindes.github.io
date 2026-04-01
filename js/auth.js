@@ -192,6 +192,7 @@ function initGoogleAuth() {
         localStorage.removeItem('quindes_token');
         accessToken = null;
         detenerDerbyLoader();
+        if (sessionStorage.getItem('_enFlujoCrearLiga')) return;
         mostrarLoginScreen();
       }
     })();
