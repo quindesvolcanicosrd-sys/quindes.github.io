@@ -850,37 +850,98 @@ function renderWizLigaPaso(paso) {
   }
 
   if (paso === 4) {
-    const ciudades = CIUDADES_POR_PAIS[_wizLiga.pais] || [];
-    const ciudadOpts = ciudades.map(c =>
-      `<option value="${c}" ${_wizLiga.ciudad === c ? 'selected' : ''}>${c}</option>`
-    ).join('');
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">🌎</div>
-        <h2 class="wiz-title">¿De dónde es tu liga?</h2>
-        <p class="wiz-desc">País y ciudad donde opera principalmente.</p>
-        <div class="wiz-content">
-          <select id="wiz-liga-pais-sel" class="reg-input" onchange="onWizLigaPaisChange(this.value)">
-            <option value="">Seleccionar país…</option>
-            ${REG_PAISES.map(p => `<option value="${p}" ${_wizLiga.pais === p ? 'selected' : ''}>${p}</option>`).join('')}
-          </select>
-          <div id="wiz-liga-ciudad-wrap" style="${_wizLiga.pais ? '' : 'display:none;'}margin-top:12px;">
-            <select id="wiz-liga-ciudad-sel" class="reg-input" onchange="_wizLiga.ciudad=this.value;document.getElementById('wiz-liga-ciudad-custom-wrap').style.display=this.value==='__otro__'?'block':'none';">
-              <option value="">Seleccionar ciudad…</option>
-              ${ciudadOpts}
-              <option value="__otro__" ${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? 'selected' : ''}>Mi ciudad no está en la lista…</option>
-            </select>
-            <div id="wiz-liga-ciudad-custom-wrap" style="display:${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? 'block' : 'none'};margin-top:8px;">
-              <input id="wiz-liga-ciudad-custom" type="text" placeholder="Escribe tu ciudad"
-                value="${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? _wizLiga.ciudad : ''}"
-                class="reg-input" oninput="_wizLiga.ciudad=this.value">
-            </div>
-          </div>
-          <p class="reg-note">Opcional — puedes saltarte este paso</p>
-        </div>
-      `;
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-4');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const selPais = document.getElementById('wiz-liga-pais-sel');
+    const selCiudad = document.getElementById('wiz-liga-ciudad-sel');
+    const wrapCiudad = document.getElementById('wiz-liga-ciudad-wrap');
+    const wrapCustom = document.getElementById('wiz-liga-ciudad-custom-wrap');
+    const inputCustom = document.getElementById('wiz-liga-ciudad-custom');
+
+    // ===== PAÍSES =====
+    REG_PAISES.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      if (_wizLiga.pais === p) opt.selected = true;
+      selPais.appendChild(opt);
+    });
+
+    // ===== FUNCIÓN PARA CARGAR CIUDADES =====
+    function cargarCiudades(pais) {
+      selCiudad.innerHTML = '<option value="">Seleccionar ciudad…</option>';
+
+      const ciudades = CIUDADES_POR_PAIS[pais] || [];
+
+      ciudades.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        if (_wizLiga.ciudad === c) opt.selected = true;
+        selCiudad.appendChild(opt);
+      });
+
+      // opción "otro"
+      const optOtro = document.createElement('option');
+      optOtro.value = '__otro__';
+      optOtro.textContent = 'Mi ciudad no está en la lista…';
+      selCiudad.appendChild(optOtro);
+
+      const esCustom = _wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad);
+
+      if (esCustom) {
+        selCiudad.value = '__otro__';
+        wrapCustom.classList.remove('wiz-hidden');
+        inputCustom.value = _wizLiga.ciudad;
+      } else {
+        wrapCustom.classList.add('wiz-hidden');
+      }
+    }
+
+    // ===== ESTADO INICIAL =====
+    if (_wizLiga.pais) {
+      wrapCiudad.classList.remove('wiz-hidden');
+      cargarCiudades(_wizLiga.pais);
+    }
+
+    // ===== EVENTOS =====
+
+    selPais.addEventListener('change', e => {
+      const val = e.target.value;
+      _wizLiga.pais = val;
+      _wizLiga.ciudad = '';
+
+      if (val) {
+        wrapCiudad.classList.remove('wiz-hidden');
+        cargarCiudades(val);
+      } else {
+        wrapCiudad.classList.add('wiz-hidden');
+      }
+    });
+
+    selCiudad.addEventListener('change', e => {
+      const val = e.target.value;
+
+      if (val === '__otro__') {
+        wrapCustom.classList.remove('wiz-hidden');
+        _wizLiga.ciudad = inputCustom.value || '';
+      } else {
+        wrapCustom.classList.add('wiz-hidden');
+        _wizLiga.ciudad = val;
+      }
+    });
+
+    inputCustom.addEventListener('input', e => {
+      _wizLiga.ciudad = e.target.value;
+    });
+
+  }, forward);
+  return;
   }
 
   if (paso === 5) {
