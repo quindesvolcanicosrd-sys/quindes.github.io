@@ -159,7 +159,7 @@ wizard.html — todo el HTML estático de los tres wizards (registro, liga, equi
 wizard.js — motor compartido + lógica de los tres wizards, sin un solo innerHTML de estructura
 wizard.css — todos los estilos de wizard unificados, sacando lo que hoy está mezclado en ajustes.css
 
-A tener en cuenta: todo el HTML de los wizards está generado via innerHTML dentro de ajustes.js. Eso significa que por ahora no hay un wizard.html parcial real para liga/equipo.
+A tener en cuenta: todo el HTML de los wizards está generado via innerHTML dentro de ajustes.js. Eso significa que por ahora no hay un wizard.html parcial real para liga/equipo. wizard.html ya tiene la estrucutra del wizard de perfil, pero falta agregar aca la parte que esta hardcodeada del wizard.js
 
 Lo que va a pasar en cada archivo:
 wizard.css — recibe todo lo de ajustes.css relacionado a wizards:
@@ -185,11 +185,13 @@ wizard.html — se van moviendo los innerHTML a HTML estático
 
 Lo que ya esta hecho de la migración: 
 
-Agregar al final de wizard.css todas las clases de wizard que hoy están en ajustes.css y La limpieza de ajustes.css está completa. Es decir el css ya esta migrado y funcionando
+Agregar al final de wizard.css todas las clases de wizard que hoy están en ajustes.css y La limpieza de ajustes.css está completa. Es decir el css ya esta migrado y funcionando.
+
+Mover la lógica JS de los wizards de ajustes.js a wizard.js. Esto esta migrado y funcional
 
 Paso siguiente de la migración: 
 
-mover la lógica JS de los wizards de ajustes.js a wizard.js
+Migrar codigos hardcodeados de html de wizard.js de crear liga a wizard.html y hacer que convivan de manera separada pero dentro del mismo archivo el html del wizard de perfil con el html del wizard de liga
 
 Otros objetivos:
 - Revisar y unificar transiciones entre pasos
