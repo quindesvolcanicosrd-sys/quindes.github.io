@@ -18,7 +18,7 @@
         <span>Solo se admiten cuentas de Google.</span>
       </div>-->
       <div id="wiz-google-btn" class="login-google-btn-wrap" style="margin:24px auto 0;"></div>
-      <button class="wiz-btn wiz-btn-ghost" onclick="wizStep0Volver()">Volver</button>
+      <button class="wiz-skip-btn" onclick="wizStep0Volver()">Volver</button>
     </div>
   </div>
 
@@ -55,7 +55,7 @@
         <span>Comenzar</span>
         <span class="material-icons">arrow_forward</span>
       </button>
-      <button class="wiz-btn wiz-btn-ghost" onclick="wizIntroVolver()">Volver</button>
+      <button class="wiz-skip-btn" onclick="wizIntroVolver()">Volver</button>
     </div>
   </div>
 
@@ -120,7 +120,7 @@
           <button class="wiz-btn wiz-btn-primary" id="wiz-btn-foto" onclick="wizNext()" style="display:none;">
             Continuar <span class="material-icons">arrow_forward</span>
           </button>
-          <button class="wiz-btn wiz-btn-ghost" onclick="wizNext()">Omitir por ahora</button>
+          <button class="wiz-skip-btn" onclick="wizNext()">Omitir por ahora</button>
         </div>
       </div>
     </div>
@@ -256,7 +256,7 @@
         </div>
         <div class="wiz-actions">
           <button class="wiz-btn wiz-btn-primary" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-          <button class="wiz-btn wiz-btn-ghost" onclick="wizNext()">Omitir por ahora</button>
+          <button class="wiz-skip-btn" onclick="wizNext()">Omitir por ahora</button>
         </div>
       </div>
     </div>
@@ -312,7 +312,7 @@
         </div>
         <div class="wiz-actions">
           <button class="wiz-btn wiz-btn-primary" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-          <button class="wiz-btn wiz-btn-ghost" onclick="wizNext()">Omitir por ahora</button>
+          <button class="wiz-skip-btn" onclick="wizNext()">Omitir por ahora</button>
         </div>
       </div>
     </div>
@@ -334,7 +334,7 @@
           <button id="reg-submit" class="wiz-btn wiz-btn-success" onclick="submitRegistro()">
             <span class="material-icons">check_circle</span> ¡Crear mi perfil!
           </button>
-          <button class="wiz-btn wiz-btn-ghost" onclick="regData.contactoEmergencia=''; submitRegistro()">Omitir y finalizar</button>
+          <button class="wiz-skip-btn" onclick="regData.contactoEmergencia=''; submitRegistro()">Omitir y finalizar</button>
           <p class="reg-note">Al crear tu perfil aceptas los <strong>términos y condiciones</strong> y el uso de tus datos personales.</p>
         </div>
       </div>
@@ -617,7 +617,7 @@
     <div class="reg-foto-center">
       <label class="wiz-c-avatar">
 
-        <img id="wiz-liga-foto-preview" class="wiz-hidden" />
+        <img id="wiz-liga-foto-preview" class="wiz-liga-avatar-img wiz-hidden" />
 
         <span id="wiz-liga-foto-placeholder" class="material-icons wiz-c-avatar-placeholder">
           add_a_photo
@@ -636,7 +636,7 @@
   </div>
 
   <div class="wiz-actions">
-    <button class="wiz-btn wiz-btn-ghost" id="wiz-liga-skip-10">Omitir por ahora</button>
+    <button class="wiz-skip-btn" id="wiz-liga-skip-10">Omitir por ahora</button>
   </div>
 </template>
 
