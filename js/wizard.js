@@ -1466,7 +1466,7 @@ function mostrarWizardLiga() {
     <div id="wiz-liga-contenido" class="wiz-equipo-contenido"></div>
     <div class="wiz-equipo-footer">
       <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-eq-btn-back" style="display:none;">Atrás</button>
-      <button id="wiz-liga-btn-next" onclick="wizLigaPasoSiguiente()" class="wiz-eq-btn-next">Continuar</button>
+      <button id="wiz-liga-btn-next" onclick="wizLigaPasoSiguiente()" class="wiz-btn-primary">Continuar</button>
     </div>
   `;
   document.body.appendChild(overlay);

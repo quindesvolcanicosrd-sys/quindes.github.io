@@ -28,9 +28,9 @@
 .wiz-desc  { font-size: 15px !important; font-weight: 400 !important; color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important; line-height: 1.65 !important; margin: 0 0 28px !important; }
 .wiz-content { display: flex; flex-direction: column; gap: 12px; }
 .wiz-actions { margin-top: auto; padding-top: 24px; padding-bottom: env(safe-area-inset-bottom,0px); display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
-.wiz-btn-next, .wiz-btn-finish { display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; width: 100% !important; padding: 18px 24px !important; border-radius: 9999px !important; border: none !important; background: linear-gradient(135deg,#ff3b3b 0%,#c41212 100%) !important; color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: 13px !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; cursor: pointer !important; -webkit-tap-highlight-color: transparent !important; transition: transform 0.12s !important; }
-.wiz-btn-next:active, .wiz-btn-finish:active { transform: scale(0.97) !important; }
-.wiz-btn-next .material-icons, .wiz-btn-finish .material-icons { font-size: 18px !important; color: rgba(255,255,255,0.9) !important; -webkit-text-fill-color: rgba(255,255,255,0.9) !important; }
+.wiz-btn-primary { display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; width: 100% !important; padding: 18px 24px !important; border-radius: 9999px !important; border: none !important; background: linear-gradient(135deg,#ff3b3b 0%,#c41212 100%) !important; color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: 13px !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; cursor: pointer !important; -webkit-tap-highlight-color: transparent !important; transition: transform 0.12s !important; }
+.wiz-btn-primary:active { transform: scale(0.97) !important; }
+.wiz-btn-primary .material-icons { font-size: 18px !important; color: rgba(255,255,255,0.9) !important; -webkit-text-fill-color: rgba(255,255,255,0.9) !important; }
 .wiz-btn-skip { background: transparent !important; border: none !important; font-size: 12px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.06em !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; padding: 10px !important; cursor: pointer !important; -webkit-tap-highlight-color: transparent !important; text-decoration: underline; text-underline-offset: 3px; }
 @keyframes wiz-spin { to { transform: rotate(360deg); } }
 .wiz-spin { display: inline-block !important; animation: wiz-spin 0.9s linear infinite !important; }
@@ -142,8 +142,8 @@
 .wiz-eq-paso-label { font-size: 10px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.7px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; }
 
 /* ══ WIZARD FOOTER BUTTONS ══ */
-.wiz-eq-btn-next { display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; width: 100% !important; padding: 18px 24px !important; border-radius: 9999px !important; border: none !important; background: linear-gradient(135deg, var(--accent-gradient-from) 0%, var(--accent-gradient-to) 100%) !important; color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: 13px !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; cursor: pointer !important; font-family: inherit !important; -webkit-tap-highlight-color: transparent !important; transition: transform 0.12s !important; }
-.wiz-eq-btn-next:active { transform: scale(0.97) !important; }
+.wiz-btn-primary { display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; width: 100% !important; padding: 18px 24px !important; border-radius: 9999px !important; border: none !important; background: linear-gradient(135deg, var(--accent-gradient-from) 0%, var(--accent-gradient-to) 100%) !important; color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: 13px !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; cursor: pointer !important; font-family: inherit !important; -webkit-tap-highlight-color: transparent !important; transition: transform 0.12s !important; }
+.wiz-btn-primary:active { transform: scale(0.97) !important; }
 .wiz-eq-btn-back { background: transparent !important; border: none !important; font-size: 12px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.06em !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; padding: 10px !important; cursor: pointer !important; -webkit-tap-highlight-color: transparent !important; text-decoration: underline; text-underline-offset: 3px; }
 
 /* ══ WIZARD CONTENIDO TIPOGRAFÍA ══ */
@@ -207,3 +207,20 @@ textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
 .modal-confirm-btn-primary { width: 100%; padding: 17px; border-radius: 16px; border: none; background: var(--accent); color: #fff; font-size: 16px; font-weight: 700; font-family: var(--font); cursor: pointer; margin-top: 8px; }
 .modal-confirm-btn-secondary { width: 100%; padding: 17px; border-radius: 16px; border: none; background: var(--card2); color: var(--text); font-size: 16px; font-weight: 600; font-family: var(--font); cursor: pointer; }
 
+/* ══ BASE TIPOGRAFÍA ══ */
+.wiz-text-title {
+  font-size: 28px;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.wiz-text-desc {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text2);
+  line-height: 1.65;
+}

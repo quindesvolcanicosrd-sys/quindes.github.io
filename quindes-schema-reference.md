@@ -189,9 +189,11 @@ Agregar al final de wizard.css todas las clases de wizard que hoy están en ajus
 
 Mover la lógica JS de los wizards de ajustes.js a wizard.js. Esto esta migrado y funcional
 
+Migrar codigos hardcodeados de html de wizard.js de crear liga a wizard.html y hacer que convivan de manera separada pero dentro del mismo archivo el html del wizard de perfil con el html del wizard de liga
+
 Paso siguiente de la migración: 
 
-Migrar codigos hardcodeados de html de wizard.js de crear liga a wizard.html y hacer que convivan de manera separada pero dentro del mismo archivo el html del wizard de perfil con el html del wizard de liga
+Estandarizar clases, animaciones, estilos y código para ambos wizards: Liga y Perfil
 
 Otros objetivos:
 - Revisar y unificar transiciones entre pasos
