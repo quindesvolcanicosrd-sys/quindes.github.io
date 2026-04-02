@@ -778,21 +778,30 @@ function renderWizLigaPaso(paso) {
   }
 
   if (paso === 2) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">🏟️</div>
-        <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
-        <p class="wiz-desc">El nombre de la organización.</p>
-        <div class="wiz-content">
-          <input id="wiz-liga-nombre" type="text" placeholder="Nombre de la liga" value="${_wizLiga.nombreLiga}"
-            class="reg-input wiz-big-input"
-            oninput="_wizLiga.nombreLiga=this.value"
-            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-        </div>
-      `;
-      setTimeout(() => document.getElementById('wiz-liga-nombre')?.focus(), 350);
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-2');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const input = document.getElementById('wiz-liga-nombre');
+    if (input) {
+      input.value = _wizLiga.nombreLiga || '';
+
+      input.addEventListener('input', e => {
+        _wizLiga.nombreLiga = e.target.value;
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') wizLigaPasoSiguiente();
+      });
+
+      setTimeout(() => input.focus(), 350);
+    }
+
+  }, forward);
+  return;
   }
 
   if (paso === 3) {
