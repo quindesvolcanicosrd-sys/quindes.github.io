@@ -361,7 +361,7 @@
 
 <!-- WIZARD LIGA TEMPLATES -->
 
-<!-- TEMPLATE 0 -->
+<!-- LIGA: TEMPLATE 0 -->
 <template id="tpl-wiz-liga-0">
   <div class="wiz-intro-bg">
     <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
@@ -398,7 +398,7 @@
   </div>
 </template>
 
-<!-- TEMPLATE 1 -->
+<!-- LIGA: TEMPLATE 1 -->
 <template id="tpl-wiz-liga-1">
   <div class="wiz-intro-bg">
     <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
@@ -413,7 +413,7 @@
   </div>
 </template>
 
-<!-- TEMPLATE 2 -->
+<!-- LIGA: TEMPLATE 2 -->
 <template id="tpl-wiz-liga-2">
   <div class="wiz-emoji">🏟️</div>
   <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
@@ -429,7 +429,7 @@
   </div>
 </template>
 
-<!-- TEMPLATE 3 -->
+<!-- LIGA: TEMPLATE 3 -->
 <template id="tpl-wiz-liga-3">
   <div class="wiz-emoji">🖼️</div>
   <h2 class="wiz-title">Logo de tu liga</h2>
@@ -458,7 +458,7 @@
   </div>
 </template>
 
-<!-- TEMPLATE 4 -->
+<!-- LIGA: TEMPLATE 4 -->
 <template id="tpl-wiz-liga-4">
   <div class="wiz-emoji">🌎</div>
   <h2 class="wiz-title">¿De dónde es tu liga?</h2>
@@ -491,7 +491,7 @@
   </div>
 </template>
 
-<!-- TEMPLATE 5 -->
+<!-- LIGA: TEMPLATE 5 -->
 <template id="tpl-wiz-liga-5">
   <div class="wiz-emoji">📅</div>
   <h2 class="wiz-title">Cuéntanos más</h2>
@@ -519,7 +519,7 @@
   </div>
 </template>
 
-<!-- TEMPLATE 6 -->
+<!-- LIGA: TEMPLATE 6 -->
 <template id="tpl-wiz-liga-6">
   <div class="wiz-emoji">📬</div>
   <h2 class="wiz-title">Contacto de la liga</h2>
@@ -539,7 +539,7 @@
   </div>
 </template>
 
-<!-- TEMPLATE 7 -->
+<!-- LIGA: TEMPLATE 7 -->
 <template id="tpl-wiz-liga-7">
   <div class="wiz-emoji">🛼</div>
   <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
@@ -555,7 +555,7 @@
   </div>
 </template>
 
-<!-- TEMPLATE 8 -->
+<!-- LIGA: TEMPLATE 8 -->
 <template id="tpl-wiz-liga-8">
   <div class="wiz-emoji">🏆</div>
   <h2 class="wiz-title">¿Qué categoría?</h2>
@@ -565,5 +565,104 @@
     <div class="wiz-chips" id="wiz-liga-cat-chips"></div>
 
     <p class="reg-note">Opcional — puedes saltarte este paso</p>
+  </div>
+</template>
+
+<!-- LIGA: TEMPLATE 9 -->
+<template id="tpl-wiz-liga-9">
+  <div class="wiz-emoji">🎨</div>
+  <h2 class="wiz-title">Personaliza tu equipo</h2>
+  <p class="wiz-desc">Logo y color de énfasis. Así se verá la app cuando uses este equipo.</p>
+
+  <div class="wiz-content">
+
+    <!-- LOGO -->
+    <div class="wiz-liga-avatar-wrap">
+      <label class="wiz-liga-avatar">
+
+        <img id="wiz-liga-logo-preview" class="wiz-hidden" />
+
+        <span id="wiz-liga-logo-placeholder" class="material-icons">
+          add_photo_alternate
+        </span>
+
+        <input
+          id="wiz-liga-logo-input"
+          type="file"
+          accept="image/*"
+          style="display:none;"
+        >
+      </label>
+    </div>
+
+    <!-- COLOR -->
+    <p style="font-size:13px;color:var(--text3);margin:16px 0 8px;font-weight:600;">
+      Color de énfasis
+    </p>
+
+    <div class="wiz-color-presets" id="wiz-color-presets"></div>
+
+    <p class="reg-note">Opcional — puedes saltarte este paso</p>
+
+  </div>
+</template>
+
+<!-- PERFIL: TEMPLATE 10 -->
+<template id="tpl-wiz-liga-10">
+  <div class="wiz-emoji">📸</div>
+  <h2 class="wiz-title">¡Ponele cara al nombre!</h2>
+  <p class="wiz-desc">Subí una foto para que todxs en el equipo puedan identificarte. Opcional.</p>
+
+  <div class="wiz-content">
+    <div class="reg-foto-center">
+      <label class="reg-avatar">
+
+        <img id="wiz-liga-foto-preview" class="wiz-hidden" />
+
+        <span id="wiz-liga-foto-placeholder" class="material-icons reg-avatar-placeholder">
+          add_a_photo
+        </span>
+
+        <input
+          id="wiz-liga-foto-input"
+          type="file"
+          accept="image/*"
+          style="display:none;"
+        >
+      </label>
+
+      <p class="reg-foto-hint">Toca para agregar tu foto</p>
+    </div>
+  </div>
+
+  <div class="wiz-actions">
+    <button class="wiz-btn-skip" id="wiz-liga-skip-10">Omitir por ahora</button>
+  </div>
+</template>
+
+<!-- PERFIL: TEMPLATE 11 -->
+<template id="tpl-wiz-liga-11">
+  <div class="wiz-emoji">✨</div>
+  <h2 class="wiz-title">¿Cómo te llamamos?</h2>
+  <p class="wiz-desc">Tu nombre o apodo en el equipo.</p>
+
+  <div class="wiz-content">
+    <input
+      id="wiz-liga-perfil-nombre"
+      type="text"
+      placeholder="Ej: Valentina, Val…"
+      class="reg-input wiz-big-input"
+    >
+  </div>
+</template>
+
+<!-- PERFIL: TEMPLATE 12 -->
+<template id="tpl-wiz-liga-12">
+  <div class="wiz-emoji">🏳️‍🌈</div>
+  <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
+  <p class="wiz-desc">Opcional.</p>
+
+  <div class="wiz-content">
+    <div id="wiz-liga-pronombres-chips" class="wiz-chips"></div>
   </div>
 </template>

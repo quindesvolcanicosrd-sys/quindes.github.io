@@ -1068,94 +1068,159 @@ function renderWizLigaPaso(paso) {
   }
 
   if (paso === 9) {
-    const preview = _wizLiga.logoBase64
-      ? `<img src="${_wizLiga.logoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
-      : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
-    const colorActual = _wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444';
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">🎨</div>
-        <h2 class="wiz-title">Personaliza tu equipo</h2>
-        <p class="wiz-desc">Logo y color de énfasis. Así se verá la app cuando uses este equipo.</p>
-        <div class="wiz-content">
-          <div class="wiz-liga-avatar-wrap">
-            <label class="wiz-liga-avatar" id="wiz-liga-logo-label">
-              ${preview}
-              <input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">
-            </label>
-          </div>
-          <p style="font-size:13px;color:var(--text3);margin:16px 0 8px;font-weight:600;">Color de énfasis</p>
-          <div class="wiz-color-presets" id="wiz-color-presets">
-            ${COLOR_PICKER_PRESETS.map(c => `
-              <button class="color-swatch-btn ${c === colorActual ? 'selected' : ''}"
-                style="background:${c}" onclick="seleccionarColorWiz('${c}')" data-color="${c}">
-              </button>`).join('')}
-          </div>
-          <p class="reg-note">Opcional — puedes saltarte este paso</p>
-        </div>
-      `;
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-9');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const img = document.getElementById('wiz-liga-logo-preview');
+    const placeholder = document.getElementById('wiz-liga-logo-placeholder');
+    const input = document.getElementById('wiz-liga-logo-input');
+    const wrapColors = document.getElementById('wiz-color-presets');
+
+    const colorActual =
+      _wizLiga.colorPrimario ||
+      document.documentElement.dataset.colorPrimario ||
+      '#ef4444';
+
+    // ===== LOGO =====
+    if (_wizLiga.logoBase64) {
+      img.src = _wizLiga.logoBase64;
+      img.classList.remove('wiz-hidden');
+      placeholder.classList.add('wiz-hidden');
+    } else {
+      img.classList.add('wiz-hidden');
+      placeholder.classList.remove('wiz-hidden');
+    }
+
+    input?.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const base64 = ev.target.result;
+
+        _wizLiga.logoBase64 = base64;
+
+        img.src = base64;
+        img.classList.remove('wiz-hidden');
+        placeholder.classList.add('wiz-hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // ===== COLORES =====
+    COLOR_PICKER_PRESETS.forEach(color => {
+      const btn = document.createElement('button');
+
+      btn.className = 'color-swatch-btn';
+      if (color === colorActual) btn.classList.add('selected');
+
+      btn.style.background = color;
+
+      btn.addEventListener('click', () => {
+        _wizLiga.colorPrimario = color;
+
+        aplicarColorPrimario(color);
+
+        // actualizar selección visual
+        [...wrapColors.children].forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+
+      wrapColors.appendChild(btn);
+    });
+
+  }, forward);
+  return;
   }
 
   if (paso === 10) {
     wizLigaGoTo(el => {
-      const preview = _wizLiga.fotoBase64
-        ? `<img src="${_wizLiga.fotoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:36px;">`
-        : `<span class="material-icons reg-avatar-placeholder">add_a_photo</span>`;
-      el.innerHTML = `
-        <div class="wiz-emoji">📸</div>
-        <h2 class="wiz-title">¡Ponele cara al nombre!</h2>
-        <p class="wiz-desc">Subí una foto para que todxs en el equipo puedan identificarte. Opcional.</p>
-        <div class="wiz-content">
-          <div class="reg-foto-center">
-            <label class="reg-avatar" id="wiz-liga-foto-label">
-              ${preview}
-              <input type="file" accept="image/*" id="wiz-liga-foto-input" style="display:none;" onchange="previewFotoLigaWiz(this)">
-            </label>
-            <p class="reg-foto-hint" id="wiz-liga-foto-hint">Toca para agregar tu foto</p>
-          </div>
-        </div>
-        <div class="wiz-actions" style="margin-top:auto;padding-top:24px;">
-          <button class="wiz-btn-skip" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
-        </div>
-      `;
+      const tpl = document.getElementById('tpl-wiz-liga-10');
+      if (!tpl) return;
+
+      el.innerHTML = '';
+      el.appendChild(tpl.content.cloneNode(true));
+
+      const img = document.getElementById('wiz-liga-foto-preview');
+      const placeholder = document.getElementById('wiz-liga-foto-placeholder');
+      const input = document.getElementById('wiz-liga-foto-input');
+      const skip = document.getElementById('wiz-liga-skip-10');
+
+      if (_wizLiga.fotoBase64) {
+        img.src = _wizLiga.fotoBase64;
+        img.classList.remove('wiz-hidden');
+        placeholder.classList.add('wiz-hidden');
+      }
+
+      input?.addEventListener('change', e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = ev => {
+          _wizLiga.fotoBase64 = ev.target.result;
+
+          img.src = ev.target.result;
+          img.classList.remove('wiz-hidden');
+          placeholder.classList.add('wiz-hidden');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      skip?.addEventListener('click', wizLigaPasoSiguiente);
+
     }, forward);
     return;
   }
 
   if (paso === 11) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">✨</div>
-        <h2 class="wiz-title">¿Cómo te llamamos?</h2>
-        <p class="wiz-desc">Tu nombre o apodo en el equipo.</p>
-        <div class="wiz-content">
-          <input id="wiz-liga-perfil-nombre" type="text" placeholder="Ej: Valentina, Val…"
-            value="${_wizLiga.nombre || ''}"
-            class="reg-input wiz-big-input"
-            oninput="_wizLiga.nombre=this.value"
-            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-        </div>
-      `;
-      setTimeout(() => document.getElementById('wiz-liga-perfil-nombre')?.focus(), 350);
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-11');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const input = document.getElementById('wiz-liga-perfil-nombre');
+
+    input.value = _wizLiga.nombre || '';
+
+    input.addEventListener('input', e => {
+      _wizLiga.nombre = e.target.value;
+    });
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') wizLigaPasoSiguiente();
+    });
+
+    setTimeout(() => input.focus(), 300);
+
+  }, forward);
+  return;
   }
 
   if (paso === 12) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">🏳️‍🌈</div>
-        <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
-        <p class="wiz-desc">Opcional.</p>
-        <div class="wiz-content">
-          <div id="wiz-liga-pronombres-chips" class="wiz-chips"></div>
-        </div>
-      `;
-      regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], v => { _wizLiga.pronombres = v; });
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-12');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    regRenderChipsMulti(
+      'wiz-liga-pronombres-chips',
+      REG_PRONOMBRES,
+      _wizLiga.pronombres || [],
+      v => { _wizLiga.pronombres = v; }
+    );
+
+  }, forward);
+  return;
   }
 
   if (paso === 13) {
