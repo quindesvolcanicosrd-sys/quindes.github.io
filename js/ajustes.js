@@ -1054,6 +1054,7 @@ const _WIZ_LIGA_TOTAL = 9;
 
 function mostrarWizardLiga() {
   sessionStorage.setItem('_enFlujoCrearLiga', '1');
+  window._colorAntesDeLiga = document.documentElement.dataset.colorPrimario || '#ef4444';
   _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contacto: '', contactoCodigo: '🇪🇨 +593', nombre: '', pronombres: [], paisPerfil: '', codigoPais: '', telefono: '', fechaNacimiento: '', nombreDerby: '', numeroDerby: '', rolJugadorx: '', asisteSemana: '', alergias: '', dieta: '', contactoEmergencia: '', fotoBase64: null };
   _wizLigaPaso = 0;
 
@@ -1087,6 +1088,7 @@ function cerrarWizLiga() {
   overlay.classList.remove('visible');
   setTimeout(() => overlay.remove(), 350);
   if (!window._enFlujoCrearLiga) sessionStorage.removeItem('_enFlujoCrearLiga');
+  aplicarColorPrimario(window._colorAntesDeLiga || '#ef4444');
 }
 
 function wizLigaIntroStart() {
@@ -1112,7 +1114,7 @@ function renderWizLigaPaso(paso) {
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
   if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
-  if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo 🛼' : 'Continuar';
+  if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo' : 'Continuar';
 
   if (paso === 0) {
     contenido.innerHTML = `
