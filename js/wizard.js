@@ -1250,3 +1250,71 @@ function wizLigaPasoAnterior() {
   if (_wizLigaPaso > 1) renderWizLigaPaso(_wizLigaPaso - 1);
   else cerrarWizLiga();
 }
+
+async function wizLigaSubmit() {
+  const btnNext = document.getElementById('wiz-liga-btn-next');
+  if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
+  wizMostrarCargando();
+  try {
+    const email = window._googleEmail || localStorage.getItem('quindes_email');
+    if (!email) { mostrarToastGuardado('⚠️ No se encontró tu sesión'); if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Finalizar'; } return; }
+    const result = await apiCall('/crear-liga', 'POST', {
+      email,
+      nombreLiga:         _wizLiga.nombreLiga.trim(),
+      nombreEquipo:       _wizLiga.nombreEquipo.trim(),
+      categoria:          _wizLiga.categoria || null,
+      ligaImagenBase64:   _wizLiga.ligaImagenBase64 || null,
+      logoBase64:         _wizLiga.logoBase64 || null,
+      colorPrimario:      _wizLiga.colorPrimario || null,
+      nombre:             _wizLiga.nombre.trim(),
+      pronombres:         Array.isArray(_wizLiga.pronombres) ? _wizLiga.pronombres.join(', ') : '',
+      pais:               _wizLiga.paisPerfil || '',
+      codigoPais:         _wizLiga.codigoPais || '',
+      telefono:           _wizLiga.telefono || '',
+      fechaNacimiento:    _wizLiga.fechaNacimiento || '',
+      mostrarCumple:      _wizLiga.mostrarCumple || 'No',
+      mostrarEdad:        _wizLiga.mostrarEdad || 'No',
+      nombreDerby:        _wizLiga.nombreDerby || '',
+      numero:             _wizLiga.numeroDerby || '',
+      rolJugadorx:        _wizLiga.rolJugadorx || '',
+      asisteSemana:       _wizLiga.asisteSemana || '',
+      alergias:           _wizLiga.alergias || '',
+      dieta:              _wizLiga.dieta || '',
+      contactoEmergencia: _wizLiga.contactoEmergencia || '',
+      fotoBase64:         _wizLiga.fotoBase64 || null,
+    });
+    if (!result?.ok) throw new Error(result?.error || 'Error al crear');
+    wizOcultarCargando();
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('noEncontradoScreen').style.display = 'none';
+    cerrarWizLiga();
+    CURRENT_USER = {
+      found: true, id: result.perfil.id, email,
+      rolApp: 'Admin', equipoId: result.equipo.id, ligaId: result.liga.id,
+      colorPrimario: _wizLiga.colorPrimario || '#ef4444',
+    };
+    if (_wizLiga.colorPrimario) aplicarColorPrimario(_wizLiga.colorPrimario);
+    localStorage.setItem('quindes_email', email);
+    window._enFlujoCrearLiga = false;
+    sessionStorage.removeItem('_enFlujoCrearLiga');
+    const profile = await apiCall('/perfil/' + result.perfil.id);
+    window.myProfile = profile;
+    configurarTodasLasSubidas();
+    renderTodo(profile);
+    aplicarPermisos();
+    inicializarAjustes();
+    const appEl = document.getElementById('appContent');
+    document.getElementById('loadingScreen').style.display = 'none';
+    appEl.style.display = 'block';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      appEl.classList.add('visible');
+      setTimeout(() => { lanzarConfetti(); mostrarBienvenida(); }, 400);
+    }));
+    if (CURRENT_USER?.ligaId) cargarMiLiga({ render: false });
+  } catch(e) {
+    wizOcultarCargando();
+    mostrarToastGuardado('❌ Error al crear: ' + e.message);
+    if (btnNext) { btnNext.disabled = false; btnNext.textContent = '¡Crear todo! 🛼'; }
+    console.error(e);
+  }
+}
