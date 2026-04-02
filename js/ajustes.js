@@ -1128,7 +1128,9 @@ function wizLigaGoTo(renderFn, forward = true) {
 function wizLigaGoTo(renderFn, forward = true) {
   const viewport = document.getElementById('wiz-liga-contenido');
   if (!viewport) return;
+  if (viewport._wizAnimating) return;
   const DURATION = 280;
+  viewport._wizAnimating = true;
   const prevEl = viewport.querySelector('.wiz-liga-step');
 
   const nextEl = document.createElement('div');
@@ -1148,7 +1150,11 @@ function wizLigaGoTo(renderFn, forward = true) {
     }
     nextEl.style.transition = ease;
     nextEl.style.transform  = 'translateX(0)';
-    setTimeout(() => { nextEl.style.transition = ''; nextEl.style.transform = ''; }, DURATION + 20);
+    setTimeout(() => {
+      nextEl.style.transition = '';
+      nextEl.style.transform  = '';
+      viewport._wizAnimating = false;
+    }, DURATION + 20);
   });
 }
 
