@@ -1048,9 +1048,9 @@ function navIr(seccion) {
   // TODO: mostrar sección correspondiente
 }
 // ── Wizard Crear Liga ─────────────────────────────────────────
-let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null };
-let _wizLigaPaso = 1;
-const _WIZ_LIGA_TOTAL = 9;
+let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contactoSocial: '', colorPrimario: '', nombre: '', pronombres: [], paisPerfil: '', codigoPais: '', telefono: '', fechaNacimiento: '', mostrarCumple: '', mostrarEdad: '', nombreDerby: '', numeroDerby: '', rolJugadorx: '', asisteSemana: '', alergias: '', dieta: '', contactoEmergencia: '', fotoBase64: null };
+let _wizLigaPaso = 0;
+const _WIZ_LIGA_TOTAL = 20;
 
 function mostrarWizardLiga() {
   sessionStorage.setItem('_enFlujoCrearLiga', '1');
@@ -1097,119 +1097,183 @@ function wizLigaIntroStart() {
   renderWizLigaPaso(1);
 }
 
+function wizLigaGoTo(renderFn, forward = true) {
+  const viewport = document.getElementById('wiz-liga-contenido');
+  if (!viewport) { renderFn(viewport); return; }
+  const DURATION = 280;
+  const prevEl = viewport.querySelector('.wiz-liga-step');
+
+  const nextEl = document.createElement('div');
+  nextEl.className = 'wiz-liga-step';
+  nextEl.style.transform = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  nextEl.style.transition = 'none';
+  viewport.appendChild(nextEl);
+
+  renderFn(nextEl);
+
+  requestAnimationFrame(() => {
+    const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
+    if (prevEl) {
+      prevEl.style.transition = ease;
+      prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
+      setTimeout(() => prevEl.remove(), DURATION + 20);
+    }
+    nextEl.style.transition = ease;
+    nextEl.style.transform  = 'translateX(0)';
+    setTimeout(() => {
+      nextEl.style.transition = '';
+      nextEl.style.transform  = '';
+    }, DURATION + 20);
+  });
+}
+
+function wizLigaGoTo(renderFn, forward = true) {
+  const viewport = document.getElementById('wiz-liga-contenido');
+  if (!viewport) return;
+  const DURATION = 280;
+  const prevEl = viewport.querySelector('.wiz-liga-step');
+
+  const nextEl = document.createElement('div');
+  nextEl.className = 'wiz-liga-step';
+  nextEl.style.transform = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  nextEl.style.transition = 'none';
+  viewport.appendChild(nextEl);
+
+  renderFn(nextEl);
+
+  requestAnimationFrame(() => {
+    const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
+    if (prevEl) {
+      prevEl.style.transition = ease;
+      prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
+      setTimeout(() => prevEl.remove(), DURATION + 20);
+    }
+    nextEl.style.transition = ease;
+    nextEl.style.transform  = 'translateX(0)';
+    setTimeout(() => { nextEl.style.transition = ''; nextEl.style.transform = ''; }, DURATION + 20);
+  });
+}
+
 function renderWizLigaPaso(paso) {
+  const forward = paso >= _wizLigaPaso;
   _wizLigaPaso = paso;
-  const contenido  = document.getElementById('wiz-liga-contenido');
-  const btnBack    = document.getElementById('wiz-liga-btn-back');
-  const btnNext    = document.getElementById('wiz-liga-btn-next');
-  const pasoLabel  = document.getElementById('wiz-liga-paso-label');
-  const progress   = document.getElementById('wiz-liga-progress');
+  const btnBack   = document.getElementById('wiz-liga-btn-back');
+  const btnNext   = document.getElementById('wiz-liga-btn-next');
+  const pasoLabel = document.getElementById('wiz-liga-paso-label');
+  const progress  = document.getElementById('wiz-liga-progress');
+  const contenido = document.getElementById('wiz-liga-contenido');
   if (!contenido) return;
 
   const esIntro = paso === 0;
-  const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
   const header  = document.querySelector('#wiz-liga-overlay .wiz-equipo-header');
+  const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
   if (header)    header.style.display  = esIntro ? 'none' : '';
   if (footer)    footer.style.display  = esIntro ? 'none' : '';
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
   if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
-  if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo' : 'Continuar';
+  if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? '¡Crear todo! 🛼' : 'Continuar';
 
   if (paso === 0) {
-    contenido.innerHTML = `
-      <div class="wiz-intro-bg">
-        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
-        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
-        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
-      </div>
-      <div class="wiz-liga-intro-content">
-        <div class="wiz-intro-logo">🏟️</div>
-        <h1 class="wiz-intro-title">Creá<br>tu liga</h1>
-        <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos para entrenar.</p>
-        <div class="wiz-intro-steps">
-          <div class="wiz-intro-step wiz-intro-step-1"><span class="wiz-intro-step-ico">🏟️</span><span class="wiz-intro-step-txt">Datos de tu liga y equipo</span></div>
-          <div class="wiz-intro-step wiz-intro-step-2"><span class="wiz-intro-step-ico">👤</span><span class="wiz-intro-step-txt">Tu perfil como Admin</span></div>
-          <div class="wiz-intro-step wiz-intro-step-3"><span class="wiz-intro-step-ico">🔑</span><span class="wiz-intro-step-txt">Código para invitar a tu equipo</span></div>
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-intro-bg">
+          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
+          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
+          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
         </div>
-        <button onclick="wizLigaIntroStart()" class="wiz-intro-btn">
-          Empezar <span class="material-icons">arrow_forward</span>
-        </button>
-        <button onclick="cerrarWizLiga()" class="wiz-btn-skip">Cancelar</button>
-      </div>
-    `;
-    const footer = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
-    if (footer) footer.classList.add('wiz-hidden');
-    if (btnBack) btnBack.classList.add('wiz-hidden');
+        <div class="wiz-liga-intro-content">
+          <div class="wiz-intro-logo">🏟️</div>
+          <h1 class="wiz-intro-title">Creá<br>tu liga</h1>
+          <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos para entrenar.</p>
+          <div class="wiz-intro-steps">
+            <div class="wiz-intro-step wiz-intro-step-1"><span class="wiz-intro-step-ico">🏟️</span><span class="wiz-intro-step-txt">Datos de tu liga y equipo</span></div>
+            <div class="wiz-intro-step wiz-intro-step-2"><span class="wiz-intro-step-ico">👤</span><span class="wiz-intro-step-txt">Tu perfil como Admin</span></div>
+            <div class="wiz-intro-step wiz-intro-step-3"><span class="wiz-intro-step-ico">🔑</span><span class="wiz-intro-step-txt">Código para invitar a tu equipo</span></div>
+          </div>
+          <button onclick="wizLigaIntroStart()" class="wiz-intro-btn">
+            Empezar <span class="material-icons">arrow_forward</span>
+          </button>
+          <button onclick="cerrarWizLiga()" class="wiz-btn-skip">Cancelar</button>
+        </div>
+      `;
+      if (footer) footer.classList.add('wiz-hidden');
+      if (btnBack) btnBack.classList.add('wiz-hidden');
+    }, forward);
     return;
   }
 
-  // A partir del paso 1 — mostrar footer
-  const footer2 = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
-  if (footer2) footer2.classList.remove('wiz-hidden');
+  if (footer) footer.classList.remove('wiz-hidden');
 
   if (paso === 1) {
-    contenido.innerHTML = `
-      <div class="wiz-intro-bg">
-        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
-        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
-        <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
-      </div>
-      <div class="wiz-liga-intro-content">
-        <div class="wiz-intro-logo">👤</div>
-        <h1 class="wiz-intro-title">Vamos a<br>registrarte</h1>
-        <p class="wiz-intro-sub">Inicia sesión con Google para continuar. Solo toma un momento.</p>
-        <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
-      </div>
-    `;
-    if (footer2) footer2.classList.add('wiz-hidden');
-    if (btnBack) btnBack.classList.remove('wiz-hidden');
-    requestAnimationFrame(() => {
-      const wrap = document.getElementById('wiz-liga-google-btn');
-      if (wrap) {
-        wrap.dataset.rendered = '';
-        google.accounts.id.renderButton(wrap, {
-          theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
-        });
-        setTimeout(() => wrap.classList.add('visible'), 120);
-      }
-    });
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-intro-bg">
+          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
+          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
+          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
+        </div>
+        <div class="wiz-liga-intro-content">
+          <div class="wiz-intro-logo">👤</div>
+          <h1 class="wiz-intro-title">Vamos a<br>registrarte</h1>
+          <p class="wiz-intro-sub">Inicia sesión con Google para continuar. Solo toma un momento.</p>
+          <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+        </div>
+      `;
+      if (footer) footer.classList.add('wiz-hidden');
+      if (btnBack) btnBack.classList.remove('wiz-hidden');
+      requestAnimationFrame(() => {
+        const wrap = document.getElementById('wiz-liga-google-btn');
+        if (wrap) {
+          google.accounts.id.renderButton(wrap, {
+            theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
+          });
+          setTimeout(() => wrap.classList.add('visible'), 120);
+        }
+      });
+    }, forward);
     return;
   }
 
   if (paso === 2) {
-    contenido.innerHTML = `
-      <div class="wiz-emoji">🏟️</div>
-      <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
-      <p class="wiz-desc">El nombre de la organización.</p>
-      <div class="wiz-content">
-        <input id="wiz-liga-nombre" type="text" placeholder="Nombre de la liga" value="${_wizLiga.nombreLiga}"
-          class="reg-input wiz-big-input"
-          oninput="_wizLiga.nombreLiga=this.value"
-          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-      </div>
-    `;
-    setTimeout(() => document.getElementById('wiz-liga-nombre')?.focus(), 100);
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🏟️</div>
+        <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
+        <p class="wiz-desc">El nombre de la organización.</p>
+        <div class="wiz-content">
+          <input id="wiz-liga-nombre" type="text" placeholder="Nombre de la liga" value="${_wizLiga.nombreLiga}"
+            class="reg-input wiz-big-input"
+            oninput="_wizLiga.nombreLiga=this.value"
+            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        </div>
+      `;
+      setTimeout(() => document.getElementById('wiz-liga-nombre')?.focus(), 350);
+    }, forward);
+    return;
   }
 
   if (paso === 3) {
     const preview = _wizLiga.ligaImagenBase64
       ? `<img src="${_wizLiga.ligaImagenBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
       : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
-    contenido.innerHTML = `
-      <div class="wiz-emoji">🖼️</div>
-      <h2 class="wiz-title">Logo de tu liga</h2>
-      <p class="wiz-desc">Subí un logo o ícono que la represente. Opcional.</p>
-      <div class="wiz-content">
-        <div class="wiz-liga-avatar-wrap">
-          <label class="wiz-liga-avatar" id="wiz-liga-img-label">
-            ${preview}
-            <input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">
-          </label>
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🖼️</div>
+        <h2 class="wiz-title">Logo de tu liga</h2>
+        <p class="wiz-desc">Subí un logo o ícono que la represente. Opcional.</p>
+        <div class="wiz-content">
+          <div class="wiz-liga-avatar-wrap">
+            <label class="wiz-liga-avatar" id="wiz-liga-img-label">
+              ${preview}
+              <input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">
+            </label>
+          </div>
+          <p class="reg-note">Opcional — puedes saltarte este paso</p>
         </div>
-        <p class="reg-note">Opcional — puedes saltarte este paso</p>
-      </div>
-    `;
+      `;
+    }, forward);
+    return;
   }
 
   if (paso === 4) {
@@ -1217,130 +1281,115 @@ function renderWizLigaPaso(paso) {
     const ciudadOpts = ciudades.map(c =>
       `<option value="${c}" ${_wizLiga.ciudad === c ? 'selected' : ''}>${c}</option>`
     ).join('');
-    contenido.innerHTML = `
-      <div class="wiz-emoji">🌎</div>
-      <h2 class="wiz-title">¿De dónde es tu liga?</h2>
-      <p class="wiz-desc">País y ciudad donde opera principalmente.</p>
-      <div class="wiz-content">
-        <select id="wiz-liga-pais-sel" class="reg-input" onchange="onWizLigaPaisChange(this.value)">
-          <option value="">Seleccionar país…</option>
-          ${REG_PAISES.map(p => `<option value="${p}" ${_wizLiga.pais === p ? 'selected' : ''}>${p}</option>`).join('')}
-        </select>
-        <div id="wiz-liga-ciudad-wrap" style="${_wizLiga.pais ? '' : 'display:none;'}margin-top:12px;">
-          <select id="wiz-liga-ciudad-sel" class="reg-input" onchange="_wizLiga.ciudad=this.value;document.getElementById('wiz-liga-ciudad-custom-wrap').style.display=this.value==='__otro__'?'block':'none';">
-            <option value="">Seleccionar ciudad…</option>
-            ${ciudadOpts}
-            <option value="__otro__" ${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? 'selected' : ''}>Mi ciudad no está en la lista…</option>
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🌎</div>
+        <h2 class="wiz-title">¿De dónde es tu liga?</h2>
+        <p class="wiz-desc">País y ciudad donde opera principalmente.</p>
+        <div class="wiz-content">
+          <select id="wiz-liga-pais-sel" class="reg-input" onchange="onWizLigaPaisChange(this.value)">
+            <option value="">Seleccionar país…</option>
+            ${REG_PAISES.map(p => `<option value="${p}" ${_wizLiga.pais === p ? 'selected' : ''}>${p}</option>`).join('')}
           </select>
-          <div id="wiz-liga-ciudad-custom-wrap" style="display:${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? 'block' : 'none'};margin-top:8px;">
-            <input id="wiz-liga-ciudad-custom" type="text" placeholder="Escribe tu ciudad" value="${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? _wizLiga.ciudad : ''}"
-              class="reg-input"
-              oninput="_wizLiga.ciudad=this.value">
+          <div id="wiz-liga-ciudad-wrap" style="${_wizLiga.pais ? '' : 'display:none;'}margin-top:12px;">
+            <select id="wiz-liga-ciudad-sel" class="reg-input" onchange="_wizLiga.ciudad=this.value;document.getElementById('wiz-liga-ciudad-custom-wrap').style.display=this.value==='__otro__'?'block':'none';">
+              <option value="">Seleccionar ciudad…</option>
+              ${ciudadOpts}
+              <option value="__otro__" ${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? 'selected' : ''}>Mi ciudad no está en la lista…</option>
+            </select>
+            <div id="wiz-liga-ciudad-custom-wrap" style="display:${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? 'block' : 'none'};margin-top:8px;">
+              <input id="wiz-liga-ciudad-custom" type="text" placeholder="Escribe tu ciudad"
+                value="${_wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad) ? _wizLiga.ciudad : ''}"
+                class="reg-input" oninput="_wizLiga.ciudad=this.value">
+            </div>
           </div>
+          <p class="reg-note">Opcional — puedes saltarte este paso</p>
         </div>
-        <p class="reg-note">Opcional — puedes saltarte este paso</p>
-      </div>
-    `;
+      `;
+    }, forward);
+    return;
   }
 
   if (paso === 5) {
-    contenido.innerHTML = `
-      <div class="wiz-emoji">📅</div>
-      <h2 class="wiz-title">Cuéntanos más</h2>
-      <p class="wiz-desc">Año de fundación y una descripción de tu liga.</p>
-      <div class="wiz-content">
-        <input id="wiz-liga-anio" type="number" placeholder="Año de fundación (ej: 2018)" value="${_wizLiga.anioFundacion}"
-          min="1990" max="${new Date().getFullYear()}"
-          class="reg-input"
-          oninput="_wizLiga.anioFundacion=this.value">
-        <textarea id="wiz-liga-descripcion" placeholder="Describe tu liga: misión, origen, valores…" rows="4"
-          class="reg-input"
-          style="margin-top:12px;"
-          oninput="_wizLiga.descripcion=this.value"
-          maxlength="500">${_wizLiga.descripcion}</textarea>
-        <p class="reg-note">Ambos campos son opcionales</p>
-      </div>
-    `;
-    setTimeout(() => document.getElementById('wiz-liga-anio')?.focus(), 100);
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">📅</div>
+        <h2 class="wiz-title">Cuéntanos más</h2>
+        <p class="wiz-desc">Año de fundación y una descripción de tu liga.</p>
+        <div class="wiz-content">
+          <input id="wiz-liga-anio" type="number" placeholder="Año de fundación (ej: 2018)"
+            value="${_wizLiga.anioFundacion}" min="1990" max="${new Date().getFullYear()}"
+            class="reg-input" oninput="_wizLiga.anioFundacion=this.value">
+          <textarea id="wiz-liga-descripcion" placeholder="Describe tu liga: misión, origen, valores…" rows="4"
+            class="reg-input" style="margin-top:12px;"
+            oninput="_wizLiga.descripcion=this.value"
+            maxlength="500">${_wizLiga.descripcion || ''}</textarea>
+          <p class="reg-note">Ambos campos son opcionales</p>
+        </div>
+      `;
+      setTimeout(() => document.getElementById('wiz-liga-anio')?.focus(), 350);
+    }, forward);
+    return;
   }
 
   if (paso === 6) {
-    contenido.innerHTML = `
-      <div class="wiz-emoji">📬</div>
-      <h2 class="wiz-title">Contacto de la liga</h2>
-      <p class="wiz-desc">¿Cómo pueden encontrarlos? Puedes completar uno o ambos.</p>
-      <div class="wiz-content">
-
-        <div class="wiz-accordion-item" id="wiz-acc-social">
-          <button class="wiz-accordion-header wiz-acc-open" onclick="toggleWizAccordion('social')">
-            <span>🌐 Red social / Instagram</span>
-            <span class="material-icons wiz-acc-chevron">expand_less</span>
-          </button>
-          <div class="wiz-accordion-body" id="wiz-acc-body-social">
-            <input id="wiz-liga-ig" type="text" placeholder="@tuliga o https://instagram.com/tuliga"
-              value="${_wizLiga.contactoSocial || ''}"
-              class="reg-input"
-              oninput="_wizLiga.contactoSocial=this.value">
-          </div>
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">📬</div>
+        <h2 class="wiz-title">Contacto de la liga</h2>
+        <p class="wiz-desc">¿Dónde pueden encontrarlos online? Opcional.</p>
+        <div class="wiz-content">
+          <input id="wiz-liga-ig" type="text" placeholder="@tuliga o https://instagram.com/tuliga"
+            value="${_wizLiga.contactoSocial || ''}"
+            class="reg-input"
+            oninput="_wizLiga.contactoSocial=this.value">
+          <p class="reg-note">Opcional — puedes saltarte este paso</p>
         </div>
-
-        <div class="wiz-accordion-item" id="wiz-acc-tel" style="margin-top:8px;">
-          <button class="wiz-accordion-header" onclick="toggleWizAccordion('tel')">
-            <span>📱 WhatsApp / Teléfono</span>
-            <span class="material-icons wiz-acc-chevron">expand_more</span>
-          </button>
-          <div class="wiz-accordion-body wiz-hidden" id="wiz-acc-body-tel">
-            <div class="reg-phone-row" style="margin-top:8px;">
-              <button type="button" id="wiz-liga-codigo-btn" onclick="abrirSelectorCodigoLiga()"
-                class="reg-selector-btn reg-codigo-btn">
-                <span class="reg-selector-val" id="wiz-liga-codigo-val">${_wizLiga.contactoCodigo || '🇪🇨 +593'}</span>
-                <span class="material-icons reg-selector-ico">expand_more</span>
-              </button>
-              <input id="wiz-liga-tel" type="tel" placeholder="Número" maxlength="20"
-                value="${_wizLiga.contactoTel || ''}"
-                class="reg-input reg-tel-input"
-                oninput="_wizLiga.contactoTel=this.value">
-            </div>
-          </div>
-        </div>
-
-        <p class="reg-note">Opcional — puedes saltarte este paso</p>
-      </div>
-    `;
+      `;
+      setTimeout(() => document.getElementById('wiz-liga-ig')?.focus(), 350);
+    }, forward);
+    return;
   }
 
   if (paso === 7) {
-    contenido.innerHTML = `
-      <div class="wiz-emoji">🛼</div>
-      <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
-      <p class="wiz-desc">Puedes agregar más equipos desde Ajustes después.</p>
-      <div class="wiz-content">
-        <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo" value="${_wizLiga.nombreEquipo}"
-          class="reg-input wiz-big-input"
-          oninput="_wizLiga.nombreEquipo=this.value"
-          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-      </div>
-    `;
-    setTimeout(() => document.getElementById('wiz-liga-equipo-nombre')?.focus(), 100);
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🛼</div>
+        <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
+        <p class="wiz-desc">Puedes agregar más equipos desde Ajustes después.</p>
+        <div class="wiz-content">
+          <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo"
+            value="${_wizLiga.nombreEquipo}"
+            class="reg-input wiz-big-input"
+            oninput="_wizLiga.nombreEquipo=this.value"
+            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        </div>
+      `;
+      setTimeout(() => document.getElementById('wiz-liga-equipo-nombre')?.focus(), 350);
+    }, forward);
+    return;
   }
 
   if (paso === 8) {
-    contenido.innerHTML = `
-      <div class="wiz-emoji">🏆</div>
-      <h2 class="wiz-title">¿Qué categoría?</h2>
-      <p class="wiz-desc">Selecciona la categoría en la que compite tu equipo.</p>
-      <div class="wiz-content">
-        <div class="wiz-chips">
-          ${['A','B','C'].map(cat => `
-            <button onclick="seleccionarCategoriaLigaWiz('${cat}')"
-              id="wiz-liga-cat-${cat}"
-              class="chip ${_wizLiga.categoria === cat ? 'chip-active' : 'chip-inactive'}">
-              ${cat}
-            </button>`).join('')}
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🏆</div>
+        <h2 class="wiz-title">¿Qué categoría?</h2>
+        <p class="wiz-desc">Selecciona la categoría en la que compite tu equipo.</p>
+        <div class="wiz-content">
+          <div class="wiz-chips">
+            ${['A','B','C'].map(cat => `
+              <button onclick="seleccionarCategoriaLigaWiz('${cat}')"
+                id="wiz-liga-cat-${cat}"
+                class="chip ${_wizLiga.categoria === cat ? 'chip-active' : 'chip-inactive'}">
+                ${cat}
+              </button>`).join('')}
+          </div>
+          <p class="reg-note">Opcional — puedes saltarte este paso</p>
         </div>
-        <p class="reg-note">Opcional — puedes saltarte este paso</p>
-      </div>
-    `;
+      `;
+    }, forward);
+    return;
   }
 
   if (paso === 9) {
@@ -1348,217 +1397,279 @@ function renderWizLigaPaso(paso) {
       ? `<img src="${_wizLiga.logoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
       : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
     const colorActual = _wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444';
-    contenido.innerHTML = `
-      <div class="wiz-emoji">🎨</div>
-      <h2 class="wiz-title">Personaliza tu equipo</h2>
-      <p class="wiz-desc">Logo y color de énfasis. Así se verá la app cuando uses este equipo.</p>
-      <div class="wiz-content">
-        <div class="wiz-liga-avatar-wrap">
-          <label class="wiz-liga-avatar" id="wiz-liga-logo-label">
-            ${preview}
-            <input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">
-          </label>
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🎨</div>
+        <h2 class="wiz-title">Personaliza tu equipo</h2>
+        <p class="wiz-desc">Logo y color de énfasis. Así se verá la app cuando uses este equipo.</p>
+        <div class="wiz-content">
+          <div class="wiz-liga-avatar-wrap">
+            <label class="wiz-liga-avatar" id="wiz-liga-logo-label">
+              ${preview}
+              <input type="file" accept="image/*" style="display:none;" onchange="previewLogoLigaWiz(this)">
+            </label>
+          </div>
+          <p style="font-size:13px;color:var(--text3);margin:16px 0 8px;font-weight:600;">Color de énfasis</p>
+          <div class="wiz-color-presets" id="wiz-color-presets">
+            ${COLOR_PICKER_PRESETS.map(c => `
+              <button class="color-swatch-btn ${c === colorActual ? 'selected' : ''}"
+                style="background:${c}" onclick="seleccionarColorWiz('${c}')" data-color="${c}">
+              </button>`).join('')}
+          </div>
+          <p class="reg-note">Opcional — puedes saltarte este paso</p>
         </div>
-        <p style="font-size:13px;color:var(--text3);margin:16px 0 8px;font-weight:600;">Color de énfasis</p>
-        <div class="wiz-color-presets" id="wiz-color-presets">
-          ${COLOR_PICKER_PRESETS.map(c => `
-            <button class="color-swatch-btn ${c === colorActual ? 'selected' : ''}"
-              style="background:${c}"
-              onclick="seleccionarColorWiz('${c}')"
-              data-color="${c}">
-            </button>
-          `).join('')}
-        </div>
-        <p class="reg-note">Opcional — puedes saltarte este paso</p>
-      </div>
-    `;
+      `;
+    }, forward);
+    return;
   }
 
-  // ── ícono de fondo ──
-  const emojis = { 0:'🏟️', 1:'👤', 2:'🏟️', 3:'🖼️', 4:'🌎', 5:'📅', 6:'📬', 7:'🛼', 8:'🏆', 9:'🎨' };
-  requestAnimationFrame(() => {
-    if (contenido && emojis[paso]) {
-      const existing = contenido.querySelector('.wiz-bg-emoji');
-      if (!existing) {
-        const bg = document.createElement('div');
-        bg.className = 'wiz-bg-emoji';
-        bg.textContent = emojis[paso];
-        contenido.appendChild(bg);
-      } else {
-        existing.textContent = emojis[paso];
-      }
-    }
-  });
-}
+  if (paso === 10) {
+    wizLigaGoTo(el => {
+      const preview = _wizLiga.fotoBase64
+        ? `<img src="${_wizLiga.fotoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:36px;">`
+        : `<span class="material-icons reg-avatar-placeholder">add_a_photo</span>`;
+      el.innerHTML = `
+        <div class="wiz-emoji">📸</div>
+        <h2 class="wiz-title">¡Ponele cara al nombre!</h2>
+        <p class="wiz-desc">Subí una foto para que todxs en el equipo puedan identificarte. Opcional.</p>
+        <div class="wiz-content">
+          <div class="reg-foto-center">
+            <label class="reg-avatar" id="wiz-liga-foto-label">
+              ${preview}
+              <input type="file" accept="image/*" id="wiz-liga-foto-input" style="display:none;" onchange="previewFotoLigaWiz(this)">
+            </label>
+            <p class="reg-foto-hint" id="wiz-liga-foto-hint">Toca para agregar tu foto</p>
+          </div>
+        </div>
+        <div class="wiz-actions" style="margin-top:auto;padding-top:24px;">
+          <button class="wiz-btn-skip" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
+        </div>
+      `;
+    }, forward);
+    return;
+  }
 
-if (paso === 12) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">✨</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">¿Cómo te llamamos?</h2>
-        <p class="wiz-liga-desc">Tu nombre o apodo en el equipo.</p>
-      </div>
-      <input id="wiz-liga-perfil-nombre" type="text" placeholder="Ej: Valentina, Val…" value="${_wizLiga.nombre || ''}"
-        class="wiz-liga-input"
-        oninput="_wizLiga.nombre=this.value"
-        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-    `;
-    setTimeout(() => document.getElementById('wiz-liga-perfil-nombre')?.focus(), 100);
+  if (paso === 11) {
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">✨</div>
+        <h2 class="wiz-title">¿Cómo te llamamos?</h2>
+        <p class="wiz-desc">Tu nombre o apodo en el equipo.</p>
+        <div class="wiz-content">
+          <input id="wiz-liga-perfil-nombre" type="text" placeholder="Ej: Valentina, Val…"
+            value="${_wizLiga.nombre || ''}"
+            class="reg-input wiz-big-input"
+            oninput="_wizLiga.nombre=this.value"
+            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        </div>
+      `;
+      setTimeout(() => document.getElementById('wiz-liga-perfil-nombre')?.focus(), 350);
+    }, forward);
+    return;
+  }
+
+  if (paso === 12) {
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🏳️‍🌈</div>
+        <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
+        <p class="wiz-desc">Opcional.</p>
+        <div class="wiz-content">
+          <div id="wiz-liga-pronombres-chips" class="wiz-chips"></div>
+        </div>
+      `;
+      regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], v => { _wizLiga.pronombres = v; });
+    }, forward);
+    return;
   }
 
   if (paso === 13) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">🏳️‍🌈</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">¿Con qué pronombres te identificás?</h2>
-        <p class="wiz-liga-desc">Opcional.</p>
-      </div>
-      <div id="wiz-liga-pronombres-chips" class="chip-wrapper wiz-chips"></div>
-    `;
-    regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], v => { _wizLiga.pronombres = v; });
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🌎</div>
+        <h2 class="wiz-title">¿De dónde sos?</h2>
+        <p class="wiz-desc">Tu país de origen.</p>
+        <div class="wiz-content">
+          <button type="button" id="wiz-liga-perfil-pais-btn" class="reg-selector-btn wiz-selector-btn">
+            <span id="wiz-liga-perfil-pais-display" class="reg-selector-val">${_wizLiga.paisPerfil || 'Seleccionar país…'}</span>
+            <span class="material-icons reg-selector-ico">expand_more</span>
+          </button>
+          <p class="reg-note">Opcional</p>
+        </div>
+      `;
+      document.getElementById('wiz-liga-perfil-pais-btn').onclick = () => {
+        abrirBottomSheet('Nacionalidad', REG_PAISES, _wizLiga.paisPerfil || '', val => {
+          _wizLiga.paisPerfil = val;
+          document.getElementById('wiz-liga-perfil-pais-display').textContent = val;
+        });
+      };
+    }, forward);
+    return;
   }
 
   if (paso === 14) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">🌎</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">¿De dónde sos?</h2>
-        <p class="wiz-liga-desc">Tu país de origen.</p>
-      </div>
-      <button type="button" id="wiz-liga-perfil-pais-btn" class="wiz-liga-selector-btn">
-        <span id="wiz-liga-perfil-pais-display">${_wizLiga.paisPerfil || 'Seleccionar país…'}</span>
-        <span class="material-icons">expand_more</span>
-      </button>
-    `;
-    document.getElementById('wiz-liga-perfil-pais-btn').onclick = () => {
-      abrirBottomSheet('Nacionalidad', REG_PAISES, _wizLiga.paisPerfil || '', val => {
-        _wizLiga.paisPerfil = val;
-        document.getElementById('wiz-liga-perfil-pais-display').textContent = val;
-      });
-    };
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">📱</div>
+        <h2 class="wiz-title">Tu número de contacto</h2>
+        <p class="wiz-desc">Prefijo y número. Opcional.</p>
+        <div class="wiz-content">
+          <div class="reg-phone-row">
+            <button type="button" id="wiz-liga-perfil-codigo-btn" class="reg-selector-btn reg-codigo-btn">
+              <span class="reg-selector-val" id="wiz-liga-perfil-codigo-display">${_wizLiga.codigoPais || '+?'}</span>
+              <span class="material-icons reg-selector-ico">expand_more</span>
+            </button>
+            <input id="wiz-liga-perfil-tel" type="tel" placeholder="Número" maxlength="20"
+              value="${_wizLiga.telefono || ''}"
+              class="reg-input reg-tel-input"
+              oninput="_wizLiga.telefono=this.value"
+              onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+          </div>
+          <p class="reg-note">Opcional</p>
+        </div>
+      `;
+      document.getElementById('wiz-liga-perfil-codigo-btn').onclick = () => {
+        abrirBottomSheet('Código de país', REG_CODIGOS, _wizLiga.codigoPais || '', val => {
+          _wizLiga.codigoPais = val;
+          document.getElementById('wiz-liga-perfil-codigo-display').textContent = val;
+        });
+      };
+      setTimeout(() => document.getElementById('wiz-liga-perfil-tel')?.focus(), 350);
+    }, forward);
+    return;
   }
 
   if (paso === 15) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">📱</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">Tu número de contacto</h2>
-        <p class="wiz-liga-desc">Prefijo y número.</p>
-      </div>
-      <div class="wiz-liga-phone-row">
-        <button type="button" id="wiz-liga-perfil-codigo-btn" class="wiz-liga-selector-btn wiz-liga-codigo-btn">
-          <span id="wiz-liga-perfil-codigo-display">${_wizLiga.codigoPais || '+?'}</span>
-          <span class="material-icons">expand_more</span>
-        </button>
-        <input id="wiz-liga-perfil-tel" type="tel" placeholder="Número" class="wiz-liga-input"
-          value="${_wizLiga.telefono || ''}"
-          oninput="_wizLiga.telefono=this.value"
-          onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-      </div>
-    `;
-    document.getElementById('wiz-liga-perfil-codigo-btn').onclick = () => {
-      abrirBottomSheet('Código de país', REG_CODIGOS, _wizLiga.codigoPais || '', val => {
-        _wizLiga.codigoPais = val;
-        document.getElementById('wiz-liga-perfil-codigo-display').textContent = val;
-      });
-    };
-    setTimeout(() => document.getElementById('wiz-liga-perfil-tel')?.focus(), 100);
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🎂</div>
+        <h2 class="wiz-title">Fecha de nacimiento</h2>
+        <p class="wiz-desc">Ingresá tu fecha. Luego elegís qué ve el equipo.</p>
+        <div class="wiz-content">
+          <button type="button" id="wiz-liga-perfil-fecha-btn" class="reg-selector-btn wiz-selector-btn">
+            <span id="wiz-liga-perfil-fecha-display" class="reg-selector-val">${_wizLiga.fechaNacimiento || 'Seleccionar fecha…'}</span>
+            <span class="material-icons reg-selector-ico">edit_calendar</span>
+          </button>
+          <div class="wiz-privacy-box">
+            <p class="wiz-privacy-title">¿Qué ven tus compañerxs? 👀</p>
+            <div class="wiz-privacy-row">
+              <span class="wiz-privacy-q">Mostrar fecha de cumpleaños 🎉</span>
+              <div id="wiz-liga-cumple-chips" class="wiz-chips-inline"></div>
+            </div>
+            <div class="wiz-privacy-row">
+              <span class="wiz-privacy-q">Mostrar edad 🔢</span>
+              <div id="wiz-liga-edad-chips" class="wiz-chips-inline"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('wiz-liga-perfil-fecha-btn').onclick = () => {
+        abrirDatePicker(_wizLiga.fechaNacimiento || '', val => {
+          _wizLiga.fechaNacimiento = val;
+          document.getElementById('wiz-liga-perfil-fecha-display').textContent = val;
+        });
+      };
+      regRenderChips('wiz-liga-cumple-chips', ['Sí','No'], _wizLiga.mostrarCumple || '', v => { _wizLiga.mostrarCumple = v; });
+      regRenderChips('wiz-liga-edad-chips',   ['Sí','No'], _wizLiga.mostrarEdad   || '', v => { _wizLiga.mostrarEdad   = v; });
+    }, forward);
+    return;
   }
 
   if (paso === 16) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">🎂</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">Fecha de nacimiento</h2>
-        <p class="wiz-liga-desc">Obligatorio.</p>
-      </div>
-      <button type="button" id="wiz-liga-perfil-fecha-btn" class="wiz-liga-selector-btn">
-        <span id="wiz-liga-perfil-fecha-display">${_wizLiga.fechaNacimiento || 'Seleccionar fecha…'}</span>
-        <span class="material-icons">edit_calendar</span>
-      </button>
-    `;
-    document.getElementById('wiz-liga-perfil-fecha-btn').onclick = () => {
-      abrirDatePicker(_wizLiga.fechaNacimiento || '', val => {
-        _wizLiga.fechaNacimiento = val;
-        document.getElementById('wiz-liga-perfil-fecha-display').textContent = val;
-      });
-    };
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">⭐</div>
+        <h2 class="wiz-title">Datos Derby <span class="wiz-optional-badge">opcional</span></h2>
+        <p class="wiz-desc">Tu nombre y número derby. Podés completarlo después.</p>
+        <div class="wiz-content">
+          <input id="wiz-liga-perfil-derby" type="text" placeholder="Nombre Derby"
+            class="reg-input wiz-big-input"
+            value="${_wizLiga.nombreDerby || ''}"
+            oninput="_wizLiga.nombreDerby=this.value"
+            onkeydown="if(event.key==='Enter') document.getElementById('wiz-liga-perfil-numero').focus()">
+          <input id="wiz-liga-perfil-numero" type="text" placeholder="Número Derby"
+            class="reg-input wiz-big-input" style="margin-top:12px;"
+            value="${_wizLiga.numeroDerby || ''}"
+            oninput="_wizLiga.numeroDerby=this.value"
+            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        </div>
+      `;
+      setTimeout(() => document.getElementById('wiz-liga-perfil-derby')?.focus(), 350);
+    }, forward);
+    return;
   }
 
   if (paso === 17) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">⭐</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">Datos Derby</h2>
-        <p class="wiz-liga-desc">Opcional.</p>
-      </div>
-      <input id="wiz-liga-perfil-derby" type="text" placeholder="Nombre Derby" class="wiz-liga-input"
-        value="${_wizLiga.nombreDerby || ''}"
-        oninput="_wizLiga.nombreDerby=this.value"
-        onkeydown="if(event.key==='Enter') document.getElementById('wiz-liga-perfil-numero').focus()">
-      <input id="wiz-liga-perfil-numero" type="text" placeholder="Número Derby" class="wiz-liga-input"
-        value="${_wizLiga.numeroDerby || ''}"
-        oninput="_wizLiga.numeroDerby=this.value"
-        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()" style="margin-top:12px;">
-    `;
-    setTimeout(() => document.getElementById('wiz-liga-perfil-derby')?.focus(), 100);
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🏅</div>
+        <h2 class="wiz-title">Tu rol en el equipo</h2>
+        <p class="wiz-desc">Seleccioná tu posición.</p>
+        <div class="wiz-content">
+          <div id="wiz-liga-rol-chips" class="wiz-chips"></div>
+        </div>
+      `;
+      regRenderChips('wiz-liga-rol-chips', REG_ROLES, _wizLiga.rolJugadorx || '', v => { _wizLiga.rolJugadorx = v; });
+    }, forward);
+    return;
   }
 
   if (paso === 18) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">🏅</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">Tu rol en el equipo</h2>
-        <p class="wiz-liga-desc">Seleccioná tu posición.</p>
-      </div>
-      <div id="wiz-liga-rol-chips" class="chip-wrapper wiz-chips"></div>
-    `;
-    regRenderChips('wiz-liga-rol-chips', REG_ROLES, _wizLiga.rolJugadorx || '', v => { _wizLiga.rolJugadorx = v; });
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🏋️</div>
+        <h2 class="wiz-title">¿Cuánto entrenás?</h2>
+        <p class="wiz-desc">Veces por semana.</p>
+        <div class="wiz-content">
+          <div id="wiz-liga-asiste-chips" class="wiz-chips"></div>
+        </div>
+      `;
+      regRenderChips('wiz-liga-asiste-chips', REG_ASISTENCIA, _wizLiga.asisteSemana || '', v => { _wizLiga.asisteSemana = v; });
+    }, forward);
+    return;
   }
 
   if (paso === 19) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">🏋️</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">¿Cuánto entrenás?</h2>
-        <p class="wiz-liga-desc">Veces por semana.</p>
-      </div>
-      <div id="wiz-liga-asiste-chips" class="chip-wrapper wiz-chips"></div>
-    `;
-    regRenderChips('wiz-liga-asiste-chips', REG_ASISTENCIA, _wizLiga.asisteSemana || '', v => { _wizLiga.asisteSemana = v; });
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🩺</div>
+        <h2 class="wiz-title">Tu salud nos importa <span class="wiz-optional-badge">opcional</span></h2>
+        <p class="wiz-desc">Alergias o condiciones que debamos conocer. Estrictamente confidencial.</p>
+        <div class="wiz-content">
+          <input id="wiz-liga-perfil-alergias" type="text" placeholder="Alergias o condiciones de salud"
+            class="reg-input" value="${_wizLiga.alergias || ''}"
+            oninput="_wizLiga.alergias=this.value"
+            onkeydown="if(event.key==='Enter') document.getElementById('wiz-liga-perfil-dieta').focus()">
+          <input id="wiz-liga-perfil-dieta" type="text" placeholder="Dieta especial"
+            class="reg-input" style="margin-top:12px;" value="${_wizLiga.dieta || ''}"
+            oninput="_wizLiga.dieta=this.value"
+            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        </div>
+      `;
+      setTimeout(() => document.getElementById('wiz-liga-perfil-alergias')?.focus(), 350);
+    }, forward);
+    return;
   }
 
   if (paso === 20) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">🩺</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">Tu salud nos importa</h2>
-        <p class="wiz-liga-desc">Opcional.</p>
-      </div>
-      <input id="wiz-liga-perfil-alergias" type="text" placeholder="Alergias o condiciones" class="wiz-liga-input"
-        value="${_wizLiga.alergias || ''}"
-        oninput="_wizLiga.alergias=this.value">
-      <input id="wiz-liga-perfil-dieta" type="text" placeholder="Dieta especial" class="wiz-liga-input"
-        value="${_wizLiga.dieta || ''}"
-        oninput="_wizLiga.dieta=this.value" style="margin-top:12px;">
-    `;
+    wizLigaGoTo(el => {
+      el.innerHTML = `
+        <div class="wiz-emoji">🆘</div>
+        <h2 class="wiz-title">Contacto de emergencia <span class="wiz-optional-badge">opcional</span></h2>
+        <p class="wiz-desc">Nombre y teléfono de alguien de confianza.</p>
+        <div class="wiz-content">
+          <input id="wiz-liga-perfil-emergencia" type="text"
+            placeholder="Ej: María García +593 999 123456" maxlength="150"
+            class="reg-input" value="${_wizLiga.contactoEmergencia || ''}"
+            oninput="_wizLiga.contactoEmergencia=this.value"
+            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
+        </div>
+      `;
+      setTimeout(() => document.getElementById('wiz-liga-perfil-emergencia')?.focus(), 350);
+    }, forward);
+    return;
   }
-
-  if (paso === 21) {
-    contenido.innerHTML = `
-      <div class="wiz-liga-paso-emoji">🆘</div>
-      <div class="wiz-liga-paso-titulo">
-        <h2 class="wiz-liga-h2">Contacto de emergencia</h2>
-        <p class="wiz-liga-desc">Opcional.</p>
-      </div>
-      <input id="wiz-liga-perfil-emergencia" type="text" placeholder="Nombre y teléfono" class="wiz-liga-input"
-        value="${_wizLiga.contactoEmergencia || ''}"
-        oninput="_wizLiga.contactoEmergencia=this.value"
-        onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-    `;
-    if (btnNext) btnNext.textContent = '¡Crear todo! 🛼';
-    setTimeout(() => document.getElementById('wiz-liga-perfil-emergencia')?.focus(), 100);
-  }
+}
 
 function abrirFotoLigaWiz() {
   document.getElementById('wiz-liga-foto-input')?.click();

@@ -152,10 +152,13 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 
 ---
 
-### Pendientes 🔜
+#### Pendientes 🔜
 
-#### Fix urgente
-- Corregir SyntaxError en `ajustes.js` línea 1558
+#### Estandarización visual de wizards (próxima sesión)
+- Revisar y unificar transiciones entre pasos: wizard de liga (`ajustes.js`) debe animarse igual que wizard de registro (`wizard.js`) — actualmente el de liga no tiene el sistema de slides con `translateX`
+- Unificar botón de Google entre ambos wizards — el de registro tiene `animation: wiz-fade-up` con delay, el de liga lo recibió en sesión 5 pero verificar que sean idénticos
+- Revisar que `.wiz-equipo-contenido` use `wiz-content-in` igual que `.wiz-step-inner` en wizard.css
+- Objetivo: mismo look, feel y timing en todos los wizards de la app
 
 #### Rebranding a Pivot
 - Limpiar todas las referencias a "Quindes" en: `index.html`, `manifest.json`, `sw.js`, `ajustes.js`, `auth.js`, `perfil.js`, `core.js`
