@@ -1512,6 +1512,7 @@ function wizLigaGoTo(renderFn, forward = true) {
     setTimeout(() => {
       nextEl.style.transition = '';
       nextEl.style.transform  = '';
+      nextEl.classList.add('wiz-liga-step--animated');
       viewport._wizAnimating = false;
     }, DURATION + 20);
   });

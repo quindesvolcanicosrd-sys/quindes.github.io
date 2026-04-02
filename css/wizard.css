@@ -224,3 +224,7 @@ textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
   color: var(--text2);
   line-height: 1.65;
 }
+
+.wiz-liga-step--animated > * {
+  animation: wiz-content-in 0.28s cubic-bezier(0.4,0,0.2,1) both;
+}
