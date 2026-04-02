@@ -1351,6 +1351,7 @@ if (paso === 20) {
   }, forward);
   return;
 }
+} 
 
 function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 2 && !_wizLiga.nombreLiga.trim()) {
