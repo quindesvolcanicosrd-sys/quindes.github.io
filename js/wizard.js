@@ -980,63 +980,91 @@ function renderWizLigaPaso(paso) {
   }
 
   if (paso === 6) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">📬</div>
-        <h2 class="wiz-title">Contacto de la liga</h2>
-        <p class="wiz-desc">¿Dónde pueden encontrarlos online? Opcional.</p>
-        <div class="wiz-content">
-          <input id="wiz-liga-ig" type="text" placeholder="@tuliga o https://instagram.com/tuliga"
-            value="${_wizLiga.contactoSocial || ''}"
-            class="reg-input"
-            oninput="_wizLiga.contactoSocial=this.value">
-          <p class="reg-note">Opcional — puedes saltarte este paso</p>
-        </div>
-      `;
-      setTimeout(() => document.getElementById('wiz-liga-ig')?.focus(), 350);
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-6');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const input = document.getElementById('wiz-liga-ig');
+
+    if (input) {
+      input.value = _wizLiga.contactoSocial || '';
+
+      input.addEventListener('input', e => {
+        _wizLiga.contactoSocial = e.target.value;
+      });
+
+      setTimeout(() => input.focus(), 350);
+    }
+
+  }, forward);
+  return;
   }
 
   if (paso === 7) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">🛼</div>
-        <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
-        <p class="wiz-desc">Puedes agregar más equipos desde Ajustes después.</p>
-        <div class="wiz-content">
-          <input id="wiz-liga-equipo-nombre" type="text" placeholder="Nombre del equipo"
-            value="${_wizLiga.nombreEquipo}"
-            class="reg-input wiz-big-input"
-            oninput="_wizLiga.nombreEquipo=this.value"
-            onkeydown="if(event.key==='Enter') wizLigaPasoSiguiente()">
-        </div>
-      `;
-      setTimeout(() => document.getElementById('wiz-liga-equipo-nombre')?.focus(), 350);
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-7');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const input = document.getElementById('wiz-liga-equipo-nombre');
+
+    if (input) {
+      input.value = _wizLiga.nombreEquipo || '';
+
+      input.addEventListener('input', e => {
+        _wizLiga.nombreEquipo = e.target.value;
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') wizLigaPasoSiguiente();
+      });
+
+      setTimeout(() => input.focus(), 350);
+    }
+
+  }, forward);
+  return;
   }
 
   if (paso === 8) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">🏆</div>
-        <h2 class="wiz-title">¿Qué categoría?</h2>
-        <p class="wiz-desc">Selecciona la categoría en la que compite tu equipo.</p>
-        <div class="wiz-content">
-          <div class="wiz-chips">
-            ${['A','B','C'].map(cat => `
-              <button onclick="seleccionarCategoriaLigaWiz('${cat}')"
-                id="wiz-liga-cat-${cat}"
-                class="chip ${_wizLiga.categoria === cat ? 'chip-active' : 'chip-inactive'}">
-                ${cat}
-              </button>`).join('')}
-          </div>
-          <p class="reg-note">Opcional — puedes saltarte este paso</p>
-        </div>
-      `;
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-8');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const wrap = document.getElementById('wiz-liga-cat-chips');
+
+    ['A','B','C'].forEach(cat => {
+      const btn = document.createElement('button');
+
+      btn.textContent = cat;
+      btn.className = 'chip ' + (_wizLiga.categoria === cat ? 'chip-active' : 'chip-inactive');
+
+      btn.addEventListener('click', () => {
+        _wizLiga.categoria = cat;
+
+        // actualizar UI
+        [...wrap.children].forEach(b => {
+          b.classList.remove('chip-active');
+          b.classList.add('chip-inactive');
+        });
+
+        btn.classList.add('chip-active');
+        btn.classList.remove('chip-inactive');
+      });
+
+      wrap.appendChild(btn);
+    });
+
+  }, forward);
+  return;
   }
 
   if (paso === 9) {
