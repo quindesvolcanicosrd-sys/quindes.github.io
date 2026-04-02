@@ -83,7 +83,7 @@
         <p class="wiz-desc">Ingresá el código que te envió el admin del equipo. Si llegaste desde un link, ya está cargado automáticamente.</p>
         <div class="wiz-content">
           <label class="reg-label">Código <span class="reg-required">*</span></label>
-          <input id="reg-codigo-inv" class="wiz-input wiz-input-lg" type="text"
+          <input id="reg-codigo-inv" class="reg-input" type="text"
                 placeholder="Ej: QUINDES2026"
                 autocomplete="off" maxlength="40"
                 onkeydown="if(event.key==='Enter') wizNext()">
@@ -134,7 +134,7 @@
         <p class="wiz-desc">Puede ser tu primer nombre, nickname o seudónimo… lo que más te represente y con lo que quieras ser conocidx en el equipo.</p>
         <div class="wiz-content">
           <label class="reg-label">Tu nombre <span class="reg-required">*</span></label>
-          <input id="reg-nombre" class="wiz-input wiz-input-lg" type="text"
+          <input id="reg-nombre" class="reg-input" type="text"
                  placeholder="Ej: Valentina, Val, La Bestia…"
                  autocomplete="given-name" maxlength="60"
                  onkeydown="if(event.key==='Enter') wizNext()">
@@ -246,11 +246,11 @@
         <p class="wiz-desc">Completa tu nombre y número derby. Si aún no tienes uno o no sabes cuál poner, no te preocupes, puedes completarlo más adelante.</p>
         <div class="wiz-content">
           <label class="reg-label">Nombre Derby</label>
-          <input id="reg-nombreDerby" class="wiz-input wiz-input-lg" type="text"
+          <input id="reg-nombreDerby" class="reg-input" type="text"
                  placeholder="Ej: Roller Manía, La Tormenta…" maxlength="60"
                  onkeydown="if(event.key==='Enter') document.getElementById('reg-numero').focus()">
           <label class="reg-label" style="margin-top:4px;">Número Derby</label>
-          <input id="reg-numero" class="wiz-input wiz-input-lg" type="text"
+          <input id="reg-numero" class="reg-input" type="text"
                  placeholder="Ej: 13, 666, 007…" maxlength="10"
                  onkeydown="if(event.key==='Enter') wizNext()">
         </div>
@@ -424,7 +424,7 @@
       id="wiz-liga-nombre"
       type="text"
       placeholder="Nombre de la liga"
-      class="wiz-input wiz-input-lg"
+      class="reg-input"
     >
   </div>
 </template>
@@ -550,7 +550,7 @@
       id="wiz-liga-equipo-nombre"
       type="text"
       placeholder="Nombre del equipo"
-      class="wiz-input wiz-input-lg"
+      class="reg-input"
     >
   </div>
 </template>
@@ -651,7 +651,7 @@
       id="wiz-liga-perfil-nombre"
       type="text"
       placeholder="Ej: Valentina, Val…"
-      class="wiz-input wiz-input-lg"
+      class="reg-input"
     >
   </div>
 </template>
@@ -749,8 +749,8 @@
   <p class="wiz-desc">Opcional.</p>
 
   <div class="wiz-content">
-    <input id="wiz-liga-perfil-derby" class="wiz-input wiz-input-lg" placeholder="Nombre Derby">
-    <input id="wiz-liga-perfil-numero" class="wiz-input wiz-input-lg" style="margin-top:12px;" placeholder="Número Derby">
+    <input id="wiz-liga-perfil-derby" class="reg-input" placeholder="Nombre Derby">
+    <input id="wiz-liga-perfil-numero" class="reg-input" style="margin-top:12px;" placeholder="Número Derby">
   </div>
 </template>
 
