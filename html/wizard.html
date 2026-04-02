@@ -107,8 +107,8 @@
           <div class="reg-foto-center">
             <div class="reg-avatar" id="wiz-c-avatar" onclick="regAbrirFoto()">
               <img id="wiz-c-avatar-img" src="" alt="" style="display:none;">
-              <span class="material-icons wiz-c-avatar-placeholder" id="wiz-c-avatar-placeholder">add_a_photo</span>
-              <div class="wiz-c-avatar-overlay" id="wiz-c-avatar-overlay" style="display:none;">
+              <span class="material-icons reg-avatar-placeholder" id="reg-avatar-placeholder">add_a_photo</span>
+              <div class="reg-avatar-overlay" id="reg-avatar-overlay" style="display:none;">
                 <span class="material-icons">photo_camera</span>
               </div>
             </div>
@@ -331,7 +331,7 @@
                  onkeydown="if(event.key==='Enter') wizNext()">
         </div>
         <div class="wiz-actions">
-          <button id="reg-submit" class="wiz-btn wiz-btn-success" onclick="submitRegistro()">
+          <button id="reg-submit" class="wiz-btn-primary" onclick="submitRegistro()">
             <span class="material-icons">check_circle</span> ¡Crear mi perfil!
           </button>
           <button class="wiz-skip-btn" onclick="regData.contactoEmergencia=''; submitRegistro()">Omitir y finalizar</button>
@@ -619,7 +619,7 @@
 
         <img id="wiz-liga-foto-preview" class="wiz-liga-avatar-img wiz-hidden" />
 
-        <span id="wiz-liga-foto-placeholder" class="material-icons wiz-c-avatar-placeholder">
+        <span id="wiz-liga-foto-placeholder" class="material-icons reg-avatar-placeholder">
           add_a_photo
         </span>
 
