@@ -863,6 +863,10 @@
 .wiz-liga-google-wrap {
   display: flex; justify-content: center; width: 100%;
   min-height: 48px; border-radius: 4px; overflow: hidden; color-scheme: light;
+  opacity: 0;
+}
+.wiz-liga-google-wrap.visible {
+  animation: wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) both;
 }
 .wiz-pais-wrap { width: 100%; position: relative; }
 .wiz-pais-lista {
