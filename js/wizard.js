@@ -732,63 +732,49 @@ function renderWizLigaPaso(paso) {
   if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? '¡Crear todo! 🛼' : 'Continuar';
 
   if (paso === 0) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-intro-bg">
-          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
-          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
-          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
-        </div>
-        <div class="wiz-liga-intro-content">
-          <div class="wiz-intro-logo">🏟️</div>
-          <h1 class="wiz-intro-title">Creá<br>tu liga</h1>
-          <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos.</p>
-          <div class="wiz-intro-steps">
-            <div class="wiz-intro-step wiz-intro-step-1"><span class="wiz-intro-step-ico">🏟️</span><span class="wiz-intro-step-txt">Datos de tu liga y equipo</span></div>
-            <div class="wiz-intro-step wiz-intro-step-2"><span class="wiz-intro-step-ico">👤</span><span class="wiz-intro-step-txt">Tu perfil de administradorx del equipo</span></div>
-            <div class="wiz-intro-step wiz-intro-step-3"><span class="wiz-intro-step-ico">🔑</span><span lass="wiz-intro-step-txt">Código para invitar patinadorxs y miembros de tu equipo</span></div>
-          </div>
-          <button onclick="wizLigaIntroStart()" class="wiz-intro-btn">
-            Empezar <span class="material-icons">arrow_forward</span>
-          </button>
-          <button onclick="cerrarWizLiga()" class="wiz-btn-skip">Cancelar</button>
-        </div>
-      `;
-      if (footer) footer.classList.add('wiz-hidden');
-      if (btnBack) btnBack.classList.add('wiz-hidden');
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-0');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    document.getElementById('wiz-liga-intro-start')?.addEventListener('click', wizLigaIntroStart);
+    document.getElementById('wiz-liga-intro-cancel')?.addEventListener('click', cerrarWizLiga);
+
+    if (footer) footer.classList.add('wiz-hidden');
+    if (btnBack) btnBack.classList.add('wiz-hidden');
+  }, forward);
+  return;
   }
 
   if (footer) footer.classList.remove('wiz-hidden');
 
   if (paso === 1) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-intro-bg">
-          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
-          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
-          <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
-        </div>
-        <div class="wiz-liga-intro-content">
-          <div class="wiz-intro-logo">👤</div>
-          <h1 class="wiz-intro-title">Vamos a<br>registrarte</h1>
-          <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
-        </div>
-      `;
-      if (footer) footer.classList.add('wiz-hidden');
-      if (btnBack) btnBack.classList.remove('wiz-hidden');
-      requestAnimationFrame(() => {
-        const wrap = document.getElementById('wiz-liga-google-btn');
-        if (wrap) {
-          google.accounts.id.renderButton(wrap, {
-            theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
-          });
-          setTimeout(() => wrap.classList.add('visible'), 120);
-        }
-      });
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-1');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    if (footer) footer.classList.add('wiz-hidden');
+    if (btnBack) btnBack.classList.remove('wiz-hidden');
+
+    requestAnimationFrame(() => {
+      const wrap = document.getElementById('wiz-liga-google-btn');
+      if (wrap) {
+        google.accounts.id.renderButton(wrap, {
+          theme: getGoogleBtnTheme(),
+          size: 'large',
+          width: 300,
+          text: 'continue_with',
+        });
+        setTimeout(() => wrap.classList.add('visible'), 120);
+      }
+    });
+  }, forward);
+  return;
   }
 
   if (paso === 2) {
