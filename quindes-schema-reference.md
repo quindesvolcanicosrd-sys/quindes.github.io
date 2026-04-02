@@ -5,7 +5,7 @@ Pivot App — Referencia de Schema para Supabase
 Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 
-⚠️ INSTRUCCIONES CRÍTICAS PARA CLAUDE — LEER ANTES DE CUALQUIER COSA
+⚠️ INSTRUCCIONES CRÍTICAS PARA CLAUDE/CHATGPT/GEMINI — LEER ANTES DE CUALQUIER COSA
 Atención al contexto — NO dar vueltas en círculo
 
 Leer el schema COMPLETO antes de escribir una sola línea de código
@@ -16,7 +16,7 @@ NO proponer soluciones que requieran múltiples archivos sin confirmar que Víct
 Si algo falló varias veces, cambiar de enfoque — no insistir con la misma estrategia
 
 Formato de instrucciones de código — SIEMPRE así
-Cuando hay que modificar cualquier archivo, Claude debe dar instrucciones en formato buscar/reemplazar, nunca pegar archivos enteros. El formato es:
+Cuando hay que modificar cualquier archivo, Claude, Chat gpt o Gemini debe dar instrucciones en formato buscar/reemplazar, nunca pegar archivos enteros. El formato es:
 Buscar en archivo.js:
 [bloque exacto tal como aparece en el archivo]
 Reemplazar:
@@ -25,8 +25,8 @@ Reemplazar:
 Usar Replace (no Replace All) salvo que se indique explícitamente
 Si hay múltiples cambios, numerarlos: Cambio 1, Cambio 2, etc.
 Nunca pegar el archivo completo — solo los bloques afectados
-Si Claude necesita ver el código actual, pedir solo el fragmento relevante
-NUNCA dar un buscar/reemplazar sin haber visto el fragmento exacto del archivo actual
+Si Claude, Chat gpt o Gemini necesita ver el código actual, pedir solo el fragmento relevante (a menos que sea estrictamente necesario todo el archivo)
+NUNCA dar un buscar/reemplazar sin haber visto el fragmento exacto del archivo actual 
 
 Qué evitar
 
@@ -50,6 +50,7 @@ style= inline en HTML (excepto display:none para estado inicial controlado por J
 style.cssText = '...' en JS para construir elementos con estilos
 innerHTML con atributos style= dentro de JS
 Bloques <style> o <script> dentro de archivos HTML
+Bloques <html> o <css> dentro de archivos SCRIPT
 
 Siempre:
 
@@ -146,15 +147,9 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 #### auth.js — estado sesión 5
 - `onGoogleSignIn` detecta `wiz-liga-overlay` y avanza al paso 2 si `_wizLigaPaso === 1`
 
-#### ⚠️ BUG PENDIENTE — SyntaxError en ajustes.js línea 1558
-- Error: `Unexpected token '}'` — causado por el Cambio 3 de sesión 5 (reemplazo de `renderWizLigaPaso`)
-- **Fix pendiente**: ver fragmento alrededor de línea 1558 para identificar el `}` sobrante
-
----
-
 #### Pendientes 🔜
 
-#### Estandarización visual y migración de wizards (próxima sesión)
+#### Estandarización visual y migración de wizards (próxima sesiónes)
 
 Migración de código:
 
@@ -190,16 +185,18 @@ wizard.html — se van moviendo los innerHTML a HTML estático
 
 Lo que ya esta hecho de la migración: 
 
-Agregar al final de wizard.css todas las clases de wizard que hoy están en ajustes.css
+Agregar al final de wizard.css todas las clases de wizard que hoy están en ajustes.css y La limpieza de ajustes.css está completa. Es decir el css ya esta migrado y funcionando
 
-Lo que  falta de la migración: 
+Paso siguiente de la migración: 
 
-Eliminar esas mismas clases de ajustes.css
+mover la lógica JS de los wizards de ajustes.js a wizard.js
 
 Otros objetivos:
 - Revisar y unificar transiciones entre pasos
 - Unificar botón de Google entre todos los wizards 
 - Objetivo: mismo look, feel y timing en todos los wizards de la app
+
+#### Objetivos menos imoportantes ahora:
 
 #### Rebranding a Pivot
 - Limpiar todas las referencias a "Quindes" en: `index.html`, `manifest.json`, `sw.js`, `ajustes.js`, `auth.js`, `perfil.js`, `core.js`
