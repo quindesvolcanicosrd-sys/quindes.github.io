@@ -1104,13 +1104,14 @@ function renderWizLigaPaso(paso) {
   const progress   = document.getElementById('wiz-liga-progress');
   if (!contenido) return;
 
-  // Paso 0 es el login con Google — ocultar footer y progress
-  const esLogin = paso === 0;
+  const esIntro = paso === 0;
   const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
-  if (footer)    footer.style.display  = esLogin ? 'none' : '';
+  const header  = document.querySelector('#wiz-liga-overlay .wiz-equipo-header');
+  if (header)    header.style.display  = esIntro ? 'none' : '';
+  if (footer)    footer.style.display  = esIntro ? 'none' : '';
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
-  if (pasoLabel) pasoLabel.textContent = esLogin ? 'Paso 1 de ' + _WIZ_LIGA_TOTAL : `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
-  if (progress)  progress.style.width  = esLogin ? '0%' : (paso / _WIZ_LIGA_TOTAL * 100) + '%';
+  if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
+  if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
   if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? 'Crear todo 🛼' : 'Continuar';
 
   if (paso === 0) {
@@ -1168,6 +1169,7 @@ function renderWizLigaPaso(paso) {
         google.accounts.id.renderButton(wrap, {
           theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
         });
+        setTimeout(() => wrap.classList.add('visible'), 120);
       }
     });
     return;
