@@ -1330,30 +1330,6 @@ async function wizLigaSubmit() {
   }
 }
 
-function wizLigaPasoSiguiente() {
-  if (_wizLigaPaso === 2 && !_wizLiga.nombreLiga.trim()) {
-    mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return;
-  }
-  if (_wizLigaPaso === 7 && !_wizLiga.nombreEquipo.trim()) {
-    mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return;
-  }
-  if (_wizLigaPaso === 11 && !_wizLiga.nombre.trim()) {
-    mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return;
-  }
-  if (_wizLigaPaso === 15 && !_wizLiga.fechaNacimiento) {
-    mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return;
-  }
-  if (_wizLigaPaso === _WIZ_LIGA_TOTAL) {
-    wizLigaSubmit(); return;
-  }
-  renderWizLigaPaso(_wizLigaPaso + 1);
-}
-
-function wizLigaPasoAnterior() {
-  if (_wizLigaPaso > 1) renderWizLigaPaso(_wizLigaPaso - 1);
-  else cerrarWizLiga();
-}
-
 async function crearLigaConPerfil() {
   const btnNext = document.getElementById('wiz-liga-btn-next');
   if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
