@@ -1776,6 +1776,7 @@ function previewLogoLigaWiz(input) {
 async function wizLigaSubmit() {
   const btnNext = document.getElementById('wiz-liga-btn-next');
   if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
+  wizMostrarCargando();
   try {
     const email = window._googleEmail || localStorage.getItem('quindes_email');
     if (!email) { mostrarToastGuardado('⚠️ No se encontró tu sesión'); if (btnNext) { btnNext.disabled = false; btnNext.textContent = '¡Crear todo! 🛼'; } return; }
@@ -1805,11 +1806,16 @@ async function wizLigaSubmit() {
       fotoBase64:         _wizLiga.fotoBase64 || null,
     });
     if (!result?.ok) throw new Error(result?.error || 'Error al crear');
+    wizOcultarCargando();
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('noEncontradoScreen').style.display = 'none';
     cerrarWizLiga();
     CURRENT_USER = {
       found: true, id: result.perfil.id, email,
       rolApp: 'Admin', equipoId: result.equipo.id, ligaId: result.liga.id,
+      colorPrimario: _wizLiga.colorPrimario || '#ef4444',
     };
+    if (_wizLiga.colorPrimario) aplicarColorPrimario(_wizLiga.colorPrimario);
     localStorage.setItem('quindes_email', email);
     window._enFlujoCrearLiga = false;
     sessionStorage.removeItem('_enFlujoCrearLiga');
@@ -1820,7 +1826,6 @@ async function wizLigaSubmit() {
     aplicarPermisos();
     inicializarAjustes();
     const appEl = document.getElementById('appContent');
-    document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('loadingScreen').style.display = 'none';
     appEl.style.display = 'block';
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -1829,6 +1834,7 @@ async function wizLigaSubmit() {
     }));
     if (CURRENT_USER?.ligaId) cargarMiLiga({ render: false });
   } catch(e) {
+    wizOcultarCargando();
     mostrarToastGuardado('❌ Error al crear: ' + e.message);
     if (btnNext) { btnNext.disabled = false; btnNext.textContent = '¡Crear todo! 🛼'; }
     console.error(e);
@@ -1862,6 +1868,7 @@ function wizLigaPasoAnterior() {
 async function crearLigaConPerfil() {
   const btnNext = document.getElementById('wiz-liga-btn-next');
   if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
+  wizMostrarCargando();
   try {
     const email = window._googleEmail || localStorage.getItem('quindes_email');
     const result = await apiCall('/crear-liga', 'POST', {
@@ -1893,7 +1900,9 @@ async function crearLigaConPerfil() {
     CURRENT_USER = {
       found: true, id: result.perfil.id, email,
       rolApp: 'Admin', equipoId: result.equipo.id, ligaId: result.liga.id,
+      colorPrimario: _wizLiga.colorPrimario || '#ef4444',
     };
+    if (_wizLiga.colorPrimario) aplicarColorPrimario(_wizLiga.colorPrimario);
     localStorage.setItem('quindes_email', email);
     const profile = await apiCall('/perfil/' + result.perfil.id);
     window.myProfile = profile;
