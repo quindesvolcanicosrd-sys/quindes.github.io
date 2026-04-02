@@ -945,25 +945,38 @@ function renderWizLigaPaso(paso) {
   }
 
   if (paso === 5) {
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">📅</div>
-        <h2 class="wiz-title">Cuéntanos más</h2>
-        <p class="wiz-desc">Año de fundación y una descripción de tu liga.</p>
-        <div class="wiz-content">
-          <input id="wiz-liga-anio" type="number" placeholder="Año de fundación (ej: 2018)"
-            value="${_wizLiga.anioFundacion}" min="1990" max="${new Date().getFullYear()}"
-            class="reg-input" oninput="_wizLiga.anioFundacion=this.value">
-          <textarea id="wiz-liga-descripcion" placeholder="Describe tu liga: misión, origen, valores…" rows="4"
-            class="reg-input" style="margin-top:12px;"
-            oninput="_wizLiga.descripcion=this.value"
-            maxlength="500">${_wizLiga.descripcion || ''}</textarea>
-          <p class="reg-note">Ambos campos son opcionales</p>
-        </div>
-      `;
-      setTimeout(() => document.getElementById('wiz-liga-anio')?.focus(), 350);
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-5');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const inputAnio = document.getElementById('wiz-liga-anio');
+    const inputDesc = document.getElementById('wiz-liga-descripcion');
+
+    // valores iniciales
+    if (inputAnio) {
+      inputAnio.value = _wizLiga.anioFundacion || '';
+      inputAnio.max = new Date().getFullYear();
+
+      inputAnio.addEventListener('input', e => {
+        _wizLiga.anioFundacion = e.target.value;
+      });
+    }
+
+    if (inputDesc) {
+      inputDesc.value = _wizLiga.descripcion || '';
+
+      inputDesc.addEventListener('input', e => {
+        _wizLiga.descripcion = e.target.value;
+      });
+    }
+
+    setTimeout(() => inputAnio?.focus(), 350);
+
+  }, forward);
+  return;
   }
 
   if (paso === 6) {
