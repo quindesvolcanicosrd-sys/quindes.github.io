@@ -173,42 +173,6 @@ function wizIntroVolver() {
   }
 }
 
-function wizStep0Volver() {
-  const step0 = document.getElementById('wiz-step-0');
-  if (step0) step0.style.display = 'none';
-  if (wizOrigen === 'noEncontrado') {
-    const noEnc = document.getElementById('noEncontradoScreen');
-    if (noEnc) noEnc.style.display = 'flex';
-  } else {
-    const loginEl = document.getElementById('loginScreen');
-    if (loginEl) loginEl.style.display = 'flex';
-  }
-  const regEl = document.getElementById('registroScreen');
-  if (regEl) regEl.style.display = 'none';
-}
-
-function wizIntroVolver() {
-  const introEl = document.getElementById('wiz-intro');
-  if (introEl) {
-    introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
-    introEl.style.opacity    = '0';
-    introEl.style.transform  = 'translateY(24px)';
-    setTimeout(() => {
-      introEl.style.display = 'none';
-      introEl.style.transition = introEl.style.transform = introEl.style.opacity = '';
-    }, 310);
-  }
-  const regEl = document.getElementById('registroScreen');
-  if (regEl) regEl.style.display = 'none';
-  if (wizOrigen === 'noEncontrado') {
-    const noEnc = document.getElementById('noEncontradoScreen');
-    if (noEnc) noEnc.style.display = 'flex';
-  } else {
-    const loginEl = document.getElementById('loginScreen');
-    if (loginEl) loginEl.style.display = 'flex';
-  }
-}
-
 function wizIntroStart() {
   const introEl    = document.getElementById('wiz-intro');
   const headerEl   = document.getElementById('wiz-header');
@@ -574,44 +538,33 @@ function lanzarConfetti() {
 
 function mostrarBienvenida() {
   const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position:fixed;inset:0;z-index:9998;
-    background:rgba(0,0,0,0.55);
-    display:flex;align-items:flex-end;justify-content:center;
-    padding-bottom:env(safe-area-inset-bottom);
-    animation: wiz-overlay-in 0.3s ease both;
-  `;
-  overlay.innerHTML = `
-    <div style="
-      background:var(--card);
-      border-radius:24px 24px 0 0;
-      padding:28px 24px 36px;
-      max-width:480px;width:100%;
-      display:flex;flex-direction:column;gap:16px;
-      animation: wiz-fade-up 0.35s cubic-bezier(0.4,0,0.2,1) both;
-    ">
-      <div style="font-size:48px;text-align:center;line-height:1;">🎉</div>
-      <h2 style="
-        font-size:22px;font-weight:900;font-style:italic;text-transform:uppercase;
-        letter-spacing:-0.3px;color:var(--text);-webkit-text-fill-color:var(--text);
-        margin:0;text-align:center;
-      ">¡Bienvenidx al equipo!</h2>
-      <p style="
-        font-size:14px;font-weight:400;line-height:1.65;
-        color:var(--text2);-webkit-text-fill-color:var(--text2);
-        margin:0;text-align:center;
-      ">Recuerda que puedes actualizar o añadir información adicional en las secciones de tu perfil.<br><br>
-      También podrás consultar próximos entrenamientos, marcar asistencias, revisar tareas disponibles, la tabla de puntajes, información del equipo y mucho más.</p>
-      <button onclick="this.closest('[style*=fixed]').remove()" style="
-        margin-top:4px;padding:18px;border-radius:9999px;border:none;
-        background:linear-gradient(135deg,#ff3b3b 0%,#c41212 100%);
-        color:#fff;-webkit-text-fill-color:#fff;
-        font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;
-        cursor:pointer;font-family:inherit;
-        box-shadow:0 8px 24px rgba(220,30,30,0.35);
-      ">¡Vamos! 🛼</button>
-    </div>
-  `;
+  overlay.className = 'wiz-bienvenida-overlay';
+
+  const sheet = document.createElement('div');
+  sheet.className = 'wiz-bienvenida-sheet';
+
+  const emoji = document.createElement('div');
+  emoji.className = 'wiz-bienvenida-emoji';
+  emoji.textContent = '🎉';
+
+  const title = document.createElement('h2');
+  title.className = 'wiz-bienvenida-title';
+  title.textContent = '¡Bienvenidx al equipo!';
+
+  const desc = document.createElement('p');
+  desc.className = 'wiz-bienvenida-desc';
+  desc.innerHTML = 'Recuerda que puedes actualizar o añadir información adicional en las secciones de tu perfil.<br><br>También podrás consultar próximos entrenamientos, marcar asistencias, revisar tareas disponibles, la tabla de puntajes, información del equipo y mucho más.';
+
+  const btn = document.createElement('button');
+  btn.className = 'wiz-bienvenida-btn';
+  btn.textContent = '¡Vamos! 🛼';
+  btn.addEventListener('click', () => overlay.remove());
+
+  sheet.appendChild(emoji);
+  sheet.appendChild(title);
+  sheet.appendChild(desc);
+  sheet.appendChild(btn);
+  overlay.appendChild(sheet);
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }

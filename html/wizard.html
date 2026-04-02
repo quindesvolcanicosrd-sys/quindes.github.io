@@ -153,7 +153,7 @@
         <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
         <p class="wiz-desc">Elige los pronombres con los que más te identificas y con los que quieres que te reconozcan en el equipo. Es opcional.</p>
         <div class="wiz-content">
-          <div id="reg-pronombres-chips" class="wiz-c-chips"></div>
+          <div id="reg-pronombres-chips" class="wiz-chips"></div>
         </div>
         <div class="wiz-actions">
           <button class="wiz-btn-primary" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
@@ -269,7 +269,7 @@
         <h2 class="wiz-title">Tu rol en el equipo</h2>
         <p class="wiz-desc">Selecciona tu rol dentro del equipo. Si no estás segurx de cuál es, elige <strong>"No definido"</strong> y puedes cambiarlo después.</p>
         <div class="wiz-content">
-          <div id="reg-rol-chips" class="wiz-c-chips"></div>
+          <div id="reg-rol-chips" class="wiz-chips"></div>
         </div>
         <div class="wiz-actions">
           <button class="wiz-btn-primary" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
@@ -285,7 +285,7 @@
         <h2 class="wiz-title">¿Cuánto entrenas?</h2>
         <p class="wiz-desc">¿Cuántas veces a la semana asistes a los entrenamientos? Esto nos ayuda a organizar mejor al equipo.</p>
         <div class="wiz-content">
-          <div id="reg-asiste-chips" class="wiz-c-chips"></div>
+          <div id="reg-asiste-chips" class="wiz-chips"></div>
         </div>
         <div class="wiz-actions">
           <button class="wiz-btn-primary" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
@@ -596,9 +596,7 @@
     </div>
 
     <!-- COLOR -->
-    <p style="font-size:13px;color:var(--text3);margin:16px 0 8px;font-weight:600;">
-      Color de énfasis
-    </p>
+    <p class="reg-label" style="margin:16px 0 8px;">Color de énfasis</p>
 
     <div class="wiz-color-presets" id="wiz-color-presets"></div>
 
