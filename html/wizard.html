@@ -397,6 +397,7 @@
   </div>
 </template>
 
+<!-- TEMPLATE 1 -->
 
 <template id="tpl-wiz-liga-1">
   <div class="wiz-intro-bg">
@@ -412,6 +413,8 @@
   </div>
 </template>
 
+<!-- TEMPLATE 2 -->
+
 <template id="tpl-wiz-liga-2">
   <div class="wiz-emoji">🏟️</div>
   <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
@@ -424,5 +427,35 @@
       placeholder="Nombre de la liga"
       class="reg-input wiz-big-input"
     >
+  </div>
+</template>
+
+<!-- TEMPLATE 3 -->
+
+<template id="tpl-wiz-liga-3">
+  <div class="wiz-emoji">🖼️</div>
+  <h2 class="wiz-title">Logo de tu liga</h2>
+  <p class="wiz-desc">Subí un logo o ícono que la represente. Opcional.</p>
+
+  <div class="wiz-content">
+    <div class="wiz-liga-avatar-wrap">
+      <label class="wiz-liga-avatar" id="wiz-liga-img-label">
+
+        <img id="wiz-liga-img-preview" class="wiz-hidden" />
+
+        <span id="wiz-liga-img-placeholder" class="material-icons">
+          add_photo_alternate
+        </span>
+
+        <input
+          id="wiz-liga-img-input"
+          type="file"
+          accept="image/*"
+          style="display:none;"
+        >
+      </label>
+    </div>
+
+    <p class="reg-note">Opcional — puedes saltarte este paso</p>
   </div>
 </template>

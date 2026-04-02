@@ -803,28 +803,50 @@ function renderWizLigaPaso(paso) {
   }, forward);
   return;
   }
+  
 
   if (paso === 3) {
-    const preview = _wizLiga.ligaImagenBase64
-      ? `<img src="${_wizLiga.ligaImagenBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`
-      : `<span class="material-icons" style="font-size:40px;color:var(--text3);">add_photo_alternate</span>`;
-    wizLigaGoTo(el => {
-      el.innerHTML = `
-        <div class="wiz-emoji">🖼️</div>
-        <h2 class="wiz-title">Logo de tu liga</h2>
-        <p class="wiz-desc">Subí un logo o ícono que la represente. Opcional.</p>
-        <div class="wiz-content">
-          <div class="wiz-liga-avatar-wrap">
-            <label class="wiz-liga-avatar" id="wiz-liga-img-label">
-              ${preview}
-              <input type="file" accept="image/*" style="display:none;" onchange="previewImagenLiga(this)">
-            </label>
-          </div>
-          <p class="reg-note">Opcional — puedes saltarte este paso</p>
-        </div>
-      `;
-    }, forward);
-    return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-3');
+    if (!tpl) return;
+
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
+
+    const img = document.getElementById('wiz-liga-img-preview');
+    const placeholder = document.getElementById('wiz-liga-img-placeholder');
+    const input = document.getElementById('wiz-liga-img-input');
+
+    // estado inicial
+    if (_wizLiga.ligaImagenBase64) {
+      img.src = _wizLiga.ligaImagenBase64;
+      img.classList.remove('wiz-hidden');
+      placeholder.classList.add('wiz-hidden');
+    } else {
+      img.classList.add('wiz-hidden');
+      placeholder.classList.remove('wiz-hidden');
+    }
+
+    // cambio de imagen
+    input?.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const base64 = ev.target.result;
+
+        _wizLiga.ligaImagenBase64 = base64;
+
+        img.src = base64;
+        img.classList.remove('wiz-hidden');
+        placeholder.classList.add('wiz-hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+
+  }, forward);
+  return;
   }
 
   if (paso === 4) {
