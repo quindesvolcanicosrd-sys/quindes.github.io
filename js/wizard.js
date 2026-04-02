@@ -658,9 +658,16 @@ async function submitRegistro() {
       wizOcultarCargando();
       window._enFlujoCrearLiga = false;
       sessionStorage.removeItem('_enFlujoCrearLiga');
+      inicializarAjustes();
       document.getElementById('registroScreen').style.display = 'none';
-      document.getElementById('appContent').style.display    = 'block';
-      setTimeout(() => { lanzarConfetti(); mostrarBienvenida(); }, 400);
+      document.getElementById('loadingScreen').style.display  = 'none';
+      const appEl = document.getElementById('appContent');
+      appEl.style.display = 'block';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        appEl.classList.add('visible');
+        setTimeout(() => { lanzarConfetti(); mostrarBienvenida(); }, 400);
+      }));
+      if (CURRENT_USER?.ligaId) cargarMiLiga({ render: false });
       return;
     }
 
