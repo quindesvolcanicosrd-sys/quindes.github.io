@@ -154,10 +154,51 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 
 #### Pendientes 🔜
 
-#### Estandarización visual de wizards (próxima sesión)
-- Revisar y unificar transiciones entre pasos: wizard de liga (`ajustes.js`) debe animarse igual que wizard de registro (`wizard.js`) — actualmente el de liga no tiene el sistema de slides con `translateX`
-- Unificar botón de Google entre ambos wizards — el de registro tiene `animation: wiz-fade-up` con delay, el de liga lo recibió en sesión 5 pero verificar que sean idénticos
-- Revisar que `.wiz-equipo-contenido` use `wiz-content-in` igual que `.wiz-step-inner` en wizard.css
+#### Estandarización visual y migración de wizards (próxima sesión)
+
+Migración de código:
+
+la arquitectura objetivo queda así:
+
+wizard.html — todo el HTML estático de los tres wizards (registro, liga, equipo) como partial, sin nada generado dinámicamente desde JS
+wizard.js — motor compartido + lógica de los tres wizards, sin un solo innerHTML de estructura
+wizard.css — todos los estilos de wizard unificados, sacando lo que hoy está mezclado en ajustes.css
+
+A tener en cuenta: todo el HTML de los wizards está generado via innerHTML dentro de ajustes.js. Eso significa que por ahora no hay un wizard.html parcial real para liga/equipo.
+
+Lo que va a pasar en cada archivo:
+wizard.css — recibe todo lo de ajustes.css relacionado a wizards:
+
+.wiz-equipo-overlay/header/contenido/footer/progress
+.wiz-eq-* (close, paso-label, btn-back, btn-next, input, etc.)
+.wiz-liga-step, .wiz-liga-intro-content, .wiz-liga-avatar*, .wiz-liga-google-wrap
+.wiz-hidden, .wiz-skip-btn, .wiz-accordion-*, .wiz-color-presets
+.wiz-pais-wrap/lista, .overlay-fullscreen-success, .modal-confirm-*
+Las clases duplicadas en ajustes.css (.wiz-eq-* aparece dos veces) se unifican en una sola
+
+ajustes.css — se eliminan todas esas clases
+wizard.js — recibe desde ajustes.js:
+
+Motor wizLigaGoTo() (unificado, sin duplicado)
+mostrarWizardLiga(), cerrarWizLiga(), renderWizLigaPaso(), wizLigaPasoSiguiente/Anterior(), wizLigaSubmit()
+abrirCrearEquipo(), cerrarWizEquipo(), renderWizEquipoPaso(), wizEquipoPasoSiguiente/Anterior(), crearEquipo()
+Helpers: seleccionarCategoriaEquipo/LigaWiz(), previewLogo*(), onWizLigaPaisChange(), seleccionarColorWiz(), etc.
+mostrarEquipoCreado(), mostrarModalConfirmacion(), confirmarEliminarEquipo/Liga(), eliminarEquipo/Liga()
+
+ajustes.js — queda solo con los llamados de entrada y la lógica de negocio de ajustes
+wizard.html — se van moviendo los innerHTML a HTML estático
+
+Lo que ya esta hecho de la migración: 
+
+Agregar al final de wizard.css todas las clases de wizard que hoy están en ajustes.css
+
+Lo que  falta de la migración: 
+
+Eliminar esas mismas clases de ajustes.css
+
+Otros objetivos:
+- Revisar y unificar transiciones entre pasos
+- Unificar botón de Google entre todos los wizards 
 - Objetivo: mismo look, feel y timing en todos los wizards de la app
 
 #### Rebranding a Pivot

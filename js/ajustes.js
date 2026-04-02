@@ -1189,11 +1189,11 @@ function renderWizLigaPaso(paso) {
         <div class="wiz-liga-intro-content">
           <div class="wiz-intro-logo">🏟️</div>
           <h1 class="wiz-intro-title">Creá<br>tu liga</h1>
-          <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos para entrenar.</p>
+          <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos.</p>
           <div class="wiz-intro-steps">
             <div class="wiz-intro-step wiz-intro-step-1"><span class="wiz-intro-step-ico">🏟️</span><span class="wiz-intro-step-txt">Datos de tu liga y equipo</span></div>
-            <div class="wiz-intro-step wiz-intro-step-2"><span class="wiz-intro-step-ico">👤</span><span class="wiz-intro-step-txt">Tu perfil como Admin</span></div>
-            <div class="wiz-intro-step wiz-intro-step-3"><span class="wiz-intro-step-ico">🔑</span><span class="wiz-intro-step-txt">Código para invitar a tu equipo</span></div>
+            <div class="wiz-intro-step wiz-intro-step-2"><span class="wiz-intro-step-ico">👤</span><span class="wiz-intro-step-txt">Tu perfil de administradorx del equipo</span></div>
+            <div class="wiz-intro-step wiz-intro-step-3"><span class="wiz-intro-step-ico">🔑</span><span lass="wiz-intro-step-txt">Código para invitar patinadorxs y miembros de tu equipo</span></div>
           </div>
           <button onclick="wizLigaIntroStart()" class="wiz-intro-btn">
             Empezar <span class="material-icons">arrow_forward</span>
@@ -1220,7 +1220,6 @@ function renderWizLigaPaso(paso) {
         <div class="wiz-liga-intro-content">
           <div class="wiz-intro-logo">👤</div>
           <h1 class="wiz-intro-title">Vamos a<br>registrarte</h1>
-          <p class="wiz-intro-sub">Inicia sesión con Google para continuar. Solo toma un momento.</p>
           <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
         </div>
       `;
