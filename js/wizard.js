@@ -664,6 +664,30 @@ async function submitRegistro() {
 
 }
 
+function wizLigaIntroStart() {
+  const introEl  = document.getElementById('wiz-liga-intro');
+  const headerEl = document.getElementById('wiz-liga-header');
+  const footerEl = document.getElementById('wiz-liga-footer');
+
+  if (introEl) {
+    introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+    introEl.style.opacity    = '0';
+    introEl.style.transform  = 'translateY(-24px)';
+    setTimeout(() => {
+      introEl.style.display    = 'none';
+      introEl.style.transition = '';
+      introEl.style.transform  = '';
+      introEl.style.opacity    = '';
+    }, 310);
+  }
+
+  setTimeout(() => {
+    if (headerEl) headerEl.style.display = 'flex';
+    if (footerEl) footerEl.style.display = 'flex';
+    renderWizLigaPaso(1);
+  }, 200);
+}
+
 function renderWizLigaPaso(paso) {
   const forward = paso >= _wizLigaPaso;
   _wizLigaPaso = paso;
@@ -674,56 +698,12 @@ function renderWizLigaPaso(paso) {
   const contenido = document.getElementById('wiz-liga-contenido');
   if (!contenido) return;
 
-  const esIntro = paso === 0;
-  const header  = document.querySelector('#wiz-liga-overlay .wiz-equipo-header');
-  const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
-  if (footer)    footer.style.display  = esIntro ? 'none' : '';
-  if (header) {
-    if (esIntro) {
-      header.style.display    = 'none';
-      header.style.opacity    = '0';
-      header.style.transition = '';
-    }
-  }
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
   if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
   if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? '¡Crear todo! 🛼' : 'Continuar';
 
-  if (paso === 0) {
-  wizLigaGoTo(el => {
-    const tpl = document.getElementById('tpl-wiz-liga-0');
-    if (!tpl) return;
-
-    el.innerHTML = '';
-    el.appendChild(tpl.content.cloneNode(true));
-
-    document.getElementById('wiz-liga-intro-start')?.addEventListener('click', wizLigaIntroStart);
-    document.getElementById('wiz-liga-intro-cancel')?.addEventListener('click', cerrarWizLiga);
-
-    if (footer) footer.classList.add('wiz-hidden');
-    if (btnBack) btnBack.classList.add('wiz-hidden');
-  }, forward);
-  return;
-  }
-
-  if (footer) footer.classList.remove('wiz-hidden');
-
   if (paso === 1) {
-  setTimeout(() => {
-    if (header) {
-      header.style.display    = 'flex';
-      header.style.opacity    = '0';
-      requestAnimationFrame(() => {
-        header.style.transition = 'opacity 0.28s ease';
-        header.style.opacity    = '1';
-        setTimeout(() => {
-          header.style.transition = '';
-          header.style.opacity    = '';
-        }, 300);
-      });
-    }
-  }, 200);
   wizLigaGoTo(el => {
     const tpl = document.getElementById('tpl-wiz-liga-1');
     if (!tpl) return;
@@ -731,7 +711,6 @@ function renderWizLigaPaso(paso) {
     el.innerHTML = '';
     el.appendChild(tpl.content.cloneNode(true));
 
-    if (footer) footer.classList.add('wiz-hidden');
     if (btnBack) btnBack.classList.remove('wiz-hidden');
 
     requestAnimationFrame(() => {
@@ -1424,35 +1403,26 @@ function mostrarWizardLiga() {
   _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, colorPrimario: '', pais: '', ciudad: '', anioFundacion: '', descripcion: '', contactoSocial: '', nombre: '', pronombres: [], paisPerfil: '', codigoPais: '', telefono: '', fechaNacimiento: '', mostrarCumple: '', mostrarEdad: '', nombreDerby: '', numeroDerby: '', rolJugadorx: '', asisteSemana: '', alergias: '', dieta: '', contactoEmergencia: '', fotoBase64: null };
   _wizLigaPaso = 0;
 
-  const overlay = document.createElement('div');
-  overlay.id = 'wiz-liga-overlay';
-  overlay.className = 'wiz-equipo-overlay';
-  overlay.innerHTML = `
-    <header class="wiz-equipo-header">
-      <button onclick="cerrarWizLiga()" class="wiz-eq-close-btn">
-        <span class="material-icons">close</span>
-      </button>
-      <span id="wiz-liga-paso-label" class="wiz-eq-paso-label">Paso 1 de ${_WIZ_LIGA_TOTAL}</span>
-      <div class="wiz-equipo-progress">
-        <div id="wiz-liga-progress" class="wiz-equipo-progress-bar" style="width:${100/_WIZ_LIGA_TOTAL}%;"></div>
-      </div>
-    </header>
-    <div id="wiz-liga-contenido" class="wiz-equipo-contenido"></div>
-    <div class="wiz-equipo-footer">
-      <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-eq-btn-back" style="display:none;">Atrás</button>
-      <button id="wiz-liga-btn-next" onclick="wizLigaPasoSiguiente()" class="wiz-btn-primary">Continuar</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+  const overlay  = document.getElementById('wiz-liga-overlay');
+  const introEl  = document.getElementById('wiz-liga-intro');
+  const headerEl = document.getElementById('wiz-liga-header');
+  const footerEl = document.getElementById('wiz-liga-footer');
+  const contenido = document.getElementById('wiz-liga-contenido');
+
+  // Resetear estado
+  if (introEl)  { introEl.style.display = ''; introEl.style.opacity = ''; introEl.style.transform = ''; }
+  if (headerEl) headerEl.style.display = 'none';
+  if (footerEl) footerEl.style.display = 'none';
+  if (contenido) contenido.innerHTML = '';
+
+  overlay.classList.remove('visible');
   requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
-  renderWizLigaPaso(0);
 }
 
 function cerrarWizLiga() {
   const overlay = document.getElementById('wiz-liga-overlay');
   if (!overlay) return;
   overlay.classList.remove('visible');
-  setTimeout(() => overlay.remove(), 350);
   if (!window._enFlujoCrearLiga) sessionStorage.removeItem('_enFlujoCrearLiga');
   aplicarColorPrimario(window._colorAntesDeLiga || '#ef4444');
 }

@@ -361,43 +361,6 @@
 
 <!-- WIZARD LIGA TEMPLATES -->
 
-<!-- LIGA: TEMPLATE 0 -->
-<template id="tpl-wiz-liga-0">
-  <div class="wiz-intro-bg">
-    <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
-    <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
-    <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
-  </div>
-  <div class="wiz-liga-intro-content">
-    <div class="wiz-intro-logo">🏟️</div>
-    <h1 class="wiz-intro-title">Creá<br>tu liga</h1>
-    <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos.</p>
-
-    <div class="wiz-intro-steps">
-      <div class="wiz-intro-step wiz-intro-step-1">
-        <span class="wiz-intro-step-ico">🏟️</span>
-        <span class="wiz-intro-step-txt">Datos de tu liga y equipo</span>
-      </div>
-
-      <div class="wiz-intro-step wiz-intro-step-2">
-        <span class="wiz-intro-step-ico">👤</span>
-        <span class="wiz-intro-step-txt">Tu perfil de administradorx del equipo</span>
-      </div>
-
-      <div class="wiz-intro-step wiz-intro-step-3">
-        <span class="wiz-intro-step-ico">🔑</span>
-        <span class="wiz-intro-step-txt">Código para invitar patinadorxs y miembros de tu equipo</span>
-      </div>
-    </div>
-
-    <button class="wiz-intro-btn" id="wiz-liga-intro-start">
-      Empezar <span class="material-icons">arrow_forward</span>
-    </button>
-
-    <button class="wiz-skip-btn" id="wiz-liga-intro-cancel">Cancelar</button>
-  </div>
-</template>
-
 <!-- LIGA: TEMPLATE 1 -->
 <template id="tpl-wiz-liga-1">
   <div class="wiz-intro-bg">
@@ -792,3 +755,51 @@
     <input id="wiz-liga-perfil-emergencia" class="reg-input" placeholder="Nombre + teléfono">
   </div>
 </template>
+
+<!-- WIZARD LIGA OVERLAY -->
+<div id="wiz-liga-overlay" class="wiz-equipo-overlay">
+  <div id="wiz-liga-intro" class="wiz-intro-screen">
+    <div class="wiz-intro-bg">
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></span>
+    </div>
+    <div class="wiz-intro-content">
+      <div class="wiz-intro-logo">🏟️</div>
+      <h1 class="wiz-intro-title">Creá<br>tu liga</h1>
+      <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos.</p>
+      <div class="wiz-intro-steps">
+        <div class="wiz-intro-step wiz-intro-step-1">
+          <span class="wiz-intro-step-ico">🏟️</span>
+          <span class="wiz-intro-step-txt">Datos de tu liga y equipo</span>
+        </div>
+        <div class="wiz-intro-step wiz-intro-step-2">
+          <span class="wiz-intro-step-ico">👤</span>
+          <span class="wiz-intro-step-txt">Tu perfil de administradorx del equipo</span>
+        </div>
+        <div class="wiz-intro-step wiz-intro-step-3">
+          <span class="wiz-intro-step-ico">🔑</span>
+          <span class="wiz-intro-step-txt">Código para invitar patinadorxs y miembros de tu equipo</span>
+        </div>
+      </div>
+      <button class="wiz-intro-btn" onclick="wizLigaIntroStart()">
+        Empezar <span class="material-icons">arrow_forward</span>
+      </button>
+      <button class="wiz-skip-btn" onclick="cerrarWizLiga()">Cancelar</button>
+    </div>
+  </div>
+  <header class="wiz-equipo-header" id="wiz-liga-header" style="display:none;">
+    <button onclick="cerrarWizLiga()" class="wiz-eq-close-btn">
+      <span class="material-icons">close</span>
+    </button>
+    <span id="wiz-liga-paso-label" class="wiz-eq-paso-label">Paso 1 de 20</span>
+    <div class="wiz-equipo-progress">
+      <div id="wiz-liga-progress" class="wiz-equipo-progress-bar"></div>
+    </div>
+  </header>
+  <div id="wiz-liga-contenido" class="wiz-equipo-contenido"></div>
+  <div class="wiz-equipo-footer" id="wiz-liga-footer" style="display:none;">
+    <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-eq-btn-back">Atrás</button>
+    <button id="wiz-liga-btn-next" onclick="wizLigaPasoSiguiente()" class="wiz-btn-primary">Continuar</button>
+  </div>
+</div>
