@@ -112,40 +112,41 @@ function mostrarRegistroWizard() {
   if (!wizOrigen) wizOrigen = 'login';
   const desdeCrearLiga = wizOrigen === 'crearLiga';
   wizRecalcSequence();
+
   // 🔥 Intentar recuperar progreso guardado
-const saved = localStorage.getItem('regDraft');
+  const saved = localStorage.getItem('regDraft');
 
-// 🌍 detectar país del usuario
-fetch('https://ipapi.co/json/')
-  .then(res => res.json())
-  .then(data => {
-    if (!regData.codigoPais) {
-      const code = data.country_calling_code; // +593, +1, etc
+  // 🌍 detectar país del usuario
+  fetch('https://ipapi.co/json/')
+    .then(res => res.json())
+    .then(data => {
+      if (!regData.codigoPais) {
+        const code = data.country_calling_code;
 
-      const match = REG_CODIGOS.find(c => c.includes(code));
-      if (match) {
-        regData.codigoPais = match;
-        wizSetVal('reg-codigo-display', match);
-        document.getElementById('reg-codigo-btn')?.classList.add('has-value');
+        const match = REG_CODIGOS.find(c => c.includes(code));
+        if (match) {
+          regData.codigoPais = match;
+          wizSetVal('reg-codigo-display', match);
+          document.getElementById('reg-codigo-btn')?.classList.add('has-value');
+        }
       }
-    }
-  })
-  .catch(() => {});
+    })
+    .catch(() => {});
 
-if (saved) {
-  try {
-    Object.assign(regData, JSON.parse(saved));
-  } catch {
-    console.warn('Error cargando draft');
+  if (saved) {
+    try {
+      Object.assign(regData, JSON.parse(saved));
+    } catch {
+      console.warn('Error cargando draft');
+    }
+  } else {
+    Object.assign(regData, {
+      nombre:'', pronombres:[], pais:'', codigoPais:'',
+      telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
+      nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
+      alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null
+    });
   }
-} else {
-  Object.assign(regData, {
-    nombre:'', pronombres:[], pais:'', codigoPais:'',
-    telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
-    nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
-    alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null
-  });
-}
 
   ['reg-nombre','reg-telefono','reg-nombreDerby','reg-numero',
    'reg-alergias','reg-dieta','reg-emergencia'].forEach(id => {
@@ -153,45 +154,52 @@ if (saved) {
   });
 
   regResetAvatar();
+
   regRenderChipsMulti('reg-pronombres-chips', REG_PRONOMBRES, [], v => { regData.pronombres = v; });
-  regRenderChips('reg-cumple-chips',     ['Sí','No'],     '', v => { regData.mostrarCumple = v; });
-  regRenderChips('reg-edad-chips',       ['Sí','No'],     '', v => { regData.mostrarEdad   = v; });
-  regRenderChips('reg-rol-chips',        REG_ROLES,       '', wizOnRolSelected);
-  regRenderChips('reg-asiste-chips',     REG_ASISTENCIA,  '', v => { regData.asisteSemana = v; });
+  regRenderChips('reg-cumple-chips', ['Sí','No'], '', v => { regData.mostrarCumple = v; });
+  regRenderChips('reg-edad-chips',   ['Sí','No'], '', v => { regData.mostrarEdad = v; });
+  regRenderChips('reg-rol-chips',    REG_ROLES,   '', wizOnRolSelected);
+  regRenderChips('reg-asiste-chips', REG_ASISTENCIA, '', v => { regData.asisteSemana = v; });
 
   wizSetVal('reg-pais-display',   'Seleccionar país…');
   wizSetVal('reg-codigo-display', '+?');
   wizSetVal('reg-fecha-display',  'Seleccionar fecha…');
+
   ['reg-pais-btn','reg-codigo-btn','reg-fecha-btn'].forEach(id =>
-    document.getElementById(id)?.classList.remove('has-value'));
+    document.getElementById(id)?.classList.remove('has-value')
+  );
 
   const fotoBtn = document.getElementById('wiz-btn-foto');
   if (fotoBtn) fotoBtn.style.display = 'none';
 
   wizHideError();
 
-  const sInv = document.getElementById('wiz-step-inv');
-  if (sInv) { sInv.classList.remove('wiz-active','wiz-animate'); sInv.style.transition = sInv.style.transform = sInv.style.visibility = ''; }
-  for (let i = 1; i <= 11; i++) {
-    const s = document.getElementById('wiz-step-' + i);
-    if (!s) continue;
-    s.classList.remove('wiz-active');
-    s.style.transition = s.style.transform = s.style.visibility = '';
-  }
+  // 🔥 LIMPIAR TODOS LOS STEPS
+  document.querySelectorAll('#wiz-viewport .wiz-step')
+    .forEach(s => {
+      s.classList.remove('wiz-active','wiz-animate');
+      s.style.transition = '';
+      s.style.transform = '';
+      s.style.visibility = '';
+    });
 
   document.getElementById('registroScreen').style.display = 'flex';
+
   const step0 = document.getElementById('wiz-step-0');
   if (step0) step0.style.display = 'none';
 
   const introEl    = document.getElementById('wiz-intro');
   const headerEl   = document.getElementById('wiz-header');
   const viewportEl = document.getElementById('wiz-viewport');
-if (desdeCrearLiga) {
+
+  if (desdeCrearLiga) {
     document.getElementById('loginScreen').style.display = 'none';
     if (introEl)    introEl.style.display    = 'none';
     if (headerEl)   headerEl.style.display   = 'flex';
     if (viewportEl) viewportEl.style.display = 'block';
+
     regData.codigoInvitacion = inviteCode;
+
     wizUpdateHeader();
     wizGoTo(1, true);
   } else {
@@ -199,6 +207,9 @@ if (desdeCrearLiga) {
     if (headerEl)   headerEl.style.display   = 'none';
     if (viewportEl) viewportEl.style.display = 'none';
   }
+
+  // 🔥 ARRANQUE FORZADO SIEMPRE EN INV
+  wizGoTo('inv', true);
 
   history.pushState({ wizSentinel: true }, '', location.pathname + '#_wiz');
 }
@@ -303,17 +314,26 @@ function wizOnCodigoSelected(val) {
 
 function wizGoTo(next, forward = true) {
   const DURATION = 280;
-  const prevEl = document.getElementById('wiz-step-' + wizStep);
-  const nextEl = document.getElementById('wiz-step-' + next);
+
+  // 🔥 resolver IDs correctamente (inv vs numéricos)
+  const getStepId = (s) => s === 'inv' ? 'wiz-step-inv' : 'wiz-step-' + s;
+
+  const prevEl = document.getElementById(getStepId(wizStep));
+  const nextEl = document.getElementById(getStepId(next));
+
   if (!nextEl) return;
 
+  // 🧹 limpiar animación previa
   if (prevEl && prevEl._wizCleanup) {
     clearTimeout(prevEl._wizCleanup);
     prevEl._wizCleanup = null;
     prevEl.classList.remove('wiz-active');
-    prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
+    prevEl.style.visibility = '';
+    prevEl.style.transition = '';
+    prevEl.style.transform  = '';
   }
 
+  // 🚀 preparar entrada
   nextEl.style.transition = 'none';
   nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-30%)';
   nextEl.style.visibility = 'visible';
@@ -321,56 +341,74 @@ function wizGoTo(next, forward = true) {
 
   requestAnimationFrame(() => {
     const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
+
+    // 🔙 salida del anterior
     if (prevEl) {
       prevEl.style.transition = ease;
       prevEl.style.transform  = forward ? 'translateX(-30%)' : 'translateX(105%)';
+
       prevEl._wizCleanup = setTimeout(() => {
         prevEl._wizCleanup = null;
         prevEl.classList.remove('wiz-active');
-        prevEl.style.visibility = prevEl.style.transition = prevEl.style.transform = '';
+        prevEl.style.visibility = '';
+        prevEl.style.transition = '';
+        prevEl.style.transform  = '';
       }, DURATION + 20);
     }
+
+    // ➡️ entrada del nuevo
     nextEl.style.transition = ease;
     nextEl.style.transform  = 'translateX(0)';
-    setTimeout(() => { nextEl.classList.add('wiz-animate'); }, DURATION + 10);
-    setTimeout(() => {
-  // 🔥 Autofocus inteligente
-  const focusMap = {
-    2: 'reg-nombre',
-    5: 'reg-telefono',
-    7: 'reg-nombreDerby',
-    10: 'reg-alergias',
-    11: 'reg-emergencia'
-  };
 
-  const id = focusMap[next];
-  if (id) {
-    document.getElementById(id)?.focus();
-  }
-}, DURATION + 60);
+    setTimeout(() => {
+      nextEl.classList.add('wiz-animate');
+    }, DURATION + 10);
+
+    // 🎯 autofocus (ahora con strings)
+    setTimeout(() => {
+      const focusMap = {
+        '2': 'reg-nombre',
+        '5': 'reg-telefono',
+        '7': 'reg-nombreDerby',
+        '10': 'reg-alergias',
+        '11': 'reg-emergencia'
+      };
+
+      const id = focusMap[next];
+      if (id) {
+        document.getElementById(id)?.focus();
+      }
+    }, DURATION + 60);
   });
 
+  // 🧠 actualizar estado
   wizStep = next;
-  wizUpdateHeader();
 
+  wizUpdateHeader();
   wizToggleNext(false);
 }
 
 function wizUpdateHeader() {
-  const pos   = wizPositionInSequence();
-  const total = wizStepSequence.length;
+  const idx = wizSequence.indexOf(wizStep);
+  if (idx === -1) return;
+
+  const pos   = idx + 1;
+  const total = wizSequence.length;
+
   const fill  = document.getElementById('wiz-progress-fill');
   const label = document.getElementById('wiz-step-label');
 
+  // 📊 barra de progreso
   if (fill) {
-    fill.style.width = (pos / total * 100) + '%';
+    fill.style.width = ((pos / total) * 100) + '%';
   }
 
-  const stepConfig = WIZ_STEPS_CONFIG[wizStep];
+  // 🏷️ nombre del paso
+  const stepConfig = WIZ_STEPS_CONFIG?.[wizStep];
   const stepName = stepConfig?.label || '';
 
   if (label) {
-    label.textContent = `Paso ${pos} de ${total} • ${stepName}`;
+    label.textContent = `Paso ${pos} de ${total}` + (stepName ? ` • ${stepName}` : '');
   }
 }
 
@@ -388,7 +426,7 @@ const WIZ_STEPS_CONFIG = {
   8: { label: 'Rol' },
   9: { label: 'Asistencia' },
   10: { label: 'Salud' },
-  11: { label: 'Foto' }
+  11: { label: 'Emergencia' }
 };
 
 const WIZ_STEPS = {
@@ -526,59 +564,72 @@ async function wizNext() {
   }
 
   // 🔹 Navegación
-  const idx = wizStepSequence.indexOf(wizStep);
-  let nextStep = wizStepSequence[idx + 1];
+  const idx = wizSequence.indexOf(wizStep);
+  if (idx === -1) return;
 
-  // 🚀 Saltar paso 9 si no es jugadorx
-  if (nextStep === 9 && !esJugadorx(regData.rolJugadorx)) {
-    nextStep = 10;
+  let nextStep = wizSequence[idx + 1];
+
+  // 🚀 Salto condicional (IMPORTANTE: ahora es string)
+  if (nextStep === '9' && !esJugadorx(regData.rolJugadorx)) {
+    nextStep = '10';
   }
 
   // 💾 autosave
   wizSaveDraft();
 
-  if (idx < wizStepSequence.length - 1) {
+  if (nextStep) {
     wizGoTo(nextStep, true);
   }
 }
 
 function wizBack() {
   wizHideError();
-  const idx = wizStepSequence.indexOf(wizStep);
-let prevStep = wizStepSequence[idx - 1];
 
-// 🚀 Saltar paso 9 si no es jugadorx
-if (prevStep === 9 && !esJugadorx(regData.rolJugadorx)) {
-  prevStep = 8;
-}
+  const idx = wizSequence.indexOf(wizStep);
+  if (idx === -1) return;
 
-if (idx > 0) {
-  wizGoTo(prevStep, false);
-} else if (wizOrigen === 'crearLiga') {
-    // Volver al último paso del wizard de liga
+  let prevStep = wizSequence[idx - 1];
+
+  // 🚀 Salto condicional (ahora string)
+  if (prevStep === '9' && !esJugadorx(regData.rolJugadorx)) {
+    prevStep = '8';
+  }
+
+  if (idx > 0 && prevStep) {
+    wizGoTo(prevStep, false);
+    return;
+  }
+
+  // 🔙 Caso especial: volver a wizard de liga
+  if (wizOrigen === 'crearLiga') {
     document.getElementById('registroScreen').style.display = 'none';
     mostrarWizardLiga();
     setTimeout(() => renderWizLigaPaso(_WIZ_LIGA_TOTAL), 400);
     return;
-  } else {
-    const introEl    = document.getElementById('wiz-intro');
-    const headerEl   = document.getElementById('wiz-header');
-    const viewportEl = document.getElementById('wiz-viewport');
-    const s1 = document.getElementById('wiz-step-inv');
-    if (s1) { s1.classList.remove('wiz-active','wiz-animate'); }
-    if (headerEl)   headerEl.style.display   = 'none';
-    if (viewportEl) viewportEl.style.display = 'none';
-    if (introEl) {
-      introEl.style.display   = 'flex';
-      introEl.style.opacity   = '0';
-      introEl.style.transform = 'translateY(24px)';
-      requestAnimationFrame(() => {
-        introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
-        introEl.style.opacity    = '1';
-        introEl.style.transform  = 'translateY(0)';
-        setTimeout(() => { introEl.style.transition = ''; }, 310);
-      });
-    }
+  }
+
+  // 🔙 Volver al intro
+  const introEl    = document.getElementById('wiz-intro');
+  const headerEl   = document.getElementById('wiz-header');
+  const viewportEl = document.getElementById('wiz-viewport');
+
+  const sInv = document.getElementById('wiz-step-inv');
+  if (sInv) sInv.classList.remove('wiz-active','wiz-animate');
+
+  if (headerEl)   headerEl.style.display   = 'none';
+  if (viewportEl) viewportEl.style.display = 'none';
+
+  if (introEl) {
+    introEl.style.display   = 'flex';
+    introEl.style.opacity   = '0';
+    introEl.style.transform = 'translateY(24px)';
+
+    requestAnimationFrame(() => {
+      introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+      introEl.style.opacity    = '1';
+      introEl.style.transform  = 'translateY(0)';
+      setTimeout(() => { introEl.style.transition = ''; }, 310);
+    });
   }
 }
 
@@ -603,11 +654,14 @@ function wizShowError(msg) {
 function wizHideError() { const el = document.getElementById('reg-error'); if (el) el.style.display = 'none'; }
 
 function wizToggleNext(enabled) {
-  const btn = document.getElementById('wiz-next-btn');
+  const currentStepId = wizStep === 'inv' ? 'wiz-step-inv' : 'wiz-step-' + wizStep;
+  const stepEl = document.getElementById(currentStepId);
+  if (!stepEl) return;
+
+  const btn = stepEl.querySelector('.wiz-btn-primary');
   if (!btn) return;
 
   btn.disabled = !enabled;
-
   btn.classList.toggle('wiz-btn-disabled', !enabled);
 }
 
@@ -1819,3 +1873,23 @@ function wizLigaGoTo(renderFn, forward = true) {
     });
   });
 }
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+
+  const action = btn.dataset.action;
+
+  if (action === 'next') {
+    wizLigaPasoSiguiente();
+  }
+
+  if (action === 'back') {
+    wizLigaPasoAnterior();
+  }
+
+  if (action === 'skip') {
+    wizLigaPasoSiguiente();
+  }
+});
+
