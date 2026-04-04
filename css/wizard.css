@@ -224,3 +224,12 @@ textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
   opacity: 0.5;
   pointer-events: none;
 }
+
+.wiz-drag-over {
+  outline: 2px dashed #3b82f6;
+  outline-offset: 4px;
+}
+
+.wiz-remove-img:hover {
+  background: rgba(0,0,0,0.8);
+}

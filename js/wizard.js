@@ -7,6 +7,186 @@
    MOTOR BASE REUTILIZABLE
 ================================ */
 
+// 🔹 UTILIDAD GLOBAL (poner arriba de todo el archivo)
+function procesarImagen(file, { maxWidth = 800, maxHeight = 800, quality = 0.7 } = {}) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = e => {
+      const img = new Image();
+
+      img.onload = () => {
+        let { width, height } = img;
+
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width  = width * ratio;
+          height = height * ratio;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        const isPng = file.type === 'image/png';
+
+const base64 = canvas.toDataURL(
+  isPng ? 'image/png' : 'image/jpeg',
+  quality
+);
+
+        const base64 = canvas.toDataURL('image/jpeg', quality);
+        resolve(base64);
+      };
+
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function bindImageInput({
+  inputId,
+  previewId,
+  placeholderId,
+  stateKey,
+  config = {}
+}) {
+  const input = document.getElementById(inputId);
+  const img = document.getElementById(previewId);
+  const placeholder = document.getElementById(placeholderId);
+
+  if (!input || !img || !placeholder) return;
+
+  // 🧠 evitar múltiples bindings
+  if (input.dataset.bound) return;
+  input.dataset.bound = 'true';
+
+  // ===== helper: mostrar preview =====
+  const showPreview = (base64) => {
+    img.src = base64;
+    img.classList.remove('wiz-hidden');
+    placeholder.classList.add('wiz-hidden');
+
+    // ✨ animación fade-in
+    img.style.opacity = '0';
+    requestAnimationFrame(() => {
+      img.style.transition = 'opacity 0.3s ease';
+      img.style.opacity = '1';
+      setTimeout(() => img.style.transition = '', 300);
+    });
+  };
+
+  // ===== helper: reset =====
+  const resetImage = () => {
+    _wizLiga[stateKey] = null;
+    img.src = '';
+    img.classList.add('wiz-hidden');
+    placeholder.classList.remove('wiz-hidden');
+
+    if (removeBtn) removeBtn.style.display = 'none';
+  };
+
+  // ===== estado inicial =====
+  if (_wizLiga[stateKey]) {
+    showPreview(_wizLiga[stateKey]);
+  } else {
+    img.classList.add('wiz-hidden');
+    placeholder.classList.remove('wiz-hidden');
+  }
+
+  // ===== botón eliminar (auto crear si no existe) =====
+  let removeBtn = input.parentElement.querySelector('.wiz-remove-img');
+
+  if (!removeBtn) {
+    removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = '✕';
+    removeBtn.className = 'wiz-remove-img';
+
+    removeBtn.style.cssText = `
+      position:absolute;
+      top:8px;
+      right:8px;
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      border:none;
+      background:rgba(0,0,0,0.6);
+      color:#fff;
+      cursor:pointer;
+      display:none;
+      z-index:5;
+    `;
+
+    input.parentElement.style.position = 'relative';
+    input.parentElement.appendChild(removeBtn);
+  }
+
+  if (_wizLiga[stateKey]) {
+    removeBtn.style.display = 'block';
+  }
+
+  removeBtn.addEventListener('click', resetImage);
+
+  // ===== procesamiento =====
+  const handleFile = async (file) => {
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      mostrarToastGuardado('⚠️ Solo imágenes');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      mostrarToastGuardado('⚠️ Máximo 5MB');
+      return;
+    }
+
+    try {
+      const base64 = await procesarImagen(file, config);
+
+      _wizLiga[stateKey] = base64;
+
+      showPreview(base64);
+      removeBtn.style.display = 'block';
+
+    } catch (err) {
+      console.error(err);
+      mostrarToastGuardado('❌ Error procesando imagen');
+    }
+  };
+
+  // ===== input normal =====
+  input.addEventListener('change', e => {
+    handleFile(e.target.files?.[0]);
+  });
+
+  // ===== drag & drop =====
+  const dropZone = input.parentElement;
+
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('wiz-drag-over');
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('wiz-drag-over');
+  });
+
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('wiz-drag-over');
+
+    const file = e.dataTransfer.files?.[0];
+    handleFile(file);
+  });
+}
+
 function createWizard(config) {
   let currentStep = config.initialStep;
   const sequence = config.sequence;
@@ -915,16 +1095,6 @@ function initRegistroListeners() {
   });
   });
 
-  // 📱 Selector de código país
-document.getElementById('reg-codigo-btn')?.addEventListener('click', () => {
-  abrirBottomSheet(
-    'Código',
-    REG_CODIGOS,
-    regData.codigoPais || '',
-    wizOnCodigoSelected
-  );
-});
-
 document.addEventListener('click', e => {
   if (e.target.id === 'reg-codigo-btn') {
     abrirBottomSheet(
@@ -1246,36 +1416,16 @@ function renderWizLigaPaso(paso) {
     el.innerHTML = '';
     el.appendChild(tpl.content.cloneNode(true));
 
-    const img = document.getElementById('wiz-liga-img-preview');
-    const placeholder = document.getElementById('wiz-liga-img-placeholder');
-    const input = document.getElementById('wiz-liga-img-input');
-
-    // estado inicial
-    if (_wizLiga.ligaImagenBase64) {
-      img.src = _wizLiga.ligaImagenBase64;
-      img.classList.remove('wiz-hidden');
-      placeholder.classList.add('wiz-hidden');
-    } else {
-      img.classList.add('wiz-hidden');
-      placeholder.classList.remove('wiz-hidden');
-    }
-
-    // cambio de imagen
-    input?.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const base64 = ev.target.result;
-
-        _wizLiga.ligaImagenBase64 = base64;
-
-        img.src = base64;
-        img.classList.remove('wiz-hidden');
-        placeholder.classList.add('wiz-hidden');
-      };
-      reader.readAsDataURL(file);
+    bindImageInput({
+      inputId: 'wiz-liga-img-input',
+      previewId: 'wiz-liga-img-preview',
+      placeholderId: 'wiz-liga-img-placeholder',
+      stateKey: 'ligaImagenBase64',
+      config: {
+        maxWidth: 1000,
+        maxHeight: 1000,
+        quality: 0.75
+      }
     });
 
   }, forward);
@@ -1500,7 +1650,7 @@ function renderWizLigaPaso(paso) {
   return;
   }
 
-  if (paso === 9) {
+if (paso === 9) {
   wizLigaGoTo(el => {
     const tpl = document.getElementById('tpl-wiz-liga-9');
     if (!tpl) return;
@@ -1508,9 +1658,6 @@ function renderWizLigaPaso(paso) {
     el.innerHTML = '';
     el.appendChild(tpl.content.cloneNode(true));
 
-    const img = document.getElementById('wiz-liga-logo-preview');
-    const placeholder = document.getElementById('wiz-liga-logo-placeholder');
-    const input = document.getElementById('wiz-liga-logo-input');
     const wrapColors = document.getElementById('wiz-color-presets');
 
     const colorActual =
@@ -1518,31 +1665,17 @@ function renderWizLigaPaso(paso) {
       document.documentElement.dataset.colorPrimario ||
       '#ef4444';
 
-    // ===== LOGO =====
-    if (_wizLiga.logoBase64) {
-      img.src = _wizLiga.logoBase64;
-      img.classList.remove('wiz-hidden');
-      placeholder.classList.add('wiz-hidden');
-    } else {
-      img.classList.add('wiz-hidden');
-      placeholder.classList.remove('wiz-hidden');
-    }
-
-    input?.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const base64 = ev.target.result;
-
-        _wizLiga.logoBase64 = base64;
-
-        img.src = base64;
-        img.classList.remove('wiz-hidden');
-        placeholder.classList.add('wiz-hidden');
-      };
-      reader.readAsDataURL(file);
+    // ===== LOGO (helper) =====
+    bindImageInput({
+      inputId: 'wiz-liga-logo-input',
+      previewId: 'wiz-liga-logo-preview',
+      placeholderId: 'wiz-liga-logo-placeholder',
+      stateKey: 'logoBase64',
+      config: {
+        maxWidth: 500,
+        maxHeight: 500,
+        quality: 0.8
+      }
     });
 
     // ===== COLORES =====
@@ -1559,7 +1692,6 @@ function renderWizLigaPaso(paso) {
 
         aplicarColorPrimario(color);
 
-        // actualizar selección visual
         [...wrapColors.children].forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
       });
@@ -1569,47 +1701,35 @@ function renderWizLigaPaso(paso) {
 
   }, forward);
   return;
-  }
+}
 
   if (paso === 10) {
-    wizLigaGoTo(el => {
-      const tpl = document.getElementById('tpl-wiz-liga-10');
-      if (!tpl) return;
+  wizLigaGoTo(el => {
+    const tpl = document.getElementById('tpl-wiz-liga-10');
+    if (!tpl) return;
 
-      el.innerHTML = '';
-      el.appendChild(tpl.content.cloneNode(true));
+    el.innerHTML = '';
+    el.appendChild(tpl.content.cloneNode(true));
 
-      const img = document.getElementById('wiz-liga-foto-preview');
-      const placeholder = document.getElementById('wiz-liga-foto-placeholder');
-      const input = document.getElementById('wiz-liga-foto-input');
-      const skip = document.getElementById('wiz-liga-skip-10');
-
-      if (_wizLiga.fotoBase64) {
-        img.src = _wizLiga.fotoBase64;
-        img.classList.remove('wiz-hidden');
-        placeholder.classList.add('wiz-hidden');
+    // ===== FOTO (helper) =====
+    bindImageInput({
+      inputId: 'wiz-liga-foto-input',
+      previewId: 'wiz-liga-foto-preview',
+      placeholderId: 'wiz-liga-foto-placeholder',
+      stateKey: 'fotoBase64',
+      config: {
+        maxWidth: 600,
+        maxHeight: 600,
+        quality: 0.7
       }
+    });
 
-      input?.addEventListener('change', e => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const skip = document.getElementById('wiz-liga-skip-10');
+    skip?.addEventListener('click', wizLigaPasoSiguiente);
 
-        const reader = new FileReader();
-        reader.onload = ev => {
-          _wizLiga.fotoBase64 = ev.target.result;
-
-          img.src = ev.target.result;
-          img.classList.remove('wiz-hidden');
-          placeholder.classList.add('wiz-hidden');
-        };
-        reader.readAsDataURL(file);
-      });
-
-      skip?.addEventListener('click', wizLigaPasoSiguiente);
-
-    }, forward);
-    return;
-  }
+  }, forward);
+  return;
+}
 
   if (paso === 11) {
   wizLigaGoTo(el => {
@@ -1783,7 +1903,6 @@ if (paso === 20) {
       e => _wizLiga.contactoEmergencia = e.target.value;
   }, forward);
   return;
-}
 } 
 
 function wizLigaPasoSiguiente() {
