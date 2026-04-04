@@ -1,7 +1,26 @@
-<!-- REGISTRO — WIZARD PASO A PASO -->
+<!-- ============================================================
+     PIVOT APP — wizard.html
+     Wizard de registro + Wizard de liga (unificado)
+     ============================================================ -->
+
+<!-- ══ OVERLAY DE CARGA (compartido entre ambos wizards) ══ -->
+<div id="wiz-loading-overlay" style="display:none;">
+  <div class="wiz-loading-content">
+    <div class="wiz-loading-rink">
+      <div class="wiz-skater">🛼</div>
+      <div class="wiz-rink-ring wiz-rink-ring-1"></div>
+      <div class="wiz-rink-ring wiz-rink-ring-2"></div>
+      <div class="wiz-rink-ring wiz-rink-ring-3"></div>
+    </div>
+    <p class="wiz-loading-title">Creando tu perfil</p>
+    <p class="wiz-loading-sub" id="wiz-loading-sub">Preparando todo para vos…</p>
+  </div>
+</div>
+
+<!-- ══ WIZARD REGISTRO ══ -->
 <div id="registroScreen" style="display:none;">
 
-  <!-- PASO 0: Login con Google -->
+  <!-- PANTALLA 0: Login con Google -->
   <div id="wiz-google-login-screen" class="wiz-intro-screen" style="display:none;">
     <div class="wiz-intro-bg">
       <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
@@ -12,13 +31,8 @@
       <div class="wiz-intro-logo">👋</div>
       <h1 class="wiz-intro-title">¡Bienvenidx<br>al equipo!</h1>
       <p class="wiz-intro-sub">Para crear tu perfil necesitamos identificarte. Inicia sesión — todo el proceso toma menos de 2 minutos.</p>
-      <!-- Disclaimer Login con Google desactivado
-      <div class="wiz-step0-note">
-        <span class="material-icons" style="font-size:18px;opacity:0.6;">info</span>
-        <span>Solo se admiten cuentas de Google.</span>
-      </div>-->
       <div id="wiz-google-btn" class="login-google-btn-wrap" style="margin:24px auto 0;"></div>
-      <button class="wiz-skip-btn" onclick="wizStep0Volver()">Volver</button>
+      <button class="wiz-btn-secondary" onclick="wizStep0Volver()">Volver</button>
     </div>
   </div>
 
@@ -55,10 +69,11 @@
         <span>Comenzar</span>
         <span class="material-icons">arrow_forward</span>
       </button>
-      <button class="wiz-skip-btn" onclick="wizIntroVolver()">Volver</button>
+      <button class="wiz-btn-secondary" onclick="wizIntroVolver()">Volver</button>
     </div>
   </div>
 
+  <!-- HEADER DEL WIZARD REGISTRO -->
   <div class="wiz-header" id="wiz-header" style="display:none;">
     <button type="button" class="wiz-back-btn" id="wiz-back-btn">
       <span class="material-icons">arrow_back</span>
@@ -71,10 +86,10 @@
     </div>
   </div>
 
+  <!-- VIEWPORT DE PASOS REGISTRO -->
   <div class="wiz-viewport" id="wiz-viewport" style="display:none;">
 
-
-    <!-- PASO 0: Código de invitación -->
+    <!-- PASO INV: Código de invitación -->
     <div class="wiz-step" id="wiz-step-inv">
       <div class="wiz-bg-emoji" aria-hidden="true">🔑</div>
       <div class="wiz-step-inner">
@@ -84,11 +99,11 @@
         <div class="wiz-content">
           <label class="reg-label">Código <span class="reg-required">*</span></label>
           <input id="reg-codigo-inv" class="reg-input" type="text"
-                placeholder="Ej: QUINDES2026"
-                autocomplete="off" maxlength="40"
-                onkeydown="if(event.key==='Enter') wizNext()">
-          <div id="wiz-codigo-autocargado" style="display:none;margin-top:4px;">
-            <span style="font-size:13px;color:#22c55e;font-weight:600;">✓ Código recibido automáticamente</span>
+                 placeholder="Ej: PIVOT2026"
+                 autocomplete="off" maxlength="40"
+                 onkeydown="if(event.key==='Enter') wizNext()">
+          <div id="wiz-codigo-autocargado" style="display:none;">
+            <span class="wiz-codigo-ok">✓ Código recibido automáticamente</span>
           </div>
         </div>
         <div class="wiz-actions">
@@ -96,6 +111,7 @@
         </div>
       </div>
     </div>
+
     <!-- PASO 1: Foto -->
     <div class="wiz-step" id="wiz-step-1">
       <div class="wiz-bg-emoji" aria-hidden="true">📸</div>
@@ -106,7 +122,7 @@
         <div class="wiz-content">
           <div class="reg-foto-center">
             <div class="reg-avatar" id="wiz-c-avatar" onclick="regAbrirFoto()">
-              <img id="wiz-c-avatar-img" src="" alt="" style="display:none;">
+              <img id="reg-avatar-img" src="" alt="" style="display:none;">
               <span class="material-icons reg-avatar-placeholder" id="reg-avatar-placeholder">add_a_photo</span>
               <div class="reg-avatar-overlay" id="reg-avatar-overlay" style="display:none;">
                 <span class="material-icons">photo_camera</span>
@@ -120,7 +136,7 @@
           <button class="wiz-btn-primary" id="wiz-btn-foto" onclick="wizNext()" style="display:none;">
             Continuar <span class="material-icons">arrow_forward</span>
           </button>
-          <button class="wiz-skip-btn" onclick="wizNext()">Omitir por ahora</button>
+          <button class="wiz-btn-secondary" onclick="wizNext()">Omitir por ahora</button>
         </div>
       </div>
     </div>
@@ -151,7 +167,7 @@
       <div class="wiz-step-inner">
         <div class="wiz-emoji">🏳️‍🌈</div>
         <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
-        <p class="wiz-desc">Elige los pronombres con los que más te identificas y con los que quieres que te reconozcan en el equipo. Es opcional.</p>
+        <p class="wiz-desc">Elige los pronombres con los que más te identificas. Es opcional.</p>
         <div class="wiz-content">
           <div id="reg-pronombres-chips" class="wiz-chips"></div>
         </div>
@@ -212,7 +228,7 @@
       <div class="wiz-step-inner">
         <div class="wiz-emoji">🎂</div>
         <h2 class="wiz-title">¡Fecha de cumpleaños!</h2>
-        <p class="wiz-desc">Ingresa tu fecha de nacimiento. Luego elige qué quieres que sea visible para el equipo. Si prefieres privacidad total, solo tus entrenadorxs verán esos datos.</p>
+        <p class="wiz-desc">Ingresa tu fecha de nacimiento. Luego elige qué quieres que sea visible para el equipo.</p>
         <div class="wiz-content">
           <label class="reg-label">Fecha de nacimiento <span class="reg-required">*</span></label>
           <button type="button" id="reg-fecha-btn" class="reg-selector-btn">
@@ -243,20 +259,20 @@
       <div class="wiz-step-inner">
         <div class="wiz-emoji">⭐</div>
         <h2 class="wiz-title">Datos Derby <span class="wiz-optional-badge">opcional</span></h2>
-        <p class="wiz-desc">Completa tu nombre y número derby. Si aún no tienes uno o no sabes cuál poner, no te preocupes, puedes completarlo más adelante.</p>
+        <p class="wiz-desc">Completa tu nombre y número derby. Si aún no tienes uno, puedes completarlo más adelante.</p>
         <div class="wiz-content">
           <label class="reg-label">Nombre Derby</label>
           <input id="reg-nombreDerby" class="reg-input" type="text"
                  placeholder="Ej: Roller Manía, La Tormenta…" maxlength="60"
                  onkeydown="if(event.key==='Enter') document.getElementById('reg-numero').focus()">
-          <label class="reg-label" style="margin-top:4px;">Número Derby</label>
+          <label class="reg-label">Número Derby</label>
           <input id="reg-numero" class="reg-input" type="text"
                  placeholder="Ej: 13, 666, 007…" maxlength="10"
                  onkeydown="if(event.key==='Enter') wizNext()">
         </div>
         <div class="wiz-actions">
           <button class="wiz-btn-primary" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-          <button class="wiz-skip-btn" onclick="wizNext()">Omitir por ahora</button>
+          <button class="wiz-btn-secondary" onclick="wizNext()">Omitir por ahora</button>
         </div>
       </div>
     </div>
@@ -267,7 +283,7 @@
       <div class="wiz-step-inner">
         <div class="wiz-emoji">🏅</div>
         <h2 class="wiz-title">Tu rol en el equipo</h2>
-        <p class="wiz-desc">Selecciona tu rol dentro del equipo. Si no estás segurx de cuál es, elige <strong>"No definido"</strong> y puedes cambiarlo después.</p>
+        <p class="wiz-desc">Selecciona tu rol dentro del equipo. Si no estás segurx, elige <strong>"No definido"</strong> y puedes cambiarlo después.</p>
         <div class="wiz-content">
           <div id="reg-rol-chips" class="wiz-chips"></div>
         </div>
@@ -299,25 +315,25 @@
       <div class="wiz-step-inner">
         <div class="wiz-emoji">🩺</div>
         <h2 class="wiz-title">Tu salud nos importa <span class="wiz-optional-badge">opcional</span></h2>
-        <p class="wiz-desc">Cuéntanos si tienes alergias a alimentos o medicamentos, o alguna condición de salud que debamos conocer. Esta información es estrictamente confidencial y se usa solo para tu seguridad.</p>
+        <p class="wiz-desc">Cuéntanos si tienes alergias o condiciones de salud que debamos conocer. Esta información es estrictamente confidencial.</p>
         <div class="wiz-content">
           <label class="reg-label">Alergias o condiciones de salud</label>
           <input id="reg-alergias" class="reg-input" type="text"
                  placeholder="Ej: Alergia a la penicilina, asma…" maxlength="200"
                  onkeydown="if(event.key==='Enter') document.getElementById('reg-dieta').focus()">
-          <label class="reg-label" style="margin-top:4px;">Dieta especial</label>
+          <label class="reg-label">Dieta especial</label>
           <input id="reg-dieta" class="reg-input" type="text"
                  placeholder="Ej: Vegetariana, sin gluten…" maxlength="100"
                  onkeydown="if(event.key==='Enter') wizNext()">
         </div>
         <div class="wiz-actions">
           <button class="wiz-btn-primary" onclick="wizNext()">Continuar <span class="material-icons">arrow_forward</span></button>
-          <button class="wiz-skip-btn" onclick="wizNext()">Omitir por ahora</button>
+          <button class="wiz-btn-secondary" onclick="wizNext()">Omitir por ahora</button>
         </div>
       </div>
     </div>
 
-    <!-- PASO 11: Contacto de emergencia -->
+    <!-- PASO 11: Contacto de emergencia (último) -->
     <div class="wiz-step" id="wiz-step-11">
       <div class="wiz-bg-emoji" aria-hidden="true">🆘</div>
       <div class="wiz-step-inner">
@@ -334,7 +350,7 @@
           <button id="reg-submit" class="wiz-btn-primary" onclick="submitRegistro()">
             <span class="material-icons">check_circle</span> ¡Crear mi perfil!
           </button>
-          <button class="wiz-skip-btn" onclick="regData.contactoEmergencia=''; submitRegistro()">Omitir y finalizar</button>
+          <button class="wiz-btn-secondary" onclick="regData.contactoEmergencia=''; submitRegistro()">Omitir y finalizar</button>
           <p class="reg-note">Al crear tu perfil aceptas los <strong>términos y condiciones</strong> y el uso de tus datos personales.</p>
         </div>
       </div>
@@ -342,26 +358,15 @@
 
   </div><!-- /wiz-viewport -->
 
-  <div id="reg-error" class="wiz-error-toast" style="display:none;position:fixed;"></div>
+  <div id="reg-error" class="wiz-error-toast" style="display:none;"></div>
 
-  <!-- Overlay de carga -->
-  <div id="wiz-loading-overlay" style="display:none;">
-    <div class="wiz-loading-content">
-      <div class="wiz-loading-rink">
-        <div class="wiz-skater">🛼</div>
-        <div class="wiz-rink-ring wiz-rink-ring-1"></div>
-        <div class="wiz-rink-ring wiz-rink-ring-2"></div>
-        <div class="wiz-rink-ring wiz-rink-ring-3"></div>
-      </div>
-      <p class="wiz-loading-title">Creando tu perfil</p>
-      <p class="wiz-loading-sub" id="wiz-loading-sub">Preparando todo para vos…</p>
-    </div>
-  </div>
-</div>
+</div><!-- /registroScreen -->
 
-<!-- WIZARD LIGA -->
+
+<!-- ══ WIZARD LIGA ══ -->
 <div id="wiz-liga-overlay" class="wiz-equipo-overlay">
 
+  <!-- INTRO LIGA -->
   <div id="wiz-liga-intro" class="wiz-liga-intro-screen">
     <div class="wiz-intro-bg">
       <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
@@ -379,7 +384,8 @@
     </div>
   </div>
 
-  <div class="wiz-equipo-header" id="wiz-header" style="display:none;">
+  <!-- HEADER LIGA (id único, distinto al de registro) -->
+  <div class="wiz-equipo-header" id="wiz-liga-header" style="display:none;">
     <div class="wiz-progress-wrap">
       <div class="wiz-progress-bar">
         <div class="wiz-progress-fill" id="wiz-liga-progress-fill"></div>
@@ -388,17 +394,20 @@
     </div>
   </div>
 
+  <!-- CONTENIDO DINÁMICO (pasos se inyectan aquí desde templates) -->
   <div class="wiz-equipo-contenido" id="wiz-liga-contenido"></div>
 
+  <!-- FOOTER LIGA -->
   <div class="wiz-equipo-footer" id="wiz-liga-footer" style="display:none;">
-    <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-eq-btn-back">Atrás</button>
+    <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-btn-secondary">Atrás</button>
   </div>
 
-</div>
-<!-- /wiz-liga-overlay -->
+</div><!-- /wiz-liga-overlay -->
 
-<!-- WIZARD LIGA TEMPLATES -->
 
+<!-- ══ TEMPLATES DEL WIZARD DE LIGA ══ -->
+
+<!-- PASO 1: Login Google -->
 <template id="tpl-wiz-liga-1">
   <div class="wiz-step-inner">
     <div class="wiz-intro-bg">
@@ -414,6 +423,7 @@
   </div>
 </template>
 
+<!-- PASO 2: Nombre de la liga -->
 <template id="tpl-wiz-liga-2">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏟️</div>
@@ -428,6 +438,7 @@
   </div>
 </template>
 
+<!-- PASO 3: Logo de la liga -->
 <template id="tpl-wiz-liga-3">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🖼️</div>
@@ -436,19 +447,20 @@
     <div class="wiz-content">
       <div class="wiz-liga-avatar-wrap">
         <label class="wiz-liga-avatar" id="wiz-liga-img-label">
-          <img id="wiz-liga-img-preview" class="wiz-hidden" />
-          <span id="wiz-liga-img-placeholder" class="material-icons">add_photo_alternate</span>
+          <img id="wiz-liga-img-preview" class="wiz-hidden wiz-liga-avatar-img" />
+          <span id="wiz-liga-img-placeholder" class="material-icons wiz-liga-avatar-ph">add_photo_alternate</span>
           <input id="wiz-liga-img-input" type="file" accept="image/*" style="display:none;">
         </label>
       </div>
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 4: País y ciudad de la liga -->
 <template id="tpl-wiz-liga-4">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🌎</div>
@@ -458,22 +470,23 @@
       <select id="wiz-liga-pais-sel" class="reg-input">
         <option value="">Seleccionar país…</option>
       </select>
-      <div id="wiz-liga-ciudad-wrap" class="wiz-hidden" style="margin-top:12px;">
+      <div id="wiz-liga-ciudad-wrap" class="wiz-hidden">
         <select id="wiz-liga-ciudad-sel" class="reg-input">
           <option value="">Seleccionar ciudad…</option>
         </select>
-        <div id="wiz-liga-ciudad-custom-wrap" class="wiz-hidden" style="margin-top:8px;">
+        <div id="wiz-liga-ciudad-custom-wrap" class="wiz-hidden">
           <input id="wiz-liga-ciudad-custom" type="text" placeholder="Escribe tu ciudad" class="reg-input">
         </div>
       </div>
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 5: Año y descripción -->
 <template id="tpl-wiz-liga-5">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">📅</div>
@@ -481,15 +494,16 @@
     <p class="wiz-desc">Año de fundación y una descripción de tu liga.</p>
     <div class="wiz-content">
       <input id="wiz-liga-anio" type="number" placeholder="Año de fundación (ej: 2018)" class="reg-input">
-      <textarea id="wiz-liga-descripcion" placeholder="Describe tu liga: misión, origen, valores…" rows="4" maxlength="500" class="reg-input" style="margin-top:12px;"></textarea>
+      <textarea id="wiz-liga-descripcion" placeholder="Describe tu liga: misión, origen, valores…" rows="4" maxlength="500" class="reg-input"></textarea>
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 6: Contacto social -->
 <template id="tpl-wiz-liga-6">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">📬</div>
@@ -500,11 +514,12 @@
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 7: Nombre del equipo -->
 <template id="tpl-wiz-liga-7">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🛼</div>
@@ -519,6 +534,7 @@
   </div>
 </template>
 
+<!-- PASO 8: Categoría del equipo -->
 <template id="tpl-wiz-liga-8">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏆</div>
@@ -529,11 +545,12 @@
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 9: Logo del equipo y color -->
 <template id="tpl-wiz-liga-9">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🎨</div>
@@ -542,21 +559,22 @@
     <div class="wiz-content">
       <div class="wiz-liga-avatar-wrap">
         <label class="wiz-liga-avatar">
-          <img id="wiz-liga-logo-preview" class="wiz-hidden" />
-          <span id="wiz-liga-logo-placeholder" class="material-icons">add_photo_alternate</span>
+          <img id="wiz-liga-logo-preview" class="wiz-hidden wiz-liga-avatar-img" />
+          <span id="wiz-liga-logo-placeholder" class="material-icons wiz-liga-avatar-ph">add_photo_alternate</span>
           <input id="wiz-liga-logo-input" type="file" accept="image/*" style="display:none;">
         </label>
       </div>
-      <p class="reg-label" style="margin:16px 0 8px;">Color de énfasis</p>
+      <p class="reg-label">Color de énfasis</p>
       <div class="wiz-color-presets" id="wiz-color-presets"></div>
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 10: Foto del admin -->
 <template id="tpl-wiz-liga-10">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">📸</div>
@@ -573,11 +591,12 @@
       </div>
     </div>
     <div class="wiz-actions">
-      <button class="wiz-skip-btn" id="wiz-liga-skip-10" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" id="wiz-liga-skip-10" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 11: Nombre del perfil admin -->
 <template id="tpl-wiz-liga-11">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">✨</div>
@@ -592,6 +611,7 @@
   </div>
 </template>
 
+<!-- PASO 12: Pronombres -->
 <template id="tpl-wiz-liga-12">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏳️‍🌈</div>
@@ -602,11 +622,12 @@
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 13: País de origen del admin -->
 <template id="tpl-wiz-liga-13">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🌎</div>
@@ -620,11 +641,12 @@
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 14: Teléfono del admin -->
 <template id="tpl-wiz-liga-14">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">📱</div>
@@ -641,11 +663,12 @@
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 15: Fecha de nacimiento del admin -->
 <template id="tpl-wiz-liga-15">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🎂</div>
@@ -659,11 +682,11 @@
       <div class="wiz-privacy-box">
         <p class="wiz-privacy-title">¿Qué ven tus compañerxs? 👀</p>
         <div class="wiz-privacy-row">
-          <span>Mostrar fecha 🎉</span>
+          <span class="wiz-privacy-q">Mostrar fecha 🎉</span>
           <div id="wiz-liga-cumple-chips" class="wiz-chips-inline"></div>
         </div>
         <div class="wiz-privacy-row">
-          <span>Mostrar edad 🔢</span>
+          <span class="wiz-privacy-q">Mostrar edad 🔢</span>
           <div id="wiz-liga-edad-chips" class="wiz-chips-inline"></div>
         </div>
       </div>
@@ -674,22 +697,24 @@
   </div>
 </template>
 
+<!-- PASO 16: Datos derby del admin -->
 <template id="tpl-wiz-liga-16">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">⭐</div>
-    <h2 class="wiz-title">Datos Derby</h2>
-    <p class="wiz-desc">Opcional.</p>
+    <h2 class="wiz-title">Datos Derby <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Tu nombre y número derby.</p>
     <div class="wiz-content">
       <input id="wiz-liga-perfil-derby" class="reg-input" placeholder="Nombre Derby">
-      <input id="wiz-liga-perfil-numero" class="reg-input" style="margin-top:12px;" placeholder="Número Derby">
+      <input id="wiz-liga-perfil-numero" class="reg-input" placeholder="Número Derby">
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 17: Rol del admin -->
 <template id="tpl-wiz-liga-17">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏅</div>
@@ -704,6 +729,7 @@
   </div>
 </template>
 
+<!-- PASO 18: Asistencia del admin -->
 <template id="tpl-wiz-liga-18">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏋️</div>
@@ -718,33 +744,35 @@
   </div>
 </template>
 
+<!-- PASO 19: Salud del admin -->
 <template id="tpl-wiz-liga-19">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🩺</div>
-    <h2 class="wiz-title">Tu salud nos importa</h2>
+    <h2 class="wiz-title">Tu salud nos importa <span class="wiz-optional-badge">opcional</span></h2>
     <p class="wiz-desc">Alergias, condiciones o dieta especial. Solo lo ven los admins.</p>
     <div class="wiz-content">
       <input id="wiz-liga-perfil-alergias" class="reg-input" placeholder="Alergias o condiciones">
-      <input id="wiz-liga-perfil-dieta" class="reg-input" style="margin-top:12px;" placeholder="Dieta especial">
+      <input id="wiz-liga-perfil-dieta" class="reg-input" placeholder="Dieta especial">
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
+<!-- PASO 20: Contacto de emergencia del admin -->
 <template id="tpl-wiz-liga-20">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🆘</div>
-    <h2 class="wiz-title">Contacto de emergencia</h2>
+    <h2 class="wiz-title">Contacto de emergencia <span class="wiz-optional-badge">opcional</span></h2>
     <p class="wiz-desc">Nombre y teléfono de alguien de confianza. Solo para emergencias.</p>
     <div class="wiz-content">
       <input id="wiz-liga-perfil-emergencia" class="reg-input" placeholder="Ej: María García +593 999 123456">
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
+      <button class="wiz-btn-secondary" data-action="next">Omitir por ahora</button>
     </div>
   </div>
 </template>
