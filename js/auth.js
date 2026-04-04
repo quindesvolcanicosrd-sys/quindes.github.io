@@ -234,7 +234,7 @@ function onGoogleSignIn(response) {
   window._googleEmail = email;
   // Si el wizard de crear liga está abierto en paso 1 (login), avanzar al paso 2
   const wizLiga = document.getElementById('wiz-liga-overlay');
-  if (wizLiga) {
+  if (wizLiga && wizLiga.classList.contains('visible')) {
     if (_wizLigaPaso === 1) renderWizLigaPaso(2);
     return;
   }
