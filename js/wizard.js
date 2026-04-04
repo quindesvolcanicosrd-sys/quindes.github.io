@@ -1449,7 +1449,7 @@ function wizLigaGoTo(renderFn, forward = true) {
   if (viewport._wizAnimating) return;
   const DURATION = 280;
   viewport._wizAnimating = true;
-  const prevEl = viewport.querySelector('.wiz-step.wiz-active .wiz-step-inner');
+  const prevEl = viewport.querySelector('.wiz-liga-step');
 
   const nextEl = document.createElement('div');
   nextEl.className = 'wiz-liga-step';
