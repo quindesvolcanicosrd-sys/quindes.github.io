@@ -1451,9 +1451,9 @@ function wizLigaGoTo(renderFn, forward = true) {
   nextEl.style.transition = 'none';
   viewport.appendChild(nextEl);
 
-  renderFn(nextEl);
-
   requestAnimationFrame(() => {
+    renderFn(nextEl);
+    requestAnimationFrame(() => {
     const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
     if (prevEl) {
       prevEl.style.transition = ease;
@@ -1461,12 +1461,13 @@ function wizLigaGoTo(renderFn, forward = true) {
       setTimeout(() => prevEl.remove(), DURATION + 20);
     }
     nextEl.style.transition = ease;
-    nextEl.style.transform  = 'translateX(0)';
-    setTimeout(() => {
-      nextEl.style.transition = '';
-      nextEl.style.transform  = '';
-      nextEl.classList.add('wiz-liga-step--animated');
-      viewport._wizAnimating = false;
-    }, DURATION + 20);
+      nextEl.style.transform  = 'translateX(0)';
+      setTimeout(() => {
+        nextEl.style.transition = '';
+        nextEl.style.transform  = '';
+        nextEl.classList.add('wiz-liga-step--animated');
+        viewport._wizAnimating = false;
+      }, DURATION + 20);
+    });
   });
 }

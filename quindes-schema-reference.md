@@ -1,93 +1,146 @@
-Pivot App — Referencia de Schema para Supabase
+# Pivot App — Referencia de Schema para Supabase
 
 ⚠️ App renombrada de "Quindes Volcánicos" a Pivot — rebranding en proceso
-Última actualización: 2026-04-01 (sesión 5)
+Última actualización: 2026-04-02 (sesión 6)
 Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 
-⚠️ INSTRUCCIONES CRÍTICAS PARA CLAUDE/CHATGPT/GEMINI — LEER ANTES DE CUALQUIER COSA
-Atención al contexto — NO dar vueltas en círculo
+## ⚠️ INSTRUCCIONES CRÍTICAS PARA CLAUDE — LEER ANTES DE CUALQUIER COSA
 
-Leer el schema COMPLETO antes de escribir una sola línea de código
-Antes de proponer una solución, verificar si ya existe algo en el código que la resuelva
-Si Víctor dice que algo no funciona o ya lo intentó, NO repetir la misma propuesta
-Si hay un error de sintaxis, pedirle a Víctor el fragmento exacto de las líneas afectadas ANTES de proponer un fix
-NO proponer soluciones que requieran múltiples archivos sin confirmar que Víctor tiene contexto de todos ellos
-Si algo falló varias veces, cambiar de enfoque — no insistir con la misma estrategia
+### Atención al contexto — NO dar vueltas en círculo
+- Leer el schema COMPLETO antes de escribir una sola línea de código
+- Antes de proponer una solución, verificar si ya existe algo en el código que la resuelva
+- Si Víctor dice que algo no funciona o ya lo intentó, NO repetir la misma propuesta
+- Si hay un error de sintaxis, pedirle a Víctor el fragmento exacto de las líneas afectadas ANTES de proponer un fix
+- NO proponer soluciones que requieran múltiples archivos sin confirmar que Víctor tiene contexto de todos ellos
+- Si algo falló varias veces, cambiar de enfoque — no insistir con la misma estrategia
 
-Formato de instrucciones de código — SIEMPRE así
-Cuando hay que modificar cualquier archivo, Claude, Chat gpt o Gemini debe dar instrucciones en formato buscar/reemplazar, nunca pegar archivos enteros. El formato es:
+### Formato de instrucciones de código — SIEMPRE así
+Cuando hay que modificar cualquier archivo, Claude debe dar instrucciones en formato buscar/reemplazar, nunca pegar archivos enteros. El formato es:
+
 Buscar en archivo.js:
 [bloque exacto tal como aparece en el archivo]
 Reemplazar:
 [nuevo bloque]
 
-Usar Replace (no Replace All) salvo que se indique explícitamente
-Si hay múltiples cambios, numerarlos: Cambio 1, Cambio 2, etc.
-Nunca pegar el archivo completo — solo los bloques afectados
-Si Claude, Chat gpt o Gemini necesita ver el código actual, pedir solo el fragmento relevante (a menos que sea estrictamente necesario todo el archivo)
-NUNCA dar un buscar/reemplazar sin haber visto el fragmento exacto del archivo actual 
+- Usar Replace (no Replace All) salvo que se indique explícitamente
+- Si hay múltiples cambios, numerarlos: Cambio 1, Cambio 2, etc.
+- Nunca pegar el archivo completo — solo los bloques afectados
+- Si Claude necesita ver el código actual, pedir solo el fragmento relevante
+- NUNCA dar un buscar/reemplazar sin haber visto el fragmento exacto del archivo actual
 
-Qué evitar
+### Qué evitar
+- No dar bloques de código sin contexto de dónde van
+- No decir "agregá esto al final" sin especificar después de qué
+- No hacer preguntas múltiples en un mismo mensaje — una cosa a la vez
+- No explicar en detalle lo que ya funciona — ir directo a lo que falta
+- No pedir confirmación innecesaria — si el cambio es claro, darlo directamente
+- No proponer soluciones que ya fallaron antes en la misma sesión
+- No pedir archivos completos — pedir solo la función o bloque relevante
 
-No dar bloques de código sin contexto de dónde van
-No decir "agregá esto al final" sin especificar después de qué
-No hacer preguntas múltiples en un mismo mensaje — una cosa a la vez
-No explicar en detalle lo que ya funciona — ir directo a lo que falta
-No pedir confirmación innecesaria — si el cambio es claro, darlo directamente
-No proponer soluciones que ya fallaron antes en la misma sesión
-No pedir archivos completos — pedir solo la función o bloque relevante
 
+## ⚠️ REGLAS DE CÓDIGO — NO NEGOCIABLES
 
-⚠️ REGLAS DE CÓDIGO — NO NEGOCIABLES
-Separación estricta de responsabilidades
-CSS  → solo en archivos css/
-JS   → solo en archivos js/
-HTML → solo en archivos html/ o index.html
+### Separación estricta de responsabilidades
+- CSS → solo en archivos css/
+- JS → solo en archivos js/
+- HTML → solo en archivos html/ o index.html
+
 Nunca:
-
-style= inline en HTML (excepto display:none para estado inicial controlado por JS)
-style.cssText = '...' en JS para construir elementos con estilos
-innerHTML con atributos style= dentro de JS
-Bloques <style> o <script> dentro de archivos HTML
-Bloques <html> o <css> dentro de archivos SCRIPT
+- `style=` inline en HTML (excepto `display:none` para estado inicial controlado por JS)
+- `style.cssText = '...'` en JS para construir elementos con estilos (excepción: `lanzarConfetti()` — valores aleatorios calculados en runtime)
+- `innerHTML` con atributos `style=` dentro de JS
+- Bloques `<style>` o `<script>` dentro de archivos HTML
 
 Siempre:
+- Si un elemento dinámico necesita estilos → crear la clase en el CSS correspondiente y asignar con `className` o `classList`
+- Si el estado cambia → usar `classList.toggle('clase', condicion)` en vez de `style.opacity` / `style.pointerEvents`
 
-Si un elemento dinámico necesita estilos → crear la clase en el CSS correspondiente y asignar con className o classList
-Si el estado cambia → usar classList.toggle('clase', condicion) en vez de style.opacity / style.pointerEvents
-
-Reutilizar antes de crear
+### Reutilizar antes de crear
 Antes de escribir cualquier clase CSS o componente nuevo, verificar si ya existe en:
+- `global.css` — tokens, reset, animaciones globales, temas forzados, sec-group/sec-row/sec-row-toggle, toggles, chips, date picker, toasts, edit-field, bs-overlay, spacers, is-disabled, color picker
+- `ajustes.css` — ajustes, perfil, hero card, wizard de equipo, inv-, apr-, acerca-, notif-, equipo-, liga-
+- `wizard.css` — wizard de registro y liga (unificado desde sesión 6)
+- `nav.css` / `loader.css` / `login.css` — sus contextos específicos
 
-global.css — tokens, reset, animaciones globales, temas forzados, sec-group/sec-row/sec-row-toggle, toggles, chips, date picker, toasts, edit-field, bs-overlay, spacers, is-disabled, color picker
-ajustes.css — ajustes, perfil, hero card, wizard de equipo, inv-, apr-, acerca-, notif-, equipo-, liga-
-wizard.css — wizard de registro
-nav.css / loader.css / login.css — sus contextos específicos
+### Sistema de componentes ya definido
 
-El sistema de componentes ya definido:
-ComponenteClases baseDónde estáGrupo de filas.sec-groupglobal.cssFila base.sec-rowglobal.cssFila de navegación (con ícono).sec-row.sec-row--navglobal.css + ajustes.cssFila tappable.sec-row.sec-row-tappableglobal.cssFila toggle.sec-row-toggleglobal.cssÍcono de color (settings).sec-row-ico.ico-*ajustes.cssLabel de sección.sec-label-headerglobal.cssNota informativa.sec-noteglobal.cssSpacer.spacer / .spacer-lg / .spacer-32global.cssEstado deshabilitado.is-disabledglobal.cssSin borde inferior.sec-row--no-borderglobal.cssToast.toast + mostrarToastGuardado(msg)global.css + ui.jsBottom sheet editor.edit-field-overlay / .edit-field-sheetglobal.cssModal confirmación (bottom sheet).modal-confirm-overlay / .modal-confirm-sheetajustes.cssModal borrar perfil.dialog-borrar-overlay / .dialog-borrar-cardajustes.cssModal cuenta borrada.modal-cuenta-borradaajustes.cssOverlay fullscreen éxito.overlay-fullscreen-successajustes.cssWizard crear equipo/liga.wiz-equipo-overlay / .wiz-equipo-header / .wiz-equipo-contenido / .wiz-equipo-footerajustes.cssContenido de paso (wizard liga/equipo).wiz-emoji / .wiz-title / .wiz-desc / .wiz-contentwizard.css — reutilizarInput de wizard.reg-input / .wiz-big-inputwizard.css — reutilizarSelector de wizard.reg-selector-btn / .reg-selector-valwizard.css — reutilizarFila teléfono.reg-phone-row / .reg-codigo-btn / .reg-tel-inputwizard.css — reutilizarChips de wizard.wiz-chips + .chip / .chip-active / .chip-inactivewizard.css + global.cssAvatar subida imagen.wiz-liga-avatar / .wiz-liga-avatar-wrap / .wiz-liga-avatar-img / .wiz-liga-avatar-phajustes.cssNota opcional.reg-notewizard.css — reutilizarBotón omitir.wiz-skip-btnajustes.cssBotón omitir (wizard.css).wiz-btn-skipwizard.cssPaís autocomplete.wiz-pais-wrap / .wiz-pais-lista / .wiz-liga-pais-itemajustes.cssIntro wizard liga.wiz-liga-intro-contentajustes.css — reutiliza .wiz-intro-* de wizard.cssElemento oculto.wiz-hiddenajustes.csstextarea como inputtextarea.reg-inputajustes.cssGoogle btn wrap.wiz-liga-google-wrapajustes.cssBotón primario.inv-btn.inv-btn-primaryajustes.cssBotón secundario.inv-btn.inv-btn-secondaryajustes.cssBotón ghost.inv-btn.inv-btn-ghostajustes.cssBotón peligro.home-btn-deleteglobal.cssToggle switch.toggle-btn / .toggle-on / .toggle-offglobal.cssItem de equipo (Mi Liga).equipo-item / .equipo-header / .equipo-nombre / .equipo-footerajustes.cssPantalla ya registrada.ya-registrada-screen / .ya-registrada-contentglobal.cssEstado guardando.sec-val-savingglobal.cssCheck en selector.edit-search-checkajustes.cssColor picker admin.color-picker-overlay / .color-picker-sheet / .color-swatch-btnglobal.cssBadge estado archivo.file-badge / .file-badge-ok / .file-badge-missingajustes.cssAccordion contacto wizard.wiz-accordion-item / .wiz-accordion-header / .wiz-accordion-body / .wiz-acc-open / .wiz-acc-chevronajustes.cssSelector color wizard.wiz-color-presetsajustes.css
-Colores de íconos disponibles: ico-blue, ico-purple, ico-teal, ico-red, ico-orange, ico-yellow, ico-green, ico-gray
+| Componente | Clases base | Dónde está |
+|---|---|---|
+| Grupo de filas | `.sec-group` | global.css |
+| Fila base | `.sec-row` | global.css |
+| Fila de navegación | `.sec-row.sec-row--nav` | global.css + ajustes.css |
+| Fila tappable | `.sec-row.sec-row-tappable` | global.css |
+| Fila toggle | `.sec-row-toggle` | global.css |
+| Ícono de color | `.sec-row-ico.ico-*` | ajustes.css |
+| Label de sección | `.sec-label-header` | global.css |
+| Nota informativa | `.sec-note` | global.css |
+| Spacer | `.spacer` / `.spacer-lg` / `.spacer-32` | global.css |
+| Estado deshabilitado | `.is-disabled` | global.css |
+| Sin borde inferior | `.sec-row--no-border` | global.css |
+| Toast | `.toast` + `mostrarToastGuardado(msg)` | global.css + ui.js |
+| Bottom sheet editor | `.edit-field-overlay` / `.edit-field-sheet` | global.css |
+| Modal confirmación | `.modal-confirm-overlay` / `.modal-confirm-sheet` | wizard.css |
+| Modal borrar perfil | `.dialog-borrar-overlay` / `.dialog-borrar-card` | ajustes.css |
+| Modal cuenta borrada | `.modal-cuenta-borrada` | ajustes.css |
+| Overlay fullscreen éxito | `.overlay-fullscreen-success` | wizard.css |
+| Wizard crear equipo/liga | `.wiz-equipo-overlay` / `.wiz-equipo-header` / `.wiz-equipo-contenido` / `.wiz-equipo-footer` | wizard.css |
+| Contenido de paso (wizard) | `.wiz-emoji` / `.wiz-title` / `.wiz-desc` / `.wiz-content` | wizard.css |
+| Input de wizard | `.reg-input` / `.wiz-big-input` | wizard.css |
+| Selector de wizard | `.reg-selector-btn` / `.reg-selector-val` | wizard.css |
+| Fila teléfono | `.reg-phone-row` / `.reg-codigo-btn` / `.reg-tel-input` | wizard.css |
+| Chips de wizard | `.wiz-chips` + `.chip` / `.chip-active` / `.chip-inactive` | wizard.css + global.css |
+| Avatar subida imagen | `.wiz-liga-avatar` / `.wiz-liga-avatar-wrap` / `.wiz-liga-avatar-img` | wizard.css |
+| Avatar perfil (registro) | `.reg-avatar` / `.reg-avatar-placeholder` / `.reg-avatar-overlay` | wizard.css |
+| Nota opcional | `.reg-note` | wizard.css |
+| Botón omitir | `.wiz-skip-btn` | wizard.css |
+| Botón atrás wizard liga | `.wiz-eq-btn-back` | wizard.css |
+| Botón primario wizard | `.wiz-btn-primary` | wizard.css |
+| País autocomplete | `.wiz-pais-wrap` / `.wiz-pais-lista` / `.wiz-liga-pais-item` | wizard.css |
+| Intro wizard liga | `.wiz-liga-intro-content` | wizard.css |
+| Elemento oculto | `.wiz-hidden` | wizard.css |
+| textarea como input | `textarea.reg-input` | wizard.css |
+| Google btn wrap | `.wiz-liga-google-wrap` | wizard.css |
+| Botón primario | `.inv-btn.inv-btn-primary` | ajustes.css |
+| Botón secundario | `.inv-btn.inv-btn-secondary` | ajustes.css |
+| Botón ghost | `.inv-btn.inv-btn-ghost` | ajustes.css |
+| Botón peligro | `.home-btn-delete` | global.css |
+| Toggle switch | `.toggle-btn` / `.toggle-on` / `.toggle-off` | global.css |
+| Item de equipo | `.equipo-item` / `.equipo-header` / `.equipo-nombre` / `.equipo-footer` | ajustes.css |
+| Pantalla ya registrada | `.ya-registrada-screen` / `.ya-registrada-content` | global.css |
+| Estado guardando | `.sec-val-saving` | global.css |
+| Check en selector | `.edit-search-check` | ajustes.css |
+| Color picker admin | `.color-picker-overlay` / `.color-picker-sheet` / `.color-swatch-btn` | global.css |
+| Badge estado archivo | `.file-badge` / `.file-badge-ok` / `.file-badge-missing` | ajustes.css |
+| Accordion contacto wizard | `.wiz-accordion-item` / `.wiz-accordion-header` / `.wiz-accordion-body` / `.wiz-acc-open` / `.wiz-acc-chevron` | wizard.css |
+| Selector color wizard | `.wiz-color-presets` | wizard.css |
+| Modal bienvenida | `.wiz-bienvenida-overlay` / `.wiz-bienvenida-sheet` / `.wiz-bienvenida-emoji` / `.wiz-bienvenida-title` / `.wiz-bienvenida-desc` / `.wiz-bienvenida-btn` | wizard.css |
+| Animación contenido liga | `.wiz-liga-step` / `.wiz-liga-step--animated` | wizard.css |
 
-Entorno de trabajo
-
-Editor: VS Code
-Terminal: integrada en VS Code (Ctrl + `)
-Flujo de deploy: cambios en VS Code → git add . && git commit -m "..." && git push → Railway y GitHub Pages se actualizan automáticamente
+Colores de íconos disponibles: `ico-blue`, `ico-purple`, `ico-teal`, `ico-red`, `ico-orange`, `ico-yellow`, `ico-green`, `ico-gray`
 
 
-Principios de diseño y animación — SIEMPRE respetar
-Entradas (aparecer)
-cssopacity: 0 → 1
+## Entorno de trabajo
+- Editor: VS Code
+- Terminal: integrada en VS Code (Ctrl + `)
+- Flujo de deploy: cambios en VS Code → `git add . && git commit -m "..." && git push` → Railway y GitHub Pages se actualizan automáticamente
+
+
+## Principios de diseño y animación — SIEMPRE respetar
+
+### Entradas (aparecer)
+```css
+opacity: 0 → 1
 transform: translateY(24px) → translateY(0)   /* pantallas completas y modales */
 transform: scale(0.92) → scale(1)             /* modales tipo card */
 transition: opacity 0.3–0.4s ease, transform 0.3–0.4s cubic-bezier(0.34,1.56,0.64,1)
+```
+- Usar `requestAnimationFrame(() => requestAnimationFrame(() => { ... }))` para garantizar que el browser pinte el estado inicial antes de animar
+- Siempre usar `.classList.add('visible')` — nunca manipular `style.opacity` directamente
 
-Usar requestAnimationFrame(() => requestAnimationFrame(() => { ... })) para garantizar que el browser pinte el estado inicial antes de animar
-Siempre usar .classList.add('visible') — nunca manipular style.opacity directamente
-
-Salidas (desaparecer)
-cssopacity: 1 → 0
+### Salidas (desaparecer)
+```css
+opacity: 1 → 0
 transition: opacity 0.3s ease
 setTimeout(() => el.remove(), 300)
 ```
@@ -99,9 +152,10 @@ setTimeout(() => el.remove(), 300)
 ### Regla general
 Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada. Si flota sobre la UI (modal, sheet, toast), también necesita `transform`.
 
+
 ---
 
-## Estado actual del proyecto (al 2026-04-01 — sesión 5)
+## Estado actual del proyecto (al 2026-04-02 — sesión 6)
 
 ### ⚠️ Rebranding en proceso
 - La app se llamaba **Quindes Volcánicos** → ahora se llama **Pivot**
@@ -118,7 +172,7 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - Wizard de registro con código de invitación
 - Validación del código de invitación contra el backend antes de avanzar
 - Perfil completo editable (tap-to-edit) con secciones: Estadísticas, Datos Generales, Datos Personales, Contacto, Salud y Emergencia, Estado y Rendimiento
-- Subida de fotos con cropper (Cropper.js) — **compresión automática hasta 4MB antes del upload**
+- Subida de fotos con cropper (Cropper.js) — compresión automática hasta 4MB antes del upload
 - Subida de archivos a Supabase Storage vía Railway
 - Navegación por secciones con animaciones (slide)
 - Instalación PWA con banner contextual por navegador/OS
@@ -126,81 +180,36 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - **Vista Mi Liga** con lista de equipos, edición de nombres, crear equipo (wizard 3 pasos), eliminar equipo/liga
 
 #### Wizard de liga — sesión 5 ✅ (rediseño completo)
-- **9 pasos** (0-9), `_WIZ_LIGA_TOTAL = 9`
-- Paso 0: intro animada "Creá tu liga" — siempre arranca acá
-- Paso 1: login Google obligatorio — footer oculto, avanza automáticamente al 2 tras sign in
-- Paso 2: nombre de liga
-- Paso 3: logo de liga
-- Paso 4: país + ciudad (selector de país → ciudades por país, con opción "mi ciudad no está")
-- Paso 5: año de fundación + descripción
-- Paso 6: contacto accordion (red social colapsable, WhatsApp colapsable, ambos opcionales)
-- Paso 7: nombre de equipo
-- Paso 8: categoría del equipo
-- Paso 9: personalización — logo equipo + color de énfasis (preview en vivo vía `aplicarColorPrimario`)
-- `_wizLiga` incluye: `contactoSocial`, `contactoTel`, `contactoCodigo`, `colorPrimario`
-- `seleccionarColorWiz(color)` aplica color en vivo y lo guarda en `_wizLiga.colorPrimario`
-- `onWizLigaPaisChange(pais)` actualiza ciudades dinámicamente
-- `toggleWizAccordion(tipo)` maneja el accordion de contacto
-- `abrirSelectorCodigoLiga()` abre bottom sheet de códigos de país
-- `CIUDADES_POR_PAIS` — objeto con ~50 países y sus ciudades principales
+- **20 pasos** (0-20), `_WIZ_LIGA_TOTAL = 20`
+- Pasos 0-9: datos de liga y equipo
+- Pasos 10-20: datos de perfil del admin
+- `_wizLiga` incluye todos los campos de liga, equipo y perfil
+- `wizLigaGoTo()` maneja animación slide entre pasos
+- Animación de contenido via `.wiz-liga-step--animated` (agrega clase por JS tras el slide)
+
+#### Estandarización de wizards — sesión 6 ✅
+- **CSS unificado**: todo en `wizard.css`, sin clases duplicadas ni CSS muerto
+- **Clases unificadas** entre wizard de perfil y wizard de liga:
+  - Inputs: `.reg-input` (eliminadas `.wiz-input`, `.wiz-eq-input`)
+  - Selectores: `.reg-selector-btn` (eliminada `.wiz-eq-selector-btn`, `.wiz-c-select`)
+  - Botón primario: `.wiz-btn-primary` con tokens de color `var(--accent-gradient-from/to)` (eliminado duplicado con gradiente hardcodeado)
+  - Botones omitir/cancelar/volver: `.wiz-skip-btn` (eliminadas `.wiz-btn-ghost`, `.wiz-btn-success`, `wiz-c-chips`)
+  - Avatar: `.reg-avatar`, `.reg-avatar-placeholder`, `.reg-avatar-overlay`
+  - Chips: `.wiz-chips` (eliminada `.wiz-c-chips`)
+- **JS limpio**: eliminadas funciones duplicadas `wizStep0Volver` y `wizIntroVolver`
+- **`mostrarBienvenida()`** migrada de `innerHTML` con estilos inline a elementos DOM con clases CSS
+- **Animación de contenido** agregada al wizard de liga via `.wiz-liga-step > * { opacity: 0 }` + `.wiz-liga-step--animated`
+- **Pendiente**: unificar estructura interna de pasos (`.wiz-step-inner`) entre ambos wizards para usar el mismo mecanismo de animación
 
 #### auth.js — estado sesión 5
 - `onGoogleSignIn` detecta `wiz-liga-overlay` y avanza al paso 2 si `_wizLigaPaso === 1`
 
-#### Pendientes 🔜
+---
 
-#### Estandarización visual y migración de wizards (próxima sesiónes)
+### Pendientes 🔜
 
-Migración de código:
-
-la arquitectura objetivo queda así:
-
-wizard.html — todo el HTML estático de los tres wizards (registro, liga, equipo) como partial, sin nada generado dinámicamente desde JS
-wizard.js — motor compartido + lógica de los tres wizards, sin un solo innerHTML de estructura
-wizard.css — todos los estilos de wizard unificados, sacando lo que hoy está mezclado en ajustes.css
-
-A tener en cuenta: todo el HTML de los wizards está generado via innerHTML dentro de ajustes.js. Eso significa que por ahora no hay un wizard.html parcial real para liga/equipo. wizard.html ya tiene la estrucutra del wizard de perfil, pero falta agregar aca la parte que esta hardcodeada del wizard.js
-
-Lo que va a pasar en cada archivo:
-wizard.css — recibe todo lo de ajustes.css relacionado a wizards:
-
-.wiz-equipo-overlay/header/contenido/footer/progress
-.wiz-eq-* (close, paso-label, btn-back, btn-next, input, etc.)
-.wiz-liga-step, .wiz-liga-intro-content, .wiz-liga-avatar*, .wiz-liga-google-wrap
-.wiz-hidden, .wiz-skip-btn, .wiz-accordion-*, .wiz-color-presets
-.wiz-pais-wrap/lista, .overlay-fullscreen-success, .modal-confirm-*
-Las clases duplicadas en ajustes.css (.wiz-eq-* aparece dos veces) se unifican en una sola
-
-ajustes.css — se eliminan todas esas clases
-wizard.js — recibe desde ajustes.js:
-
-Motor wizLigaGoTo() (unificado, sin duplicado)
-mostrarWizardLiga(), cerrarWizLiga(), renderWizLigaPaso(), wizLigaPasoSiguiente/Anterior(), wizLigaSubmit()
-abrirCrearEquipo(), cerrarWizEquipo(), renderWizEquipoPaso(), wizEquipoPasoSiguiente/Anterior(), crearEquipo()
-Helpers: seleccionarCategoriaEquipo/LigaWiz(), previewLogo*(), onWizLigaPaisChange(), seleccionarColorWiz(), etc.
-mostrarEquipoCreado(), mostrarModalConfirmacion(), confirmarEliminarEquipo/Liga(), eliminarEquipo/Liga()
-
-ajustes.js — queda solo con los llamados de entrada y la lógica de negocio de ajustes
-wizard.html — se van moviendo los innerHTML a HTML estático
-
-Lo que ya esta hecho de la migración: 
-
-Agregar al final de wizard.css todas las clases de wizard que hoy están en ajustes.css y La limpieza de ajustes.css está completa. Es decir el css ya esta migrado y funcionando.
-
-Mover la lógica JS de los wizards de ajustes.js a wizard.js. Esto esta migrado y funcional
-
-Migrar codigos hardcodeados de html de wizard.js de crear liga a wizard.html y hacer que convivan de manera separada pero dentro del mismo archivo el html del wizard de perfil con el html del wizard de liga
-
-Paso siguiente de la migración: 
-
-Estandarizar clases, animaciones, estilos y código para ambos wizards: Liga y Perfil
-
-Otros objetivos:
-- Revisar y unificar transiciones entre pasos
-- Unificar botón de Google entre todos los wizards 
-- Objetivo: mismo look, feel y timing en todos los wizards de la app
-
-#### Objetivos menos imoportantes ahora:
+#### Unificación pendiente de wizards
+- Migrar wizard de liga para usar `.wiz-step-inner` como contenedor interno igual que el wizard de perfil, para unificar el mecanismo de animación de contenido (actualmente usa dos mecanismos distintos)
 
 #### Rebranding a Pivot
 - Limpiar todas las referencias a "Quindes" en: `index.html`, `manifest.json`, `sw.js`, `ajustes.js`, `auth.js`, `perfil.js`, `core.js`
@@ -344,7 +353,15 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `wizBack()` — si `wizOrigen === 'crearLiga'` y `idx === 0` → cierra registroScreen y vuelve al último paso del wizard de liga
 - `submitRegistro()` — si `wizOrigen === 'crearLiga'`, llama `/crear-liga` con `_wizLiga` + `regData`; si no, llama `/registrar`
 - `initRegistroListeners()`
-- `REG_PAISES`, `REG_CODIGOS`, `REG_PRONOMBRES`, `REG_ROLES`, `REG_ROLES_JUG`, `REG_ASISTENCIA` — constantes globales usadas también por `ajustes.js`
+- `lanzarConfetti()` — usa `style.cssText` con valores aleatorios calculados en runtime (excepción aceptada a la regla de no inline)
+- `mostrarBienvenida()` — modal post-registro, construido con DOM + clases CSS (sin innerHTML con estilos)
+- `renderWizLigaPaso(paso)` — pasos 0-20; `_WIZ_LIGA_TOTAL = 20`
+- `wizLigaPasoSiguiente()` / `wizLigaPasoAnterior()`
+- `wizLigaSubmit()` — envía todo a `/crear-liga`
+- `mostrarWizardLiga()` — crea overlay y arranca en paso 0
+- `cerrarWizLiga()`
+- `wizLigaGoTo(renderFn, forward)` — motor de animación slide del wizard de liga
+- `REG_PAISES`, `REG_CODIGOS`, `REG_PRONOMBRES`, `REG_ROLES`, `REG_ROLES_JUG`, `REG_ASISTENCIA` — constantes globales
 
 **ajustes.js**
 - `inicializarAjustes()` — sincroniza UI con localStorage al cargar
@@ -358,20 +375,6 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `cargarMiLiga()` / `renderMiLiga(data)`
 - `mostrarModalConfirmacion({ emoji, titulo, mensaje, labelConfirmar, onConfirmar })`
 - `sincronizarToggle(wrapperId, isOn)`
-- `mostrarWizardLiga()` — abre wizard; siempre arranca en paso 0
-- `cerrarWizLiga()`
-- `wizLigaIntroStart()` — limpia contenido y avanza a paso 1
-- `renderWizLigaPaso(paso)` — pasos 0-9; `_WIZ_LIGA_TOTAL = 9`
-- `wizLigaPasoSiguiente()` / `wizLigaPasoAnterior()`
-- `onWizLigaPaisChange(pais)` — actualiza selector de ciudades
-- `toggleWizAccordion(tipo)` — accordion de contacto (social/tel)
-- `abrirSelectorCodigoLiga()` — bottom sheet de códigos de país
-- `seleccionarColorWiz(color)` — aplica color en vivo y guarda en `_wizLiga.colorPrimario`
-- `seleccionarCategoriaEquipo(cat)` / `seleccionarCategoriaLigaWiz(cat)` — usan `classList`
-- `renderWizEquipoPaso(paso)` — pasos 1-3; usa clases de `wizard.css`
-- `_wizLiga` — objeto global con datos de liga/equipo; incluye `contactoSocial`, `contactoTel`, `contactoCodigo`, `colorPrimario`
-- `_WIZ_LIGA_TOTAL = 9`
-- `CIUDADES_POR_PAIS` — objeto con ciudades por país
 - `AJUSTES_KEY = 'quindes_ajustes'` ← pendiente renombrar a `'pivot_ajustes'`
 - `PRIV_DEFAULTS` — valores por defecto de privacidad
 - `COLOR_PICKER_PRESETS` — array de 12 colores preset
@@ -429,33 +432,33 @@ Mínimos por frecuencia:
   - 2 veces/semana:  asistencia=7, tareas=3
   - 3+ veces/semana: asistencia=8, tareas=3
   (x4 trimestre; x16 año)
-Sistema de cuotas
+```
 
-$15/mes por jugadora activa
-Seguimiento mensual: pagado/no pagado/exento
+### Sistema de cuotas
+- $15/mes por jugadora activa
+- Seguimiento mensual: pagado/no pagado/exento
 
-Sistema de colores dinámico
+### Sistema de colores dinámico
+- 1 color primario hex → JS deriva todos los tokens para dark y light
+- Color complementario para badge "ok": `hOk = (h + 120) % 360`
+- Guardado en `equipos.color_primario` en Supabase
+- Aplicado en `inicializarApp()` antes de renderizar la UI
+- Tokens usados en wizard: `var(--accent-gradient-from)` / `var(--accent-gradient-to)`
 
-1 color primario hex → JS deriva todos los tokens para dark y light
-Color complementario para badge "ok": hOk = (h + 120) % 360
-Guardado en equipos.color_primario en Supabase
-Aplicado en inicializarApp() antes de renderizar la UI
+### Notas de compatibilidad
+- Express v4 (no v5 — v5 causaba crashes en Railway)
+- `convertirFecha()` en backend convierte DD/MM/YYYY → YYYY-MM-DD antes de insertar en Supabase
+- SW usa `Promise.allSettled` en install — no bloquea si un asset falla
+- optional chaining `?.` causa SyntaxError en algunos contextos — usar forma larga si hay problemas
 
-Notas de compatibilidad
+---
 
-Express v4 (no v5 — v5 causaba crashes en Railway)
-convertirFecha() en backend convierte DD/MM/YYYY → YYYY-MM-DD antes de insertar en Supabase
-SW usa Promise.allSettled en install — no bloquea si un asset falla
-optional chaining ?. causa SyntaxError en algunos contextos — usar forma larga si hay problemas
+## Estrategia de prefetch
 
+### Ya implementado
+- **Mi Liga** (`cargarMiLiga()`) — se llama en `inicializarAjustes()` para precargar datos de liga y equipos al abrir ajustes
 
-Estrategia de prefetch
-Ya implementado
-
-Mi Liga (cargarMiLiga()) — se llama en inicializarAjustes() para precargar datos de liga y equipos al abrir ajustes
-
-Pendiente de implementar
-
-Código de invitación (cargarCodigoDesdeBackend()) — ya se llama en inicializarCodigoInvitacion(), evaluar si prefetchear antes
-Perfil del usuario — ya disponible en window.myProfile post-login
-Datos de estadísticas — pendiente endpoint dedicado
+### Pendiente de implementar
+- **Código de invitación** (`cargarCodigoDesdeBackend()`) — ya se llama en `inicializarCodigoInvitacion()`, evaluar si prefetchear antes
+- **Perfil del usuario** — ya disponible en `window.myProfile` post-login
+- **Datos de estadísticas** — pendiente endpoint dedicado
