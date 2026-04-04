@@ -710,6 +710,18 @@ function renderWizLigaPaso(paso) {
   if (footer) footer.classList.remove('wiz-hidden');
 
   if (paso === 1) {
+  setTimeout(() => {
+    if (header) {
+      header.style.visibility = 'visible';
+      header.style.transition = 'opacity 0.28s ease';
+      header.style.opacity    = '1';
+      setTimeout(() => {
+        header.style.transition  = '';
+        header.style.opacity     = '';
+        header.style.visibility  = '';
+      }, 300);
+    }
+  }, 200);
   wizLigaGoTo(el => {
     const tpl = document.getElementById('tpl-wiz-liga-1');
     if (!tpl) return;
