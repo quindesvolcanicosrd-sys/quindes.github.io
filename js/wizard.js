@@ -1,12 +1,3 @@
-
-// ============================================================
-//  QUINDES APP — wizard.js  (flujo de registro)
-// ============================================================
-
-/* ================================
-   MOTOR BASE REUTILIZABLE
-================================ */
-
 // 🔹 UTILIDAD GLOBAL (poner arriba de todo el archivo)
 function procesarImagen(file, { maxWidth = 800, maxHeight = 800, quality = 0.7 } = {}) {
   return new Promise((resolve, reject) => {
