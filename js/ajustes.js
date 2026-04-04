@@ -1050,7 +1050,6 @@ function navIr(seccion) {
 // ── Wizard Crear Liga ─────────────────────────────────────────
 let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contactoSocial: '', colorPrimario: '', nombre: '', pronombres: [], paisPerfil: '', codigoPais: '', telefono: '', fechaNacimiento: '', mostrarCumple: '', mostrarEdad: '', nombreDerby: '', numeroDerby: '', rolJugadorx: '', asisteSemana: '', alergias: '', dieta: '', contactoEmergencia: '', fotoBase64: null };
 let _wizLigaPaso = 0;
-const _WIZ_LIGA_TOTAL = 20;
 
 function wizLigaIntroStart() {
   renderWizLigaPaso(1);
