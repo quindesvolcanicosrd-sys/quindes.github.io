@@ -680,7 +680,7 @@ function renderWizLigaPaso(paso) {
   if (footer)    footer.style.display  = esIntro ? 'none' : '';
   if (header) {
     if (esIntro) {
-      header.style.visibility = 'hidden';
+      header.style.display    = 'none';
       header.style.opacity    = '0';
       header.style.transition = '';
     }
@@ -712,14 +712,16 @@ function renderWizLigaPaso(paso) {
   if (paso === 1) {
   setTimeout(() => {
     if (header) {
-      header.style.visibility = 'visible';
-      header.style.transition = 'opacity 0.28s ease';
-      header.style.opacity    = '1';
-      setTimeout(() => {
-        header.style.transition  = '';
-        header.style.opacity     = '';
-        header.style.visibility  = '';
-      }, 300);
+      header.style.display    = 'flex';
+      header.style.opacity    = '0';
+      requestAnimationFrame(() => {
+        header.style.transition = 'opacity 0.28s ease';
+        header.style.opacity    = '1';
+        setTimeout(() => {
+          header.style.transition = '';
+          header.style.opacity    = '';
+        }, 300);
+      });
     }
   }, 200);
   wizLigaGoTo(el => {
