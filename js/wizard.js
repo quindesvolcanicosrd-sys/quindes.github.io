@@ -1,3 +1,4 @@
+
 // ============================================================
 //  QUINDES APP — wizard.js  (flujo de registro)
 // ============================================================
@@ -85,7 +86,7 @@ const REG_ROLES_JUG  = ['Jammer', 'Bloquer', 'Blammer', 'No definido'];
 const REG_ASISTENCIA = ['1 vez', '2 veces', '3 o más veces'];
 
 const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,9,10,11];
-let wizStepSequence = [WIZ_STEPS_BASE];
+let wizStepSequence = [...WIZ_STEPS_BASE];
 let wizStep = 1;
 let cropTarget = 'app';
 
@@ -680,7 +681,7 @@ function regRenderChips(containerId, opciones, valorActual, onSelect) {
 
 function regRenderChipsMulti(containerId, opciones, valoresActuales, onSelect) {
   const el = document.getElementById(containerId); if (!el) return;
-  let seleccionados = Array.isArray(valoresActuales) ? [valoresActuales] : [];
+  let seleccionados = Array.isArray(valoresActuales) ? [...valoresActuales] : [];
   const render = () => {
     el.innerHTML = '';
     opciones.forEach(opt => {
