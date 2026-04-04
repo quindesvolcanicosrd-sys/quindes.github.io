@@ -714,6 +714,10 @@ function renderWizLigaPaso(paso) {
   const contenido = document.getElementById('wiz-liga-contenido');
   if (!contenido) return;
 
+  const PASOS_OPCIONALES = [3, 5, 6, 8, 9, 10, 12, 16, 19, 20];
+  const btnSkip = document.getElementById('wiz-liga-btn-skip');
+  if (btnSkip) btnSkip.classList.toggle('wiz-hidden', !PASOS_OPCIONALES.includes(paso));
+
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
   if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
