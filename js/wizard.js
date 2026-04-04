@@ -685,6 +685,7 @@ function renderWizLigaPaso(paso) {
   if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? '¡Crear todo! 🛼' : 'Continuar';
 
   if (paso === 0) {
+  if (header) header.style.opacity = '0';
   wizLigaGoTo(el => {
     const tpl = document.getElementById('tpl-wiz-liga-0');
     if (!tpl) return;
@@ -704,6 +705,13 @@ function renderWizLigaPaso(paso) {
   if (footer) footer.classList.remove('wiz-hidden');
 
   if (paso === 1) {
+  setTimeout(() => {
+    if (header) {
+      header.style.transition = 'opacity 0.3s ease';
+      header.style.opacity = '1';
+      setTimeout(() => { header.style.transition = ''; }, 320);
+    }
+  }, 80);
   wizLigaGoTo(el => {
     const tpl = document.getElementById('tpl-wiz-liga-1');
     if (!tpl) return;
