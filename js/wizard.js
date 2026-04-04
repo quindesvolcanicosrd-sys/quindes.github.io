@@ -708,26 +708,14 @@ function renderWizLigaPaso(paso) {
   const forward = paso >= _wizLigaPaso;
   _wizLigaPaso = paso;
   const btnBack   = document.getElementById('wiz-liga-btn-back');
-  const btnNext   = document.getElementById('wiz-liga-btn-next');
   const pasoLabel = document.getElementById('wiz-liga-paso-label');
   const progress  = document.getElementById('wiz-liga-progress');
   const contenido = document.getElementById('wiz-liga-contenido');
   if (!contenido) return;
 
-  const PASOS_OPCIONALES = [3, 5, 6, 8, 9, 10, 12, 16, 19, 20];
-  const btnSkip = document.getElementById('wiz-liga-btn-skip');
-  if (btnSkip) {
-    if (PASOS_OPCIONALES.includes(paso)) {
-      requestAnimationFrame(() => requestAnimationFrame(() => btnSkip.classList.add('skip-visible')));
-    } else {
-      btnSkip.classList.remove('skip-visible');
-    }
-  }
-
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
   if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
-  if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? '¡Crear todo! 🛼' : 'Continuar';
 
   if (paso === 1) {
   wizLigaGoTo(el => {
@@ -1356,12 +1344,10 @@ function wizLigaPasoAnterior() {
 }
 
 async function wizLigaSubmit() {
-  const btnNext = document.getElementById('wiz-liga-btn-next');
-  if (btnNext) { btnNext.disabled = true; btnNext.textContent = 'Creando…'; }
   wizMostrarCargando();
   try {
     const email = window._googleEmail || localStorage.getItem('quindes_email');
-    if (!email) { mostrarToastGuardado('⚠️ No se encontró tu sesión'); if (btnNext) { btnNext.disabled = false; btnNext.textContent = 'Finalizar'; } return; }
+    if (!email) { mostrarToastGuardado('⚠️ No se encontró tu sesión'); wizOcultarCargando(); return; }
     const result = await apiCall('/crear-liga', 'POST', {
       email,
       nombreLiga:         _wizLiga.nombreLiga.trim(),
@@ -1418,7 +1404,6 @@ async function wizLigaSubmit() {
   } catch(e) {
     wizOcultarCargando();
     mostrarToastGuardado('❌ Error al crear: ' + e.message);
-    if (btnNext) { btnNext.disabled = false; btnNext.textContent = '¡Crear todo! 🛼'; }
     console.error(e);
   }
 }
