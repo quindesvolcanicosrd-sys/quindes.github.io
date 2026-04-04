@@ -154,7 +154,7 @@ textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
 
 /* ══ WIZARD LIGA — INTRO ══ */
 .wiz-liga-intro-content { position: relative; z-index: 1; display: flex; flex-direction: column; padding: 8px 0 32px; width: 100%; gap: 0; }
-.wiz-liga-google-wrap { display: flex; justify-content: center; width: 100%; min-height: 48px; border-radius: 4px; overflow: hidden; color-scheme: light; opacity: 0; }
+.wiz-liga-google-wrap { justify-content: center; width: 100%; min-height: 48px; border-radius: 4px; overflow: hidden; color-scheme: light; opacity: 0; }
 .wiz-liga-google-wrap.visible { animation: wiz-fade-up 0.45s cubic-bezier(0.4,0,0.2,1) both; }
 
 /* ══ WIZARD — UTILIDADES ══ */
