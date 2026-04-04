@@ -1,6 +1,45 @@
+espera... asi esta bien el codigo?
+
 // ============================================================
 //  QUINDES APP — wizard.js  (flujo de registro)
 // ============================================================
+
+const WIZ_VALIDATORS = {
+  nombre: v => !v ? 'Escribe cómo quieres que te llamemos ✍️' : null,
+
+  telefono: (v) => {
+  if (!v) return null;
+
+  const clean = v.replace(/\D/g, '');
+
+  // 🌎 Validación por país (si existe código)
+  if (regData.codigoPais) {
+
+    // 🇪🇨 Ecuador
+    if (regData.codigoPais.includes('+593')) {
+      if (clean.length !== 10) return 'El número debe tener 10 dígitos 🇪🇨';
+      if (!clean.startsWith('0')) return 'Debe empezar con 0 🇪🇨';
+    }
+
+    // 🇺🇸 / 🇨🇦 (ejemplo)
+    if (regData.codigoPais.includes('+1')) {
+      if (clean.length !== 10) return 'Número inválido 🇺🇸';
+    }
+
+  }
+
+  // 🌍 fallback global
+  if (clean.length < 7) return 'Número demasiado corto 📱';
+
+  return null;
+},
+
+  codigoPais: v => !v && 'Selecciona el código de tu país 📱',
+
+  rol: v => !v && 'Selecciona tu rol en el equipo 🏅',
+
+  asistencia: v => !v && 'Indica cuántas veces entrenas 🏋️',
+};
 
 const REG_PAISES  = [
   // América Latina
@@ -47,7 +86,7 @@ const REG_ROLES      = ['Jammer', 'Bloquer', 'Blammer', 'Ref', 'Coach', 'Bench',
 const REG_ROLES_JUG  = ['Jammer', 'Bloquer', 'Blammer', 'No definido'];
 const REG_ASISTENCIA = ['1 vez', '2 veces', '3 o más veces'];
 
-const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,10,11];
+const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,9,10,11];
 let wizStepSequence = [...WIZ_STEPS_BASE];
 let wizStep = 1;
 let cropTarget = 'app';
@@ -74,12 +113,40 @@ function mostrarRegistroWizard() {
   if (!wizOrigen) wizOrigen = 'login';
   const desdeCrearLiga = wizOrigen === 'crearLiga';
   wizRecalcSequence();
+  // 🔥 Intentar recuperar progreso guardado
+const saved = localStorage.getItem('regDraft');
+
+// 🌍 detectar país del usuario
+fetch('https://ipapi.co/json/')
+  .then(res => res.json())
+  .then(data => {
+    if (!regData.codigoPais) {
+      const code = data.country_calling_code; // +593, +1, etc
+
+      const match = REG_CODIGOS.find(c => c.includes(code));
+      if (match) {
+        regData.codigoPais = match;
+        wizSetVal('reg-codigo-display', match);
+        document.getElementById('reg-codigo-btn')?.classList.add('has-value');
+      }
+    }
+  })
+  .catch(() => {});
+
+if (saved) {
+  try {
+    Object.assign(regData, JSON.parse(saved));
+  } catch {
+    console.warn('Error cargando draft');
+  }
+} else {
   Object.assign(regData, {
     nombre:'', pronombres:[], pais:'', codigoPais:'',
     telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
     nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
     alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null
   });
+}
 
   ['reg-nombre','reg-telefono','reg-nombreDerby','reg-numero',
    'reg-alergias','reg-dieta','reg-emergencia'].forEach(id => {
@@ -135,6 +202,14 @@ if (desdeCrearLiga) {
   }
 
   history.pushState({ wizSentinel: true }, '', location.pathname + '#_wiz');
+}
+
+function wizSaveDraft() {
+  try {
+    localStorage.setItem('regDraft', JSON.stringify(regData));
+  } catch (e) {
+    console.warn('No se pudo guardar draft');
+  }
 }
 
 function wizStep0Volver() {
@@ -212,6 +287,21 @@ function wizOnRolSelected(val) {
   wizUpdateHeader();
 }
 
+function wizOnCodigoSelected(val) {
+  regData.codigoPais = val;
+
+  wizSetVal('reg-codigo-display', val);
+  document.getElementById('reg-codigo-btn')?.classList.add('has-value');
+
+  // UX opcional Ecuador
+  if (val.includes('+593')) {
+    const input = document.getElementById('reg-telefono');
+    if (input && !input.value) {
+      input.value = '09';
+    }
+  }
+}
+
 function wizGoTo(next, forward = true) {
   const DURATION = 280;
   const prevEl = document.getElementById('wiz-step-' + wizStep);
@@ -245,14 +335,26 @@ function wizGoTo(next, forward = true) {
     nextEl.style.transform  = 'translateX(0)';
     setTimeout(() => { nextEl.classList.add('wiz-animate'); }, DURATION + 10);
     setTimeout(() => {
-      if (next === 2) document.getElementById('reg-nombre')?.focus();
-      if (next === 5) document.getElementById('reg-telefono')?.focus();
-      if (next === 7) document.getElementById('reg-nombreDerby')?.focus();
-    }, DURATION + 60);
+  // 🔥 Autofocus inteligente
+  const focusMap = {
+    2: 'reg-nombre',
+    5: 'reg-telefono',
+    7: 'reg-nombreDerby',
+    10: 'reg-alergias',
+    11: 'reg-emergencia'
+  };
+
+  const id = focusMap[next];
+  if (id) {
+    document.getElementById(id)?.focus();
+  }
+}, DURATION + 60);
   });
 
   wizStep = next;
   wizUpdateHeader();
+
+  wizToggleNext(false);
 }
 
 function wizUpdateHeader() {
@@ -260,64 +362,200 @@ function wizUpdateHeader() {
   const total = wizStepSequence.length;
   const fill  = document.getElementById('wiz-progress-fill');
   const label = document.getElementById('wiz-step-label');
-  if (fill)  fill.style.width = (pos / total * 100) + '%';
-  if (label) label.textContent = 'Paso ' + pos + ' de ' + total;
+
+  if (fill) {
+    fill.style.width = (pos / total * 100) + '%';
+  }
+
+  const stepConfig = WIZ_STEPS_CONFIG[wizStep];
+  const stepName = stepConfig?.label || '';
+
+  if (label) {
+    label.textContent = `Paso ${pos} de ${total} • ${stepName}`;
+  }
 }
+
+const WIZ_STEPS_CONFIG = {
+  'inv': {
+    label: 'Código',
+  },
+  1: { label: 'Intro' },
+  2: { label: 'Nombre' },
+  3: { label: 'Pronombres' },
+  4: { label: 'País' },
+  5: { label: 'Teléfono' },
+  6: { label: 'Nacimiento' },
+  7: { label: 'Derby' },
+  8: { label: 'Rol' },
+  9: { label: 'Asistencia' },
+  10: { label: 'Salud' },
+  11: { label: 'Foto' }
+};
+
+const WIZ_STEPS = {
+  'inv': {
+    label: 'Código',
+    validate: () => {
+      const val = document.getElementById('reg-codigo-inv')?.value.trim();
+      if (!val) return 'Ingresá tu código de invitación 🔑';
+      return null;
+    },
+    action: async () => {
+      const val = document.getElementById('reg-codigo-inv')?.value.trim();
+
+      wizMostrarCargando();
+      try {
+        const check = await apiCall('/validar-codigo', 'POST', { codigo: val });
+
+        if (!check.valido) {
+          wizOcultarCargando();
+          return check.error || 'Código inválido 🔑';
+        }
+
+        regData.codigoInvitacion = val;
+        inviteCode = val;
+        wizOcultarCargando();
+        return null;
+
+      } catch (e) {
+        wizOcultarCargando();
+        return 'Error al verificar el código. Intenta de nuevo.';
+      }
+    }
+  },
+
+  2: {
+    label: 'Nombre',
+    validate: () => {
+      const val = document.getElementById('reg-nombre')?.value.trim();
+      if (!val) return 'Escribe cómo quieres que te llamemos ✍️';
+      regData.nombre = val;
+      return null;
+    }
+  },
+
+  4: {
+    label: 'País',
+    validate: () => !regData.pais && 'Selecciona tu país de origen 🌎'
+  },
+
+  5: {
+    label: 'Teléfono',
+        validate: () => {
+      if (!regData.codigoPais) {
+        return 'Selecciona el código de tu país 📱';
+      }
+
+      const tel = document.getElementById('reg-telefono')?.value.trim();
+
+      // 👇 validación centralizada
+      const error = WIZ_VALIDATORS.telefono(tel);
+      if (error) return error;
+
+      // 👇 validación extra (por si está vacío)
+      if (!tel) return 'Ingresa tu número de teléfono 📱';
+
+      regData.telefono = tel.replace(/\D/g, '');
+      return null;
+    }
+  },
+
+  6: {
+    label: 'Nacimiento',
+    validate: () => {
+      if (!regData.fechaNacimiento) return 'Ingresa tu fecha de nacimiento 🎂';
+      if (!regData.mostrarCumple) return 'Indica si quieres compartir tu cumpleaños 🎉';
+      if (!regData.mostrarEdad) return 'Indica si quieres compartir tu edad 🔢';
+      return null;
+    }
+  },
+
+  7: {
+    label: 'Derby',
+    validate: () => {
+      regData.nombreDerby = document.getElementById('reg-nombreDerby')?.value.trim() || '';
+      regData.numero = document.getElementById('reg-numero')?.value.trim() || '';
+      return null;
+    }
+  },
+
+  8: {
+    label: 'Rol',
+    validate: () => !regData.rolJugadorx && 'Selecciona tu rol en el equipo 🏅'
+  },
+
+  9: {
+    label: 'Asistencia',
+    validate: () => !regData.asisteSemana && 'Indica cuántas veces entrenas por semana 🏋️'
+  },
+
+  10: {
+    label: 'Salud',
+    validate: () => {
+      regData.alergias = document.getElementById('reg-alergias')?.value.trim() || '';
+      regData.dieta = document.getElementById('reg-dieta')?.value.trim() || '';
+      return null;
+    }
+  },
+
+  11: {
+    label: 'Foto'
+  }
+};
 
 async function wizNext() {
   wizHideError();
-  if (wizStep === 'inv') {
-    const val = document.getElementById('reg-codigo-inv')?.value.trim();
-    if (!val) { wizShowError('Ingresá tu código de invitación 🔑'); return; }
-    wizMostrarCargando();
-    try {
-      const check = await apiCall('/validar-codigo', 'POST', { codigo: val });
-      if (!check.valido) { wizOcultarCargando(); wizShowError(check.error || 'Código inválido 🔑'); return; }
-      regData.codigoInvitacion = val;
-      inviteCode = val;
-      wizOcultarCargando();
-    } catch(e) {
-      wizOcultarCargando();
-      wizShowError('Error al verificar el código. Intenta de nuevo.'); return;
+
+  const step = WIZ_STEPS[wizStep];
+
+  // 🔹 Validación
+  if (step?.validate) {
+    const error = step.validate();
+    if (error) {
+      wizShowError(error);
+      return;
     }
   }
-  if (wizStep === 2) {
-    const val = document.getElementById('reg-nombre')?.value.trim();
-    if (!val) { wizShowError('Escribe cómo quieres que te llamemos ✍️'); return; }
-    regData.nombre = val;
+
+  // 🔹 Acción async
+  if (step?.action) {
+    const error = await step.action();
+    if (error) {
+      wizShowError(error);
+      return;
+    }
   }
-  if (wizStep === 4 && !regData.pais) { wizShowError('Selecciona tu país de origen 🌎'); return; }
-  if (wizStep === 5) {
-    if (!regData.codigoPais) { wizShowError('Selecciona el código de tu país 📱'); return; }
-    const tel = document.getElementById('reg-telefono')?.value.trim();
-    if (!tel) { wizShowError('Ingresa tu número de teléfono 📱'); return; }
-    regData.telefono = tel;
-  }
-  if (wizStep === 6) {
-    if (!regData.fechaNacimiento) { wizShowError('Ingresa tu fecha de nacimiento 🎂'); return; }
-    if (!regData.mostrarCumple)   { wizShowError('Indica si quieres compartir tu cumpleaños 🎉'); return; }
-    if (!regData.mostrarEdad)     { wizShowError('Indica si quieres compartir tu edad 🔢'); return; }
-  }
-  if (wizStep === 7) {
-    regData.nombreDerby = document.getElementById('reg-nombreDerby')?.value.trim() || '';
-    regData.numero      = document.getElementById('reg-numero')?.value.trim() || '';
-  }
-  if (wizStep === 8 && !regData.rolJugadorx) { wizShowError('Selecciona tu rol en el equipo 🏅'); return; }
-  if (wizStep === 9 && !regData.asisteSemana) { wizShowError('Indica cuántas veces entrenas por semana 🏋️'); return; }
-  if (wizStep === 10) {
-    regData.alergias = document.getElementById('reg-alergias')?.value.trim() || '';
-    regData.dieta    = document.getElementById('reg-dieta')?.value.trim() || '';
-  }
+
+  // 🔹 Navegación
   const idx = wizStepSequence.indexOf(wizStep);
-  if (idx < wizStepSequence.length - 1) wizGoTo(wizStepSequence[idx + 1], true);
+  let nextStep = wizStepSequence[idx + 1];
+
+  // 🚀 Saltar paso 9 si no es jugadorx
+  if (nextStep === 9 && !esJugadorx(regData.rolJugadorx)) {
+    nextStep = 10;
+  }
+
+  // 💾 autosave
+  wizSaveDraft();
+
+  if (idx < wizStepSequence.length - 1) {
+    wizGoTo(nextStep, true);
+  }
 }
 
 function wizBack() {
   wizHideError();
   const idx = wizStepSequence.indexOf(wizStep);
-  if (idx > 0) {
-    wizGoTo(wizStepSequence[idx - 1], false);
-  } else if (wizOrigen === 'crearLiga') {
+let prevStep = wizStepSequence[idx - 1];
+
+// 🚀 Saltar paso 9 si no es jugadorx
+if (prevStep === 9 && !esJugadorx(regData.rolJugadorx)) {
+  prevStep = 8;
+}
+
+if (idx > 0) {
+  wizGoTo(prevStep, false);
+} else if (wizOrigen === 'crearLiga') {
     // Volver al último paso del wizard de liga
     document.getElementById('registroScreen').style.display = 'none';
     mostrarWizardLiga();
@@ -348,26 +586,97 @@ function wizBack() {
 function wizShowError(msg) {
   const el = document.getElementById('reg-error');
   if (!el) return;
-  el.textContent = msg; el.style.display = 'block';
+
+  el.textContent = msg;
+  el.style.display = 'block';
+
+  // 🔥 animación
+  el.classList.remove('wiz-shake');
+  void el.offsetWidth;
+  el.classList.add('wiz-shake');
+
   clearTimeout(el._t);
-  el._t = setTimeout(() => { el.style.display = 'none'; }, 3500);
+  el._t = setTimeout(() => {
+    el.style.display = 'none';
+  }, 3500);
 }
+
 function wizHideError() { const el = document.getElementById('reg-error'); if (el) el.style.display = 'none'; }
+
+function wizToggleNext(enabled) {
+  const btn = document.getElementById('wiz-next-btn');
+  if (!btn) return;
+
+  btn.disabled = !enabled;
+
+  btn.classList.toggle('wiz-btn-disabled', !enabled);
+}
+
+function wizLiveValidate({ 
+  value, 
+  validator, 
+  onValid, 
+  onInvalid 
+}) {
+  const error = validator(value);
+
+  if (error) {
+    wizShowError(error);
+    wizToggleNext(false); // 👈 bloquea botón
+    onInvalid?.(error);
+  } else {
+    wizHideError();
+    wizToggleNext(true); // 👈 habilita botón
+    onValid?.(value);
+    wizSaveDraft?.();
+  }
+}
+
 function mostrarRegError(msg) { wizShowError(msg); }
 
 function regRenderChips(containerId, opciones, valorActual, onSelect) {
-  const el = document.getElementById(containerId); if (!el) return;
-  el.innerHTML = '';
-  opciones.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'chip ' + (opt === valorActual ? 'chip-active' : 'chip-inactive');
-    btn.textContent = opt;
-    btn.addEventListener('click', () => {
-      onSelect(opt);
-      regRenderChips(containerId, opciones, opt, onSelect);
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  // 🚀 Solo render inicial
+  if (!el.dataset.initialized) {
+    el.innerHTML = '';
+
+    opciones.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = opt;
+      btn.className = 'chip chip-inactive';
+
+      btn.addEventListener('click', () => {
+        // quitar activos
+        el.querySelectorAll('.chip').forEach(b => {
+          b.classList.remove('chip-active');
+          b.classList.add('chip-inactive');
+        });
+
+        // activar actual
+        btn.classList.add('chip-active');
+        btn.classList.remove('chip-inactive');
+
+        onSelect(opt);
+      });
+
+      el.appendChild(btn);
     });
-    el.appendChild(btn);
+
+    el.dataset.initialized = 'true';
+  }
+
+  // 🔥 Solo actualizar estado visual
+  el.querySelectorAll('.chip').forEach(btn => {
+    if (btn.textContent === valorActual) {
+      btn.classList.add('chip-active');
+      btn.classList.remove('chip-inactive');
+    } else {
+      btn.classList.remove('chip-active');
+      btn.classList.add('chip-inactive');
+    }
   });
 }
 
@@ -444,31 +753,70 @@ function initRegistroListeners() {
     });
   }
 
-  document.getElementById('reg-pais-btn')?.addEventListener('click', () => {
-    abrirBottomSheet('Nacionalidad', REG_PAISES, regData.pais, val => {
-      regData.pais = val; wizSetVal('reg-pais-display', val);
-      document.getElementById('reg-pais-btn').classList.add('has-value');
-    });
+  document.getElementById('reg-telefono')?.addEventListener('input', e => {
+  let val = e.target.value;
+
+  // 👇 quitar todo lo que no sea número
+  val = val.replace(/\D/g, '');
+
+  e.target.value = val;
+
+  wizLiveValidate({
+    value: val,
+    validator: WIZ_VALIDATORS.telefono,
+    onValid: v => regData.telefono = v
+  });
   });
 
-  document.getElementById('reg-codigo-btn')?.addEventListener('click', () => {
-    abrirBottomSheet('Código de país', REG_CODIGOS, regData.codigoPais, val => {
-      regData.codigoPais = val; wizSetVal('reg-codigo-display', val);
-      document.getElementById('reg-codigo-btn').classList.add('has-value');
-    });
+  // 👇 AQUÍ VA TU UX PRO
+  document.getElementById('reg-nombre')?.addEventListener('input', e => {
+  wizLiveValidate({
+    value: e.target.value.trim(),
+    validator: WIZ_VALIDATORS.nombre,
+    onValid: v => regData.nombre = v
+  });
   });
 
-  document.getElementById('reg-fecha-btn')?.addEventListener('click', () => {
-    abrirDatePicker(regData.fechaNacimiento, val => {
-      regData.fechaNacimiento = val;
-      const p = parseFecha(val);
-      const display = p ? `${String(p.day).padStart(2,'0')} ${MESES_CORTO[p.month]} ${p.year}` : val;
-      wizSetVal('reg-fecha-display', display);
-      document.getElementById('reg-fecha-btn').classList.add('has-value');
-    });
+  document.getElementById('reg-telefono')?.addEventListener('input', e => {
+  let val = e.target.value.replace(/\D/g, '');
+
+  // 👇 formato simple (Ecuador style)
+  if (val.length > 3 && val.length <= 6) {
+    val = val.replace(/(\d{3})(\d+)/, '$1 $2');
+  } else if (val.length > 6) {
+    val = val.replace(/(\d{3})(\d{3})(\d+)/, '$1 $2 $3');
+  }
+
+  e.target.value = val;
+
+  wizLiveValidate({
+    value: val.replace(/\s/g, ''), // validar sin espacios
+    validator: WIZ_VALIDATORS.telefono,
+    onValid: v => regData.telefono = v
+  });
   });
 
-  document.getElementById('reg-telefono')?.addEventListener('input', e => { regData.telefono = e.target.value; });
+  // 📱 Selector de código país
+document.getElementById('reg-codigo-btn')?.addEventListener('click', () => {
+  abrirBottomSheet(
+    'Código',
+    REG_CODIGOS,
+    regData.codigoPais || '',
+    wizOnCodigoSelected
+  );
+});
+
+document.addEventListener('click', e => {
+  if (e.target.id === 'reg-codigo-btn') {
+    abrirBottomSheet(
+      'Código',
+      REG_CODIGOS,
+      regData.codigoPais || '',
+      wizOnCodigoSelected
+    );
+  }
+});
+
 }
 
 const WIZ_LOADING_MSGS = [
@@ -661,7 +1009,7 @@ async function submitRegistro() {
     wizShowError(err.message || 'Algo salió mal. Intenta de nuevo 😅');
     if (btnEl) btnEl.disabled = false;
   }
-
+  localStorage.removeItem('regDraft');
 }
 
 function wizLigaIntroStart() {

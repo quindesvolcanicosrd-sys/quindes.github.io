@@ -1,7 +1,7 @@
 # Pivot App — Referencia de Schema para Supabase
 
 ⚠️ App renombrada de "Quindes Volcánicos" a Pivot — rebranding en proceso
-Última actualización: 2026-04-02 (sesión 6)
+Última actualización: 2026-04-03 (sesión 7)
 Adjuntá este archivo al inicio de cada sesión para no tener que reenviar los xlsx ni explicar el contexto.
 
 
@@ -85,7 +85,7 @@ Antes de escribir cualquier clase CSS o componente nuevo, verificar si ya existe
 | Modal cuenta borrada | `.modal-cuenta-borrada` | ajustes.css |
 | Overlay fullscreen éxito | `.overlay-fullscreen-success` | wizard.css |
 | Wizard crear equipo/liga | `.wiz-equipo-overlay` / `.wiz-equipo-header` / `.wiz-equipo-contenido` / `.wiz-equipo-footer` | wizard.css |
-| Contenido de paso (wizard) | `.wiz-emoji` / `.wiz-title` / `.wiz-desc` / `.wiz-content` | wizard.css |
+| Contenido de paso (wizard) | `.wiz-step-inner` / `.wiz-emoji` / `.wiz-title` / `.wiz-desc` / `.wiz-content` / `.wiz-actions` | wizard.css |
 | Input de wizard | `.reg-input` / `.wiz-big-input` | wizard.css |
 | Selector de wizard | `.reg-selector-btn` / `.reg-selector-val` | wizard.css |
 | Fila teléfono | `.reg-phone-row` / `.reg-codigo-btn` / `.reg-tel-input` | wizard.css |
@@ -98,7 +98,7 @@ Antes de escribir cualquier clase CSS o componente nuevo, verificar si ya existe
 | Botón primario wizard | `.wiz-btn-primary` | wizard.css |
 | País autocomplete | `.wiz-pais-wrap` / `.wiz-pais-lista` / `.wiz-liga-pais-item` | wizard.css |
 | Intro wizard liga | `.wiz-liga-intro-content` | wizard.css |
-| Elemento oculto | `.wiz-hidden` | wizard.css |
+| Elemento oculto | `.wiz-hidden` (display:none !important) | wizard.css |
 | textarea como input | `textarea.reg-input` | wizard.css |
 | Google btn wrap | `.wiz-liga-google-wrap` | wizard.css |
 | Botón primario | `.inv-btn.inv-btn-primary` | ajustes.css |
@@ -152,10 +152,15 @@ setTimeout(() => el.remove(), 300)
 ### Regla general
 Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada. Si flota sobre la UI (modal, sheet, toast), también necesita `transform`.
 
+### Nota sobre `.wiz-hidden`
+- `.wiz-hidden { display: none !important }` — NO usar para animar visibilidad
+- Para mostrar/ocultar con transición usar `max-height` + `opacity` + clase propia (ej: `.skip-visible`)
+- `!important` puede ser necesario en la clase que revierte `.wiz-hidden` si hay conflicto de especificidad
+
 
 ---
 
-## Estado actual del proyecto (al 2026-04-02 — sesión 6)
+## Estado actual del proyecto (al 2026-04-03 — sesión 7)
 
 ### ⚠️ Rebranding en proceso
 - La app se llamaba **Quindes Volcánicos** → ahora se llama **Pivot**
@@ -185,21 +190,20 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 - Pasos 10-20: datos de perfil del admin
 - `_wizLiga` incluye todos los campos de liga, equipo y perfil
 - `wizLigaGoTo()` maneja animación slide entre pasos
-- Animación de contenido via `.wiz-liga-step--animated` (agrega clase por JS tras el slide)
+- Animación de contenido via `.wiz-liga-step--animated`
 
 #### Estandarización de wizards — sesión 6 ✅
 - **CSS unificado**: todo en `wizard.css`, sin clases duplicadas ni CSS muerto
-- **Clases unificadas** entre wizard de perfil y wizard de liga:
-  - Inputs: `.reg-input` (eliminadas `.wiz-input`, `.wiz-eq-input`)
-  - Selectores: `.reg-selector-btn` (eliminada `.wiz-eq-selector-btn`, `.wiz-c-select`)
-  - Botón primario: `.wiz-btn-primary` con tokens de color `var(--accent-gradient-from/to)` (eliminado duplicado con gradiente hardcodeado)
-  - Botones omitir/cancelar/volver: `.wiz-skip-btn` (eliminadas `.wiz-btn-ghost`, `.wiz-btn-success`, `wiz-c-chips`)
-  - Avatar: `.reg-avatar`, `.reg-avatar-placeholder`, `.reg-avatar-overlay`
-  - Chips: `.wiz-chips` (eliminada `.wiz-c-chips`)
-- **JS limpio**: eliminadas funciones duplicadas `wizStep0Volver` y `wizIntroVolver`
-- **`mostrarBienvenida()`** migrada de `innerHTML` con estilos inline a elementos DOM con clases CSS
-- **Animación de contenido** agregada al wizard de liga via `.wiz-liga-step > * { opacity: 0 }` + `.wiz-liga-step--animated`
-- **Pendiente**: unificar estructura interna de pasos (`.wiz-step-inner`) entre ambos wizards para usar el mismo mecanismo de animación
+- **Clases unificadas** entre wizard de perfil y wizard de liga
+- Header del wizard de liga tiene fade in al aparecer (desde `wizLigaIntroStart()`)
+
+#### Wizard de liga — sesión 7 (en progreso ⚠️)
+- **Templates migrados a `.wiz-step-inner`**: todos los templates (2-20) usan la misma estructura que el wizard de perfil: `.wiz-step-inner` > `.wiz-emoji` / `.wiz-title` / `.wiz-desc` / `.wiz-content` / `.wiz-actions`
+- **Botones de acción dentro de cada template**: "Continuar" y "Omitir por ahora" en `.wiz-actions`, igual que wizard de perfil
+- **Footer del wizard de liga**: solo contiene el botón "Atrás" (`wiz-eq-btn-back`)
+- **`btnNext` eliminado** del footer y de `renderWizLigaPaso()` y `wizLigaSubmit()`
+- **Pasos opcionales** (tienen "Omitir por ahora"): 3, 5, 6, 8, 9, 10, 12, 13, 14, 16, 19, 20
+- **⚠️ PENDIENTE VERIFICAR**: que los botones "Omitir" y "Continuar" dentro de los templates se vean y funcionen correctamente — la sesión terminó antes de confirmar
 
 #### auth.js — estado sesión 5
 - `onGoogleSignIn` detecta `wiz-liga-overlay` y avanza al paso 2 si `_wizLigaPaso === 1`
@@ -208,8 +212,10 @@ Cualquier elemento que aparece o desaparece necesita al menos `opacity` animada.
 
 ### Pendientes 🔜
 
-#### Unificación pendiente de wizards
-- Migrar wizard de liga para usar `.wiz-step-inner` como contenedor interno igual que el wizard de perfil, para unificar el mecanismo de animación de contenido (actualmente usa dos mecanismos distintos)
+#### Wizard de liga — verificar en próxima sesión
+- Confirmar que los botones dentro de `.wiz-actions` en los templates se renderizan correctamente
+- Verificar que el paso 20 (último) llama `wizLigaSubmit()` correctamente desde su botón "Continuar"
+- Verificar que el footer solo muestra "Atrás" y no interfiere visualmente con `.wiz-actions`
 
 #### Rebranding a Pivot
 - Limpiar todas las referencias a "Quindes" en: `index.html`, `manifest.json`, `sw.js`, `ajustes.js`, `auth.js`, `perfil.js`, `core.js`
@@ -355,12 +361,14 @@ Liga → Equipo(s) → Miembros → Perfiles
 - `initRegistroListeners()`
 - `lanzarConfetti()` — usa `style.cssText` con valores aleatorios calculados en runtime (excepción aceptada a la regla de no inline)
 - `mostrarBienvenida()` — modal post-registro, construido con DOM + clases CSS (sin innerHTML con estilos)
-- `renderWizLigaPaso(paso)` — pasos 0-20; `_WIZ_LIGA_TOTAL = 20`
-- `wizLigaPasoSiguiente()` / `wizLigaPasoAnterior()`
-- `wizLigaSubmit()` — envía todo a `/crear-liga`
+- `renderWizLigaPaso(paso)` — pasos 0-20; `_WIZ_LIGA_TOTAL = 20`; ya NO referencia `btnNext`
+- `wizLigaPasoSiguiente()` — en paso 20 llama `wizLigaSubmit()`
+- `wizLigaPasoAnterior()`
+- `wizLigaSubmit()` — envía todo a `/crear-liga`; ya NO referencia `btnNext`
 - `mostrarWizardLiga()` — crea overlay y arranca en paso 0
 - `cerrarWizLiga()`
 - `wizLigaGoTo(renderFn, forward)` — motor de animación slide del wizard de liga
+- `wizLigaIntroStart()` — fade in de header y footer al salir de la intro
 - `REG_PAISES`, `REG_CODIGOS`, `REG_PRONOMBRES`, `REG_ROLES`, `REG_ROLES_JUG`, `REG_ASISTENCIA` — constantes globales
 
 **ajustes.js**
