@@ -682,8 +682,24 @@ function wizLigaIntroStart() {
   }
 
   setTimeout(() => {
-    if (headerEl) headerEl.style.display = 'flex';
-    if (footerEl) footerEl.style.display = 'flex';
+    if (headerEl) {
+      headerEl.style.opacity = '0';
+      headerEl.style.display = 'flex';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        headerEl.style.transition = 'opacity 0.35s ease';
+        headerEl.style.opacity = '1';
+        setTimeout(() => { headerEl.style.transition = ''; }, 370);
+      }));
+    }
+    if (footerEl) {
+      footerEl.style.opacity = '0';
+      footerEl.style.display = 'flex';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        footerEl.style.transition = 'opacity 0.35s ease';
+        footerEl.style.opacity = '1';
+        setTimeout(() => { footerEl.style.transition = ''; }, 370);
+      }));
+    }
     renderWizLigaPaso(1);
   }, 200);
 }
