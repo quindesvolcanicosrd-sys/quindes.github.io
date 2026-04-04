@@ -2,7 +2,7 @@
 <div id="registroScreen" style="display:none;">
 
   <!-- PASO 0: Login con Google -->
-  <div id="wiz-step-0" class="wiz-intro-screen" style="display:none;">
+  <div id="wiz-google-login-screen" class="wiz-intro-screen" style="display:none;">
     <div class="wiz-intro-bg">
       <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
       <span class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></span>
@@ -361,67 +361,30 @@
 
 <!-- WIZARD LIGA TEMPLATES -->
 
-
-<!-- WIZARD LIGA OVERLAY -->
-<div id="wiz-liga-overlay" class="wiz-equipo-overlay">
-  <div id="wiz-liga-intro" class="wiz-intro-screen">
-    <div class="wiz-intro-bg">
-      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
-      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></span>
-      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></span>
-    </div>
-    <div class="wiz-intro-content">
-      <div class="wiz-intro-logo">🏟️</div>
-      <h1 class="wiz-intro-title">Creá<br>tu liga</h1>
-      <p class="wiz-intro-sub">En pocos pasos vas a tener tu liga, tu equipo y tu perfil listos.</p>
-      <div class="wiz-intro-steps">
-        <div class="wiz-intro-step wiz-intro-step-1">
-          <span class="wiz-intro-step-ico">🏟️</span>
-          <span class="wiz-intro-step-txt">Datos de tu liga y equipo</span>
-        </div>
-        <div class="wiz-intro-step wiz-intro-step-2">
-          <span class="wiz-intro-step-ico">👤</span>
-          <span class="wiz-intro-step-txt">Tu perfil de administradorx del equipo</span>
-        </div>
-        <div class="wiz-intro-step wiz-intro-step-3">
-          <span class="wiz-intro-step-ico">🔑</span>
-          <span class="wiz-intro-step-txt">Código para invitar patinadorxs y miembros de tu equipo</span>
-        </div>
-      </div>
-      <button class="wiz-intro-btn" onclick="wizLigaIntroStart()">
-        Empezar <span class="material-icons">arrow_forward</span>
-      </button>
-      <button class="wiz-skip-btn" onclick="cerrarWizLiga()">Cancelar</button>
-    </div>
   </div>
-  <header class="wiz-header" id="wiz-liga-header" style="display:none;">
-    <button onclick="cerrarWizLiga()" class="wiz-eq-close-btn">
-      <span class="material-icons">close</span>
-    </button>
-    <span id="wiz-liga-paso-label" class="wiz-eq-paso-label">Paso 1 de 20</span>
-    <div class="wiz-equipo-progress">
-      <div id="wiz-liga-progress" class="wiz-equipo-progress-bar"></div>
-    </div>
-  </header>
-  <div id="wiz-liga-contenido" class="wiz-equipo-contenido">
-
-<!-- LIGA: TEMPLATE 1 -->
-<div class="wiz-step">
-  <div class="wiz-intro-bg">
-    <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
-    <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
-    <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
-  </div>
-
-  <div class="wiz-liga-intro-content">
-    <div class="wiz-intro-logo">👤</div>
-    <h1 class="wiz-intro-title">Vamos a<br>registrarte</h1>
-    <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+  <div class="wiz-equipo-footer" id="wiz-liga-footer" style="display:none;">
+    <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-eq-btn-back">Atrás</button>
+    <button id="wiz-liga-btn-next" data-action="next" class="wiz-btn-primary">Continuar</button>
   </div>
 </div>
+<!-- /wiz-liga-overlay -->
 
-<!-- LIGA: TEMPLATE 2 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-1">
+  <div class="wiz-step-inner">
+    <div class="wiz-intro-bg">
+      <div class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></div>
+      <div class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></div>
+      <div class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></div>
+    </div>
+    <div class="wiz-liga-intro-content">
+      <div class="wiz-intro-logo">👤</div>
+      <h1 class="wiz-intro-title">Vamos a<br>registrarte</h1>
+      <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-wiz-liga-2">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏟️</div>
     <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
@@ -433,10 +396,9 @@
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- LIGA: TEMPLATE 3 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-3">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🖼️</div>
     <h2 class="wiz-title">Logo de tu liga</h2>
@@ -455,10 +417,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- LIGA: TEMPLATE 4 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-4">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🌎</div>
     <h2 class="wiz-title">¿De dónde es tu liga?</h2>
@@ -481,10 +442,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- LIGA: TEMPLATE 5 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-5">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">📅</div>
     <h2 class="wiz-title">Cuéntanos más</h2>
@@ -498,10 +458,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- LIGA: TEMPLATE 6 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-6">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">📬</div>
     <h2 class="wiz-title">Contacto de la liga</h2>
@@ -514,10 +473,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- LIGA: TEMPLATE 7 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-7">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🛼</div>
     <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
@@ -529,10 +487,9 @@
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- LIGA: TEMPLATE 8 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-8">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏆</div>
     <h2 class="wiz-title">¿Qué categoría?</h2>
@@ -545,14 +502,13 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- LIGA: TEMPLATE 9 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-9">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🎨</div>
     <h2 class="wiz-title">Personaliza tu equipo</h2>
-    <p class="wiz-desc">Logo y color de énfasis. Así se verá la app cuando uses este equipo.</p>
+    <p class="wiz-desc">Logo y color de énfasis.</p>
     <div class="wiz-content">
       <div class="wiz-liga-avatar-wrap">
         <label class="wiz-liga-avatar">
@@ -569,10 +525,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 10 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-10">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">📸</div>
     <h2 class="wiz-title">¡Ponele cara al nombre!</h2>
@@ -591,10 +546,9 @@
       <button class="wiz-skip-btn" id="wiz-liga-skip-10" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 11 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-11">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">✨</div>
     <h2 class="wiz-title">¿Cómo te llamamos?</h2>
@@ -606,10 +560,9 @@
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 12 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-12">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏳️‍🌈</div>
     <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
@@ -622,10 +575,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 13 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-13">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🌎</div>
     <h2 class="wiz-title">¿De dónde sos?</h2>
@@ -641,10 +593,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 14 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-14">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">📱</div>
     <h2 class="wiz-title">Tu número de contacto</h2>
@@ -663,10 +614,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 15 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-15">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🎂</div>
     <h2 class="wiz-title">Fecha de nacimiento</h2>
@@ -692,10 +642,9 @@
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 16 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-16">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">⭐</div>
     <h2 class="wiz-title">Datos Derby</h2>
@@ -709,10 +658,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 17 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-17">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏅</div>
     <h2 class="wiz-title">Tu rol</h2>
@@ -724,10 +672,9 @@
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 18 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-18">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🏋️</div>
     <h2 class="wiz-title">¿Cuánto entrenás?</h2>
@@ -739,10 +686,9 @@
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 19 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-19">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🩺</div>
     <h2 class="wiz-title">Tu salud nos importa</h2>
@@ -756,10 +702,9 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
+</template>
 
-<!-- PERFIL: TEMPLATE 20 -->
-<div class="wiz-step">
+<template id="tpl-wiz-liga-20">
   <div class="wiz-step-inner">
     <div class="wiz-emoji">🆘</div>
     <h2 class="wiz-title">Contacto de emergencia</h2>
@@ -772,13 +717,4 @@
       <button class="wiz-skip-btn" data-action="next">Omitir por ahora</button>
     </div>
   </div>
-</div>
-
-
-
-  </div>
-  <div class="wiz-equipo-footer" id="wiz-liga-footer" style="display:none;">
-    <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-eq-btn-back">Atrás</button>
-    <button id="wiz-liga-btn-next" data-action="next" class="wiz-btn-primary">Continuar</button>
-  </div>
-</div>
+</template>

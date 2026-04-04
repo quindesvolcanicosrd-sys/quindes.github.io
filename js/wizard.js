@@ -35,8 +35,6 @@ const base64 = canvas.toDataURL(
   isPng ? 'image/png' : 'image/jpeg',
   quality
 );
-
-        const base64 = canvas.toDataURL('image/jpeg', quality);
         resolve(base64);
       };
 
@@ -387,7 +385,6 @@ function wizPositionInSequence() { return wizStepSequence.indexOf(wizStep) + 1; 
 function mostrarRegistroWizard() {
   wizStep = 'inv';
   if (!wizOrigen) wizOrigen = 'login';
-  const desdeCrearLiga = wizOrigen === 'crearLiga';
   wizRecalcSequence();
 
   registroWizard = createWizard({
@@ -480,28 +477,16 @@ function mostrarRegistroWizard() {
 
   document.getElementById('registroScreen').style.display = 'flex';
 
-  const step0 = document.getElementById('wiz-step-0');
+  const step0 = document.getElementById('wiz-google-login-screen');
   if (step0) step0.style.display = 'none';
 
   const introEl    = document.getElementById('wiz-intro');
   const headerEl   = document.getElementById('wiz-header');
   const viewportEl = document.getElementById('wiz-viewport');
 
-  if (desdeCrearLiga) {
-    document.getElementById('loginScreen').style.display = 'none';
-    if (introEl)    introEl.style.display    = 'none';
-    if (headerEl)   headerEl.style.display   = 'flex';
-    if (viewportEl) viewportEl.style.display = 'block';
-
-    regData.codigoInvitacion = inviteCode;
-
-    wizUpdateHeader();
-    wizGoTo(1, true);
-  } else {
-    if (introEl)    introEl.style.display    = 'flex';
-    if (headerEl)   headerEl.style.display   = 'none';
-    if (viewportEl) viewportEl.style.display = 'none';
-  }
+  if (introEl)    introEl.style.display    = 'flex';
+  if (headerEl)   headerEl.style.display   = 'none';
+  if (viewportEl) viewportEl.style.display = 'none';
 
   // 🔥 ARRANQUE FORZADO SIEMPRE EN INV
   wizGoTo('inv', true);
@@ -518,7 +503,7 @@ function wizSaveDraft() {
 }
 
 function wizStep0Volver() {
-  const step0 = document.getElementById('wiz-step-0');
+  const step0 = document.getElementById('wiz-google-login-screen');
   if (step0) step0.style.display = 'none';
   if (wizOrigen === 'noEncontrado') {
     const noEnc = document.getElementById('noEncontradoScreen');
@@ -855,13 +840,7 @@ async function wizNext() {
 function wizBack() {
   wizHideError();
 
-  // 🔙 Caso especial: volver a wizard de liga
-  if (wizOrigen === 'crearLiga' && registroWizard.getStep() === wizStepSequence[0]) {
-    document.getElementById('registroScreen').style.display = 'none';
-    mostrarWizardLiga();
-    setTimeout(() => renderWizLigaPaso(_WIZ_LIGA_TOTAL), 400);
-    return;
-  }
+  
 
   // 🔙 Si estamos en el primer paso → volver al intro
   const idx = wizStepSequence.indexOf(registroWizard.getStep());
@@ -1215,51 +1194,6 @@ async function submitRegistro() {
 
   try {
     const email = window._googleEmail || localStorage.getItem('quindes_email') || '';
-    console.log('[SUBMIT] email:', email, '| wizOrigen:', wizOrigen, '| _wizLiga:', JSON.stringify(_wizLiga));
-
-    if (wizOrigen === 'crearLiga') {
-      console.log('[SUBMIT] entrando a crearLiga');
-      const json = await apiCall('/crear-liga', 'POST', {
-        email,
-        nombreLiga:   _wizLiga.nombreLiga,
-        nombreEquipo: _wizLiga.nombreEquipo,
-        categoria:    _wizLiga.categoria || null,
-        ligaImagenBase64: _wizLiga.ligaImagenBase64 || null,
-        logoBase64:   _wizLiga.logoBase64 || null,
-        nombre: regData.nombre.trim(),
-        pronombres: Array.isArray(regData.pronombres) ? regData.pronombres.join(', ') : (regData.pronombres || ''),
-        pais: regData.pais, codigoPais: regData.codigoPais,
-        telefono: regData.telefono.trim(), fechaNacimiento: regData.fechaNacimiento,
-        mostrarCumple: regData.mostrarCumple, mostrarEdad: regData.mostrarEdad,
-        nombreDerby: regData.nombreDerby, numero: regData.numero,
-        rolJugadorx: regData.rolJugadorx, asisteSemana: regData.asisteSemana,
-        alergias: regData.alergias, dieta: regData.dieta,
-        contactoEmergencia: regData.contactoEmergencia,
-        fotoBase64: regData.fotoBase64 || null,
-      });
-      localStorage.setItem('quindes_email', email);
-      CURRENT_USER = { found: true, id: json.perfil.id, email, rolApp: 'Admin', equipoId: json.equipo.id, ligaId: json.liga.id };
-      const _uel = document.getElementById('user-email'); if (_uel) _uel.textContent = email;
-      const profile = await apiCall('/perfil/' + json.perfil.id);
-      window.myProfile = profile;
-      configurarTodasLasSubidas();
-      renderTodo(profile);
-      aplicarPermisos();
-      wizOcultarCargando();
-      window._enFlujoCrearLiga = false;
-      sessionStorage.removeItem('_enFlujoCrearLiga');
-      inicializarAjustes();
-      document.getElementById('registroScreen').style.display = 'none';
-      document.getElementById('loadingScreen').style.display  = 'none';
-      const appEl = document.getElementById('appContent');
-      appEl.style.display = 'block';
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        appEl.classList.add('visible');
-        setTimeout(() => { lanzarConfetti(); mostrarBienvenida(); }, 400);
-      }));
-      if (CURRENT_USER?.ligaId) cargarMiLiga({ render: false });
-      return;
-    }
 
     const json = await apiCall('/registrar', 'POST', {
       email,
@@ -1894,7 +1828,7 @@ if (paso === 19) {
   return;
 }
 
-if (paso === 20) {
+  if (paso === 20) {
   wizLigaGoTo(el => {
     el.innerHTML = '';
     el.appendChild(document.getElementById('tpl-wiz-liga-20').content.cloneNode(true));
@@ -1903,7 +1837,9 @@ if (paso === 20) {
       e => _wizLiga.contactoEmergencia = e.target.value;
   }, forward);
   return;
-} 
+}
+
+} // cierre renderWizLigaPaso
 
 function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 2 && !_wizLiga.nombreLiga.trim()) {
