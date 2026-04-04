@@ -1047,9 +1047,6 @@ function navIr(seccion) {
   if (navEl) { void navEl.offsetWidth; navEl.classList.add('nav-active'); }
   // TODO: mostrar sección correspondiente
 }
-// ── Wizard Crear Liga ─────────────────────────────────────────
-let _wizLiga = { nombreLiga: '', ligaImagenBase64: null, nombreEquipo: '', categoria: '', logoBase64: null, pais: '', ciudad: '', anioFundacion: '', descripcion: '', contactoSocial: '', colorPrimario: '', nombre: '', pronombres: [], paisPerfil: '', codigoPais: '', telefono: '', fechaNacimiento: '', mostrarCumple: '', mostrarEdad: '', nombreDerby: '', numeroDerby: '', rolJugadorx: '', asisteSemana: '', alergias: '', dieta: '', contactoEmergencia: '', fotoBase64: null };
-let _wizLigaPaso = 0;
 
 function wizLigaIntroStart() {
   renderWizLigaPaso(1);
