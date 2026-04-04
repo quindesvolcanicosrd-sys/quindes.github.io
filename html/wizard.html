@@ -417,7 +417,7 @@
       </label>
     </div>
 
-    <p class="reg-note">Opcional — puedes saltarte este paso</p>
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
   </div>
 </template>
 
@@ -478,7 +478,7 @@
       style="margin-top:12px;"
     ></textarea>
 
-    <p class="reg-note">Ambos campos son opcionales</p>
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
   </div>
 </template>
 
@@ -497,7 +497,7 @@
       class="reg-input"
     >
 
-    <p class="reg-note">Opcional — puedes saltarte este paso</p>
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
 
   </div>
 </template>
@@ -527,7 +527,7 @@
   <div class="wiz-content">
     <div class="wiz-chips" id="wiz-liga-cat-chips"></div>
 
-    <p class="reg-note">Opcional — puedes saltarte este paso</p>
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
   </div>
 </template>
 
@@ -563,7 +563,7 @@
 
     <div class="wiz-color-presets" id="wiz-color-presets"></div>
 
-    <p class="reg-note">Opcional — puedes saltarte este paso</p>
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
 
   </div>
 </template>
@@ -625,6 +625,7 @@
 
   <div class="wiz-content">
     <div id="wiz-liga-pronombres-chips" class="wiz-chips"></div>
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
   </div>
 </template>
 
@@ -712,6 +713,7 @@
   <div class="wiz-content">
     <input id="wiz-liga-perfil-derby" class="reg-input" placeholder="Nombre Derby">
     <input id="wiz-liga-perfil-numero" class="reg-input" style="margin-top:12px;" placeholder="Número Derby">
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
   </div>
 </template>
 
@@ -743,6 +745,7 @@
   <div class="wiz-content">
     <input id="wiz-liga-perfil-alergias" class="reg-input" placeholder="Alergias">
     <input id="wiz-liga-perfil-dieta" class="reg-input" style="margin-top:12px;" placeholder="Dieta">
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
   </div>
 </template>
 
@@ -753,6 +756,7 @@
 
   <div class="wiz-content">
     <input id="wiz-liga-perfil-emergencia" class="reg-input" placeholder="Nombre + teléfono">
+    <button class="wiz-skip-btn" onclick="wizLigaPasoSiguiente()">Omitir por ahora</button>
   </div>
 </template>
 
