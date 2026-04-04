@@ -3,6 +3,103 @@
 //  QUINDES APP — wizard.js  (flujo de registro)
 // ============================================================
 
+/* ================================
+   MOTOR BASE REUTILIZABLE
+================================ */
+
+function createWizard(config) {
+  let currentStep = config.initialStep;
+  const sequence = config.sequence;
+
+  function next() {
+    const idx = sequence.indexOf(currentStep);
+    const stepConfig = config.steps[currentStep];
+
+    // 🔹 Validación
+    if (stepConfig?.validate) {
+      const error = stepConfig.validate();
+      if (error) return config.onError?.(error);
+    }
+
+    // 🔹 Acción (async o sync)
+    if (stepConfig?.action) {
+      return Promise.resolve(stepConfig.action()).then(err => {
+        if (err) return config.onError?.(err);
+        resolveNext(stepConfig, idx);
+      });
+    }
+
+    resolveNext(stepConfig, idx);
+  }
+
+  function resolveNext(stepConfig, idx) {
+    let nextStep;
+
+    // 🧠 1. next dinámico
+    if (typeof stepConfig?.next === 'function') {
+      nextStep = stepConfig.next(regData);
+    }
+
+    // 🧠 2. next fijo
+    else if (stepConfig?.next) {
+      nextStep = stepConfig.next;
+    }
+
+    // 🧠 3. fallback (secuencia)
+    else {
+      nextStep = sequence[idx + 1];
+    }
+
+    go(nextStep, true);
+  }
+
+  function back() {
+    const idx = sequence.indexOf(currentStep);
+    const stepConfig = config.steps[currentStep];
+
+    let prevStep;
+
+    // 🧠 back dinámico
+    if (typeof stepConfig?.back === 'function') {
+      prevStep = stepConfig.back(regData);
+    }
+
+    // 🧠 back fijo
+    else if (stepConfig?.back) {
+      prevStep = stepConfig.back;
+    }
+
+    // 🧠 fallback
+    else {
+      prevStep = sequence[idx - 1];
+    }
+
+    go(prevStep, false);
+  }
+
+  function go(step, forward = true) {
+    if (!step) return;
+
+    config.onBeforeChange?.(currentStep, step);
+    config.transition?.(currentStep, step, forward);
+
+    currentStep = step;
+
+    config.onAfterChange?.(step);
+  }
+
+  function getStep() {
+    return currentStep;
+  }
+
+  return {
+    next,
+    back,
+    go,
+    getStep
+  };
+}
+
 const WIZ_VALIDATORS = {
   nombre: v => !v ? 'Escribe cómo quieres que te llamemos ✍️' : null,
 
@@ -85,9 +182,9 @@ const REG_ROLES      = ['Jammer', 'Bloquer', 'Blammer', 'Ref', 'Coach', 'Bench',
 const REG_ROLES_JUG  = ['Jammer', 'Bloquer', 'Blammer', 'No definido'];
 const REG_ASISTENCIA = ['1 vez', '2 veces', '3 o más veces'];
 
-const WIZ_STEPS_BASE = ['inv',1,2,3,4,5,6,7,8,9,10,11];
+const WIZ_STEPS_BASE = ['inv','1','2','3','4','5','6','7','8','9','10','11'];
 let wizStepSequence = [...WIZ_STEPS_BASE];
-let wizStep = 1;
+let wizStep = '1';
 let cropTarget = 'app';
 
 const regData = {
@@ -101,8 +198,8 @@ function esJugadorx(rol) { return REG_ROLES_JUG.includes(rol); }
 
 function wizRecalcSequence() {
   wizStepSequence = esJugadorx(regData.rolJugadorx)
-    ? ['inv',1,2,3,4,5,6,7,8,9,10,11]
-    : ['inv',1,2,3,4,5,6,7,8,10,11];
+  ? ['inv','1','2','3','4','5','6','7','8','9','10','11']
+  : ['inv','1','2','3','4','5','6','7','8','10','11'];
 }
 
 function wizPositionInSequence() { return wizStepSequence.indexOf(wizStep) + 1; }
@@ -112,6 +209,24 @@ function mostrarRegistroWizard() {
   if (!wizOrigen) wizOrigen = 'login';
   const desdeCrearLiga = wizOrigen === 'crearLiga';
   wizRecalcSequence();
+
+  registroWizard = createWizard({
+  initialStep: 'inv',
+  sequence: wizStepSequence,
+  steps: WIZ_STEPS,
+
+  onError: (msg) => wizShowError(msg),
+
+  transition: (from, to, forward) => {
+    wizGoTo(to, forward);
+  },
+
+  onAfterChange: (step) => {
+    wizStep = step;
+    wizUpdateHeader();
+    wizSaveDraft();
+  }
+});
 
   // 🔥 Intentar recuperar progreso guardado
   const saved = localStorage.getItem('regDraft');
@@ -389,11 +504,11 @@ function wizGoTo(next, forward = true) {
 }
 
 function wizUpdateHeader() {
-  const idx = wizSequence.indexOf(wizStep);
+  const idx = wizStepSequence.indexOf(wizStep);
   if (idx === -1) return;
 
   const pos   = idx + 1;
-  const total = wizSequence.length;
+  const total = wizStepSequence.length;
 
   const fill  = document.getElementById('wiz-progress-fill');
   const label = document.getElementById('wiz-step-label');
@@ -451,6 +566,7 @@ const WIZ_STEPS = {
 
         regData.codigoInvitacion = val;
         inviteCode = val;
+
         wizOcultarCargando();
         return null;
 
@@ -461,35 +577,37 @@ const WIZ_STEPS = {
     }
   },
 
-  2: {
+  '2': {
     label: 'Nombre',
     validate: () => {
       const val = document.getElementById('reg-nombre')?.value.trim();
       if (!val) return 'Escribe cómo quieres que te llamemos ✍️';
+
       regData.nombre = val;
       return null;
     }
   },
 
-  4: {
+  '4': {
     label: 'País',
-    validate: () => !regData.pais && 'Selecciona tu país de origen 🌎'
+    validate: () => {
+      if (!regData.pais) return 'Selecciona tu país de origen 🌎';
+      return null;
+    }
   },
 
-  5: {
+  '5': {
     label: 'Teléfono',
-        validate: () => {
+    validate: () => {
       if (!regData.codigoPais) {
         return 'Selecciona el código de tu país 📱';
       }
 
       const tel = document.getElementById('reg-telefono')?.value.trim();
 
-      // 👇 validación centralizada
       const error = WIZ_VALIDATORS.telefono(tel);
       if (error) return error;
 
-      // 👇 validación extra (por si está vacío)
       if (!tel) return 'Ingresa tu número de teléfono 📱';
 
       regData.telefono = tel.replace(/\D/g, '');
@@ -497,7 +615,7 @@ const WIZ_STEPS = {
     }
   },
 
-  6: {
+  '6': {
     label: 'Nacimiento',
     validate: () => {
       if (!regData.fechaNacimiento) return 'Ingresa tu fecha de nacimiento 🎂';
@@ -507,7 +625,7 @@ const WIZ_STEPS = {
     }
   },
 
-  7: {
+  '7': {
     label: 'Derby',
     validate: () => {
       regData.nombreDerby = document.getElementById('reg-nombreDerby')?.value.trim() || '';
@@ -516,17 +634,23 @@ const WIZ_STEPS = {
     }
   },
 
-  8: {
+  '8': {
     label: 'Rol',
-    validate: () => !regData.rolJugadorx && 'Selecciona tu rol en el equipo 🏅'
+    validate: () => {
+      if (!regData.rolJugadorx) return 'Selecciona tu rol en el equipo 🏅';
+      return null;
+    }
   },
 
-  9: {
+  '9': {
     label: 'Asistencia',
-    validate: () => !regData.asisteSemana && 'Indica cuántas veces entrenas por semana 🏋️'
+    validate: () => {
+      if (!regData.asisteSemana) return 'Indica cuántas veces entrenas por semana 🏋️';
+      return null;
+    }
   },
 
-  10: {
+  '10': {
     label: 'Salud',
     validate: () => {
       regData.alergias = document.getElementById('reg-alergias')?.value.trim() || '';
@@ -535,102 +659,59 @@ const WIZ_STEPS = {
     }
   },
 
-  11: {
-    label: 'Foto'
+  '11': {
+    label: 'Final'
+    // sin validate → permite terminar directo
   }
 };
 
+let registroWizard;
+
 async function wizNext() {
   wizHideError();
-
-  const step = WIZ_STEPS[wizStep];
-
-  // 🔹 Validación
-  if (step?.validate) {
-    const error = step.validate();
-    if (error) {
-      wizShowError(error);
-      return;
-    }
-  }
-
-  // 🔹 Acción async
-  if (step?.action) {
-    const error = await step.action();
-    if (error) {
-      wizShowError(error);
-      return;
-    }
-  }
-
-  // 🔹 Navegación
-  const idx = wizSequence.indexOf(wizStep);
-  if (idx === -1) return;
-
-  let nextStep = wizSequence[idx + 1];
-
-  // 🚀 Salto condicional (IMPORTANTE: ahora es string)
-  if (nextStep === '9' && !esJugadorx(regData.rolJugadorx)) {
-    nextStep = '10';
-  }
-
-  // 💾 autosave
-  wizSaveDraft();
-
-  if (nextStep) {
-    wizGoTo(nextStep, true);
-  }
+  await registroWizard.next();
 }
 
 function wizBack() {
   wizHideError();
 
-  const idx = wizSequence.indexOf(wizStep);
-  if (idx === -1) return;
-
-  let prevStep = wizSequence[idx - 1];
-
-  // 🚀 Salto condicional (ahora string)
-  if (prevStep === '9' && !esJugadorx(regData.rolJugadorx)) {
-    prevStep = '8';
-  }
-
-  if (idx > 0 && prevStep) {
-    wizGoTo(prevStep, false);
-    return;
-  }
-
   // 🔙 Caso especial: volver a wizard de liga
-  if (wizOrigen === 'crearLiga') {
+  if (wizOrigen === 'crearLiga' && registroWizard.getStep() === wizStepSequence[0]) {
     document.getElementById('registroScreen').style.display = 'none';
     mostrarWizardLiga();
     setTimeout(() => renderWizLigaPaso(_WIZ_LIGA_TOTAL), 400);
     return;
   }
 
-  // 🔙 Volver al intro
-  const introEl    = document.getElementById('wiz-intro');
-  const headerEl   = document.getElementById('wiz-header');
-  const viewportEl = document.getElementById('wiz-viewport');
+  // 🔙 Si estamos en el primer paso → volver al intro
+  const idx = wizStepSequence.indexOf(registroWizard.getStep());
 
-  const sInv = document.getElementById('wiz-step-inv');
-  if (sInv) sInv.classList.remove('wiz-active','wiz-animate');
+  if (idx <= 0) {
+    const introEl    = document.getElementById('wiz-intro');
+    const headerEl   = document.getElementById('wiz-header');
+    const viewportEl = document.getElementById('wiz-viewport');
 
-  if (headerEl)   headerEl.style.display   = 'none';
-  if (viewportEl) viewportEl.style.display = 'none';
+    if (headerEl)   headerEl.style.display   = 'none';
+    if (viewportEl) viewportEl.style.display = 'none';
 
-  if (introEl) {
-    introEl.style.display   = 'flex';
-    introEl.style.opacity   = '0';
-    introEl.style.transform = 'translateY(24px)';
+    if (introEl) {
+      introEl.style.display   = 'flex';
+      introEl.style.opacity   = '0';
+      introEl.style.transform = 'translateY(24px)';
 
-    requestAnimationFrame(() => {
-      introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
-      introEl.style.opacity    = '1';
-      introEl.style.transform  = 'translateY(0)';
-      setTimeout(() => { introEl.style.transition = ''; }, 310);
-    });
+      requestAnimationFrame(() => {
+        introEl.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+        introEl.style.opacity    = '1';
+        introEl.style.transform  = 'translateY(0)';
+        setTimeout(() => { introEl.style.transition = ''; }, 310);
+      });
+    }
+
+    return;
   }
+
+  // 🔙 navegación normal (usa el motor)
+  registroWizard.back();
 }
 
 function wizShowError(msg) {
@@ -805,21 +886,6 @@ function initRegistroListeners() {
       r.readAsDataURL(file);
     });
   }
-
-  document.getElementById('reg-telefono')?.addEventListener('input', e => {
-  let val = e.target.value;
-
-  // 👇 quitar todo lo que no sea número
-  val = val.replace(/\D/g, '');
-
-  e.target.value = val;
-
-  wizLiveValidate({
-    value: val,
-    validator: WIZ_VALIDATORS.telefono,
-    onValid: v => regData.telefono = v
-  });
-  });
 
   // 👇 AQUÍ VA TU UX PRO
   document.getElementById('reg-nombre')?.addEventListener('input', e => {
@@ -1892,4 +1958,3 @@ document.addEventListener('click', (e) => {
     wizLigaPasoSiguiente();
   }
 });
-
