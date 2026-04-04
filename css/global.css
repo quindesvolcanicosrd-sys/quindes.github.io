@@ -1,32 +1,32 @@
 /* ── TOKENS: DARK (default) ── */
 :root {
   --bg-rgb: 26, 18, 18;
-  --bg:         #1a1212;
-  --card:       #251a1a;
-  --card2:      #2e1f1f;
-  --border:     rgba(255,200,200,0.10);
-  --border2:    rgba(255,200,200,0.07);
-  --border3:    rgba(255,200,200,0.05);
+  --bg:         #1d0c0c;
+  --card:       #261212;
+  --card2:      #2e1919;
+  --border:     rgba(239,68,68,0.18);
+  --border2:    rgba(239,68,68,0.12);
+  --border3:    rgba(239,68,68,0.07);
   --text:       #f5e6e6;
-  --text2:      #c4a0a0;
+  --text2:      #c28080;
 
-  --text3:      #8c6464;
-  --text4:      #6b4a4a;
-  --label:      #c4a0a0;
+  --text3:      #935353;
+  --text4:      #6d4646;
+  --label:      #c28080;
   --accent:     #ef4444;
   --accent2:    #eb1414;
   --accent-dim: rgba(239,68,68,0.18);
-  --header-bg:  rgba(26,18,18,0.80);
+  --header-bg:  rgba(239,68,68,0.10);
   --chip-bg:    rgba(239,68,68,0.08);
   --stat-bg:    rgba(239,68,68,0.06);
   --section-hd: rgba(239,68,68,0.05);
 
   /* Gradiente del botón primario — derivado del acento */
-  --accent-gradient-from: #ff4d4d;
-  --accent-gradient-to:   #d61f1f;
-  --badge-ok-bg:    rgba(34,197,94,0.16);
-  --badge-ok-color: #4ade80;
-  --badge-ok-border:rgba(34,197,94,0.35);
+  --accent-gradient-from: #f55b5b;
+  --accent-gradient-to:   #d81313;
+  --badge-ok-bg:    rgba(134,234,134,0.16);
+  --badge-ok-color: #86ea86;
+  --badge-ok-border:rgba(134,234,134,0.35);
 
   /* Overlays — fijos, no dependen del color primario */
   --overlay-dark:   rgba(0,0,0,0.85);
@@ -37,27 +37,27 @@
 @media (prefers-color-scheme: light) {
   :root {
     --bg-rgb: 252, 240, 240;
-    --bg:         #fcf0f0;
+    --bg:         #faf5f5;
     --card:       #ffffff;
-    --card2:      #fff5f5;
-    --border:     rgba(180,0,0,0.10);
-    --border2:    rgba(180,0,0,0.07);
-    --border3:    rgba(180,0,0,0.05);
+    --card2:      #f5efef;
+    --border:     rgba(231,35,35,0.15);
+    --border2:    rgba(231, 35, 35, 0.10);
+    --border3:    rgba(231,35,35,0.06);
     --text:       #1c0a0a;
-    --text2:      #6b3030;
-    --text3:      #9e5050;
-    --text4:      #bb8080;
-    --label:      #9e5050;
-    --accent:     #c62828;
-    --accent2:    #b71c1c;
-    --accent-dim: rgba(198,40,40,0.10);
-    --header-bg:  rgba(252,240,240,0.80);
-    --chip-bg:    rgba(198,40,40,0.07);
-    --stat-bg:    rgba(198,40,40,0.05);
-    --section-hd: rgba(198,40,40,0.04);
+    --text2:      #913030;
+    --text3:      #ba5e5e;
+    --text4:      #c89898;
+    --label:      #ba5e5e;
+    --accent:     #e72323;
+    --accent2:    #d31717;
+    --accent-dim: rgba(231,35,35,0.10);
+    --header-bg:  rgba(231,35,35,0.08);
+    --chip-bg:    rgba(231,35,35,0.07);
+    --stat-bg:    rgba(231,35,35,0.05);
+    --section-hd: rgba(231,35,35,0.04);
 
-    --accent-gradient-from: #e53935;
-    --accent-gradient-to:   #b71c1c;
+    --accent-gradient-from: #f22121;
+    --accent-gradient-to:   #c51111;
 
     --overlay-dark:   rgba(0,0,0,0.85);
     --overlay-medium: rgba(0,0,0,0.60);
