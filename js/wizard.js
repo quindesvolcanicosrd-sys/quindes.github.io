@@ -1270,8 +1270,8 @@ function renderWizLigaPaso(paso) {
   const forward = paso >= _wizLigaPaso;
   _wizLigaPaso = paso;
   const btnBack   = document.getElementById('wiz-liga-btn-back');
-  const pasoLabel = document.getElementById('wiz-liga-paso-label');
-  const progress  = document.getElementById('wiz-liga-progress');
+  const pasoLabel = document.getElementById('wiz-liga-step-label');
+  const progress  = document.getElementById('wiz-liga-progress-fill');
   const contenido = document.getElementById('wiz-liga-contenido');
   if (!contenido) return;
 
