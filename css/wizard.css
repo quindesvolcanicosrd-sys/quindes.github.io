@@ -128,8 +128,8 @@
 .wiz-equipo-contenido { flex: 1; position: relative; overflow: hidden; }
 .wiz-equipo-footer { padding: 12px 20px calc(16px + env(safe-area-inset-bottom,0px)); flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; transition: gap 0.3s ease; }
 
-#wiz-liga-btn-skip { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease, margin 0.35s ease; margin: 0; pointer-events: none; }
-#wiz-liga-btn-skip:not(.wiz-hidden) { max-height: 60px; opacity: 1; pointer-events: auto; }
+#wiz-liga-btn-skip { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; pointer-events: none; }
+#wiz-liga-btn-skip.skip-visible { max-height: 60px; opacity: 1; pointer-events: auto; }
 .wiz-equipo-progress { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-left: 4px; }
 .wiz-equipo-progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
 

@@ -718,9 +718,9 @@ function renderWizLigaPaso(paso) {
   const btnSkip = document.getElementById('wiz-liga-btn-skip');
   if (btnSkip) {
     if (PASOS_OPCIONALES.includes(paso)) {
-      btnSkip.classList.remove('wiz-hidden');
+      requestAnimationFrame(() => btnSkip.classList.add('skip-visible'));
     } else {
-      btnSkip.classList.add('wiz-hidden');
+      btnSkip.classList.remove('skip-visible');
     }
   }
 
