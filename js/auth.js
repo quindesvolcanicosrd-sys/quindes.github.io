@@ -289,7 +289,7 @@ const desdeNoEnc = noEncEl && noEncEl.style.display === 'flex';
   document.getElementById('noEncontradoScreen').style.display = 'none';
   document.getElementById('registroScreen').style.display = 'flex';
   document.getElementById('wiz-intro').style.display      = 'none';
-  document.getElementById('wiz-step-0').style.display     = 'flex';
+  document.getElementById('wiz-step-inv').style.display   = 'flex';
   document.getElementById('wiz-header').style.display     = 'none';
   document.getElementById('wiz-viewport').style.display   = 'none';
   requestAnimationFrame(() => {
