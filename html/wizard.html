@@ -386,6 +386,9 @@
 
   <!-- HEADER LIGA (id único, distinto al de registro) -->
   <div class="wiz-equipo-header" id="wiz-liga-header" style="display:none;">
+    <button type="button" class="wiz-back-btn" id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()">
+      <span class="material-icons">arrow_back</span>
+    </button>
     <div class="wiz-progress-wrap">
       <div class="wiz-progress-bar">
         <div class="wiz-progress-fill" id="wiz-liga-progress-fill"></div>
@@ -398,9 +401,7 @@
   <div class="wiz-equipo-contenido" id="wiz-liga-contenido"></div>
 
   <!-- FOOTER LIGA -->
-  <div class="wiz-equipo-footer" id="wiz-liga-footer" style="display:none;">
-    <button id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()" class="wiz-btn-secondary">Atrás</button>
-  </div>
+  <div class="wiz-equipo-footer" id="wiz-liga-footer" style="display:none;"></div>
 
 </div><!-- /wiz-liga-overlay -->
 
