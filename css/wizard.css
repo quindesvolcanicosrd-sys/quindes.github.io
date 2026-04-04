@@ -13,7 +13,7 @@
 .wiz-progress-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
 .wiz-progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.45s cubic-bezier(0.4,0,0.2,1); width: 0%; }
 .wiz-step-label { font-size: 10px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.7px !important; color: var(--text3) !important; -webkit-text-fill-color: var(--text3) !important; }
-.wiz-viewport { flex: 1; position: relative; overflow: hidden; overscroll-behavior: none; }
+.wiz-viewport{  flex:1;  overflow-x:hidden;  overflow-y:auto;  -webkit-overflow-scrolling: touch;  position:relative;}
 .wiz-step { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 0; overflow: hidden; visibility: hidden; pointer-events: none; background: var(--bg); box-sizing: border-box; width: 100%; }
 .wiz-step-inner { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 24px 20px 32px;  overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; box-sizing: border-box; }
 .wiz-step.wiz-active { visibility: visible; pointer-events: auto; }
