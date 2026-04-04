@@ -677,15 +677,20 @@ function renderWizLigaPaso(paso) {
   const esIntro = paso === 0;
   const header  = document.querySelector('#wiz-liga-overlay .wiz-equipo-header');
   const footer  = document.querySelector('#wiz-liga-overlay .wiz-equipo-footer');
-  if (header)    header.style.display  = esIntro ? 'none' : '';
   if (footer)    footer.style.display  = esIntro ? 'none' : '';
+  if (header) {
+    if (esIntro) {
+      header.style.visibility = 'hidden';
+      header.style.opacity    = '0';
+      header.style.transition = '';
+    }
+  }
   if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = `Paso ${paso} de ${_WIZ_LIGA_TOTAL}`;
   if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
   if (btnNext)   btnNext.textContent   = paso === _WIZ_LIGA_TOTAL ? '¡Crear todo! 🛼' : 'Continuar';
 
   if (paso === 0) {
-  if (header) header.style.opacity = '0';
   wizLigaGoTo(el => {
     const tpl = document.getElementById('tpl-wiz-liga-0');
     if (!tpl) return;
@@ -705,13 +710,6 @@ function renderWizLigaPaso(paso) {
   if (footer) footer.classList.remove('wiz-hidden');
 
   if (paso === 1) {
-  setTimeout(() => {
-    if (header) {
-      header.style.transition = 'opacity 0.3s ease';
-      header.style.opacity = '1';
-      setTimeout(() => { header.style.transition = ''; }, 320);
-    }
-  }, 80);
   wizLigaGoTo(el => {
     const tpl = document.getElementById('tpl-wiz-liga-1');
     if (!tpl) return;
