@@ -19,7 +19,8 @@ const ASSETS = [
   './icons/apple-touch-icon.png',
   './icons/logo-loading.png',
   './html/login.html',
-  './html/wizard.html',
+  './html/wizard-cuenta.html',
+  './html/wizard-liga.html',
   './html/nav.html',
   './html/modals.html',
 ];
