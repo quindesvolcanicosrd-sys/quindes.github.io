@@ -1,0 +1,67 @@
+<!-- ============================================================
+     PIVOT APP — wizard-liga.html
+     Solo el overlay del wizard de crear liga.
+     El loading overlay y registroScreen viven en wizard-cuenta.html.
+     Los templates tpl-wiz-liga-* deben estar en index.html.
+     ============================================================ -->
+
+<!-- ══ WIZARD LIGA ══ -->
+<div id="wiz-liga-overlay" class="wiz-equipo-overlay">
+
+  <!-- INTRO LIGA -->
+  <div id="wiz-liga-intro" class="wiz-liga-intro-screen">
+    <div class="wiz-intro-bg">
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></span>
+    </div>
+    <div class="wiz-intro-content">
+      <div class="wiz-intro-logo">🏟️</div>
+      <h1 class="wiz-intro-title">Crea tu liga</h1>
+      <p class="wiz-intro-sub">Vamos a configurar tu liga y tu primer equipo. El proceso toma pocos minutos.</p>
+
+      <div class="wiz-intro-steps">
+        <div class="wiz-intro-step wiz-intro-step-1">
+          <span class="wiz-intro-step-ico">🏟️</span>
+          <span class="wiz-intro-step-txt">Tu liga y equipo</span>
+        </div>
+        <div class="wiz-intro-step wiz-intro-step-2">
+          <span class="wiz-intro-step-ico">🎨</span>
+          <span class="wiz-intro-step-txt">Personalización</span>
+        </div>
+        <div class="wiz-intro-step wiz-intro-step-3">
+          <span class="wiz-intro-step-ico">👤</span>
+          <span class="wiz-intro-step-txt">Perfil</span>
+        </div>
+      </div>
+
+      <p class="wiz-intro-sub">Para continuar necesitamos que te registres</p>
+
+      <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+      <button class="wiz-intro-btn" onclick="wizLigaIntroStart()">
+        <span>Comenzar</span>
+        <span class="material-icons">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- HEADER LIGA (id único, distinto al del wizard de cuenta) -->
+  <div class="wiz-header" id="wiz-liga-header" style="display:none;">
+    <button type="button" class="wiz-back-btn" id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()">
+      <span class="material-icons">arrow_back</span>
+    </button>
+    <div class="wiz-progress-wrap">
+      <div class="wiz-progress-bar">
+        <div class="wiz-progress-fill" id="wiz-liga-progress-fill"></div>
+      </div>
+      <span class="wiz-step-label" id="wiz-liga-step-label">Paso 1</span>
+    </div>
+  </div>
+
+  <!-- CONTENIDO DINÁMICO (pasos se inyectan aquí desde templates) -->
+  <div class="wiz-equipo-contenido" id="wiz-liga-contenido"></div>
+
+  <!-- FOOTER LIGA -->
+  <div class="wiz-equipo-footer" id="wiz-liga-footer" style="display:none;"></div>
+
+</div><!-- /wiz-liga-overlay -->
