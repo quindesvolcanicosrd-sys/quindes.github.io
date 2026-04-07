@@ -70,7 +70,8 @@ const DERBY_ICON_COUNT = 4;
 async function cargarParciales() {
   const parciales = [
     { url: './html/login.html',   ref: document.getElementById('loadingScreen') },
-    { url: './html/wizard.html',  ref: document.getElementById('loadingScreen') },
+    { url: './html/wizard-cuenta.html',  ref: document.getElementById('loadingScreen') },
+    { url: './html/wizard-liga.html',  ref: document.getElementById('loadingScreen') },
     { url: './html/modals.html',  ref: document.body },
   ];
 
