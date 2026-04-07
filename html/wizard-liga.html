@@ -1,14 +1,28 @@
 <!-- ============================================================
      PIVOT APP — wizard-liga.html
-     Overlay del wizard de crear liga + templates de cada paso.
-     El loading overlay vive en wizard-cuenta.html.
+     Overlay wizard crear liga. Loading overlay en wizard-cuenta.html.
      ============================================================ -->
 
-<!-- ══ WIZARD LIGA ══ -->
 <div id="wiz-liga-overlay" class="wiz-equipo-overlay">
 
-  <!-- INTRO LIGA -->
-  <div id="wiz-liga-intro" class="wiz-liga-intro-screen">
+  <!-- PANTALLA 0: Login con Google (antes del intro) -->
+  <div id="wiz-liga-login-screen" class="wiz-liga-intro-screen" style="display:none;">
+    <div class="wiz-intro-bg">
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></span>
+      <span class="wiz-intro-bg-ring wiz-intro-bg-ring-3"></span>
+    </div>
+    <div class="wiz-intro-content">
+      <div class="wiz-intro-logo">👋</div>
+      <h1 class="wiz-intro-title">¡Bienvenidx!</h1>
+      <p class="wiz-intro-sub">Para crear tu liga necesitamos identificarte. Iniciá sesión con Google.</p>
+      <div id="wiz-liga-google-btn" class="login-google-btn-wrap" style="margin:24px auto 0;"></div>
+      <button class="wiz-btn-secondary" onclick="cerrarWizLiga()">Volver</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 1: Intro "Crea tu liga" -->
+  <div id="wiz-liga-intro" class="wiz-liga-intro-screen" style="display:none;">
     <div class="wiz-intro-bg">
       <span class="wiz-intro-bg-ring wiz-intro-bg-ring-1"></span>
       <span class="wiz-intro-bg-ring wiz-intro-bg-ring-2"></span>
@@ -32,12 +46,11 @@
           <span class="wiz-intro-step-txt">Perfil</span>
         </div>
       </div>
-      <p class="wiz-intro-sub">Para continuar necesitamos que te identifiques</p>
-      <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
       <button class="wiz-intro-btn" onclick="wizLigaIntroStart()">
         <span>Comenzar</span>
         <span class="material-icons">arrow_forward</span>
       </button>
+      <button class="wiz-btn-secondary" onclick="cerrarWizLiga()">Volver</button>
     </div>
   </div>
 
@@ -64,25 +77,11 @@
 
 
 <!-- ══════════════════════════════════════════════════════════════
-     TEMPLATES DE PASOS
-     Invisibles hasta ser clonados por renderWizLigaPaso()
+     TEMPLATES DE PASOS (pasos 1-19, sin el login)
 ════════════════════════════════════════════════════════════════ -->
 
-<!-- PASO 1: Login con Google dentro del wizard -->
+<!-- PASO 1: Nombre de la liga -->
 <template id="tpl-wiz-liga-1">
-  <div class="wiz-step-inner">
-    <div class="wiz-bg-emoji" aria-hidden="true">👋</div>
-    <div class="wiz-emoji">👋</div>
-    <h2 class="wiz-title">Identificate para continuar</h2>
-    <p class="wiz-desc">Iniciá sesión con tu cuenta de Google para crear tu liga.</p>
-    <div class="wiz-content">
-      <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
-    </div>
-  </div>
-</template>
-
-<!-- PASO 2: Nombre de la liga -->
-<template id="tpl-wiz-liga-2">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏟️</div>
     <div class="wiz-emoji">🏟️</div>
@@ -99,8 +98,8 @@
   </div>
 </template>
 
-<!-- PASO 3: Imagen de la liga -->
-<template id="tpl-wiz-liga-3">
+<!-- PASO 2: Imagen de la liga -->
+<template id="tpl-wiz-liga-2">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🖼️</div>
     <div class="wiz-emoji">🖼️</div>
@@ -121,8 +120,8 @@
   </div>
 </template>
 
-<!-- PASO 4: País y ciudad de la liga -->
-<template id="tpl-wiz-liga-4">
+<!-- PASO 3: País y ciudad de la liga -->
+<template id="tpl-wiz-liga-3">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🌎</div>
     <div class="wiz-emoji">🌎</div>
@@ -150,8 +149,8 @@
   </div>
 </template>
 
-<!-- PASO 5: Año de fundación y descripción -->
-<template id="tpl-wiz-liga-5">
+<!-- PASO 4: Año de fundación y descripción -->
+<template id="tpl-wiz-liga-4">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">📅</div>
     <div class="wiz-emoji">📅</div>
@@ -171,8 +170,8 @@
   </div>
 </template>
 
-<!-- PASO 6: Redes sociales -->
-<template id="tpl-wiz-liga-6">
+<!-- PASO 5: Redes sociales -->
+<template id="tpl-wiz-liga-5">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">📱</div>
     <div class="wiz-emoji">📱</div>
@@ -190,8 +189,8 @@
   </div>
 </template>
 
-<!-- PASO 7: Nombre del equipo -->
-<template id="tpl-wiz-liga-7">
+<!-- PASO 6: Nombre del equipo -->
+<template id="tpl-wiz-liga-6">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🛼</div>
     <div class="wiz-emoji">🛼</div>
@@ -208,8 +207,8 @@
   </div>
 </template>
 
-<!-- PASO 8: Categoría del equipo -->
-<template id="tpl-wiz-liga-8">
+<!-- PASO 7: Categoría del equipo -->
+<template id="tpl-wiz-liga-7">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏆</div>
     <div class="wiz-emoji">🏆</div>
@@ -225,8 +224,8 @@
   </div>
 </template>
 
-<!-- PASO 9: Logo del equipo + color -->
-<template id="tpl-wiz-liga-9">
+<!-- PASO 8: Logo del equipo + color -->
+<template id="tpl-wiz-liga-8">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🎨</div>
     <div class="wiz-emoji">🎨</div>
@@ -250,8 +249,8 @@
   </div>
 </template>
 
-<!-- PASO 10: Foto de perfil del admin -->
-<template id="tpl-wiz-liga-10">
+<!-- PASO 9: Foto de perfil del admin -->
+<template id="tpl-wiz-liga-9">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">📸</div>
     <div class="wiz-emoji">📸</div>
@@ -267,13 +266,13 @@
       </div>
     </div>
     <div class="wiz-actions">
-      <button id="wiz-liga-skip-10" class="wiz-btn-secondary">Omitir por ahora</button>
+      <button id="wiz-liga-skip-9" class="wiz-btn-secondary">Omitir por ahora</button>
     </div>
   </div>
 </template>
 
-<!-- PASO 11: Nombre del admin -->
-<template id="tpl-wiz-liga-11">
+<!-- PASO 10: Nombre del admin -->
+<template id="tpl-wiz-liga-10">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">✨</div>
     <div class="wiz-emoji">✨</div>
@@ -291,8 +290,8 @@
   </div>
 </template>
 
-<!-- PASO 12: Pronombres del admin -->
-<template id="tpl-wiz-liga-12">
+<!-- PASO 11: Pronombres del admin -->
+<template id="tpl-wiz-liga-11">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏳️‍🌈</div>
     <div class="wiz-emoji">🏳️‍🌈</div>
@@ -307,8 +306,8 @@
   </div>
 </template>
 
-<!-- PASO 13: País del admin -->
-<template id="tpl-wiz-liga-13">
+<!-- PASO 12: País del admin -->
+<template id="tpl-wiz-liga-12">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🌎</div>
     <div class="wiz-emoji">🌎</div>
@@ -328,8 +327,8 @@
   </div>
 </template>
 
-<!-- PASO 14: Teléfono del admin -->
-<template id="tpl-wiz-liga-14">
+<!-- PASO 13: Teléfono del admin -->
+<template id="tpl-wiz-liga-13">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">📱</div>
     <div class="wiz-emoji">📱</div>
@@ -352,8 +351,8 @@
   </div>
 </template>
 
-<!-- PASO 15: Fecha de nacimiento del admin -->
-<template id="tpl-wiz-liga-15">
+<!-- PASO 14: Fecha de nacimiento del admin -->
+<template id="tpl-wiz-liga-14">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🎂</div>
     <div class="wiz-emoji">🎂</div>
@@ -383,8 +382,8 @@
   </div>
 </template>
 
-<!-- PASO 16: Datos Derby del admin -->
-<template id="tpl-wiz-liga-16">
+<!-- PASO 15: Datos Derby del admin -->
+<template id="tpl-wiz-liga-15">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">⭐</div>
     <div class="wiz-emoji">⭐</div>
@@ -405,8 +404,8 @@
   </div>
 </template>
 
-<!-- PASO 17: Rol del admin -->
-<template id="tpl-wiz-liga-17">
+<!-- PASO 16: Rol del admin -->
+<template id="tpl-wiz-liga-16">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏅</div>
     <div class="wiz-emoji">🏅</div>
@@ -421,8 +420,8 @@
   </div>
 </template>
 
-<!-- PASO 18: Asistencia del admin -->
-<template id="tpl-wiz-liga-18">
+<!-- PASO 17: Asistencia del admin -->
+<template id="tpl-wiz-liga-17">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏋️</div>
     <div class="wiz-emoji">🏋️</div>
@@ -437,8 +436,8 @@
   </div>
 </template>
 
-<!-- PASO 19: Salud del admin -->
-<template id="tpl-wiz-liga-19">
+<!-- PASO 18: Salud del admin -->
+<template id="tpl-wiz-liga-18">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🩺</div>
     <div class="wiz-emoji">🩺</div>
@@ -459,8 +458,8 @@
   </div>
 </template>
 
-<!-- PASO 20: Contacto de emergencia + submit final -->
-<template id="tpl-wiz-liga-20">
+<!-- PASO 19: Contacto de emergencia + submit final -->
+<template id="tpl-wiz-liga-19">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🆘</div>
     <div class="wiz-emoji">🆘</div>

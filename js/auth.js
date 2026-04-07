@@ -233,9 +233,10 @@ function onGoogleSignIn(response) {
   } catch(e) {}
   window._googleEmail = email;
   // Si el wizard de crear liga está abierto en paso 1 (login), avanzar al paso 2
-  const wizLiga = document.getElementById('wiz-liga-overlay');
-  if (wizLiga && wizLiga.classList.contains('visible')) {
-    if (_wizLigaPaso === 1) renderWizLigaPaso(2);
+  const wizLiga    = document.getElementById('wiz-liga-overlay');
+  const wizLigaLog = document.getElementById('wiz-liga-login-screen');
+  if (wizLiga && wizLiga.classList.contains('visible') && wizLigaLog && wizLigaLog.style.display !== 'none') {
+    wizLigaDesdeGoogle();
     return;
   }
   if (wizOrigen === 'crearLiga' || window._enFlujoCrearLiga) {
