@@ -1,8 +1,7 @@
 <!-- ============================================================
      PIVOT APP — wizard-liga.html
-     Solo el overlay del wizard de crear liga.
-     El loading overlay y registroScreen viven en wizard-cuenta.html.
-     Los templates tpl-wiz-liga-* deben estar en index.html.
+     Overlay del wizard de crear liga + templates de cada paso.
+     El loading overlay vive en wizard-cuenta.html.
      ============================================================ -->
 
 <!-- ══ WIZARD LIGA ══ -->
@@ -19,7 +18,6 @@
       <div class="wiz-intro-logo">🏟️</div>
       <h1 class="wiz-intro-title">Crea tu liga</h1>
       <p class="wiz-intro-sub">Vamos a configurar tu liga y tu primer equipo. El proceso toma pocos minutos.</p>
-
       <div class="wiz-intro-steps">
         <div class="wiz-intro-step wiz-intro-step-1">
           <span class="wiz-intro-step-ico">🏟️</span>
@@ -34,9 +32,7 @@
           <span class="wiz-intro-step-txt">Perfil</span>
         </div>
       </div>
-
-      <p class="wiz-intro-sub">Para continuar necesitamos que te registres</p>
-
+      <p class="wiz-intro-sub">Para continuar necesitamos que te identifiques</p>
       <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
       <button class="wiz-intro-btn" onclick="wizLigaIntroStart()">
         <span>Comenzar</span>
@@ -45,7 +41,7 @@
     </div>
   </div>
 
-  <!-- HEADER LIGA (id único, distinto al del wizard de cuenta) -->
+  <!-- HEADER LIGA -->
   <div class="wiz-header" id="wiz-liga-header" style="display:none;">
     <button type="button" class="wiz-back-btn" id="wiz-liga-btn-back" onclick="wizLigaPasoAnterior()">
       <span class="material-icons">arrow_back</span>
@@ -58,10 +54,429 @@
     </div>
   </div>
 
-  <!-- CONTENIDO DINÁMICO (pasos se inyectan aquí desde templates) -->
+  <!-- CONTENIDO DINÁMICO -->
   <div class="wiz-equipo-contenido" id="wiz-liga-contenido"></div>
 
   <!-- FOOTER LIGA -->
   <div class="wiz-equipo-footer" id="wiz-liga-footer" style="display:none;"></div>
 
 </div><!-- /wiz-liga-overlay -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     TEMPLATES DE PASOS
+     Invisibles hasta ser clonados por renderWizLigaPaso()
+════════════════════════════════════════════════════════════════ -->
+
+<!-- PASO 1: Login con Google dentro del wizard -->
+<template id="tpl-wiz-liga-1">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">👋</div>
+    <div class="wiz-emoji">👋</div>
+    <h2 class="wiz-title">Identificate para continuar</h2>
+    <p class="wiz-desc">Iniciá sesión con tu cuenta de Google para crear tu liga.</p>
+    <div class="wiz-content">
+      <div id="wiz-liga-google-btn" class="wiz-liga-google-wrap"></div>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 2: Nombre de la liga -->
+<template id="tpl-wiz-liga-2">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🏟️</div>
+    <div class="wiz-emoji">🏟️</div>
+    <h2 class="wiz-title">¿Cómo se llama tu liga?</h2>
+    <p class="wiz-desc">El nombre oficial de la organización que agrupa a tus equipos.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Nombre de la liga <span class="reg-required">*</span></label>
+      <input id="wiz-liga-nombre" class="reg-input" type="text"
+             placeholder="Ej: Roller Derby Quito" maxlength="100" autocomplete="off">
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 3: Imagen de la liga -->
+<template id="tpl-wiz-liga-3">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🖼️</div>
+    <div class="wiz-emoji">🖼️</div>
+    <h2 class="wiz-title">Imagen de tu liga <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Sube un banner o imagen representativa. Podés hacerlo después también.</p>
+    <div class="wiz-content">
+      <div class="wiz-liga-avatar-wrap">
+        <label class="wiz-liga-avatar">
+          <img id="wiz-liga-img-preview" class="wiz-hidden wiz-liga-avatar-img" alt="Preview liga">
+          <span id="wiz-liga-img-placeholder" class="material-icons wiz-liga-avatar-ph">add_photo_alternate</span>
+          <input id="wiz-liga-img-input" type="file" accept="image/*" style="display:none;">
+        </label>
+      </div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 4: País y ciudad de la liga -->
+<template id="tpl-wiz-liga-4">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🌎</div>
+    <div class="wiz-emoji">🌎</div>
+    <h2 class="wiz-title">¿De dónde es tu liga?</h2>
+    <p class="wiz-desc">País y ciudad donde opera principalmente.</p>
+    <div class="wiz-content">
+      <label class="reg-label">País</label>
+      <select id="wiz-liga-pais-sel" class="reg-input">
+        <option value="">Seleccionar país…</option>
+      </select>
+      <div id="wiz-liga-ciudad-wrap" class="wiz-hidden">
+        <label class="reg-label">Ciudad</label>
+        <select id="wiz-liga-ciudad-sel" class="reg-input">
+          <option value="">Seleccionar ciudad…</option>
+        </select>
+        <div id="wiz-liga-ciudad-custom-wrap" class="wiz-hidden">
+          <input id="wiz-liga-ciudad-custom" type="text" placeholder="Escribe tu ciudad" class="reg-input">
+        </div>
+      </div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 5: Año de fundación y descripción -->
+<template id="tpl-wiz-liga-5">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">📅</div>
+    <div class="wiz-emoji">📅</div>
+    <h2 class="wiz-title">Historia de la liga <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Año de fundación y una breve descripción de tu liga.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Año de fundación</label>
+      <input id="wiz-liga-anio" class="reg-input" type="number" placeholder="Ej: 2015" min="1900">
+      <label class="reg-label">Descripción</label>
+      <textarea id="wiz-liga-descripcion" class="reg-input" rows="3"
+                placeholder="Cuéntanos un poco sobre tu liga…" maxlength="300"></textarea>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 6: Redes sociales -->
+<template id="tpl-wiz-liga-6">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">📱</div>
+    <div class="wiz-emoji">📱</div>
+    <h2 class="wiz-title">Redes sociales <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">¿Tu liga tiene Instagram u otras redes? Escribí el usuario o enlace principal.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Instagram / enlace principal</label>
+      <input id="wiz-liga-ig" class="reg-input" type="text"
+             placeholder="Ej: @rollerderbycity" maxlength="150" autocomplete="off">
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 7: Nombre del equipo -->
+<template id="tpl-wiz-liga-7">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🛼</div>
+    <div class="wiz-emoji">🛼</div>
+    <h2 class="wiz-title">¿Cómo se llama tu equipo?</h2>
+    <p class="wiz-desc">El nombre del primer equipo de tu liga. Podés agregar más desde Ajustes después.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Nombre del equipo <span class="reg-required">*</span></label>
+      <input id="wiz-liga-equipo-nombre" class="reg-input" type="text"
+             placeholder="Ej: Las Volcánicas, The Destroyers…" maxlength="100" autocomplete="off">
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 8: Categoría del equipo -->
+<template id="tpl-wiz-liga-8">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🏆</div>
+    <div class="wiz-emoji">🏆</div>
+    <h2 class="wiz-title">¿Qué categoría? <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Seleccioná la categoría en la que compite tu equipo.</p>
+    <div class="wiz-content">
+      <div class="wiz-chips" id="wiz-liga-cat-chips"></div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 9: Logo del equipo + color -->
+<template id="tpl-wiz-liga-9">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🎨</div>
+    <div class="wiz-emoji">🎨</div>
+    <h2 class="wiz-title">Personaliza tu equipo <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Sube el logo y elegí el color de énfasis de la app.</p>
+    <div class="wiz-content">
+      <div class="wiz-liga-avatar-wrap">
+        <label class="wiz-liga-avatar">
+          <img id="wiz-liga-logo-preview" class="wiz-hidden wiz-liga-avatar-img" alt="Logo equipo">
+          <span id="wiz-liga-logo-placeholder" class="material-icons wiz-liga-avatar-ph">add_photo_alternate</span>
+          <input id="wiz-liga-logo-input" type="file" accept="image/*" style="display:none;">
+        </label>
+      </div>
+      <p class="reg-label">Color de énfasis</p>
+      <div class="wiz-color-presets" id="wiz-color-presets"></div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 10: Foto de perfil del admin -->
+<template id="tpl-wiz-liga-10">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">📸</div>
+    <div class="wiz-emoji">📸</div>
+    <h2 class="wiz-title">Tu foto de perfil <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Subí una foto para que tus compañerxs puedan identificarte. Podés hacerlo después también.</p>
+    <div class="wiz-content">
+      <div class="wiz-liga-avatar-wrap">
+        <label class="wiz-liga-avatar">
+          <img id="wiz-liga-foto-preview" class="wiz-hidden wiz-liga-avatar-img" alt="Foto perfil">
+          <span id="wiz-liga-foto-placeholder" class="material-icons wiz-liga-avatar-ph">add_a_photo</span>
+          <input id="wiz-liga-foto-input" type="file" accept="image/*" style="display:none;">
+        </label>
+      </div>
+    </div>
+    <div class="wiz-actions">
+      <button id="wiz-liga-skip-10" class="wiz-btn-secondary">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 11: Nombre del admin -->
+<template id="tpl-wiz-liga-11">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">✨</div>
+    <div class="wiz-emoji">✨</div>
+    <h2 class="wiz-title">¿Cómo te llamamos?</h2>
+    <p class="wiz-desc">Tu nombre, nickname o lo que más te represente en el equipo.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Tu nombre <span class="reg-required">*</span></label>
+      <input id="wiz-liga-perfil-nombre" class="reg-input" type="text"
+             placeholder="Ej: Valentina, Val, La Bestia…"
+             autocomplete="given-name" maxlength="60">
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 12: Pronombres del admin -->
+<template id="tpl-wiz-liga-12">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🏳️‍🌈</div>
+    <div class="wiz-emoji">🏳️‍🌈</div>
+    <h2 class="wiz-title">¿Con qué pronombres te identificás?</h2>
+    <p class="wiz-desc">Es opcional, podés elegir más de uno.</p>
+    <div class="wiz-content">
+      <div id="wiz-liga-pronombres-chips" class="wiz-chips"></div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 13: País del admin -->
+<template id="tpl-wiz-liga-13">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🌎</div>
+    <div class="wiz-emoji">🌎</div>
+    <h2 class="wiz-title">¿De dónde sos?</h2>
+    <p class="wiz-desc">Seleccioná tu país de origen.</p>
+    <div class="wiz-content">
+      <label class="reg-label">País de origen</label>
+      <button type="button" id="wiz-liga-perfil-pais-btn" class="reg-selector-btn">
+        <span id="wiz-liga-perfil-pais-display" class="reg-selector-val">Seleccionar país…</span>
+        <span class="material-icons reg-selector-ico">expand_more</span>
+      </button>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 14: Teléfono del admin -->
+<template id="tpl-wiz-liga-14">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">📱</div>
+    <div class="wiz-emoji">📱</div>
+    <h2 class="wiz-title">Tu número de contacto</h2>
+    <p class="wiz-desc">Seleccioná tu prefijo y escribí tu número. Solo para comunicaciones del equipo.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Teléfono <span class="reg-required">*</span></label>
+      <div class="reg-phone-row">
+        <button type="button" id="wiz-liga-perfil-codigo-btn" class="reg-selector-btn reg-codigo-btn wiz-selector-btn">
+          <span id="wiz-liga-perfil-codigo-display" class="reg-selector-val">+?</span>
+          <span class="material-icons reg-selector-ico">expand_more</span>
+        </button>
+        <input id="wiz-liga-perfil-tel" class="reg-input reg-tel-input wiz-big-input" type="tel"
+               placeholder="Número" maxlength="20">
+      </div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 15: Fecha de nacimiento del admin -->
+<template id="tpl-wiz-liga-15">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🎂</div>
+    <div class="wiz-emoji">🎂</div>
+    <h2 class="wiz-title">¡Fecha de cumpleaños!</h2>
+    <p class="wiz-desc">Ingresá tu fecha de nacimiento y elegí qué querés que sea visible para el equipo.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Fecha de nacimiento <span class="reg-required">*</span></label>
+      <button type="button" id="wiz-liga-perfil-fecha-btn" class="reg-selector-btn">
+        <span id="wiz-liga-perfil-fecha-display" class="reg-selector-val">Seleccionar fecha…</span>
+        <span class="material-icons reg-selector-ico">edit_calendar</span>
+      </button>
+      <div class="wiz-privacy-box">
+        <p class="wiz-privacy-title">¿Qué ven tus compañerxs? 👀</p>
+        <div class="wiz-privacy-row">
+          <span class="wiz-privacy-q">Mostrar fecha de cumpleaños 🎉</span>
+          <div id="wiz-liga-cumple-chips" class="chip-wrapper wiz-chips-inline"></div>
+        </div>
+        <div class="wiz-privacy-row">
+          <span class="wiz-privacy-q">Mostrar edad 🔢</span>
+          <div id="wiz-liga-edad-chips" class="chip-wrapper wiz-chips-inline"></div>
+        </div>
+      </div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 16: Datos Derby del admin -->
+<template id="tpl-wiz-liga-16">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">⭐</div>
+    <div class="wiz-emoji">⭐</div>
+    <h2 class="wiz-title">Datos Derby <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Tu nombre y número derby. Si todavía no tenés uno, podés completarlo después.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Nombre Derby</label>
+      <input id="wiz-liga-perfil-derby" class="reg-input" type="text"
+             placeholder="Ej: Roller Manía, La Tormenta…" maxlength="60" autocomplete="off">
+      <label class="reg-label">Número Derby</label>
+      <input id="wiz-liga-perfil-numero" class="reg-input" type="text"
+             placeholder="Ej: 13, 666, 007…" maxlength="10" autocomplete="off">
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 17: Rol del admin -->
+<template id="tpl-wiz-liga-17">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🏅</div>
+    <div class="wiz-emoji">🏅</div>
+    <h2 class="wiz-title">Tu rol en el equipo</h2>
+    <p class="wiz-desc">Seleccioná tu rol dentro del equipo. Podés cambiarlo después.</p>
+    <div class="wiz-content">
+      <div id="wiz-liga-rol-chips" class="wiz-chips"></div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 18: Asistencia del admin -->
+<template id="tpl-wiz-liga-18">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🏋️</div>
+    <div class="wiz-emoji">🏋️</div>
+    <h2 class="wiz-title">¿Cuánto entrenás?</h2>
+    <p class="wiz-desc">¿Cuántas veces a la semana asistís a los entrenamientos?</p>
+    <div class="wiz-content">
+      <div id="wiz-liga-asiste-chips" class="wiz-chips"></div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 19: Salud del admin -->
+<template id="tpl-wiz-liga-19">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🩺</div>
+    <div class="wiz-emoji">🩺</div>
+    <h2 class="wiz-title">Tu salud nos importa <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Alergias o condiciones de salud que debamos conocer. Información estrictamente confidencial.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Alergias o condiciones de salud</label>
+      <input id="wiz-liga-perfil-alergias" class="reg-input" type="text"
+             placeholder="Ej: Alergia a la penicilina, asma…" maxlength="200" autocomplete="off">
+      <label class="reg-label">Dieta especial</label>
+      <input id="wiz-liga-perfil-dieta" class="reg-input" type="text"
+             placeholder="Ej: Vegetariana, sin gluten…" maxlength="100" autocomplete="off">
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 20: Contacto de emergencia + submit final -->
+<template id="tpl-wiz-liga-20">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🆘</div>
+    <div class="wiz-emoji">🆘</div>
+    <h2 class="wiz-title">Contacto de emergencia <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Nombre completo y teléfono de alguien de confianza a quien contactar en una emergencia.</p>
+    <div class="wiz-content">
+      <label class="reg-label">Nombre y teléfono</label>
+      <input id="wiz-liga-perfil-emergencia" class="reg-input" type="text"
+             placeholder="Ej: María García +593 999 123456" maxlength="150" autocomplete="off">
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary" data-action="next">
+        <span class="material-icons">check_circle</span> ¡Crear mi liga!
+      </button>
+      <button class="wiz-btn-secondary" data-action="skip">Omitir y finalizar</button>
+      <p class="reg-note">Al crear tu liga aceptás los <strong>términos y condiciones</strong> y el uso de tus datos.</p>
+    </div>
+  </div>
+</template>
