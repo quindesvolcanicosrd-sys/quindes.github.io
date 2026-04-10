@@ -628,7 +628,7 @@ if (paso === 10) {
 function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 1  && !_wizLiga.nombreLiga.trim())    { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
 if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
-  if (_wizLigaPaso === 10 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
+  if (_wizLigaPaso === 11 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
   if (_wizLigaPaso === 13 && !_wizLiga.telefono.trim()) { mostrarToastGuardado('⚠️ Ingresá tu número de teléfono'); return; }
   if (_wizLigaPaso === 14 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
   renderWizLigaPaso(_wizLigaPaso + 1);
