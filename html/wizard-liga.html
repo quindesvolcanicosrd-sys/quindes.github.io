@@ -130,19 +130,22 @@
     <p class="wiz-desc">País y ciudad donde opera principalmente.</p>
     <div class="wiz-content">
       <label class="reg-label">País</label>
-      <select id="wiz-liga-pais-sel" class="reg-input">
-        <option value="">Seleccionar país…</option>
-      </select>
+      <button type="button" id="wiz-liga-pais-btn" class="reg-selector-btn">
+        <span id="wiz-liga-pais-display" class="reg-selector-val">Seleccionar país…</span>
+        <span class="material-icons reg-selector-ico">expand_more</span>
+      </button>
       <div id="wiz-liga-ciudad-wrap" class="wiz-hidden">
         <label class="reg-label">Ciudad</label>
-        <select id="wiz-liga-ciudad-sel" class="reg-input">
-          <option value="">Seleccionar ciudad…</option>
-        </select>
+        <button type="button" id="wiz-liga-ciudad-btn" class="reg-selector-btn">
+          <span id="wiz-liga-ciudad-display" class="reg-selector-val">Seleccionar ciudad…</span>
+          <span class="material-icons reg-selector-ico">expand_more</span>
+        </button>
         <div id="wiz-liga-ciudad-custom-wrap" class="wiz-hidden">
           <input id="wiz-liga-ciudad-custom" type="text" placeholder="Escribe tu ciudad" class="reg-input">
         </div>
       </div>
     </div>
+
     <div class="wiz-actions">
       <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
       <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
