@@ -179,19 +179,15 @@ function initGoogleAuth() {
         console.log('[AUTH] verificando sesión para:', savedEmail);
         const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
         console.log('[AUTH] valData:', valData);
-        if (!valData.found) {
-        if (window._enFlujoCrearLiga || wizOrigen === 'crearLiga' || sessionStorage.getItem('_enFlujoCrearLiga')) return;
-        console.log('[AUTH] found:false → limpiando y redirigiendo');
+                if (!valData.found) {
+        if (window._enFlujoCrearLiga || wizOrigen === 'crearLiga') return;
+        sessionStorage.removeItem('_enFlujoCrearLiga');
         localStorage.removeItem('quindes_email');
         localStorage.removeItem('quindes_token');
         localStorage.removeItem('_enFlujoCrearLiga');
-        console.log('[AUTH] localStorage limpio');
         detenerDerbyLoader();
-        console.log('[AUTH] loader detenido');
         document.getElementById('loadingScreen').style.display = 'none';
-        console.log('[AUTH] loadingScreen oculto');
         mostrarLoginScreen();
-        console.log('[AUTH] loginScreen mostrado');
         return;
       }
         // (sin cambio real, solo agregar log abajo)
