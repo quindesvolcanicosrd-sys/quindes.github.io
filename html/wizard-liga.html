@@ -228,13 +228,13 @@
   </div>
 </template>
 
-<!-- PASO 8: Logo del equipo + color -->
+<!-- PASO 8: Logo del equipo -->
 <template id="tpl-wiz-liga-8">
   <div class="wiz-step-inner">
-    <div class="wiz-bg-emoji" aria-hidden="true">🎨</div>
-    <div class="wiz-emoji">🎨</div>
-    <h2 class="wiz-title">Personaliza tu equipo <span class="wiz-optional-badge">opcional</span></h2>
-    <p class="wiz-desc">Sube el logo y elegí el color de énfasis de la app.</p>
+    <div class="wiz-bg-emoji" aria-hidden="true">🖼️</div>
+    <div class="wiz-emoji">🖼️</div>
+    <h2 class="wiz-title">Logo del equipo <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Subí el logo de tu equipo. Podés hacerlo después también.</p>
     <div class="wiz-content">
       <div class="wiz-liga-avatar-wrap">
         <label class="wiz-liga-avatar">
@@ -243,7 +243,21 @@
           <input id="wiz-liga-logo-input" type="file" accept="image/*" style="display:none;">
         </label>
       </div>
-      <p class="reg-label">Color de énfasis</p>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 9: Color de énfasis -->
+<template id="tpl-wiz-liga-color">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">🎨</div>
+    <div class="wiz-emoji">🎨</div>
+    <h2 class="wiz-title">Color de énfasis <span class="wiz-optional-badge">opcional</span></h2>
+    <p class="wiz-desc">Elegí el color que representará a tu equipo en la app.</p>
+    <div class="wiz-content">
       <div class="wiz-color-presets" id="wiz-color-presets"></div>
     </div>
     <div class="wiz-actions">
@@ -253,7 +267,7 @@
   </div>
 </template>
 
-<!-- PASO 9: Foto de perfil del admin -->
+<!-- PASO 10: Foto de perfil del admin -->
 <template id="tpl-wiz-liga-9">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">📸</div>
@@ -276,7 +290,7 @@
   </div>
 </template>
 
-<!-- PASO 10: Nombre del admin -->
+<!-- PASO 11: Nombre del admin -->
 <template id="tpl-wiz-liga-10">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">✨</div>
@@ -295,7 +309,7 @@
   </div>
 </template>
 
-<!-- PASO 11: Pronombres del admin -->
+<!-- PASO 12: Pronombres del admin -->
 <template id="tpl-wiz-liga-11">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏳️‍🌈</div>
@@ -311,7 +325,7 @@
   </div>
 </template>
 
-<!-- PASO 12: País del admin -->
+<!-- PASO 13: País del admin -->
 <template id="tpl-wiz-liga-12">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🌎</div>
@@ -332,7 +346,7 @@
   </div>
 </template>
 
-<!-- PASO 13: Teléfono del admin -->
+<!-- PASO 14: Teléfono del admin -->
 <template id="tpl-wiz-liga-13">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">📱</div>
@@ -356,7 +370,7 @@
   </div>
 </template>
 
-<!-- PASO 14: Fecha de nacimiento del admin -->
+<!-- PASO 15: Fecha de nacimiento del admin -->
 <template id="tpl-wiz-liga-14">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🎂</div>
@@ -387,7 +401,7 @@
   </div>
 </template>
 
-<!-- PASO 15: Datos Derby del admin -->
+<!-- PASO 16: Datos Derby del admin -->
 <template id="tpl-wiz-liga-15">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">⭐</div>
@@ -409,7 +423,7 @@
   </div>
 </template>
 
-<!-- PASO 16: Rol del admin -->
+<!-- PASO 17: Rol del admin -->
 <template id="tpl-wiz-liga-16">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏅</div>
@@ -425,7 +439,7 @@
   </div>
 </template>
 
-<!-- PASO 17: Asistencia del admin -->
+<!-- PASO 18: Asistencia del admin -->
 <template id="tpl-wiz-liga-17">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏋️</div>
@@ -441,7 +455,7 @@
   </div>
 </template>
 
-<!-- PASO 18: Salud del admin -->
+<!-- PASO 19: Salud del admin -->
 <template id="tpl-wiz-liga-18">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🩺</div>
@@ -463,7 +477,7 @@
   </div>
 </template>
 
-<!-- PASO 19: Contacto de emergencia + submit final -->
+<!-- PASO 20: Contacto de emergencia + submit final -->
 <template id="tpl-wiz-liga-19">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🆘</div>
