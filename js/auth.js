@@ -180,9 +180,15 @@ function initGoogleAuth() {
         const valData = await apiCall('/usuario?email=' + encodeURIComponent(savedEmail));
         console.log('[AUTH] valData:', valData);
         if (!valData.found) {
-          if (window._enFlujoCrearLiga || wizOrigen === 'crearLiga' || sessionStorage.getItem('_enFlujoCrearLiga')) return;
-          throw new Error('invalid session');
+        if (window._enFlujoCrearLiga || wizOrigen === 'crearLiga' || sessionStorage.getItem('_enFlujoCrearLiga')) return;
+        if (localStorage.getItem('_enFlujoCrearLiga')) {
+          detenerDerbyLoader();
+          document.getElementById('loadingScreen').style.display = 'none';
+          mostrarWizardLiga();
+          return;
         }
+        throw new Error('invalid session');
+      }
         // (sin cambio real, solo agregar log abajo)
         window._googleEmail = savedEmail;
         inicializarApp(savedEmail);

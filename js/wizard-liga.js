@@ -147,6 +147,7 @@ function cerrarWizLiga() {
   if (!overlay) return;
   overlay.classList.remove('visible');
   if (!window._enFlujoCrearLiga) sessionStorage.removeItem('_enFlujoCrearLiga');
+  localStorage.removeItem('_enFlujoCrearLiga');
   aplicarColorPrimario(window._colorAntesDeLiga || '#ef4444');
 }
 
@@ -651,7 +652,8 @@ async function wizLigaSubmit() {
     if (_wizLiga.colorPrimario) aplicarColorPrimario(_wizLiga.colorPrimario);
     localStorage.setItem('quindes_email', email);
     window._enFlujoCrearLiga = false;
-    sessionStorage.removeItem('_enFlujoCrearLiga');
+  sessionStorage.removeItem('_enFlujoCrearLiga');
+  localStorage.removeItem('_enFlujoCrearLiga');
 
     const profile = await apiCall('/perfil/' + result.perfil.id);
     window.myProfile = profile;
