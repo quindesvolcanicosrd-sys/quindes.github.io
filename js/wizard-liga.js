@@ -261,7 +261,7 @@ function renderWizLigaPaso(paso) {
   const contenido = document.getElementById('wiz-liga-contenido');
   if (!contenido) return;
 
-  if (btnBack)   btnBack.style.display = paso > 1 ? 'block' : 'none';
+  if (btnBack) btnBack.style.display = 'block';
   if (pasoLabel) pasoLabel.textContent = 'Paso ' + paso + ' de ' + _WIZ_LIGA_TOTAL;
   if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
 
@@ -276,16 +276,13 @@ function renderWizLigaPaso(paso) {
   if (paso === 1) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-1', el);
-      if (btnBack) btnBack.classList.remove('wiz-hidden');
-      requestAnimationFrame(function() {
-        const wrap = document.getElementById('wiz-liga-google-btn');
-        if (wrap) {
-          google.accounts.id.renderButton(wrap, {
-            theme: getGoogleBtnTheme(), size: 'large', width: 300, text: 'continue_with',
-          });
-          setTimeout(function() { wrap.classList.add('visible'); }, 120);
-        }
-      });
+      const input = document.getElementById('wiz-liga-nombre');
+      if (input) {
+        input.value = _wizLiga.nombreLiga || '';
+        input.addEventListener('input', function(e) { _wizLiga.nombreLiga = e.target.value; });
+        input.addEventListener('keydown', function(e) { if (e.key === 'Enter') wizLigaPasoSiguiente(); });
+        setTimeout(function() { input.focus(); }, 350);
+      }
     }, forward);
     return;
   }
