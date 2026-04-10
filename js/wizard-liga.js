@@ -90,7 +90,7 @@ function bindImageInput(opts) {
 }
 
 // ── ESTADO ────────────────────────────────────────────────────
-const _WIZ_LIGA_TOTAL = 19;
+const _WIZ_LIGA_TOTAL = 20;
 let _wizLigaPaso = 0;
 let _wizLiga     = {};
 
@@ -390,7 +390,7 @@ function renderWizLigaPaso(paso) {
     return;
   }
 
-  if (paso === 6) {
+if (paso === 6) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-6', el);
       const input = document.getElementById('wiz-liga-equipo-nombre');
@@ -404,11 +404,12 @@ function renderWizLigaPaso(paso) {
     return;
   }
 
-  if (paso === 7) {
+if (paso === 7) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-7', el);
       const wrap = document.getElementById('wiz-liga-cat-chips');
-      ['A','B','C'].forEach(function(cat) {
+      if (!wrap) return;
+      ['A', 'B', 'C'].forEach(function(cat) {
         const btn = document.createElement('button');
         btn.textContent = cat;
         btn.className = 'chip ' + (_wizLiga.categoria === cat ? 'chip-active' : 'chip-inactive');
@@ -431,6 +432,13 @@ if (paso === 8) {
         placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
         config:{ maxWidth:500, maxHeight:500, quality:0.8 }
       });
+    }, forward);
+    return;
+  }
+
+  if (paso === 9) {
+    wizLigaGoTo(function(el) {
+      cloneTpl('tpl-wiz-liga-color', el);
       const wrapColors = document.getElementById('wiz-color-presets');
       if (!wrapColors) return;
       const colorActual = _wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444';
@@ -478,7 +486,7 @@ if (paso === 8) {
     return;
   }
 
-if (paso === 9) {
+if (paso === 10) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-9', el);
       bindImageInput({
@@ -492,7 +500,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 10) {
+  if (paso === 11) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-10', el);
       const input = document.getElementById('wiz-liga-perfil-nombre');
@@ -506,7 +514,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 11) {
+  if (paso === 12) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-11', el);
       regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) { _wizLiga.pronombres = v; });
@@ -514,7 +522,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 12) {
+  if (paso === 13) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-12', el);
       const display = document.getElementById('wiz-liga-perfil-pais-display');
@@ -530,7 +538,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 13) {
+  if (paso === 14) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-13', el);
       const tel = document.getElementById('wiz-liga-perfil-tel');
@@ -549,7 +557,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 14) {
+  if (paso === 15) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-14', el);
       const display = document.getElementById('wiz-liga-perfil-fecha-display');
@@ -567,7 +575,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 15) {
+  if (paso === 16) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-15', el);
       const derby = document.getElementById('wiz-liga-perfil-derby');
@@ -578,7 +586,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 16) {
+  if (paso === 17) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-16', el);
       regRenderChips('wiz-liga-rol-chips', REG_ROLES, _wizLiga.rolJugadorx || '', function(v) { _wizLiga.rolJugadorx = v; });
@@ -586,7 +594,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 17) {
+  if (paso === 18) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-17', el);
       regRenderChips('wiz-liga-asiste-chips', REG_ASISTENCIA, _wizLiga.asisteSemana || '', function(v) { _wizLiga.asisteSemana = v; });
@@ -594,7 +602,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 18) {
+  if (paso === 19) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-18', el);
       const elA = document.getElementById('wiz-liga-perfil-alergias');
@@ -605,7 +613,7 @@ if (paso === 9) {
     return;
   }
 
-  if (paso === 19) {
+  if (paso === 20) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-19', el);
       const elE = document.getElementById('wiz-liga-perfil-emergencia');
@@ -619,7 +627,7 @@ if (paso === 9) {
 // ── VALIDACIÓN Y NAVEGACIÓN ───────────────────────────────────
 function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 1  && !_wizLiga.nombreLiga.trim())    { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
-if (_wizLigaPaso === 7 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
+if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   if (_wizLigaPaso === 10 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
   if (_wizLigaPaso === 13 && !_wizLiga.telefono.trim()) { mostrarToastGuardado('⚠️ Ingresá tu número de teléfono'); return; }
   if (_wizLigaPaso === 14 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
