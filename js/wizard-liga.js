@@ -96,6 +96,7 @@ let _wizLiga     = {};
 // ── APERTURA / CIERRE ─────────────────────────────────────────
 function mostrarWizardLiga() {
   sessionStorage.setItem('_enFlujoCrearLiga', '1');
+  localStorage.setItem('_enFlujoCrearLiga', '1');
   window._colorAntesDeLiga = document.documentElement.dataset.colorPrimario || '#ef4444';
 
   _wizLiga = {
