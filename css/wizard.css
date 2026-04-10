@@ -663,3 +663,60 @@ textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
   letter-spacing: 0.1em; cursor: pointer; font-family: inherit;
   box-shadow: 0 8px 24px rgba(220,30,30,0.35); width: 100%;
 }
+
+/* ── Color presets wizard liga ── */
+.wiz-color-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.wiz-color-presets .color-swatch-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  outline: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.wiz-color-presets .color-swatch-btn.selected {
+  border-color: var(--text-primary);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--text-primary);
+}
+
+.wiz-color-presets .color-swatch-btn:active {
+  transform: scale(0.92);
+}
+
+/* Botón "Personalizado" */
+.color-swatch-btn--custom {
+  background: var(--bg-tertiary) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.color-swatch-btn--custom .material-icons {
+  font-size: 22px;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.color-swatch-btn--custom.selected .material-icons {
+  color: var(--text-primary);
+}
+
+.wiz-color-custom-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}

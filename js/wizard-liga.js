@@ -422,21 +422,22 @@ function renderWizLigaPaso(paso) {
     return;
   }
 
-  if (paso === 8) {
+if (paso === 8) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-8', el);
-      const wrapColors = document.getElementById('wiz-color-presets');
-      const colorActual = _wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444';
       bindImageInput({
         inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
         placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
         config:{ maxWidth:500, maxHeight:500, quality:0.8 }
       });
+      const wrapColors = document.getElementById('wiz-color-presets');
+      if (!wrapColors) return;
+      const colorActual = _wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444';
       COLOR_PICKER_PRESETS.forEach(function(color) {
         const btn = document.createElement('button');
         btn.className = 'color-swatch-btn';
         if (color === colorActual) btn.classList.add('selected');
-        btn.style.background = color;
+        btn.style.background = color; // excepción: valor dinámico de runtime
         btn.addEventListener('click', function() {
           _wizLiga.colorPrimario = color;
           aplicarColorPrimario(color);
@@ -445,11 +446,38 @@ function renderWizLigaPaso(paso) {
         });
         wrapColors.appendChild(btn);
       });
+      // Botón personalizado
+      const customBtn = document.createElement('button');
+      customBtn.className = 'color-swatch-btn color-swatch-btn--custom';
+      customBtn.title = 'Color personalizado';
+      customBtn.innerHTML = '<span class="material-icons" aria-hidden="true">colorize</span>';
+      const colorInput = document.createElement('input');
+      colorInput.type = 'color';
+      colorInput.className = 'wiz-color-custom-input';
+      colorInput.value = (_wizLiga.colorPrimario && !COLOR_PICKER_PRESETS.includes(_wizLiga.colorPrimario))
+        ? _wizLiga.colorPrimario : '#ef4444';
+      customBtn.appendChild(colorInput);
+      if (_wizLiga.colorPrimario && !COLOR_PICKER_PRESETS.includes(_wizLiga.colorPrimario)) {
+        customBtn.style.background = _wizLiga.colorPrimario;
+        customBtn.classList.add('selected');
+      }
+      customBtn.addEventListener('click', function(e) {
+        if (e.target !== colorInput) colorInput.click();
+      });
+      colorInput.addEventListener('input', function(e) {
+        const color = e.target.value;
+        customBtn.style.background = color; // excepción: valor dinámico de runtime
+        _wizLiga.colorPrimario = color;
+        aplicarColorPrimario(color);
+        Array.from(wrapColors.children).forEach(function(b) { b.classList.remove('selected'); });
+        customBtn.classList.add('selected');
+      });
+      wrapColors.appendChild(customBtn);
     }, forward);
     return;
   }
 
-  if (paso === 9) {
+if (paso === 9) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-9', el);
       bindImageInput({
