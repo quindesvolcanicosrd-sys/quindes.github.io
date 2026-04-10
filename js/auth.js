@@ -181,13 +181,13 @@ function initGoogleAuth() {
         console.log('[AUTH] valData:', valData);
         if (!valData.found) {
         if (window._enFlujoCrearLiga || wizOrigen === 'crearLiga' || sessionStorage.getItem('_enFlujoCrearLiga')) return;
-        if (localStorage.getItem('_enFlujoCrearLiga')) {
-          detenerDerbyLoader();
-          document.getElementById('loadingScreen').style.display = 'none';
-          mostrarWizardLiga();
-          return;
-        }
-        throw new Error('invalid session');
+        localStorage.removeItem('quindes_email');
+        localStorage.removeItem('quindes_token');
+        localStorage.removeItem('_enFlujoCrearLiga');
+        detenerDerbyLoader();
+        document.getElementById('loadingScreen').style.display = 'none';
+        mostrarLoginScreen();
+        return;
       }
         // (sin cambio real, solo agregar log abajo)
         window._googleEmail = savedEmail;
