@@ -116,7 +116,10 @@
     </div>
 <div class="wiz-actions">
     <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-    <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    <button class="wiz-btn-primary wiz-opt-btn" data-action="next">
+            <span class="wiz-opt-btn-label">OMITIR</span>
+            <span class="material-icons">arrow_forward</span>
+          </button>
   </div>
   </div>
 </template>
@@ -147,8 +150,10 @@
     </div>
 
     <div class="wiz-actions">
-      <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-      <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+      <button class="wiz-btn-primary wiz-opt-btn" data-action="next">
+            <span class="wiz-opt-btn-label">OMITIR</span>
+            <span class="material-icons">arrow_forward</span>
+          </button>
     </div>
   </div>
 </template>
@@ -285,8 +290,10 @@
       </div>
     </div>
   <div class="wiz-actions">
-    <button class="wiz-btn-primary" data-action="next">Continuar <span class="material-icons">arrow_forward</span></button>
-    <button class="wiz-btn-secondary" data-action="skip">Omitir por ahora</button>
+    <button class="wiz-btn-primary wiz-opt-btn" data-action="next">
+            <span class="wiz-opt-btn-label">OMITIR</span>
+            <span class="material-icons">arrow_forward</span>
+          </button>
   </div>
   </div>
 </template>
@@ -491,11 +498,11 @@
              placeholder="Ej: María García +593 999 123456" maxlength="150" autocomplete="off">
     </div>
     <div class="wiz-actions">
-      <button class="wiz-btn-primary" data-action="next">
-        <span class="material-icons">check_circle</span> ¡Crear mi liga!
-      </button>
-      <button class="wiz-btn-secondary" data-action="skip">Omitir y finalizar</button>
-      <p class="reg-note">Al crear tu liga aceptás los <strong>términos y condiciones</strong> y el uso de tus datos.</p>
+      <button class="wiz-btn-primary wiz-opt-btn" data-action="next">
+            <span class="wiz-opt-btn-label">OMITIR Y FINALIZAR</span>
+            <span class="material-icons">check_circle</span>
+          </button>
+        <p class="reg-note">Al crear tu liga aceptás los <strong>términos y condiciones</strong> y el uso de datos.</p>
     </div>
   </div>
 </template>

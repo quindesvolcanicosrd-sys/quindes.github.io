@@ -720,3 +720,11 @@ textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
   opacity: 0;
   pointer-events: none;
 }
+
+/* Transición suave label botón único opcional (OMITIR ↔ CONTINUAR) */
+.wiz-opt-btn-label {
+  transition: opacity 0.18s ease;
+}
+.wiz-opt-btn-label.is-fading {
+  opacity: 0;
+}
