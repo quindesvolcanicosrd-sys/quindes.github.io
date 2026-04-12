@@ -90,9 +90,18 @@ function bindImageInput(opts) {
 }
 
 // ── ESTADO ────────────────────────────────────────────────────
-const _WIZ_LIGA_TOTAL = 20;
+const _WIZ_LIGA_TOTAL = 19;
 let _wizLigaPaso = 0;
-let _wizLiga     = {};
+let _wizLiga = {};
+
+// ── TOGGLE BOTÓN SIGUIENTE (liga) ────────────────────────────
+function wlToggleNext(enabled, el) {
+  if (!el) return;
+  const btn = el.querySelector('.wiz-btn-primary');
+  if (!btn) return;
+  btn.disabled = !enabled;
+  btn.classList.toggle('wiz-btn-disabled', !enabled);
+}
 
 // ── APERTURA / CIERRE ─────────────────────────────────────────
 function mostrarWizardLiga() {
@@ -290,14 +299,20 @@ function renderWizLigaPaso(paso) {
     return;
   }
 
-  if (paso === 2) {
+if (paso === 2) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-2', el);
-      bindImageInput({
-        inputId:'wiz-liga-img-input', previewId:'wiz-liga-img-preview',
-        placeholderId:'wiz-liga-img-placeholder', stateKey:'ligaImagenBase64',
-        config:{ maxWidth:1000, maxHeight:1000, quality:0.75 }
-      });
+      const input = document.getElementById('wiz-liga-nombre');
+      if (input) {
+        input.value = _wizLiga.nombreLiga || '';
+        input.addEventListener('input', function(e) {
+          _wizLiga.nombreLiga = e.target.value;
+          wlToggleNext(!!e.target.value.trim(), el);
+        });
+        input.addEventListener('keydown', function(e) { if (e.key === 'Enter') wizLigaPasoSiguiente(); });
+        setTimeout(function() { input.focus(); }, 350);
+      }
+      wlToggleNext(!!(_wizLiga.nombreLiga || '').trim(), el);
     }, forward);
     return;
   }
@@ -407,19 +422,17 @@ if (paso === 6) {
 if (paso === 7) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-7', el);
-      const wrap = document.getElementById('wiz-liga-cat-chips');
-      if (!wrap) return;
-      ['A', 'B', 'C'].forEach(function(cat) {
-        const btn = document.createElement('button');
-        btn.textContent = cat;
-        btn.className = 'chip ' + (_wizLiga.categoria === cat ? 'chip-active' : 'chip-inactive');
-        btn.addEventListener('click', function() {
-          _wizLiga.categoria = cat;
-          Array.from(wrap.children).forEach(function(b) { b.classList.remove('chip-active'); b.classList.add('chip-inactive'); });
-          btn.classList.add('chip-active'); btn.classList.remove('chip-inactive');
+      const input = document.getElementById('wiz-liga-equipo-nombre');
+      if (input) {
+        input.value = _wizLiga.nombreEquipo || '';
+        input.addEventListener('input', function(e) {
+          _wizLiga.nombreEquipo = e.target.value;
+          wlToggleNext(!!e.target.value.trim(), el);
         });
-        wrap.appendChild(btn);
-      });
+        input.addEventListener('keydown', function(e) { if (e.key === 'Enter') wizLigaPasoSiguiente(); });
+        setTimeout(function() { input.focus(); }, 350);
+      }
+      wlToggleNext(!!(_wizLiga.nombreEquipo || '').trim(), el);
     }, forward);
     return;
   }
@@ -502,14 +515,18 @@ if (paso === 10) {
 
   if (paso === 11) {
     wizLigaGoTo(function(el) {
-      cloneTpl('tpl-wiz-liga-10', el);
+      cloneTpl('tpl-wiz-liga-11', el);
       const input = document.getElementById('wiz-liga-perfil-nombre');
       if (input) {
         input.value = _wizLiga.nombre || '';
-        input.addEventListener('input', function(e) { _wizLiga.nombre = e.target.value; });
+        input.addEventListener('input', function(e) {
+          _wizLiga.nombre = e.target.value;
+          wlToggleNext(!!e.target.value.trim(), el);
+        });
         input.addEventListener('keydown', function(e) { if (e.key === 'Enter') wizLigaPasoSiguiente(); });
         setTimeout(function() { input.focus(); }, 300);
       }
+      wlToggleNext(!!(_wizLiga.nombre || '').trim(), el);
     }, forward);
     return;
   }
@@ -567,10 +584,12 @@ if (paso === 10) {
         abrirDatePicker(_wizLiga.fechaNacimiento || '', function(val) {
           _wizLiga.fechaNacimiento = val;
           if (display) display.textContent = val;
+          wlToggleNext(true, el);
         });
       };
       regRenderChips('wiz-liga-cumple-chips', ['Sí','No'], _wizLiga.mostrarCumple || '', function(v) { _wizLiga.mostrarCumple = v; });
       regRenderChips('wiz-liga-edad-chips', ['Sí','No'], _wizLiga.mostrarEdad || '', function(v) { _wizLiga.mostrarEdad = v; });
+      wlToggleNext(!!_wizLiga.fechaNacimiento, el);
     }, forward);
     return;
   }
