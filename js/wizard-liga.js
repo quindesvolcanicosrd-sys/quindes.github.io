@@ -863,24 +863,3 @@ document.addEventListener('click', function(e) {
   }
 });
 
-function wizLigaUpdateOptionalButton(stepEl) {
-  const btn = stepEl.querySelector('.wiz-opt-btn');
-  if (!btn) return;
-
-  const label = btn.querySelector('.wiz-opt-btn-label');
-  if (!label) return;
-
-  const inputs = stepEl.querySelectorAll('input, textarea, select');
-
-  const hasData = Array.from(inputs).some(input => {
-    if (input.type === 'file') {
-      return input.files && input.files.length > 0;
-    }
-    if (input.type === 'checkbox' || input.type === 'radio') {
-      return input.checked;
-    }
-    return input.value && input.value.trim() !== '';
-  });
-
-  label.textContent = hasData ? 'CONTINUAR' : 'OMITIR';
-}
