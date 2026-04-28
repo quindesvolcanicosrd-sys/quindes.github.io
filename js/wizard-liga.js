@@ -587,6 +587,10 @@ if (paso === 10) {
   if (paso === 11) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-11', el);
+      const label = el.querySelector('.wiz-opt-btn-label');
+      if (label) label.textContent = 'CONTINUAR';
+      const skip = el.querySelector('[data-action="skip"]');
+if (skip) skip.classList.remove('wiz-hidden');
       let _initPronombres = true;
 
 regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
