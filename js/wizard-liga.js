@@ -729,9 +729,9 @@ if (paso === 14) {
       const elE = el.querySelector('#wiz-liga-perfil-emergencia');
       if (elE) elE.oninput = function(e) {
       _wizLiga.contactoEmergencia = e.target.value;
-      wizLigaActualizarBtnOpcional(!!e.target.value, 'OMITIR Y FINALIZAR');
+      wizLigaActualizarBtnOpcional(!!e.target.value, 'ENVIAR Y FINALIZAR');
     };
-    wizLigaActualizarBtnOpcional(!!_wizLiga.contactoEmergencia, 'OMITIR Y FINALIZAR');
+    wizLigaActualizarBtnOpcional(!!_wizLiga.contactoEmergencia, 'ENVIAR Y FINALIZAR');
     }, forward);
     return;
   }
