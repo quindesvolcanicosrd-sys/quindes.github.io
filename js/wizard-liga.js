@@ -312,19 +312,19 @@ function wizLigaGoTo(renderFn, forward) {
 
 // ── RENDER DE PASOS ───────────────────────────────────────────
 function renderWizLigaPaso(paso) {
-  const forward   = paso >= _wizLigaPaso;
-  _wizLigaPaso    = paso;
-  const btnBack   = document.getElementById('wiz-liga-btn-back');
+  const forward = paso >= _wizLigaPaso;
+  _wizLigaPaso = paso;
+
+  const btnBack = document.getElementById('wiz-liga-btn-back');
   const pasoLabel = document.getElementById('wiz-liga-step-label');
-  const progress  = document.getElementById('wiz-liga-progress-fill');
+  const progress = document.getElementById('wiz-liga-progress-fill');
   const contenido = document.getElementById('wiz-liga-contenido');
   if (!contenido) return;
 
-  if (btnBack) btnBack.style.display = 'block';
+  if (btnBack) btnBack.style.display = paso > 1 ? 'block' : 'none';
   if (pasoLabel) pasoLabel.textContent = 'Paso ' + paso + ' de ' + _WIZ_LIGA_TOTAL;
-  if (progress)  progress.style.width  = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
+  if (progress) progress.style.width = (paso / _WIZ_LIGA_TOTAL * 100) + '%';
 
-  // Helper para clonar template
   const cloneTpl = function(id, el) {
     const tpl = document.getElementById(id);
     if (!tpl) return;
@@ -332,21 +332,16 @@ function renderWizLigaPaso(paso) {
     el.appendChild(tpl.content.cloneNode(true));
   };
 
-if (paso === 1) {
+  if (paso === 1) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-1', el);
-      if (btnBack) btnBack.classList.remove('wiz-hidden');
-      const input = el.querySelector('#wiz-liga-nombre');
+      const input = document.getElementById('wiz-liga-nombre');
       if (input) {
         input.value = _wizLiga.nombreLiga || '';
-        input.addEventListener('input', function(e) {
-          _wizLiga.nombreLiga = e.target.value;
-          wlToggleNext(!!e.target.value.trim(), el);
-        });
+        input.addEventListener('input', function(e) { _wizLiga.nombreLiga = e.target.value; });
         input.addEventListener('keydown', function(e) { if (e.key === 'Enter') wizLigaPasoSiguiente(); });
         setTimeout(function() { input.focus(); }, 350);
       }
-      wlToggleNext(!!(_wizLiga.nombreLiga || '').trim(), el);
     }, forward);
     return;
   }
@@ -355,12 +350,10 @@ if (paso === 1) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-2', el);
       bindImageInput({
-      inputId:'wiz-liga-img-input', previewId:'wiz-liga-img-preview',
-      placeholderId:'wiz-liga-img-placeholder', stateKey:'ligaImagenBase64',
-      config:{ maxWidth:1000, maxHeight:1000, quality:0.75 },
-      onUpdate: function(has) { wizLigaActualizarBtnOpcional(has); }
-    });
-    wizLigaActualizarBtnOpcional(!!_wizLiga.ligaImagenBase64);
+        inputId:'wiz-liga-img-input', previewId:'wiz-liga-img-preview',
+        placeholderId:'wiz-liga-img-placeholder', stateKey:'ligaImagenBase64',
+        config:{ maxWidth:1000, maxHeight:1000, quality:0.75 }
+      });
     }, forward);
     return;
   }
@@ -368,55 +361,49 @@ if (paso === 1) {
   if (paso === 3) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-3', el);
+      const selPais = document.getElementById('wiz-liga-pais-sel');
+      const selCiudad = document.getElementById('wiz-liga-ciudad-sel');
       const wrapCiudad = document.getElementById('wiz-liga-ciudad-wrap');
       const wrapCustom = document.getElementById('wiz-liga-ciudad-custom-wrap');
       const inputCustom = document.getElementById('wiz-liga-ciudad-custom');
-      const paisDisplay = document.getElementById('wiz-liga-pais-display');
-      const ciudadDisplay = document.getElementById('wiz-liga-ciudad-display');
-
-      function actualizarCiudadBtn(ciudad) {
-        if (ciudadDisplay) ciudadDisplay.textContent = ciudad || 'Seleccionar ciudad…';
-      }
-
-      function abrirSelectorCiudad(pais) {
+      REG_PAISES.forEach(function(p) {
+        const opt = document.createElement('option');
+        opt.value = p; opt.textContent = p;
+        if (_wizLiga.pais === p) opt.selected = true;
+        selPais.appendChild(opt);
+      });
+      function cargarCiudades(pais) {
+        selCiudad.innerHTML = '<option value="">Seleccionar ciudad…</option>';
         const ciudades = CIUDADES_POR_PAIS[pais] || [];
-        const opciones = ciudades.concat(['Mi ciudad no está en la lista…']);
-        abrirBottomSheet('Ciudad', opciones, _wizLiga.ciudad || '', function(val) {
-          if (val === 'Mi ciudad no está en la lista…') {
-            _wizLiga.ciudad = inputCustom ? inputCustom.value : '';
-            wrapCustom.classList.remove('wiz-hidden');
-            actualizarCiudadBtn('Otra ciudad…');
-          } else {
-            _wizLiga.ciudad = val;
-            wrapCustom.classList.add('wiz-hidden');
-            actualizarCiudadBtn(val);
-          }
+        ciudades.forEach(function(c) {
+          const opt = document.createElement('option');
+          opt.value = c; opt.textContent = c;
+          if (_wizLiga.ciudad === c) opt.selected = true;
+          selCiudad.appendChild(opt);
         });
-      }
-
-      if (paisDisplay) paisDisplay.textContent = _wizLiga.pais || 'Seleccionar país…';
-      if (_wizLiga.pais) wrapCiudad.classList.remove('wiz-hidden');
-      actualizarCiudadBtn(_wizLiga.ciudad);
-
-      const paisBtn = document.getElementById('wiz-liga-pais-btn');
-      if (paisBtn) paisBtn.onclick = function() {
-        abrirBottomSheet('País', REG_PAISES, _wizLiga.pais || '', function(val) {
-          _wizLiga.pais = val;
-          _wizLiga.ciudad = '';
-          if (paisDisplay) paisDisplay.textContent = val;
-          wrapCiudad.classList.remove('wiz-hidden');
-          actualizarCiudadBtn('');
+        const optOtro = document.createElement('option');
+        optOtro.value = '__otro__'; optOtro.textContent = 'Mi ciudad no está en la lista…';
+        selCiudad.appendChild(optOtro);
+        const esCustom = _wizLiga.ciudad && !ciudades.includes(_wizLiga.ciudad);
+        if (esCustom) {
+          selCiudad.value = '__otro__';
+          wrapCustom.classList.remove('wiz-hidden');
+          inputCustom.value = _wizLiga.ciudad;
+        } else {
           wrapCustom.classList.add('wiz-hidden');
-        });
-      };
-
-      const ciudadBtn = document.getElementById('wiz-liga-ciudad-btn');
-      if (ciudadBtn) ciudadBtn.onclick = function() {
-        if (!_wizLiga.pais) { mostrarToastGuardado('⚠️ Primero seleccioná un país'); return; }
-        abrirSelectorCiudad(_wizLiga.pais);
-      };
-
-      if (inputCustom) inputCustom.addEventListener('input', function(e) { _wizLiga.ciudad = e.target.value; });
+        }
+      }
+      if (_wizLiga.pais) { wrapCiudad.classList.remove('wiz-hidden'); cargarCiudades(_wizLiga.pais); }
+      selPais.addEventListener('change', function(e) {
+        _wizLiga.pais = e.target.value; _wizLiga.ciudad = '';
+        if (e.target.value) { wrapCiudad.classList.remove('wiz-hidden'); cargarCiudades(e.target.value); }
+        else wrapCiudad.classList.add('wiz-hidden');
+      });
+      selCiudad.addEventListener('change', function(e) {
+        if (e.target.value === '__otro__') { wrapCustom.classList.remove('wiz-hidden'); _wizLiga.ciudad = inputCustom.value || ''; }
+        else { wrapCustom.classList.add('wiz-hidden'); _wizLiga.ciudad = e.target.value; }
+      });
+      inputCustom.addEventListener('input', function(e) { _wizLiga.ciudad = e.target.value; });
     }, forward);
     return;
   }
@@ -429,21 +416,13 @@ if (paso === 1) {
       if (inputAnio) {
         inputAnio.value = _wizLiga.anioFundacion || '';
         inputAnio.max = new Date().getFullYear();
-        inputAnio.addEventListener('input', function(e) {
-          _wizLiga.anioFundacion = e.target.value;
-          wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.descripcion);
-        });
+        inputAnio.addEventListener('input', function(e) { _wizLiga.anioFundacion = e.target.value; });
       }
       if (inputDesc) {
         inputDesc.value = _wizLiga.descripcion || '';
-        inputDesc.addEventListener('input', function(e) {
-          _wizLiga.descripcion = e.target.value;
-          wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.anioFundacion);
-        });
+        inputDesc.addEventListener('input', function(e) { _wizLiga.descripcion = e.target.value; });
       }
-      wizLigaActualizarBtnOpcional(!!_wizLiga.anioFundacion || !!_wizLiga.descripcion);
       setTimeout(function() { if (inputAnio) inputAnio.focus(); }, 350);
-      wlOptBtn(el, !!(_wizLiga.anioFundacion || _wizLiga.descripcion));
     }, forward);
     return;
   }
@@ -454,37 +433,28 @@ if (paso === 1) {
       const input = document.getElementById('wiz-liga-ig');
       if (input) {
         input.value = _wizLiga.contactoSocial || '';
-        input.addEventListener('input', function(e) {
-          _wizLiga.contactoSocial = e.target.value;
-          wizLigaActualizarBtnOpcional(!!e.target.value);
-        });
-        wizLigaActualizarBtnOpcional(!!_wizLiga.contactoSocial);
+        input.addEventListener('input', function(e) { _wizLiga.contactoSocial = e.target.value; });
         setTimeout(function() { input.focus(); }, 350);
       }
-      wlOptBtn(el, !!(_wizLiga.contactoSocial || '').trim());
     }, forward);
     return;
   }
 
-if (paso === 6) {
+  if (paso === 6) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-6', el);
-      const input = el.querySelector('#wiz-liga-equipo-nombre');
+      const input = document.getElementById('wiz-liga-equipo-nombre');
       if (input) {
         input.value = _wizLiga.nombreEquipo || '';
-        input.addEventListener('input', function(e) {
-          _wizLiga.nombreEquipo = e.target.value;
-          wlToggleNext(!!e.target.value.trim(), el);
-        });
+        input.addEventListener('input', function(e) { _wizLiga.nombreEquipo = e.target.value; });
         input.addEventListener('keydown', function(e) { if (e.key === 'Enter') wizLigaPasoSiguiente(); });
         setTimeout(function() { input.focus(); }, 350);
       }
-      wlToggleNext(!!(_wizLiga.nombreEquipo || '').trim(), el);
     }, forward);
     return;
   }
 
-if (paso === 7) {
+  if (paso === 7) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-7', el);
       const wrap = document.getElementById('wiz-liga-cat-chips');
@@ -496,96 +466,62 @@ if (paso === 7) {
           _wizLiga.categoria = cat;
           Array.from(wrap.children).forEach(function(b) { b.classList.remove('chip-active'); b.classList.add('chip-inactive'); });
           btn.classList.add('chip-active'); btn.classList.remove('chip-inactive');
-          wizLigaActualizarBtnOpcional(true);
         });
         wrap.appendChild(btn);
       });
-      wizLigaActualizarBtnOpcional(!!_wizLiga.categoria);
     }, forward);
     return;
   }
 
-if (paso === 8) {
+  if (paso === 8) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-8', el);
+      const wrapColors = document.getElementById('wiz-color-presets');
+      const colorActual = _wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444';
       bindImageInput({
-      inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
-      placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
-      config:{ maxWidth:500, maxHeight:500, quality:0.8 },
-      onUpdate: function(has) { wizLigaActualizarBtnOpcional(has || !!_wizLiga.colorPrimario); }
-    });
+        inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
+        placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
+        config:{ maxWidth:500, maxHeight:500, quality:0.8 }
+      });
+      COLOR_PICKER_PRESETS.forEach(function(color) {
+        const btn = document.createElement('button');
+        btn.className = 'color-swatch-btn';
+        if (color === colorActual) btn.classList.add('selected');
+        btn.style.background = color;
+        btn.addEventListener('click', function() {
+          _wizLiga.colorPrimario = color;
+          aplicarColorPrimario(color);
+          Array.from(wrapColors.children).forEach(function(b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+        });
+        wrapColors.appendChild(btn);
+      });
     }, forward);
     return;
   }
 
   if (paso === 9) {
     wizLigaGoTo(function(el) {
-      cloneTpl('tpl-wiz-liga-color', el);
-      const wrapColors = document.getElementById('wiz-color-presets');
-      if (!wrapColors) return;
-      const colorActual = _wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444';
-      COLOR_PICKER_PRESETS.forEach(function(color) {
-        const btn = document.createElement('button');
-        btn.className = 'color-swatch-btn';
-        if (color === colorActual) btn.classList.add('selected');
-        btn.style.background = color; // excepción: valor dinámico de runtime
-        btn.addEventListener('click', function() {
-          _wizLiga.colorPrimario = color;
-          aplicarColorPrimario(color);
-          Array.from(wrapColors.children).forEach(function(b) { b.classList.remove('selected'); });
-          btn.classList.add('selected');
-          wizLigaActualizarBtnOpcional(!!_wizLiga.logoBase64 || true);
-        });
-        wrapColors.appendChild(btn);
+      cloneTpl('tpl-wiz-liga-9', el);
+      bindImageInput({
+        inputId:'wiz-liga-foto-input', previewId:'wiz-liga-foto-preview',
+        placeholderId:'wiz-liga-foto-placeholder', stateKey:'fotoBase64',
+        config:{ maxWidth:600, maxHeight:600, quality:0.7 }
       });
-      wlOptBtn(el, !!_wizLiga.colorPrimario);
-      // Botón personalizado
-      const customBtn = document.createElement('button');
-      customBtn.className = 'color-swatch-btn color-swatch-btn--custom';
-      customBtn.title = 'Color personalizado';
-      customBtn.innerHTML = '<span class="material-icons" aria-hidden="true">colorize</span>';
-      const colorInput = document.createElement('input');
-      colorInput.type = 'color';
-      colorInput.className = 'wiz-color-custom-input';
-      colorInput.value = (_wizLiga.colorPrimario && !COLOR_PICKER_PRESETS.includes(_wizLiga.colorPrimario))
-        ? _wizLiga.colorPrimario : '#ef4444';
-      customBtn.appendChild(colorInput);
-      if (_wizLiga.colorPrimario && !COLOR_PICKER_PRESETS.includes(_wizLiga.colorPrimario)) {
-        customBtn.style.background = _wizLiga.colorPrimario;
-        customBtn.classList.add('selected');
-      }
-      customBtn.addEventListener('click', function(e) {
-        if (e.target !== colorInput) colorInput.click();
-      });
-      colorInput.addEventListener('input', function(e) {
-        const color = e.target.value;
-        customBtn.style.background = color; // excepción: valor dinámico de runtime
-        _wizLiga.colorPrimario = color;
-        aplicarColorPrimario(color);
-        Array.from(wrapColors.children).forEach(function(b) { b.classList.remove('selected'); });
-        customBtn.classList.add('selected');
-      });
-      wrapColors.appendChild(customBtn);
-      wizLigaActualizarBtnOpcional(!!_wizLiga.logoBase64 || !!_wizLiga.colorPrimario);
-    
     }, forward);
     return;
   }
 
-if (paso === 10) {
+  if (paso === 10) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-10', el);
-      const input = el.querySelector('#wiz-liga-perfil-nombre');
+      const input = document.getElementById('wiz-liga-perfil-nombre');
       if (input) {
         input.value = _wizLiga.nombre || '';
-        input.addEventListener('input', function(e) {
-          _wizLiga.nombre = e.target.value;
-          wlToggleNext(!!e.target.value.trim(), el);
-        });
+        input.addEventListener('input', function(e) { _wizLiga.nombre = e.target.value; });
         input.addEventListener('keydown', function(e) { if (e.key === 'Enter') wizLigaPasoSiguiente(); });
         setTimeout(function() { input.focus(); }, 300);
       }
-      wlToggleNext(!!(_wizLiga.nombre || '').trim(), el);
     }, forward);
     return;
   }
@@ -593,11 +529,7 @@ if (paso === 10) {
   if (paso === 11) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-11', el);
-      regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
-        _wizLiga.pronombres = v;
-        wlOptBtn(el, v.length > 0);
-      });
-      wlOptBtn(el, (_wizLiga.pronombres || []).length > 0);
+      regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) { _wizLiga.pronombres = v; });
     }, forward);
     return;
   }
@@ -605,18 +537,15 @@ if (paso === 10) {
   if (paso === 12) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-12', el);
-      const display = el.querySelector('#wiz-liga-perfil-pais-display');
+      const display = document.getElementById('wiz-liga-perfil-pais-display');
       if (display) display.textContent = _wizLiga.paisPerfil || 'Seleccionar país…';
-      const paisBtn = el.querySelector('#wiz-liga-perfil-pais-btn');
+      const paisBtn = document.getElementById('wiz-liga-perfil-pais-btn');
       if (paisBtn) paisBtn.onclick = function() {
-      abrirBottomSheet('Nacionalidad', REG_PAISES, _wizLiga.paisPerfil || '', function(val) {
-        _wizLiga.paisPerfil = val;
-        if (display) display.textContent = val;
-        wizLigaActualizarBtnOpcional(!!val);
-      });
-    };
-    wizLigaActualizarBtnOpcional(!!_wizLiga.paisPerfil);
-      wlOptBtn(el, !!_wizLiga.paisPerfil);
+        abrirBottomSheet('Nacionalidad', REG_PAISES, _wizLiga.paisPerfil || '', function(val) {
+          _wizLiga.paisPerfil = val;
+          if (display) display.textContent = val;
+        });
+      };
     }, forward);
     return;
   }
@@ -624,42 +553,36 @@ if (paso === 10) {
   if (paso === 13) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-13', el);
-      const tel = el.querySelector('#wiz-liga-perfil-tel');
-      const display = el.querySelector('#wiz-liga-perfil-codigo-display');
+      const tel = document.getElementById('wiz-liga-perfil-tel');
+      const display = document.getElementById('wiz-liga-perfil-codigo-display');
       if (tel) tel.value = _wizLiga.telefono || '';
       if (display) display.textContent = _wizLiga.codigoPais || '+?';
-      if (tel) tel.addEventListener('input', function(e) {
-        _wizLiga.telefono = e.target.value;
-        wlOptBtn(el, !!e.target.value.trim());
-      });
-      const codigoBtn = el.querySelector('#wiz-liga-perfil-codigo-btn');
+      if (tel) tel.addEventListener('input', function(e) { _wizLiga.telefono = e.target.value; });
+      const codigoBtn = document.getElementById('wiz-liga-perfil-codigo-btn');
       if (codigoBtn) codigoBtn.onclick = function() {
         abrirBottomSheet('Código', REG_CODIGOS, _wizLiga.codigoPais || '', function(val) {
           _wizLiga.codigoPais = val;
           if (display) display.textContent = val;
         });
       };
-      wlOptBtn(el, !!_wizLiga.telefono);
     }, forward);
     return;
   }
 
-if (paso === 14) {
+  if (paso === 14) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-14', el);
-      const display = el.querySelector('#wiz-liga-perfil-fecha-display');
+      const display = document.getElementById('wiz-liga-perfil-fecha-display');
       if (display) display.textContent = _wizLiga.fechaNacimiento || 'Seleccionar fecha…';
-      const fechaBtn = el.querySelector('#wiz-liga-perfil-fecha-btn');
+      const fechaBtn = document.getElementById('wiz-liga-perfil-fecha-btn');
       if (fechaBtn) fechaBtn.onclick = function() {
         abrirDatePicker(_wizLiga.fechaNacimiento || '', function(val) {
           _wizLiga.fechaNacimiento = val;
           if (display) display.textContent = val;
-          wlToggleNext(true, el);
         });
       };
       regRenderChips('wiz-liga-cumple-chips', ['Sí','No'], _wizLiga.mostrarCumple || '', function(v) { _wizLiga.mostrarCumple = v; });
       regRenderChips('wiz-liga-edad-chips', ['Sí','No'], _wizLiga.mostrarEdad || '', function(v) { _wizLiga.mostrarEdad = v; });
-      wlToggleNext(!!_wizLiga.fechaNacimiento, el);
     }, forward);
     return;
   }
@@ -667,24 +590,10 @@ if (paso === 14) {
   if (paso === 15) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-15', el);
-      const derby = el.querySelector('#wiz-liga-perfil-derby');
-      const num = el.querySelector('#wiz-liga-perfil-numero');
-      if (derby) {
-      derby.value = _wizLiga.nombreDerby || '';
-      derby.oninput = function(e) {
-        _wizLiga.nombreDerby = e.target.value;
-        wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.numeroDerby);
-      };
-    }
-    if (num) {
-      num.value = _wizLiga.numeroDerby || '';
-      num.oninput = function(e) {
-        _wizLiga.numeroDerby = e.target.value;
-        wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.nombreDerby);
-      };
-    }
-    wizLigaActualizarBtnOpcional(!!_wizLiga.nombreDerby || !!_wizLiga.numeroDerby);
-      wlOptBtn(el, !!(_wizLiga.nombreDerby || _wizLiga.numeroDerby));
+      const derby = document.getElementById('wiz-liga-perfil-derby');
+      const num = document.getElementById('wiz-liga-perfil-numero');
+      if (derby) { derby.value = _wizLiga.nombreDerby || ''; derby.oninput = function(e) { _wizLiga.nombreDerby = e.target.value; }; }
+      if (num) { num.value = _wizLiga.numeroDerby || ''; num.oninput = function(e) { _wizLiga.numeroDerby = e.target.value; }; }
     }, forward);
     return;
   }
@@ -692,11 +601,7 @@ if (paso === 14) {
   if (paso === 16) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-16', el);
-      regRenderChips('wiz-liga-rol-chips', REG_ROLES, _wizLiga.rolJugadorx || '', function(v) {
-        _wizLiga.rolJugadorx = v;
-        wlToggleNext(true, el);
-      });
-      wlToggleNext(!!_wizLiga.rolJugadorx, el);
+      regRenderChips('wiz-liga-rol-chips', REG_ROLES, _wizLiga.rolJugadorx || '', function(v) { _wizLiga.rolJugadorx = v; });
     }, forward);
     return;
   }
@@ -704,11 +609,7 @@ if (paso === 14) {
   if (paso === 17) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-17', el);
-      regRenderChips('wiz-liga-asiste-chips', REG_ASISTENCIA, _wizLiga.asisteSemana || '', function(v) {
-        _wizLiga.asisteSemana = v;
-        wlToggleNext(true, el);
-      });
-      wlToggleNext(!!_wizLiga.asisteSemana, el);
+      regRenderChips('wiz-liga-asiste-chips', REG_ASISTENCIA, _wizLiga.asisteSemana || '', function(v) { _wizLiga.asisteSemana = v; });
     }, forward);
     return;
   }
@@ -716,18 +617,10 @@ if (paso === 14) {
   if (paso === 18) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-18', el);
-      const elA = el.querySelector('#wiz-liga-perfil-alergias');
-      const elD = el.querySelector('#wiz-liga-perfil-dieta');
-      if (elA) elA.oninput = function(e) {
-      _wizLiga.alergias = e.target.value;
-      wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.dieta);
-    };
-    if (elD) elD.oninput = function(e) {
-      _wizLiga.dieta = e.target.value;
-      wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.alergias);
-    };
-    wizLigaActualizarBtnOpcional(!!_wizLiga.alergias || !!_wizLiga.dieta);
-      wlOptBtn(el, !!(_wizLiga.alergias || _wizLiga.dieta));
+      const elA = document.getElementById('wiz-liga-perfil-alergias');
+      const elD = document.getElementById('wiz-liga-perfil-dieta');
+      if (elA) elA.oninput = function(e) { _wizLiga.alergias = e.target.value; };
+      if (elD) elD.oninput = function(e) { _wizLiga.dieta = e.target.value; };
     }, forward);
     return;
   }
@@ -735,25 +628,11 @@ if (paso === 14) {
   if (paso === 19) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-19', el);
-      const elE = el.querySelector('#wiz-liga-perfil-emergencia');
-      if (elE) elE.oninput = function(e) {
-      _wizLiga.contactoEmergencia = e.target.value;
-      wizLigaActualizarBtnOpcional(!!e.target.value, 'OMITIR Y FINALIZAR');
-    };
-    wizLigaActualizarBtnOpcional(!!_wizLiga.contactoEmergencia, 'OMITIR Y FINALIZAR');
-    }, forward);
-    return;
-  }
-
-  if (paso === 20) {
-    wizLigaGoTo(function(el) {
-      cloneTpl('tpl-wiz-liga-19', el);
       const elE = document.getElementById('wiz-liga-perfil-emergencia');
       if (elE) elE.oninput = function(e) { _wizLiga.contactoEmergencia = e.target.value; };
     }, forward);
     return;
   }
-
 }
 
 // ── VALIDACIÓN Y NAVEGACIÓN ───────────────────────────────────
