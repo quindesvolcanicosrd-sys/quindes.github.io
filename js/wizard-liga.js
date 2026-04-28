@@ -103,28 +103,6 @@ const resetImage = function() {
   });
 }
 
-// ── HELPER: toggle botón omitir/continuar en pasos opcionales ─
-function wlOptBtn(el, hasValue) {
-  const nextBtn = el.querySelector('[data-action="next"]');
-  const skipBtn = el.querySelector('[data-action="skip"]');
-  if (!skipBtn) return;
-  if (nextBtn) {
-    skipBtn.classList.toggle('wiz-hidden', !!hasValue);
-  } else {
-    if (hasValue) {
-      skipBtn.textContent = 'Continuar →';
-      skipBtn.dataset.action = 'next';
-      skipBtn.classList.remove('wiz-btn-secondary');
-      skipBtn.classList.add('wiz-btn-primary');
-    } else {
-      skipBtn.textContent = 'Omitir por ahora';
-      skipBtn.dataset.action = 'skip';
-      skipBtn.classList.remove('wiz-btn-primary');
-      skipBtn.classList.add('wiz-btn-secondary');
-    }
-  }
-}
-
 // ── ESTADO ────────────────────────────────────────────────────
 const _WIZ_LIGA_TOTAL = 19;
 let _wizLigaPaso = 0;
@@ -139,27 +117,18 @@ function wlToggleNext(enabled, el) {
   btn.disabled = !enabled;
   btn.classList.toggle('wiz-btn-disabled', !enabled);
 }
-// Pasos opcionales: un solo botón rojo que dice "Omitir" o "Continuar"
+// Pasos opcionales: un solo botón que actualiza el label interno
 function wlOptBtn(el, hasValue) {
-  const skip = el.querySelector('[data-action="skip"]');
-  if (skip) skip.classList.add('wiz-hidden');
-  const btn = el.querySelector('.wiz-btn-primary[data-action="next"]');
+  const btn = el.querySelector('.wiz-opt-btn[data-action="next"]');
   if (!btn) return;
-  const val = !!hasValue;
-  if (btn._wlOpt === val) return;
-  const apply = function() {
-    btn.innerHTML = val
-      ? 'Continuar <span class="material-icons">arrow_forward</span>'
-      : 'Omitir';
-    btn._wlOpt = val;
-  };
-  if (btn._wlOpt === undefined) { apply(); return; }
-  btn.style.opacity = '0';
-  btn.style.transition = 'opacity 0.18s ease';
+  const label = btn.querySelector('.wiz-opt-btn-label');
+  if (!label) return;
+  const textoNuevo = hasValue ? 'CONTINUAR' : 'OMITIR';
+  if (label.textContent.trim() === textoNuevo) return;
+  label.classList.add('is-fading');
   setTimeout(function() {
-    apply();
-    btn.style.opacity = '1';
-    setTimeout(function() { btn.style.transition = ''; }, 200);
+    label.textContent = textoNuevo;
+    label.classList.remove('is-fading');
   }, 180);
 }
 
