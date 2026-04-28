@@ -431,17 +431,17 @@ if (paso === 1) {
         inputAnio.max = new Date().getFullYear();
         inputAnio.addEventListener('input', function(e) {
           _wizLiga.anioFundacion = e.target.value;
-          wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.descripcion);
+          wlOptBtn(el, !!(e.target.value || _wizLiga.descripcion));
         });
       }
       if (inputDesc) {
         inputDesc.value = _wizLiga.descripcion || '';
         inputDesc.addEventListener('input', function(e) {
           _wizLiga.descripcion = e.target.value;
-          wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.anioFundacion);
+          wlOptBtn(el, !!(e.target.value || _wizLiga.anioFundacion));
         });
       }
-      wizLigaActualizarBtnOpcional(!!_wizLiga.anioFundacion || !!_wizLiga.descripcion);
+      wlOptBtn(el, !!(_wizLiga.anioFundacion || _wizLiga.descripcion));
       setTimeout(function() { if (inputAnio) inputAnio.focus(); }, 350);
       wlOptBtn(el, !!(_wizLiga.anioFundacion || _wizLiga.descripcion));
     }, forward);
