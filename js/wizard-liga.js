@@ -511,14 +511,6 @@ if (paso === 8) {
     }, forward);
     return;
   }
-      inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
-      placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
-      config:{ maxWidth:500, maxHeight:500, quality:0.8 },
-      onUpdate: function(has) { wizLigaActualizarBtnOpcional(has || !!_wizLiga.colorPrimario); }
-    });
-    }, forward);
-    return;
-  }
 
   if (paso === 9) {
     wizLigaGoTo(function(el) {
