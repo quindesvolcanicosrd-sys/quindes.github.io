@@ -382,6 +382,7 @@ if (paso === 2) {
             wrapCustom.classList.add('wiz-hidden');
             actualizarCiudadBtn(val);
           }
+          wlOptBtn(el, true);
         });
       }
 
@@ -398,6 +399,7 @@ if (paso === 2) {
           wrapCiudad.classList.remove('wiz-hidden');
           actualizarCiudadBtn('');
           wrapCustom.classList.add('wiz-hidden');
+          wlOptBtn(el, true);
         });
       };
 
@@ -500,6 +502,15 @@ if (paso === 8) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-8', el);
       bindImageInput({
+        inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
+        placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
+        config:{ maxWidth:500, maxHeight:500, quality:0.8 },
+        onChange: function(has) { wlOptBtn(el, has); }
+      });
+      wlOptBtn(el, !!_wizLiga.logoBase64);
+    }, forward);
+    return;
+  }
       inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
       placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
       config:{ maxWidth:500, maxHeight:500, quality:0.8 },
@@ -584,11 +595,12 @@ if (paso === 10) {
   if (paso === 11) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-11', el);
+      wlToggleNext(false, el);
       regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
         _wizLiga.pronombres = v;
-        wlOptBtn(el, v.length > 0);
+        wlToggleNext(v.length > 0, el);
       });
-      wlOptBtn(el, (_wizLiga.pronombres || []).length > 0);
+      wlToggleNext((_wizLiga.pronombres || []).length > 0, el);
     }, forward);
     return;
   }
@@ -612,16 +624,22 @@ if (paso === 10) {
     return;
   }
 
-  if (paso === 13) {
+   if (paso === 13) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-13', el);
       const tel = el.querySelector('#wiz-liga-perfil-tel');
       const display = el.querySelector('#wiz-liga-perfil-codigo-display');
       if (tel) tel.value = _wizLiga.telefono || '';
       if (display) display.textContent = _wizLiga.codigoPais || '+?';
+
+      function validarTel() {
+        const soloDigitos = (_wizLiga.telefono || '').replace(/\D/g, '');
+        wlToggleNext(soloDigitos.length >= 6, el);
+      }
+
       if (tel) tel.addEventListener('input', function(e) {
         _wizLiga.telefono = e.target.value;
-        wlOptBtn(el, !!e.target.value.trim());
+        validarTel();
       });
       const codigoBtn = el.querySelector('#wiz-liga-perfil-codigo-btn');
       if (codigoBtn) codigoBtn.onclick = function() {
@@ -630,7 +648,7 @@ if (paso === 10) {
           if (display) display.textContent = val;
         });
       };
-      wlOptBtn(el, !!_wizLiga.telefono);
+      validarTel();
     }, forward);
     return;
   }
@@ -750,9 +768,9 @@ if (paso === 14) {
 // ── VALIDACIÓN Y NAVEGACIÓN ───────────────────────────────────
 function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 1  && !_wizLiga.nombreLiga.trim())    { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
-if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
+  if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   if (_wizLigaPaso === 11 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
-  if (_wizLigaPaso === 14 && !_wizLiga.telefono.trim()) { mostrarToastGuardado('⚠️ Ingresá tu número de teléfono'); return; }
+  if (_wizLigaPaso === 13 && _wizLiga.telefono.replace(/\D/g,'').length < 6) { mostrarToastGuardado('⚠️ Ingresá un número válido'); return; }
   if (_wizLigaPaso === 15 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
   renderWizLigaPaso(_wizLigaPaso + 1);
 }
