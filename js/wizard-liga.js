@@ -117,23 +117,6 @@ function wlToggleNext(enabled, el) {
   btn.disabled = !enabled;
   btn.classList.toggle('wiz-btn-disabled', !enabled);
 }
-// Pasos opcionales: un solo botón rojo que dice "Omitir" o "Continuar"
-function wlOptBtn(el, hasValue) {   // desactivado: usamos wizLigaActualizarBtnOpcional }
-  const skip = el.querySelector('[data-action="skip"]');
-  if (skip) skip.classList.add('wiz-hidden');
-  const btn = el.querySelector('.wiz-btn-primary[data-action="next"]');
-  if (!btn) return;
-  const val = !!hasValue;
-  if (btn._wlOpt === val) return;
-  const apply = function() {
-    btn.innerHTML = val
-      ? 'Continuar <span class="material-icons">arrow_forward</span>'
-      : 'Omitir';
-    btn._wlOpt = val;
-  };
-  if (btn._wlOpt === undefined) { apply(); return; }
-  apply();
-}
 
 // ── TOGGLE BOTÓN SIGUIENTE (liga) ────────────────────────────
 function wlToggleNext(enabled, el) {
