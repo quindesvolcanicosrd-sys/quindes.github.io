@@ -587,13 +587,22 @@ if (paso === 10) {
   if (paso === 11) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-11', el);
-      regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
+      let _initPronombres = true;
+
+regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
   _wizLiga.pronombres = v;
+
+  if (_initPronombres) {
+    _initPronombres = false;
+    return;
+  }
+
   wizLigaActualizarBtnOpcional(v.length > 0);
 });
 
-// estado inicial correcto
+// estado inicial correcto (forzado)
 wizLigaActualizarBtnOpcional((_wizLiga.pronombres || []).length > 0);
+
     }, forward);
     return;
   }
