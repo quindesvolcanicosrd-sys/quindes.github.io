@@ -473,7 +473,7 @@ if (paso === 1) {
         wizLigaActualizarBtnOpcional(!!_wizLiga.contactoSocial);
         setTimeout(function() { input.focus(); }, 350);
       }
-      wlOptBtn(el, !!(_wizLiga.contactoSocial || '').trim());
+      wizLigaActualizarBtnOpcional(!!(_wizLiga.contactoSocial || '').trim());
     }, forward);
     return;
   }
@@ -550,7 +550,6 @@ if (paso === 8) {
         });
         wrapColors.appendChild(btn);
       });
-      wlOptBtn(el, !!_wizLiga.colorPrimario);
       // Botón personalizado
       const customBtn = document.createElement('button');
       customBtn.className = 'color-swatch-btn color-swatch-btn--custom';
@@ -607,9 +606,8 @@ if (paso === 10) {
       cloneTpl('tpl-wiz-liga-11', el);
       regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
         _wizLiga.pronombres = v;
-        wlOptBtn(el, v.length > 0);
       });
-      wlOptBtn(el, (_wizLiga.pronombres || []).length > 0);
+      wizLigaActualizarBtnOpcional((_wizLiga.pronombres || []).length > 0);
     }, forward);
     return;
   }
@@ -641,17 +639,18 @@ if (paso === 10) {
       if (tel) tel.value = _wizLiga.telefono || '';
       if (display) display.textContent = _wizLiga.codigoPais || '+?';
       if (tel) tel.addEventListener('input', function(e) {
-        _wizLiga.telefono = e.target.value;
-        wlOptBtn(el, !!e.target.value.trim());
-      });
+  _wizLiga.telefono = e.target.value;
+  wlToggleNext(!!(_wizLiga.telefono && _wizLiga.codigoPais), el);
+});
       const codigoBtn = el.querySelector('#wiz-liga-perfil-codigo-btn');
       if (codigoBtn) codigoBtn.onclick = function() {
         abrirBottomSheet('Código', REG_CODIGOS, _wizLiga.codigoPais || '', function(val) {
           _wizLiga.codigoPais = val;
+          wlToggleNext(!!(_wizLiga.telefono && _wizLiga.codigoPais), el);
           if (display) display.textContent = val;
         });
       };
-      wlOptBtn(el, !!_wizLiga.telefono);
+      wlToggleNext(!!(_wizLiga.telefono && _wizLiga.codigoPais), el);
     }, forward);
     return;
   }
@@ -696,7 +695,7 @@ if (paso === 14) {
       };
     }
     wizLigaActualizarBtnOpcional(!!_wizLiga.nombreDerby || !!_wizLiga.numeroDerby);
-      wlOptBtn(el, !!(_wizLiga.nombreDerby || _wizLiga.numeroDerby));
+      wizLigaActualizarBtnOpcional(!!(_wizLiga.nombreDerby || _wizLiga.numeroDerby));
     }, forward);
     return;
   }
@@ -739,7 +738,7 @@ if (paso === 14) {
       wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.alergias);
     };
     wizLigaActualizarBtnOpcional(!!_wizLiga.alergias || !!_wizLiga.dieta);
-      wlOptBtn(el, !!(_wizLiga.alergias || _wizLiga.dieta));
+      wizLigaActualizarBtnOpcional(!!(_wizLiga.alergias || _wizLiga.dieta));
     }, forward);
     return;
   }
@@ -752,7 +751,7 @@ if (paso === 14) {
       _wizLiga.contactoEmergencia = e.target.value;
       wizLigaActualizarBtnOpcional(!!e.target.value, 'OMITIR Y FINALIZAR');
     };
-    wizLigaActualizarBtnOpcional(!!_wizLiga.contactoEmergencia, 'OMITIR Y FINALIZAR');
+    wizLigaActualizarBtnOpcional(   !!_wizLiga.contactoEmergencia,   'FINALIZAR <span class="material-icons">check</span>' );
     }, forward);
     return;
   }
