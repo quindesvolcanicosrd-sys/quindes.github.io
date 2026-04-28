@@ -605,9 +605,12 @@ if (paso === 10) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-11', el);
       regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
-        _wizLiga.pronombres = v;
-      });
-      wizLigaActualizarBtnOpcional((_wizLiga.pronombres || []).length > 0);
+  _wizLiga.pronombres = v;
+  wizLigaActualizarBtnOpcional(v.length > 0);
+});
+
+// estado inicial correcto
+wizLigaActualizarBtnOpcional((_wizLiga.pronombres || []).length > 0);
     }, forward);
     return;
   }
