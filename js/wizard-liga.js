@@ -62,7 +62,7 @@ const resetImage = function() {
     img.classList.add('wiz-hidden');
     placeholder.classList.remove('wiz-hidden');
     removeBtn.classList.remove('wiz-remove-img--visible');
-    if (opts.onUpdate) opts.onUpdate(false);
+    if (opts.onChange) opts.onChange(false);
   };
     
   if (_wizLiga[opts.stateKey]) {
@@ -84,7 +84,7 @@ const resetImage = function() {
         _wizLiga[opts.stateKey] = base64;
         showPreview(base64);
         removeBtn.classList.add('wiz-remove-img--visible');
-        if (opts.onUpdate) opts.onUpdate(true);
+        if (opts.onChange) opts.onChange(true);
       } catch (err) {
       console.error(err);
       mostrarToastGuardado('❌ Error procesando imagen');
@@ -103,6 +103,28 @@ const resetImage = function() {
   });
 }
 
+// ── HELPER: toggle botón omitir/continuar en pasos opcionales ─
+function wlOptBtn(el, hasValue) {
+  const nextBtn = el.querySelector('[data-action="next"]');
+  const skipBtn = el.querySelector('[data-action="skip"]');
+  if (!skipBtn) return;
+  if (nextBtn) {
+    skipBtn.classList.toggle('wiz-hidden', !!hasValue);
+  } else {
+    if (hasValue) {
+      skipBtn.textContent = 'Continuar →';
+      skipBtn.dataset.action = 'next';
+      skipBtn.classList.remove('wiz-btn-secondary');
+      skipBtn.classList.add('wiz-btn-primary');
+    } else {
+      skipBtn.textContent = 'Omitir por ahora';
+      skipBtn.dataset.action = 'skip';
+      skipBtn.classList.remove('wiz-btn-primary');
+      skipBtn.classList.add('wiz-btn-secondary');
+    }
+  }
+}
+
 // ── ESTADO ────────────────────────────────────────────────────
 const _WIZ_LIGA_TOTAL = 19;
 let _wizLigaPaso = 0;
@@ -116,6 +138,29 @@ function wlToggleNext(enabled, el) {
   if (!btn) return;
   btn.disabled = !enabled;
   btn.classList.toggle('wiz-btn-disabled', !enabled);
+}
+// Pasos opcionales: un solo botón rojo que dice "Omitir" o "Continuar"
+function wlOptBtn(el, hasValue) {
+  const skip = el.querySelector('[data-action="skip"]');
+  if (skip) skip.classList.add('wiz-hidden');
+  const btn = el.querySelector('.wiz-btn-primary[data-action="next"]');
+  if (!btn) return;
+  const val = !!hasValue;
+  if (btn._wlOpt === val) return;
+  const apply = function() {
+    btn.innerHTML = val
+      ? 'Continuar <span class="material-icons">arrow_forward</span>'
+      : 'Omitir';
+    btn._wlOpt = val;
+  };
+  if (btn._wlOpt === undefined) { apply(); return; }
+  btn.style.opacity = '0';
+  btn.style.transition = 'opacity 0.18s ease';
+  setTimeout(function() {
+    apply();
+    btn.style.opacity = '1';
+    setTimeout(function() { btn.style.transition = ''; }, 200);
+  }, 180);
 }
 
 // ── TOGGLE BOTÓN SIGUIENTE (liga) ────────────────────────────
@@ -328,93 +373,75 @@ if (paso === 1) {
     return;
   }
 
-  if (paso === 2) {
+if (paso === 2) {
+      wizLigaGoTo(function(el) {
+        cloneTpl('tpl-wiz-liga-2', el);
+        bindImageInput({
+          inputId:'wiz-liga-img-input', previewId:'wiz-liga-img-preview',
+          placeholderId:'wiz-liga-img-placeholder', stateKey:'ligaImagenBase64',
+          config:{ maxWidth:1000, maxHeight:1000, quality:0.75 },
+          onChange: function(hasImg) { wlOptBtn(el, hasImg); }
+        });
+        wlOptBtn(el, !!_wizLiga.ligaImagenBase64);
+      }, forward);
+      return;
+    }
+
+  if (paso === 3) {
     wizLigaGoTo(function(el) {
-      cloneTpl('tpl-wiz-liga-2', el);
-      bindImageInput({
-      inputId:'wiz-liga-img-input', previewId:'wiz-liga-img-preview',
-      placeholderId:'wiz-liga-img-placeholder', stateKey:'ligaImagenBase64',
-      config:{ maxWidth:1000, maxHeight:1000, quality:0.75 },
-      onUpdate: function(has) { wizLigaActualizarBtnOpcional(has); }
-    });
-    wizLigaActualizarBtnOpcional(!!_wizLiga.ligaImagenBase64);
+      cloneTpl('tpl-wiz-liga-3', el);
+      const wrapCiudad = document.getElementById('wiz-liga-ciudad-wrap');
+      const wrapCustom = document.getElementById('wiz-liga-ciudad-custom-wrap');
+      const inputCustom = document.getElementById('wiz-liga-ciudad-custom');
+      const paisDisplay = document.getElementById('wiz-liga-pais-display');
+      const ciudadDisplay = document.getElementById('wiz-liga-ciudad-display');
+
+      function actualizarCiudadBtn(ciudad) {
+        if (ciudadDisplay) ciudadDisplay.textContent = ciudad || 'Seleccionar ciudad…';
+      }
+
+      function abrirSelectorCiudad(pais) {
+        const ciudades = CIUDADES_POR_PAIS[pais] || [];
+        const opciones = ciudades.concat(['Mi ciudad no está en la lista…']);
+        abrirBottomSheet('Ciudad', opciones, _wizLiga.ciudad || '', function(val) {
+          if (val === 'Mi ciudad no está en la lista…') {
+            _wizLiga.ciudad = inputCustom ? inputCustom.value : '';
+            wrapCustom.classList.remove('wiz-hidden');
+            actualizarCiudadBtn('Otra ciudad…');
+          } else {
+            _wizLiga.ciudad = val;
+            wrapCustom.classList.add('wiz-hidden');
+            actualizarCiudadBtn(val);
+          }
+        });
+      }
+
+      if (paisDisplay) paisDisplay.textContent = _wizLiga.pais || 'Seleccionar país…';
+      if (_wizLiga.pais) wrapCiudad.classList.remove('wiz-hidden');
+      actualizarCiudadBtn(_wizLiga.ciudad);
+
+      const paisBtn = document.getElementById('wiz-liga-pais-btn');
+      if (paisBtn) paisBtn.onclick = function() {
+        abrirBottomSheet('País', REG_PAISES, _wizLiga.pais || '', function(val) {
+          _wizLiga.pais = val;
+          _wizLiga.ciudad = '';
+          if (paisDisplay) paisDisplay.textContent = val;
+          wrapCiudad.classList.remove('wiz-hidden');
+          actualizarCiudadBtn('');
+          wrapCustom.classList.add('wiz-hidden');
+        });
+      };
+
+      const ciudadBtn = document.getElementById('wiz-liga-ciudad-btn');
+      if (ciudadBtn) ciudadBtn.onclick = function() {
+        if (!_wizLiga.pais) { mostrarToastGuardado('⚠️ Primero seleccioná un país'); return; }
+        abrirSelectorCiudad(_wizLiga.pais);
+      };
+
+      if (inputCustom) inputCustom.addEventListener('input', function(e) { _wizLiga.ciudad = e.target.value; });
     }, forward);
     return;
   }
-
-  if (paso === 3) {
-  wizLigaGoTo(function(el) {
-    cloneTpl('tpl-wiz-liga-3', el);
-
-    const wrapCiudad = el.querySelector('#wiz-liga-ciudad-wrap');
-    const wrapCustom = el.querySelector('#wiz-liga-ciudad-custom-wrap');
-    const inputCustom = el.querySelector('#wiz-liga-ciudad-custom');
-    const paisDisplay = el.querySelector('#wiz-liga-pais-display');
-    const ciudadDisplay = el.querySelector('#wiz-liga-ciudad-display');
-
-    function actualizarCiudadBtn(ciudad) {
-      if (ciudadDisplay) ciudadDisplay.textContent = ciudad || 'Seleccionar ciudad…';
-    }
-
-    function updateBtn() {
-      wizLigaActualizarBtnOpcional(!!(_wizLiga.pais && _wizLiga.ciudad));
-    }
-
-    function abrirSelectorCiudad(pais) {
-      const ciudades = CIUDADES_POR_PAIS[pais] || [];
-      const opciones = ciudades.concat(['Mi ciudad no está en la lista…']);
-
-      abrirBottomSheet('Ciudad', opciones, _wizLiga.ciudad || '', function(val) {
-        if (val === 'Mi ciudad no está en la lista…') {
-          _wizLiga.ciudad = inputCustom ? inputCustom.value : '';
-          wrapCustom.classList.remove('wiz-hidden');
-          actualizarCiudadBtn('Otra ciudad…');
-        } else {
-          _wizLiga.ciudad = val;
-          wrapCustom.classList.add('wiz-hidden');
-          actualizarCiudadBtn(val);
-        }
-        updateBtn();
-      });
-    }
-
-    if (paisDisplay) paisDisplay.textContent = _wizLiga.pais || 'Seleccionar país…';
-    if (_wizLiga.pais) wrapCiudad.classList.remove('wiz-hidden');
-    actualizarCiudadBtn(_wizLiga.ciudad);
-
-    const paisBtn = el.querySelector('#wiz-liga-pais-btn');
-    if (paisBtn) paisBtn.onclick = function() {
-      abrirBottomSheet('País', REG_PAISES, _wizLiga.pais || '', function(val) {
-        _wizLiga.pais = val;
-        _wizLiga.ciudad = '';
-        if (paisDisplay) paisDisplay.textContent = val;
-        wrapCiudad.classList.remove('wiz-hidden');
-        actualizarCiudadBtn('');
-        wrapCustom.classList.add('wiz-hidden');
-        updateBtn();
-      });
-    };
-
-    const ciudadBtn = el.querySelector('#wiz-liga-ciudad-btn');
-    if (ciudadBtn) ciudadBtn.onclick = function() {
-      if (!_wizLiga.pais) {
-        mostrarToastGuardado('⚠️ Primero seleccioná un país');
-        return;
-      }
-      abrirSelectorCiudad(_wizLiga.pais);
-    };
-
-    if (inputCustom) {
-      inputCustom.addEventListener('input', function(e) {
-        _wizLiga.ciudad = e.target.value;
-        updateBtn();
-      });
-    }
-
-    updateBtn();
-  }, forward);
-  return;
-}
 
   if (paso === 4) {
     wizLigaGoTo(function(el) {
@@ -426,19 +453,19 @@ if (paso === 1) {
         inputAnio.max = new Date().getFullYear();
         inputAnio.addEventListener('input', function(e) {
           _wizLiga.anioFundacion = e.target.value;
-          wizLigaActualizarBtnOpcional(!!(e.target.value || _wizLiga.descripcion));
+          wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.descripcion);
         });
       }
       if (inputDesc) {
         inputDesc.value = _wizLiga.descripcion || '';
         inputDesc.addEventListener('input', function(e) {
           _wizLiga.descripcion = e.target.value;
-          wizLigaActualizarBtnOpcional(!!(e.target.value || _wizLiga.anioFundacion));
+          wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.anioFundacion);
         });
       }
-      wizLigaActualizarBtnOpcional(!!(_wizLiga.anioFundacion || _wizLiga.descripcion));
+      wizLigaActualizarBtnOpcional(!!_wizLiga.anioFundacion || !!_wizLiga.descripcion);
       setTimeout(function() { if (inputAnio) inputAnio.focus(); }, 350);
-      wizLigaActualizarBtnOpcional(!!(_wizLiga.anioFundacion || _wizLiga.descripcion));
+      wlOptBtn(el, !!(_wizLiga.anioFundacion || _wizLiga.descripcion));
     }, forward);
     return;
   }
@@ -456,7 +483,7 @@ if (paso === 1) {
         wizLigaActualizarBtnOpcional(!!_wizLiga.contactoSocial);
         setTimeout(function() { input.focus(); }, 350);
       }
-      wizLigaActualizarBtnOpcional(!!(_wizLiga.contactoSocial || '').trim());
+      wlOptBtn(el, !!(_wizLiga.contactoSocial || '').trim());
     }, forward);
     return;
   }
@@ -529,10 +556,11 @@ if (paso === 8) {
           aplicarColorPrimario(color);
           Array.from(wrapColors.children).forEach(function(b) { b.classList.remove('selected'); });
           btn.classList.add('selected');
-          wizLigaActualizarBtnOpcional(true);
+          wizLigaActualizarBtnOpcional(!!_wizLiga.logoBase64 || true);
         });
         wrapColors.appendChild(btn);
       });
+      wlOptBtn(el, !!_wizLiga.colorPrimario);
       // Botón personalizado
       const customBtn = document.createElement('button');
       customBtn.className = 'color-swatch-btn color-swatch-btn--custom';
@@ -560,7 +588,7 @@ if (paso === 8) {
         customBtn.classList.add('selected');
       });
       wrapColors.appendChild(customBtn);
-      wizLigaActualizarBtnOpcional(!!(_wizLiga.logoBase64 || _wizLiga.colorPrimario));
+      wizLigaActualizarBtnOpcional(!!_wizLiga.logoBase64 || !!_wizLiga.colorPrimario);
     
     }, forward);
     return;
@@ -587,26 +615,11 @@ if (paso === 10) {
   if (paso === 11) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-11', el);
-      const label = el.querySelector('.wiz-opt-btn-label');
-      if (label) label.textContent = 'CONTINUAR';
-      const skip = el.querySelector('[data-action="skip"]');
-if (skip) skip.classList.remove('wiz-hidden');
-      let _initPronombres = true;
-
-regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
-  _wizLiga.pronombres = v;
-
-  if (_initPronombres) {
-    _initPronombres = false;
-    return;
-  }
-
-  wizLigaActualizarBtnOpcional(v.length > 0);
-});
-
-// estado inicial correcto (forzado)
-wizLigaActualizarBtnOpcional((_wizLiga.pronombres || []).length > 0);
-
+      regRenderChipsMulti('wiz-liga-pronombres-chips', REG_PRONOMBRES, _wizLiga.pronombres || [], function(v) {
+        _wizLiga.pronombres = v;
+        wlOptBtn(el, v.length > 0);
+      });
+      wlOptBtn(el, (_wizLiga.pronombres || []).length > 0);
     }, forward);
     return;
   }
@@ -625,7 +638,7 @@ wizLigaActualizarBtnOpcional((_wizLiga.pronombres || []).length > 0);
       });
     };
     wizLigaActualizarBtnOpcional(!!_wizLiga.paisPerfil);
-      wizLigaActualizarBtnOpcional(!!_wizLiga.paisPerfil);
+      wlOptBtn(el, !!_wizLiga.paisPerfil);
     }, forward);
     return;
   }
@@ -638,18 +651,17 @@ wizLigaActualizarBtnOpcional((_wizLiga.pronombres || []).length > 0);
       if (tel) tel.value = _wizLiga.telefono || '';
       if (display) display.textContent = _wizLiga.codigoPais || '+?';
       if (tel) tel.addEventListener('input', function(e) {
-  _wizLiga.telefono = e.target.value;
-  wlToggleNext(!!(_wizLiga.telefono && _wizLiga.codigoPais), el);
-});
+        _wizLiga.telefono = e.target.value;
+        wlOptBtn(el, !!e.target.value.trim());
+      });
       const codigoBtn = el.querySelector('#wiz-liga-perfil-codigo-btn');
       if (codigoBtn) codigoBtn.onclick = function() {
         abrirBottomSheet('Código', REG_CODIGOS, _wizLiga.codigoPais || '', function(val) {
           _wizLiga.codigoPais = val;
-          wlToggleNext(!!(_wizLiga.telefono && _wizLiga.codigoPais), el);
           if (display) display.textContent = val;
         });
       };
-      wlToggleNext(!!(_wizLiga.telefono && _wizLiga.codigoPais), el);
+      wlOptBtn(el, !!_wizLiga.telefono);
     }, forward);
     return;
   }
@@ -694,7 +706,7 @@ if (paso === 14) {
       };
     }
     wizLigaActualizarBtnOpcional(!!_wizLiga.nombreDerby || !!_wizLiga.numeroDerby);
-      wizLigaActualizarBtnOpcional(!!(_wizLiga.nombreDerby || _wizLiga.numeroDerby));
+      wlOptBtn(el, !!(_wizLiga.nombreDerby || _wizLiga.numeroDerby));
     }, forward);
     return;
   }
@@ -737,7 +749,7 @@ if (paso === 14) {
       wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.alergias);
     };
     wizLigaActualizarBtnOpcional(!!_wizLiga.alergias || !!_wizLiga.dieta);
-      wizLigaActualizarBtnOpcional(!!(_wizLiga.alergias || _wizLiga.dieta));
+      wlOptBtn(el, !!(_wizLiga.alergias || _wizLiga.dieta));
     }, forward);
     return;
   }
@@ -750,7 +762,7 @@ if (paso === 14) {
       _wizLiga.contactoEmergencia = e.target.value;
       wizLigaActualizarBtnOpcional(!!e.target.value, 'OMITIR Y FINALIZAR');
     };
-    wizLigaActualizarBtnOpcional(   !!_wizLiga.contactoEmergencia,   'FINALIZAR <span class="material-icons">check</span>' );
+    wizLigaActualizarBtnOpcional(!!_wizLiga.contactoEmergencia, 'OMITIR Y FINALIZAR');
     }, forward);
     return;
   }
@@ -771,8 +783,8 @@ function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 1  && !_wizLiga.nombreLiga.trim())    { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
 if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   if (_wizLigaPaso === 11 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
-  if (_wizLigaPaso === 13 && !_wizLiga.telefono.trim()) { mostrarToastGuardado('⚠️ Ingresá tu número de teléfono'); return; }
-  if (_wizLigaPaso === 14 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
+  if (_wizLigaPaso === 14 && !_wizLiga.telefono.trim()) { mostrarToastGuardado('⚠️ Ingresá tu número de teléfono'); return; }
+  if (_wizLigaPaso === 15 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
   renderWizLigaPaso(_wizLigaPaso + 1);
 }
 
