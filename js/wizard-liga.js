@@ -118,7 +118,7 @@ function wlToggleNext(enabled, el) {
   btn.classList.toggle('wiz-btn-disabled', !enabled);
 }
 // Pasos opcionales: un solo botón rojo que dice "Omitir" o "Continuar"
-function wlOptBtn(el, hasValue) {
+function wlOptBtn(el, hasValue) {   // desactivado: usamos wizLigaActualizarBtnOpcional }
   const skip = el.querySelector('[data-action="skip"]');
   if (skip) skip.classList.add('wiz-hidden');
   const btn = el.querySelector('.wiz-btn-primary[data-action="next"]');
@@ -360,62 +360,78 @@ if (paso === 1) {
   }
 
   if (paso === 3) {
-    wizLigaGoTo(function(el) {
-      cloneTpl('tpl-wiz-liga-3', el);
-      const wrapCiudad = document.getElementById('wiz-liga-ciudad-wrap');
-      const wrapCustom = document.getElementById('wiz-liga-ciudad-custom-wrap');
-      const inputCustom = document.getElementById('wiz-liga-ciudad-custom');
-      const paisDisplay = document.getElementById('wiz-liga-pais-display');
-      const ciudadDisplay = document.getElementById('wiz-liga-ciudad-display');
+  wizLigaGoTo(function(el) {
+    cloneTpl('tpl-wiz-liga-3', el);
 
-      function actualizarCiudadBtn(ciudad) {
-        if (ciudadDisplay) ciudadDisplay.textContent = ciudad || 'Seleccionar ciudad…';
-      }
+    const wrapCiudad = el.querySelector('#wiz-liga-ciudad-wrap');
+    const wrapCustom = el.querySelector('#wiz-liga-ciudad-custom-wrap');
+    const inputCustom = el.querySelector('#wiz-liga-ciudad-custom');
+    const paisDisplay = el.querySelector('#wiz-liga-pais-display');
+    const ciudadDisplay = el.querySelector('#wiz-liga-ciudad-display');
 
-      function abrirSelectorCiudad(pais) {
-        const ciudades = CIUDADES_POR_PAIS[pais] || [];
-        const opciones = ciudades.concat(['Mi ciudad no está en la lista…']);
-        abrirBottomSheet('Ciudad', opciones, _wizLiga.ciudad || '', function(val) {
-          if (val === 'Mi ciudad no está en la lista…') {
-            _wizLiga.ciudad = inputCustom ? inputCustom.value : '';
-            wrapCustom.classList.remove('wiz-hidden');
-            actualizarCiudadBtn('Otra ciudad…');
-          } else {
-            _wizLiga.ciudad = val;
-            wrapCustom.classList.add('wiz-hidden');
-            actualizarCiudadBtn(val); wlOptBtn(el, !!(_wizLiga.pais && val));
-          }
-        });
-      }
+    function actualizarCiudadBtn(ciudad) {
+      if (ciudadDisplay) ciudadDisplay.textContent = ciudad || 'Seleccionar ciudad…';
+    }
 
-      if (paisDisplay) paisDisplay.textContent = _wizLiga.pais || 'Seleccionar país…';
-      if (_wizLiga.pais) wrapCiudad.classList.remove('wiz-hidden');
-      actualizarCiudadBtn(_wizLiga.ciudad);
+    function updateBtn() {
+      wizLigaActualizarBtnOpcional(!!(_wizLiga.pais && _wizLiga.ciudad));
+    }
 
-      const paisBtn = document.getElementById('wiz-liga-pais-btn');
-      if (paisBtn) paisBtn.onclick = function() {
-        abrirBottomSheet('País', REG_PAISES, _wizLiga.pais || '', function(val) {
-          _wizLiga.pais = val;
-          _wizLiga.ciudad = '';
-          if (paisDisplay) paisDisplay.textContent = val;
-          wrapCiudad.classList.remove('wiz-hidden');
-          actualizarCiudadBtn(''); wlOptBtn(el, false);
+    function abrirSelectorCiudad(pais) {
+      const ciudades = CIUDADES_POR_PAIS[pais] || [];
+      const opciones = ciudades.concat(['Mi ciudad no está en la lista…']);
+
+      abrirBottomSheet('Ciudad', opciones, _wizLiga.ciudad || '', function(val) {
+        if (val === 'Mi ciudad no está en la lista…') {
+          _wizLiga.ciudad = inputCustom ? inputCustom.value : '';
+          wrapCustom.classList.remove('wiz-hidden');
+          actualizarCiudadBtn('Otra ciudad…');
+        } else {
+          _wizLiga.ciudad = val;
           wrapCustom.classList.add('wiz-hidden');
-        });
-      };
+          actualizarCiudadBtn(val);
+        }
+        updateBtn();
+      });
+    }
 
-      const ciudadBtn = document.getElementById('wiz-liga-ciudad-btn');
-      if (ciudadBtn) ciudadBtn.onclick = function() {
-        if (!_wizLiga.pais) { mostrarToastGuardado('⚠️ Primero seleccioná un país'); return; }
-        abrirSelectorCiudad(_wizLiga.pais);
-      };
+    if (paisDisplay) paisDisplay.textContent = _wizLiga.pais || 'Seleccionar país…';
+    if (_wizLiga.pais) wrapCiudad.classList.remove('wiz-hidden');
+    actualizarCiudadBtn(_wizLiga.ciudad);
 
-      if (inputCustom) inputCustom.addEventListener('input', function(e) {   _wizLiga.ciudad = e.target.value;   wlOptBtn(el, !!(_wizLiga.pais && e.target.value)); });
-    }, forward);
-    return;
+    const paisBtn = el.querySelector('#wiz-liga-pais-btn');
+    if (paisBtn) paisBtn.onclick = function() {
+      abrirBottomSheet('País', REG_PAISES, _wizLiga.pais || '', function(val) {
+        _wizLiga.pais = val;
+        _wizLiga.ciudad = '';
+        if (paisDisplay) paisDisplay.textContent = val;
+        wrapCiudad.classList.remove('wiz-hidden');
+        actualizarCiudadBtn('');
+        wrapCustom.classList.add('wiz-hidden');
+        updateBtn();
+      });
+    };
 
-    wlOptBtn(el, !!(_wizLiga.pais && _wizLiga.ciudad));
-  }
+    const ciudadBtn = el.querySelector('#wiz-liga-ciudad-btn');
+    if (ciudadBtn) ciudadBtn.onclick = function() {
+      if (!_wizLiga.pais) {
+        mostrarToastGuardado('⚠️ Primero seleccioná un país');
+        return;
+      }
+      abrirSelectorCiudad(_wizLiga.pais);
+    };
+
+    if (inputCustom) {
+      inputCustom.addEventListener('input', function(e) {
+        _wizLiga.ciudad = e.target.value;
+        updateBtn();
+      });
+    }
+
+    updateBtn();
+  }, forward);
+  return;
+}
 
   if (paso === 4) {
     wizLigaGoTo(function(el) {
@@ -427,19 +443,19 @@ if (paso === 1) {
         inputAnio.max = new Date().getFullYear();
         inputAnio.addEventListener('input', function(e) {
           _wizLiga.anioFundacion = e.target.value;
-          wlOptBtn(el, !!(e.target.value || _wizLiga.descripcion));
+          wizLigaActualizarBtnOpcional(!!(e.target.value || _wizLiga.descripcion));
         });
       }
       if (inputDesc) {
         inputDesc.value = _wizLiga.descripcion || '';
         inputDesc.addEventListener('input', function(e) {
           _wizLiga.descripcion = e.target.value;
-          wlOptBtn(el, !!(e.target.value || _wizLiga.anioFundacion));
+          wizLigaActualizarBtnOpcional(!!(e.target.value || _wizLiga.anioFundacion));
         });
       }
-      wlOptBtn(el, !!(_wizLiga.anioFundacion || _wizLiga.descripcion));
+      wizLigaActualizarBtnOpcional(!!(_wizLiga.anioFundacion || _wizLiga.descripcion));
       setTimeout(function() { if (inputAnio) inputAnio.focus(); }, 350);
-      wlOptBtn(el, !!(_wizLiga.anioFundacion || _wizLiga.descripcion));
+      wizLigaActualizarBtnOpcional(!!(_wizLiga.anioFundacion || _wizLiga.descripcion));
     }, forward);
     return;
   }
@@ -452,9 +468,9 @@ if (paso === 1) {
         input.value = _wizLiga.contactoSocial || '';
         input.addEventListener('input', function(e) {
           _wizLiga.contactoSocial = e.target.value;
-          wlOptBtn(el, !!e.target.value);
+          wizLigaActualizarBtnOpcional(!!e.target.value);
         });
-        wlOptBtn(el, !!_wizLiga.contactoSocial);
+        wizLigaActualizarBtnOpcional(!!_wizLiga.contactoSocial);
         setTimeout(function() { input.focus(); }, 350);
       }
       wlOptBtn(el, !!(_wizLiga.contactoSocial || '').trim());
@@ -492,11 +508,11 @@ if (paso === 7) {
           _wizLiga.categoria = cat;
           Array.from(wrap.children).forEach(function(b) { b.classList.remove('chip-active'); b.classList.add('chip-inactive'); });
           btn.classList.add('chip-active'); btn.classList.remove('chip-inactive');
-          wlOptBtn(el, true);
+          wizLigaActualizarBtnOpcional(true);
         });
         wrap.appendChild(btn);
       });
-      wlOptBtn(el, !!_wizLiga.categoria);
+      wizLigaActualizarBtnOpcional(!!_wizLiga.categoria);
     }, forward);
     return;
   }
@@ -508,7 +524,7 @@ if (paso === 8) {
       inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
       placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
       config:{ maxWidth:500, maxHeight:500, quality:0.8 },
-      onUpdate: function(has) { wlOptBtn(el, has || !!_wizLiga.colorPrimario); }
+      onUpdate: function(has) { wizLigaActualizarBtnOpcional(has || !!_wizLiga.colorPrimario); }
     });
     }, forward);
     return;
@@ -530,7 +546,7 @@ if (paso === 8) {
           aplicarColorPrimario(color);
           Array.from(wrapColors.children).forEach(function(b) { b.classList.remove('selected'); });
           btn.classList.add('selected');
-          wlOptBtn(el, true);
+          wizLigaActualizarBtnOpcional(true);
         });
         wrapColors.appendChild(btn);
       });
@@ -562,7 +578,7 @@ if (paso === 8) {
         customBtn.classList.add('selected');
       });
       wrapColors.appendChild(customBtn);
-      wlOptBtn(el, !!(_wizLiga.logoBase64 || _wizLiga.colorPrimario));
+      wizLigaActualizarBtnOpcional(!!(_wizLiga.logoBase64 || _wizLiga.colorPrimario));
     
     }, forward);
     return;
@@ -612,7 +628,7 @@ if (paso === 10) {
       });
     };
     wizLigaActualizarBtnOpcional(!!_wizLiga.paisPerfil);
-      wlOptBtn(el, !!_wizLiga.paisPerfil);
+      wizLigaActualizarBtnOpcional(!!_wizLiga.paisPerfil);
     }, forward);
     return;
   }
