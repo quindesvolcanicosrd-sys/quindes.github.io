@@ -75,21 +75,17 @@ const resetImage = function() {
 
   removeBtn.addEventListener('click', resetImage);
 
-  const handleFile = async function(file) {
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { mostrarToastGuardado('⚠️ Solo imágenes'); return; }
-    if (file.size > 5 * 1024 * 1024)    { mostrarToastGuardado('⚠️ Máximo 5MB'); return; }
-    try {
-        const base64 = await procesarImagen(file, opts.config || {});
-        _wizLiga[opts.stateKey] = base64;
-        showPreview(base64);
-        removeBtn.classList.add('wiz-remove-img--visible');
-        if (opts.onChange) opts.onChange(true);
-      } catch (err) {
-      console.error(err);
-      mostrarToastGuardado('❌ Error procesando imagen');
-    }
+const handleFile = function(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { mostrarToastGuardado('⚠️ Solo imágenes'); return; }
+  if (file.size > 5 * 1024 * 1024)    { mostrarToastGuardado('⚠️ Máximo 5MB'); return; }
+  const r = new FileReader();
+  r.onload = function(ev) {
+    cropTarget = opts.stateKey;
+    abrirCropper(ev.target.result);
   };
+  r.readAsDataURL(file);
+};
 
   input.addEventListener('change', function(e) { handleFile(e.target.files && e.target.files[0]); });
 
