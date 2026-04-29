@@ -2628,15 +2628,15 @@ function abrirCropper(base64) {
   image.src = base64;
   if (cropper) cropper.destroy();
   cropper = new Cropper(image, {
-    aspectRatio: NaN, viewMode: 1, dragMode: 'move',
+    aspectRatio: NaN, viewMode: 0, dragMode: 'move',
     autoCropArea: 1,
     responsive: true, restore: true, checkCrossOrigin: false,
     modal: true, guides: true, center: true, highlight: true,
     cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
     ready() {
       setTimeout(() => {
-        const c = this.cropper.getCanvasData();
-        this.cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
+        const container = this.cropper.getContainerData();
+        this.cropper.setCropBoxData({ left: 0, top: 0, width: container.width, height: container.height });
       }, 50);
     },
   });
