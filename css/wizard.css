@@ -728,3 +728,115 @@ textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
 .wiz-opt-btn-label.is-fading {
   opacity: 0;
 }
+
+/* ── Redes sociales (paso 5 wizard liga) ─────────────────── */
+.wiz-redes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.wiz-red-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.wiz-red-item-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.wiz-red-item-url {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wiz-red-item-del {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.wiz-redes-plataformas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.wiz-red-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-1);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.wiz-red-chip.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.wiz-red-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.wiz-red-icon-mat {
+  font-size: 16px;
+  color: var(--text-2);
+}
+
+.wiz-redes-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.wiz-redes-input-row {
+  display: flex;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 0 14px;
+  gap: 6px;
+}
+
+.wiz-redes-prefix {
+  font-size: 0.8rem;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.wiz-redes-handle-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 12px 0;
+  font-size: 0.95rem;
+  color: var(--text-1);
+}s
