@@ -305,6 +305,10 @@ const desdeNoEnc = noEncEl && noEncEl.style.display === 'flex';
   requestAnimationFrame(() => {
     const wrap = document.getElementById('wiz-google-btn');
     if (wrap) resetGoogleButton('wiz-google-btn', 'continue_with');
+    setTimeout(function() {
+      var btnVolver = document.getElementById('wiz-cuenta-btn-volver');
+      if (btnVolver) btnVolver.style.opacity = '1';
+    }, 800);
   });
   const note = document.querySelector('.wiz-step0-note');
   if (note && !note.querySelector('a')) {
