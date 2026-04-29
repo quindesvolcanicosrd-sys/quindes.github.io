@@ -2629,6 +2629,7 @@ function abrirCropper(base64) {
   if (cropper) cropper.destroy();
   cropper = new Cropper(image, {
     aspectRatio: 1, viewMode: 1, dragMode: 'move',
+    autoCropArea: 1,
     responsive: true, restore: true, checkCrossOrigin: false,
     modal: true, guides: true, center: true, highlight: true,
     cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
