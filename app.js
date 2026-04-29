@@ -2633,11 +2633,15 @@ function abrirCropper(base64) {
       aspectRatio: NaN, viewMode: 1, dragMode: 'move',
       autoCropArea: 1,
       responsive: true, restore: true, checkCrossOrigin: false,
-      modal: true, guides: true, center: true, highlight: true,
-      cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
+      modal: false, guides: false, center: false, highlight: false,
+      cropBoxMovable: false, cropBoxResizable: false, toggleDragModeOnDblclick: false,
       ready() {
-        const c = cropper.getCanvasData();
-        cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
+        const container = cropper.getContainerData();
+        const image = cropper.getImageData();
+        const scaleX = container.width / image.naturalWidth;
+        const scaleY = container.height / image.naturalHeight;
+        cropper.zoomTo(Math.min(scaleX, scaleY));
+        cropper.setCropBoxData({ left: 0, top: 0, width: container.width, height: container.height });
       }
     });
   };
@@ -2651,7 +2655,7 @@ function confirmarCrop() {
   if (!cropper) return;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) btnAplicar.disabled = true;
-  const tempCanvas = cropper.getCroppedCanvas({ width: 400, height: 400, fillColor: 'transparent' });
+  const tempCanvas = cropper.getCroppedCanvas({ fillColor: 'transparent' });
   const canvas = document.createElement('canvas');
   canvas.width = 400;
   canvas.height = 400;
