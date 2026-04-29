@@ -150,7 +150,7 @@ function mostrarWizardLiga() {
   _wizLiga = {
     nombreLiga:'', ligaImagenBase64:null, nombreEquipo:'', categoria:'',
     logoBase64:null, colorPrimario:'', pais:'', ciudad:'',
-    anioFundacion:'', descripcion:'', contactoSocial:'',
+    anioFundacion:'', descripcion:'', redesSociales:[],
     nombre:'', pronombres:[], paisPerfil:'', codigoPais:'', telefono:'',
     fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
     nombreDerby:'', numeroDerby:'', rolJugadorx:'', asisteSemana:'',
@@ -890,6 +890,7 @@ async function wizLigaSubmit() {
       colorPrimario:      _wizLiga.colorPrimario       || null,
       nombre:             _wizLiga.nombre.trim(),
       pronombres:         Array.isArray(_wizLiga.pronombres) ? _wizLiga.pronombres.join(', ') : '',
+      redesSociales:      _wizLiga.redesSociales        || [],
       pais:               _wizLiga.paisPerfil          || '',
       codigoPais:         _wizLiga.codigoPais          || '',
       telefono:           _wizLiga.telefono            || '',

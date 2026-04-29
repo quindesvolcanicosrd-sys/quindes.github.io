@@ -343,7 +343,7 @@ const method = req.method
     if (method === 'GET' && segments[0] === 'liga' && segments[1] && segments.length === 2) {
       const ligaId = segments[1]
       const { data: liga, error: ligaError } = await supabase
-        .from('ligas').select('id, nombre, pais, ciudad, anio_fundacion, descripcion, contacto, logo_url')
+        .from('ligas').select('id, nombre, pais, ciudad, anio_fundacion, descripcion, redes_sociales, logo_url')
         .eq('id', ligaId).single()
       if (ligaError || !liga) return json({ error: 'Liga no encontrada' }, 404)
 
@@ -362,17 +362,17 @@ const method = req.method
       return json({
         id: liga.id, nombre: liga.nombre, pais: liga.pais, ciudad: liga.ciudad,
         anioFundacion: liga.anio_fundacion, descripcion: liga.descripcion,
-        contacto: liga.contacto, logoUrl: liga.logo_url, equipos: equiposConCodigo,
+        redesSociales: liga.redes_sociales || [], logoUrl: liga.logo_url, equipos: equiposConCodigo,
       })
     }
 
     // ── PUT /liga/:id/info ─────────────────────────────────
     if (method === 'PUT' && segments[0] === 'liga' && segments[2] === 'info') {
-      const { pais, ciudad, anioFundacion, descripcion, contacto } = body as Record<string, string>
+      const { pais, ciudad, anioFundacion, descripcion } = body as Record<string, string>
       const { error } = await supabase.from('ligas').update({
         pais: pais || null, ciudad: ciudad || null,
         anio_fundacion: anioFundacion ? parseInt(anioFundacion) : null,
-        descripcion: descripcion || null, contacto: contacto || null,
+        descripcion: descripcion || null,
       }).eq('id', segments[1])
       if (error) return json({ error: error.message }, 500)
       return json({ ok: true })
@@ -475,7 +475,7 @@ const method = req.method
     // ── POST /crear-liga ───────────────────────────────────
     if (method === 'POST' && path === '/crear-liga') {
       const {
-        nombreLiga, nombreEquipo, categoria, email, logoBase64, ligaImagenBase64,
+        nombreLiga, nombreEquipo, categoria, email, logoBase64, ligaImagenBase64, redesSociales,
         pais, ciudad, anioFundacion, descripcion, contacto,
         nombre, pronombres, rolJugadorx, nombreDerby, numero,
         codigoPais, telefono, fechaNacimiento, mostrarCumple, mostrarEdad,
@@ -497,8 +497,10 @@ const method = req.method
         nombre: nombreLiga, slug: slugLiga,
         pais: pais || null, ciudad: ciudad || null,
         anio_fundacion: anioFundacion ? parseInt(anioFundacion) : null,
-        descripcion: descripcion || null, contacto: contacto || null,
-      }).select('id, nombre').single()
+        descripcion:    descripcion || null, contacto: contacto || null,
+        redes_sociales: redesSociales ? JSON.stringify(redesSociales) : '[]',
+      })
+      .select('id, nombre').single()
       if (ligaError) return json({ error: ligaError.message }, 500)
 
       if (ligaImagenBase64) {
