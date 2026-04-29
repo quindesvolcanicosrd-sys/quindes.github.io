@@ -2658,14 +2658,10 @@ function confirmarCrop() {
   if (!cropper) return;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) btnAplicar.disabled = true;
-  const imgEl = document.getElementById('crop-image');
-  const canvas = document.createElement('canvas');
-  canvas.width = imgEl.naturalWidth;
-  canvas.height = imgEl.naturalHeight;
-  const ctx = canvas.getContext('2d', { alpha: true });
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
-  const base64DataUrl = canvas.toDataURL('image/png');
+  const con = cropper.getContainerData();
+  cropper.setCropBoxData({ left: 0, top: 0, width: con.width, height: con.height });
+  const tempCanvas = cropper.getCroppedCanvas({ fillColor: 'transparent' });
+  const base64DataUrl = tempCanvas.toDataURL('image/png');
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
   const WIZ_LIGA_TARGETS = ['ligaImagenBase64', 'logoBase64', 'fotoBase64'];
