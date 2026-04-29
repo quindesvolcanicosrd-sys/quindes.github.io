@@ -179,13 +179,14 @@ function mostrarWizardLiga() {
     requestAnimationFrame(function() {
       const wrap = document.getElementById('wiz-liga-google-btn');
       if (wrap && !wrap.dataset.rendered) {
-        wrap.style.opacity = '0';
-        wrap.style.transition = 'none';
         renderGoogleButton('wiz-liga-google-btn', 'continue_with');
         setTimeout(function() {
-          wrap.style.transition = 'opacity 0.4s ease';
-          wrap.style.opacity = '1';
-        }, 600);
+          const mask = document.getElementById('wiz-liga-google-mask');
+          if (mask) {
+            mask.style.opacity = '0';
+            setTimeout(function() { if (mask) mask.remove(); }, 450);
+          }
+        }, 800);
       }
     });
   }
