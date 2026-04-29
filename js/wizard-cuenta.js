@@ -524,7 +524,7 @@ function wizGoTo(next, forward) {
   }
 
   nextEl.style.transition = 'none';
-  nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-105%)';
   nextEl.style.visibility = 'visible';
   nextEl.classList.add('wiz-active');
 
