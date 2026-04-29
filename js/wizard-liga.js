@@ -627,7 +627,7 @@ if (paso === 11) {
 
       function validarTel() {
         const soloDigitos = (_wizLiga.telefono || '').replace(/\D/g, '');
-        wlToggleNext(soloDigitos.length >= 6, el);
+        wlToggleNext(soloDigitos.length >= 6 && !!_wizLiga.codigoPais, el);
       }
 
       if (tel) tel.addEventListener('input', function(e) {
@@ -639,6 +639,7 @@ if (paso === 11) {
         abrirBottomSheet('Código', REG_CODIGOS, _wizLiga.codigoPais || '', function(val) {
           _wizLiga.codigoPais = val;
           if (display) display.textContent = val;
+          validarTel();
         });
       };
       validarTel();
