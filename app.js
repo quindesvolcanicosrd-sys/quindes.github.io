@@ -2625,9 +2625,10 @@ function abrirCropper(base64) {
   const image = document.getElementById('crop-image');
   modal.style.display = 'flex';
   pushSentinel();
-  image.src = base64;
   if (cropper) { cropper.destroy(); cropper = null; }
-  setTimeout(() => {
+  image.onload = null;
+  image.src = base64;
+  const initCropper = () => {
     cropper = new Cropper(image, {
       aspectRatio: NaN, viewMode: 1, dragMode: 'move',
       autoCropArea: 1,
@@ -2639,7 +2640,9 @@ function abrirCropper(base64) {
         cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
       }
     });
-  }, 80);
+  };
+  if (image.complete && image.naturalWidth) initCropper();
+  else image.onload = initCropper;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) { btnAplicar.disabled = false; btnAplicar.onclick = () => confirmarCrop(); }
 }
