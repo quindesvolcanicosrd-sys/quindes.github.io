@@ -185,12 +185,41 @@
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">📱</div>
     <div class="wiz-emoji">📱</div>
-    <h2 class="wiz-title">Redes sociales </h2>
-    <p class="wiz-desc">¿Tu liga tiene Instagram u otras red social? Escribe el usuario o enlace principal.</p>
+    <h2 class="wiz-title">Redes sociales</h2>
+    <p class="wiz-desc">Agregá las redes sociales de tu liga. Podés añadir más de una.</p>
     <div class="wiz-content">
-      <label class="reg-label">Instagram / enlace principal</label>
-      <input id="wiz-liga-ig" class="reg-input" type="text"
-             placeholder="Ej: @rollerderbycity" maxlength="150" autocomplete="off">
+      <div id="wiz-redes-lista" class="wiz-redes-lista"></div>
+      <div class="wiz-redes-add">
+        <div class="wiz-redes-plataformas">
+          <button class="wiz-red-chip" data-plat="instagram" data-prefix="instagram.com/" data-placeholder="nombre_usuario">
+            <img src="https://cdn.simpleicons.org/instagram/white" class="wiz-red-icon"> Instagram
+          </button>
+          <button class="wiz-red-chip" data-plat="facebook" data-prefix="facebook.com/" data-placeholder="nombre_usuario">
+            <img src="https://cdn.simpleicons.org/facebook/white" class="wiz-red-icon"> Facebook
+          </button>
+          <button class="wiz-red-chip" data-plat="tiktok" data-prefix="tiktok.com/@" data-placeholder="nombre_usuario">
+            <img src="https://cdn.simpleicons.org/tiktok/white" class="wiz-red-icon"> TikTok
+          </button>
+          <button class="wiz-red-chip" data-plat="x" data-prefix="x.com/" data-placeholder="nombre_usuario">
+            <img src="https://cdn.simpleicons.org/x/white" class="wiz-red-icon"> X
+          </button>
+          <button class="wiz-red-chip" data-plat="youtube" data-prefix="youtube.com/@" data-placeholder="nombre_canal">
+            <img src="https://cdn.simpleicons.org/youtube/white" class="wiz-red-icon"> YouTube
+          </button>
+          <button class="wiz-red-chip" data-plat="web" data-prefix="https://" data-placeholder="tusitio.com">
+            <span class="material-icons wiz-red-icon-mat">language</span> Web
+          </button>
+        </div>
+        <div id="wiz-redes-input-wrap" class="wiz-redes-input-wrap wiz-hidden">
+          <div class="wiz-redes-input-row">
+            <span id="wiz-redes-prefix" class="wiz-redes-prefix"></span>
+            <input id="wiz-redes-handle" class="wiz-redes-handle-input" type="text" maxlength="100" autocomplete="off">
+          </div>
+          <button id="wiz-redes-agregar" class="wiz-btn-primary">
+            <span class="material-icons">add</span> Agregar
+          </button>
+        </div>
+      </div>
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary wiz-opt-btn" data-action="next">

@@ -65,8 +65,9 @@ Deno.serve(async (req: Request) => {
 
   const url = new URL(req.url)
   // Strip /functions/v1/api prefix → get clean path like /usuario, /perfil/123, etc.
-  const path = url.pathname.replace(/^\/functions\/v1\/api/, '') || '/'
-  const method = req.method
+  const path = url.pathname.replace(/^\/functions\/v1\/api/, '').replace(/^\/api/, '') || '/'
+console.log('pathname:', url.pathname, 'path:', path)
+const method = req.method
   const segments = path.split('/').filter(Boolean) // e.g. ['perfil', '123']
 
   let body: Record<string, unknown> = {}
