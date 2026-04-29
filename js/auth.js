@@ -197,10 +197,12 @@ function initGoogleAuth() {
         console.error('[SESSION] Saved session failed:', e);
         localStorage.removeItem('quindes_email');
         localStorage.removeItem('quindes_token');
+        sessionStorage.removeItem('_enFlujoCrearLiga');
+        localStorage.removeItem('_enFlujoCrearLiga');
         accessToken = null;
         detenerDerbyLoader();
         const regScreen = document.getElementById('registroScreen');
-        if (sessionStorage.getItem('_enFlujoCrearLiga') || (regScreen && regScreen.style.display !== 'none')) return;
+        if (regScreen && regScreen.style.display !== 'none') return;
         mostrarLoginScreen();
       }
     })();
