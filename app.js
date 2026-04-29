@@ -2633,6 +2633,10 @@ function abrirCropper(base64) {
     responsive: true, restore: true, checkCrossOrigin: false,
     modal: true, guides: true, center: true, highlight: true,
     cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
+    ready() {
+      const c = this.cropper.getCanvasData();
+      this.cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
+    },
   });
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) { btnAplicar.disabled = false; btnAplicar.onclick = () => confirmarCrop(); }
