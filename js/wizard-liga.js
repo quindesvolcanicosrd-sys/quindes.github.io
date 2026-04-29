@@ -740,9 +740,21 @@ if (paso === 11) {
       if (display) display.textContent = _wizLiga.codigoPais || '+?';
 
       function validarTel() {
-        const soloDigitos = (_wizLiga.telefono || '').replace(/\D/g, '');
-        wlToggleNext(soloDigitos.length >= 6 && !!_wizLiga.codigoPais, el);
-      }
+  const clean = (_wizLiga.telefono || '').replace(/\D/g, '');
+  let error = null;
+  if (!_wizLiga.codigoPais) {
+    error = 'Selecciona el código de tu país 📱';
+  } else if (_wizLiga.codigoPais.includes('+593')) {
+    if (clean.length !== 10)       error = 'El número debe tener 10 dígitos 🇪🇨';
+    else if (!clean.startsWith('0')) error = 'Debe empezar con 0 🇪🇨';
+  } else if (_wizLiga.codigoPais.includes('+1')) {
+    if (clean.length !== 10)       error = 'Número inválido 🇺🇸';
+  } else if (clean.length < 7) {
+    error = 'Número demasiado corto 📱';
+  }
+  wlToggleNext(!error, el);
+  if (error && clean.length > 0) mostrarToastGuardado('⚠️ ' + error);
+}
 
       if (tel) tel.addEventListener('input', function(e) {
         _wizLiga.telefono = e.target.value;
