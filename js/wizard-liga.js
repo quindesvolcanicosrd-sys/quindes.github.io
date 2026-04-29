@@ -739,10 +739,18 @@ if (paso === 14) {
       cloneTpl('tpl-wiz-liga-19', el);
       const elE = el.querySelector('#wiz-liga-perfil-emergencia');
       if (elE) elE.oninput = function(e) {
-      _wizLiga.contactoEmergencia = e.target.value;
-      wizLigaActualizarBtnOpcional(!!e.target.value, 'ENVIAR Y FINALIZAR');
-    };
-    wizLigaActualizarBtnOpcional(!!_wizLiga.contactoEmergencia, 'ENVIAR Y FINALIZAR');
+        _wizLiga.contactoEmergencia = e.target.value;
+        const label = el.querySelector('.wiz-opt-btn-label');
+        if (label) {
+          const textoNuevo = e.target.value ? 'CONTINUAR Y FINALIZAR' : 'OMITIR Y FINALIZAR';
+          if (label.textContent.trim() !== textoNuevo) {
+            label.classList.add('is-fading');
+            setTimeout(function() { label.textContent = textoNuevo; label.classList.remove('is-fading'); }, 180);
+          }
+        }
+      };
+      const labelInicial = el.querySelector('.wiz-opt-btn-label');
+      if (labelInicial) labelInicial.textContent = _wizLiga.contactoEmergencia ? 'CONTINUAR Y FINALIZAR' : 'OMITIR Y FINALIZAR';
     }, forward);
     return;
   }
