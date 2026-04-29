@@ -593,7 +593,7 @@ if (paso === 11) {
           wlOptBtn(el, v.length > 0);
         });
         wlOptBtn(el, (_wizLiga.pronombres || []).length > 0);
-      }, 50);
+      }, 320);
     }, forward);
     return;
   }
