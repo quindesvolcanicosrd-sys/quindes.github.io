@@ -765,6 +765,7 @@ function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 11 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
   if (_wizLigaPaso === 13 && _wizLiga.telefono.replace(/\D/g,'').length < 6) { mostrarToastGuardado('⚠️ Ingresá un número válido'); return; }
   if (_wizLigaPaso === 15 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
+  if (_wizLigaPaso === 19) { wizLigaSubmit(); return; }
   renderWizLigaPaso(_wizLigaPaso + 1);
 }
 
