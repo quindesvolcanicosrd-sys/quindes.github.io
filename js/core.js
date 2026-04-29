@@ -3,7 +3,7 @@
 // ============================================================
 
 const CONFIG = {
-  API_URL: 'https://quindesgithubio-production.up.railway.app',
+  API_URL: 'https://znprcowxveyzanpvotms.supabase.co/functions/v1/api',
   GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
 };
 
