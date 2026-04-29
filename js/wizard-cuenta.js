@@ -716,7 +716,6 @@ function initRegistroListeners() {
     fi.addEventListener('click', function() { fi.value = ''; });
     fi.addEventListener('change', function(e) {
       const file = e.target.files[0]; if (!file) return;
-      if (file.size > 5*1024*1024) { alert('La imagen no puede superar 5 MB'); return; }
       const r = new FileReader();
       r.onload = function(ev) { cropTarget = 'registro'; abrirCropper(ev.target.result); };
       r.readAsDataURL(file);

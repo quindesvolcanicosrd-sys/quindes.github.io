@@ -78,7 +78,6 @@ const resetImage = function() {
 const handleFile = function(file) {
   if (!file) return;
   if (!file.type.startsWith('image/')) { mostrarToastGuardado('⚠️ Solo imágenes'); return; }
-  if (file.size > 5 * 1024 * 1024)    { mostrarToastGuardado('⚠️ Máximo 5MB'); return; }
   const r = new FileReader();
   r.onload = function(ev) {
     cropTarget = opts.stateKey;
@@ -729,7 +728,6 @@ if (paso === 11) {
         var file = e.target.files && e.target.files[0];
         if (!file) return;
         if (!file.type.startsWith('image/')) { mostrarToastGuardado('⚠️ Solo imágenes'); return; }
-        if (file.size > 5 * 1024 * 1024) { mostrarToastGuardado('⚠️ Máximo 5MB'); return; }
         var r = new FileReader();
         r.onload = function(ev) { cropTarget = 'fotoBase64'; abrirCropper(ev.target.result); };
         r.readAsDataURL(file);
