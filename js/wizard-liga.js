@@ -488,6 +488,10 @@ if (paso === 5) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-5', el);
       if (!Array.isArray(_wizLiga.redesSociales)) _wizLiga.redesSociales = [];
+      var accentHex = (_wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444').replace('#', '');
+      el.querySelectorAll('.wiz-red-icon[src]').forEach(function(img) {
+        img.src = img.src.replace(/\/[^/]+$/, '/' + accentHex);
+      });
 
       var platSeleccionada = null;
 
@@ -496,7 +500,7 @@ if (paso === 5) {
         item.className = 'wiz-red-item';
         var iconHtml = red.plataforma === 'web'
           ? '<span class="material-icons wiz-red-item-icon" style="font-size:18px">language</span>'
-          : '<img class="wiz-red-item-icon" src="https://cdn.simpleicons.org/' + red.plataforma + '/gray">';
+          : '<img class="wiz-red-item-icon" src="https://cdn.simpleicons.org/' + red.plataforma + '/' + accentHex + '">';
         item.innerHTML = iconHtml +
           '<span class="wiz-red-item-url">' + red.url + '</span>' +
           '<button class="wiz-red-item-del"><span class="material-icons">close</span></button>';
