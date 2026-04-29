@@ -448,25 +448,37 @@ if (paso === 5) {
 
       var platSeleccionada = null;
 
+      function renderItem(red, idx, lista) {
+        var item = document.createElement('div');
+        item.className = 'wiz-red-item';
+        var iconHtml = red.plataforma === 'web'
+          ? '<span class="material-icons wiz-red-item-icon" style="font-size:18px">language</span>'
+          : '<img class="wiz-red-item-icon" src="https://cdn.simpleicons.org/' + red.plataforma + '/gray">';
+        item.innerHTML = iconHtml +
+          '<span class="wiz-red-item-url">' + red.url + '</span>' +
+          '<button class="wiz-red-item-del"><span class="material-icons">close</span></button>';
+        item.querySelector('.wiz-red-item-del').addEventListener('click', function() {
+          item.classList.add('removing');
+          setTimeout(function() {
+            _wizLiga.redesSociales.splice(idx, 1);
+            renderLista();
+            wlOptBtn(el, _wizLiga.redesSociales.length > 0);
+          }, 200);
+        });
+        lista.appendChild(item);
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            item.classList.add('visible');
+          });
+        });
+      }
+
       function renderLista() {
         var lista = document.getElementById('wiz-redes-lista');
         if (!lista) return;
         lista.innerHTML = '';
         _wizLiga.redesSociales.forEach(function(red, idx) {
-          var item = document.createElement('div');
-          item.className = 'wiz-red-item';
-          var iconHtml = red.plataforma === 'web'
-            ? '<span class="material-icons wiz-red-item-icon" style="font-size:18px">language</span>'
-            : '<img class="wiz-red-item-icon" src="https://cdn.simpleicons.org/' + red.plataforma + '/gray">';
-          item.innerHTML = iconHtml +
-            '<span class="wiz-red-item-url">' + red.url + '</span>' +
-            '<button class="wiz-red-item-del"><span class="material-icons">close</span></button>';
-          item.querySelector('.wiz-red-item-del').addEventListener('click', function() {
-            _wizLiga.redesSociales.splice(idx, 1);
-            renderLista();
-            wlOptBtn(el, _wizLiga.redesSociales.length > 0);
-          });
-          lista.appendChild(item);
+          renderItem(red, idx, lista);
         });
       }
 
