@@ -807,43 +807,7 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
       t.textContent = 'El archivo no puede superar 5 MB';
       document.body.appendChild(t);
       setTimeout(() => t.remove(), 3000);
-      e.target.value = ''; return;function abrirCropper(base64) {
-  const modal = document.getElementById('modal-crop');
-  const image = document.getElementById('crop-image');
-  modal.style.display = 'flex';
-  pushSentinel();
-  image.src = base64;
-  if (cropper) cropper.destroy();
-  cropper = new Cropper(image, {
-    aspectRatio: 1, viewMode: 1, dragMode: 'move',
-    responsive: true, restore: true, checkCrossOrigin: false,
-    modal: true, guides: true, center: true, highlight: true,
-    cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
-  });
-  const btnAplicar = document.getElementById('btn-aplicar-crop');
-  if (btnAplicar) { btnAplicar.disabled = false; btnAplicar.onclick = () => confirmarCrop(); }
-}
-
-function confirmarCrop() {
-  if (!cropper) return;
-  const btnAplicar = document.getElementById('btn-aplicar-crop');
-  if (btnAplicar) btnAplicar.disabled = true;
-
-  const tempCanvas = cropper.getCroppedCanvas({ width: 400, height: 400, fillColor: 'transparent' });
-  const canvas = document.createElement('canvas');
-  canvas.width = 400;
-  canvas.height = 400;
-  const ctx = canvas.getContext('2d', { alpha: true });
-  ctx.clearRect(0, 0, 400, 400);
-  ctx.drawImage(tempCanvas, 0, 0, 400, 400);
-  const base64DataUrl = canvas.toDataURL('image/png');
-
-  document.getElementById('modal-crop').style.display = 'none';
-  cropper.destroy(); cropper = null;
-  if (cropTarget === 'registro') {
-  cropTarget = 'app';
-  regRecibirFotoRecortada(base64DataUrl);
-} else if (['ligaI
+      e.target.value = ''; return;
     }
     const reader = new FileReader();
     reader.onload = async event => {
