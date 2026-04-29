@@ -488,6 +488,9 @@
   color: var(--text4) !important; -webkit-text-fill-color: var(--text4) !important;
 }
 textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
+input[type=number].reg-input::-webkit-outer-spin-button,
+input[type=number].reg-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number].reg-input { -moz-appearance: textfield; }
 .wiz-big-input { font-size: 18px !important; padding: 16px 18px !important; }
 
 .reg-selector-btn {
