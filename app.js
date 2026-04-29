@@ -2641,7 +2641,7 @@ function confirmarCrop() {
   if (!cropper) return;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) btnAplicar.disabled = true;
-  const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+  const canvas = cropper.getCroppedCanvas({ width: 400, height: 400, fillColor: 'transparent' });
   const base64DataUrl = canvas.toDataURL('image/png');
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
