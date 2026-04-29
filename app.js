@@ -2651,9 +2651,14 @@ function confirmarCrop() {
   const base64DataUrl = canvas.toDataURL('image/png');
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
+  const WIZ_LIGA_TARGETS = ['ligaImagenBase64', 'logoBase64', 'fotoBase64'];
   if (cropTarget === 'registro') {
     cropTarget = 'app';
     regRecibirFotoRecortada(base64DataUrl);
+  } else if (WIZ_LIGA_TARGETS.includes(cropTarget)) {
+    const target = cropTarget;
+    cropTarget = 'app';
+    wizLigaRecibirImagenRecortada(target, base64DataUrl);
   } else {
     subirImagenRecortada(base64DataUrl);
   }
