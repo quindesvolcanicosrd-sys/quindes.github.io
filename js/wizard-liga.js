@@ -161,6 +161,12 @@ function mostrarWizardLiga() {
   localStorage.setItem('_enFlujoCrearLiga', '1');
   window._colorAntesDeLiga = document.documentElement.dataset.colorPrimario || '#ef4444';
 
+  var _accentHex = (document.documentElement.dataset.colorPrimario || '#ef4444').replace('#', '');
+  ['instagram','facebook','tiktok','x','youtube'].forEach(function(p) {
+    var img = new Image();
+    img.src = 'https://cdn.simpleicons.org/' + p + '/' + _accentHex;
+  });
+
   _wizLiga = {
     nombreLiga:'', ligaImagenBase64:null, nombreEquipo:'', categoria:'',
     logoBase64:null, colorPrimario:'', pais:'', ciudad:'',
@@ -491,6 +497,9 @@ if (paso === 5) {
       var accentHex = (_wizLiga.colorPrimario || document.documentElement.dataset.colorPrimario || '#ef4444').replace('#', '');
       el.querySelectorAll('.wiz-red-icon[src]').forEach(function(img) {
         img.src = img.src.replace(/\/[^/]+$/, '/' + accentHex);
+      });
+      el.querySelectorAll('.wiz-red-icon-mat').forEach(function(span) {
+        span.style.color = '#' + accentHex; // excepción: valor dinámico de runtime
       });
 
       var platSeleccionada = null;
