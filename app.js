@@ -2622,6 +2622,7 @@ function normalizarDriveUrl(url) {
 
 let _cropOriginalBase64 = null;
 function abrirCropper(base64) {
+  console.log('🟢 abrirCropper v2 ejecutándose');
   _cropOriginalBase64 = base64;
   const modal = document.getElementById('modal-crop');
   const image = document.getElementById('crop-image');
