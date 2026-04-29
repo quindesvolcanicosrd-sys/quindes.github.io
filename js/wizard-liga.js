@@ -993,3 +993,31 @@ document.addEventListener('click', function(e) {
   }
 });
 
+function wizLigaRecibirImagenRecortada(stateKey, base64DataUrl) {
+  _wizLiga[stateKey] = base64DataUrl;
+  const map = {
+    'ligaImagenBase64': { previewId: 'wiz-liga-img-preview',  placeholderId: 'wiz-liga-img-placeholder',  inputId: 'wiz-liga-img-input'  },
+    'logoBase64':       { previewId: 'wiz-liga-logo-preview', placeholderId: 'wiz-liga-logo-placeholder', inputId: 'wiz-liga-logo-input' },
+    'fotoBase64':       { previewId: 'wiz-liga-foto-preview', placeholderId: 'wiz-liga-foto-placeholder', inputId: 'wiz-liga-foto-input' },
+  };
+  const ids = map[stateKey];
+  if (!ids) return;
+  const img         = document.getElementById(ids.previewId);
+  const placeholder = document.getElementById(ids.placeholderId);
+  const removeBtn   = document.getElementById(ids.inputId)?.parentElement?.querySelector('.wiz-remove-img');
+  if (img) {
+    img.src = base64DataUrl;
+    img.classList.remove('wiz-hidden');
+    img.style.opacity = '0';
+    requestAnimationFrame(function() {
+      img.style.transition = 'opacity 0.3s ease';
+      img.style.opacity = '1';
+      setTimeout(function() { img.style.transition = ''; }, 300);
+    });
+  }
+  if (placeholder) placeholder.classList.add('wiz-hidden');
+  if (removeBtn)   removeBtn.classList.add('wiz-remove-img--visible');
+  // Actualizar botón OMITIR → CONTINUAR
+  const contenido = document.getElementById('wiz-liga-contenido');
+  if (contenido) wlOptBtn(contenido, true);
+}

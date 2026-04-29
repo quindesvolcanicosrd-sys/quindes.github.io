@@ -915,8 +915,16 @@ function confirmarCrop() {
 
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
-  if (cropTarget === 'registro') { cropTarget = 'app'; regRecibirFotoRecortada(base64DataUrl); }
-  else                           { subirImagenRecortada(base64DataUrl); }
+  if (cropTarget === 'registro') {
+  cropTarget = 'app';
+  regRecibirFotoRecortada(base64DataUrl);
+} else if (['ligaImagenBase64', 'logoBase64', 'fotoBase64'].includes(cropTarget)) {
+  const key = cropTarget;
+  cropTarget = 'app';
+  wizLigaRecibirImagenRecortada(key, base64DataUrl);
+} else {
+  subirImagenRecortada(base64DataUrl);
+}
 }
 
 async function subirImagenRecortada(base64) {

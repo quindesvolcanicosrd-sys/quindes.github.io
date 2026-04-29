@@ -748,7 +748,7 @@ function initRegistroListeners() {
 
   document.addEventListener('click', function(e) {
     if (e.target.id === 'reg-codigo-btn' || e.target.closest('#reg-codigo-btn')) {
-      abrirBottomSheet('Código', REG_CODIGOS, regData.codigoPais || '', wizOnCodigoSelected);
+      abrirBottomSheet('Código', REG_CODIGOS, regData.codigoPais || '', wizOnCodigoSelected, CODIGOS_PAISES_ALIASES);
     }
     if (e.target.id === 'reg-pais-btn' || e.target.closest('#reg-pais-btn')) {
       abrirBottomSheet('País', REG_PAISES, regData.pais || '', function(val) {
