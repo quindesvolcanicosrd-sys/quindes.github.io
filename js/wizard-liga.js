@@ -185,7 +185,7 @@ function mostrarWizardLiga() {
         setTimeout(function() {
           wrap.style.transition = 'opacity 0.4s ease';
           wrap.style.opacity = '1';
-        }, 0);
+        }, 600);
       }
     });
   }
