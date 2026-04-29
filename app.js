@@ -2634,9 +2634,13 @@ function abrirCropper(base64) {
     modal: true, guides: true, center: true, highlight: true,
     cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
     ready() {
+      const img = this.cropper.getImageData();
+      const con = this.cropper.getContainerData();
+      const ratio = Math.min(con.width / img.naturalWidth, con.height / img.naturalHeight);
+      this.cropper.zoomTo(ratio);
       setTimeout(() => {
-        const container = this.cropper.getContainerData();
-        this.cropper.setCropBoxData({ left: 0, top: 0, width: container.width, height: container.height });
+        const c = this.cropper.getCanvasData();
+        this.cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
       }, 50);
     },
   });
