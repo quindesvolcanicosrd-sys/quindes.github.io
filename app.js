@@ -2620,7 +2620,9 @@ function normalizarDriveUrl(url) {
   return result;
 }
 
+let _cropOriginalBase64 = null;
 function abrirCropper(base64) {
+  _cropOriginalBase64 = base64;
   const modal = document.getElementById('modal-crop');
   const image = document.getElementById('crop-image');
   modal.style.display = 'flex';
