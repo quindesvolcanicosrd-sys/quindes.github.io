@@ -747,15 +747,6 @@ if (paso === 14) {
     return;
   }
 
-  if (paso === 20) {
-    wizLigaGoTo(function(el) {
-      cloneTpl('tpl-wiz-liga-19', el);
-      const elE = document.getElementById('wiz-liga-perfil-emergencia');
-      if (elE) elE.oninput = function(e) { _wizLiga.contactoEmergencia = e.target.value; };
-    }, forward);
-    return;
-  }
-
 }
 
 // ── VALIDACIÓN Y NAVEGACIÓN ───────────────────────────────────
