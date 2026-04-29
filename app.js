@@ -2641,7 +2641,13 @@ function confirmarCrop() {
   if (!cropper) return;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) btnAplicar.disabled = true;
-  const canvas = cropper.getCroppedCanvas({ width: 400, height: 400, fillColor: 'transparent' });
+  const tempCanvas = cropper.getCroppedCanvas({ width: 400, height: 400, fillColor: 'transparent' });
+  const canvas = document.createElement('canvas');
+  canvas.width = 400;
+  canvas.height = 400;
+  const ctx = canvas.getContext('2d', { alpha: true });
+  ctx.clearRect(0, 0, 400, 400);
+  ctx.drawImage(tempCanvas, 0, 0, 400, 400);
   const base64DataUrl = canvas.toDataURL('image/png');
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
