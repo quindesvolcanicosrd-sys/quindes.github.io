@@ -361,7 +361,36 @@
   </div>
 </template>
 
-<!-- PASO 12: Pronombres del admin -->
+<!-- PASO 12: Foto de perfil del admin -->
+<template id="tpl-wiz-liga-foto-perfil">
+  <div class="wiz-step-inner">
+    <div class="wiz-bg-emoji" aria-hidden="true">📸</div>
+    <div class="wiz-emoji">📸</div>
+    <h2 class="wiz-title">¡Ponele cara al nombre!</h2>
+    <p class="wiz-desc">Sube una foto para que todxs en el equipo puedan identificarte. Opcional.</p>
+    <div class="wiz-content">
+      <div class="reg-foto-center">
+        <div class="reg-avatar" id="wiz-liga-foto-avatar">
+          <img id="wiz-liga-foto-preview" src="" alt="" class="wiz-hidden">
+          <span class="material-icons reg-avatar-placeholder" id="wiz-liga-foto-placeholder">add_a_photo</span>
+          <div class="reg-avatar-overlay wiz-hidden" id="wiz-liga-foto-overlay">
+            <span class="material-icons">photo_camera</span>
+          </div>
+          <input type="file" id="wiz-liga-foto-input" accept="image/*" style="display:none;">
+        </div>
+        <p class="reg-foto-hint" id="wiz-liga-foto-hint">Toca para agregar tu foto</p>
+      </div>
+    </div>
+    <div class="wiz-actions">
+      <button class="wiz-btn-primary wiz-opt-btn" data-action="next">
+        <span class="wiz-opt-btn-label">OMITIR</span>
+        <span class="material-icons">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</template>
+
+<!-- PASO 13: Pronombres del admin -->
 <template id="tpl-wiz-liga-11">
   <div class="wiz-step-inner">
     <div class="wiz-bg-emoji" aria-hidden="true">🏳️‍🌈</div>
