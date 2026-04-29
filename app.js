@@ -2633,6 +2633,7 @@ function abrirCropper(base64) {
       aspectRatio: NaN, viewMode: 1, dragMode: 'move',
       autoCropArea: 1,
       responsive: true, restore: true, checkCrossOrigin: false,
+      autoCrop: false,
       modal: false, guides: false, center: false, highlight: false,
       cropBoxMovable: false, cropBoxResizable: false, toggleDragModeOnDblclick: false,
       ready() {
