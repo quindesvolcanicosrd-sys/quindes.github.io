@@ -186,6 +186,8 @@ function mostrarWizardLiga() {
             mask.style.opacity = '0';
             setTimeout(function() { if (mask) mask.remove(); }, 450);
           }
+          var btnVolver = document.getElementById('wiz-liga-btn-volver');
+          if (btnVolver) btnVolver.style.opacity = '1';
         }, 800);
       }
     });
