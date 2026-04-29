@@ -517,7 +517,7 @@ input[type=number].reg-input { -moz-appearance: textfield; }
   flex-shrink: 0; margin-left: 8px;
 }
 .reg-phone-row { display: flex; gap: 10px; align-items: stretch; width: 100%; }
-.reg-codigo-btn { flex-shrink: 0 !important; width: 120px !important; min-width: 0 !important; }
+.reg-codigo-btn { flex-shrink: 0 !important; width: 125px !important; min-width: 0 !important; }
 .reg-tel-input  { flex: 1 !important; width: 0 !important; min-width: 0 !important; }
 
 .wiz-chips { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }

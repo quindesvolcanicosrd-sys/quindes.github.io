@@ -541,14 +541,23 @@
 <!-- PASO 20: Contacto de emergencia + submit final -->
 <template id="tpl-wiz-liga-19">
   <div class="wiz-step-inner">
-    <div class="wiz-bg-emoji" aria-hidden="true">🆘</div>
-    <div class="wiz-emoji">🆘</div>
+    <div class="wiz-bg-emoji" aria-hidden="true">🚨</div>
+    <div class="wiz-emoji">🚨</div>
     <h2 class="wiz-title">Contacto de emergencia </h2>
     <p class="wiz-desc">Nombre completo y teléfono de alguien de confianza a quien contactar en caso de una emergencia.</p>
     <div class="wiz-content">
-      <label class="reg-label">Nombre y teléfono</label>
-      <input id="wiz-liga-perfil-emergencia" class="reg-input" type="text"
-             placeholder="Ej: María García +593 999 123456" maxlength="150" autocomplete="off">
+      <label class="reg-label">Nombre completo</label>
+      <input id="wiz-liga-emg-nombre" class="reg-input" type="text"
+             placeholder="Ej: María García" maxlength="100" autocomplete="off">
+      <label class="reg-label">Teléfono</label>
+      <div class="reg-phone-row">
+        <button type="button" id="wiz-liga-emg-codigo-btn" class="reg-selector-btn reg-codigo-btn wiz-selector-btn">
+          <span id="wiz-liga-emg-codigo-display" class="reg-selector-val">+?</span>
+          <span class="material-icons reg-selector-ico">expand_more</span>
+        </button>
+        <input id="wiz-liga-emg-tel" class="reg-input reg-tel-input wiz-big-input" type="tel"
+               placeholder="Número" maxlength="20">
+      </div>
     </div>
     <div class="wiz-actions">
       <button class="wiz-btn-primary wiz-opt-btn" data-action="next">

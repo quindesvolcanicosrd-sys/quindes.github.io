@@ -169,7 +169,9 @@ function mostrarWizardLiga() {
     nombre:'', pronombres:[], paisPerfil:'', codigoPais:'', telefono:'',
     fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
     nombreDerby:'', numeroDerby:'', rolJugadorx:'', asisteSemana:'',
-    alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null,
+    alergias:'', dieta:'',
+    contactoEmergenciaNombre:'', contactoEmergenciaCodigo:'', contactoEmergenciaTel:'',
+    fotoBase64:null,
   };
   _wizLigaPaso = 0;
 
@@ -864,20 +866,38 @@ if (paso === 14) {
   if (paso === 19) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-19', el);
-      const elE = el.querySelector('#wiz-liga-perfil-emergencia');
-      if (elE) elE.oninput = function(e) {
-        _wizLiga.contactoEmergencia = e.target.value;
-        const label = el.querySelector('.wiz-opt-btn-label');
-        if (label) {
-          const textoNuevo = e.target.value ? 'CONTINUAR Y FINALIZAR' : 'OMITIR Y FINALIZAR';
-          if (label.textContent.trim() !== textoNuevo) {
-            label.classList.add('is-fading');
-            setTimeout(function() { label.textContent = textoNuevo; label.classList.remove('is-fading'); }, 180);
-          }
-        }
+
+      const elNombre  = el.querySelector('#wiz-liga-emg-nombre');
+      const elTel     = el.querySelector('#wiz-liga-emg-tel');
+      const elDisplay = el.querySelector('#wiz-liga-emg-codigo-display');
+      const elBtn     = el.querySelector('#wiz-liga-emg-codigo-btn');
+
+      if (elNombre) elNombre.value = _wizLiga.contactoEmergenciaNombre || '';
+      if (elTel)    elTel.value    = _wizLiga.contactoEmergenciaTel    || '';
+      if (elDisplay) elDisplay.textContent = _wizLiga.contactoEmergenciaCodigo || '+?';
+
+      function actualizarLabel() {
+        const tieneAlgo = !!(_wizLiga.contactoEmergenciaNombre || _wizLiga.contactoEmergenciaTel);
+        wlOptBtn(el, tieneAlgo);
+      }
+
+      if (elNombre) elNombre.oninput = function(e) {
+        _wizLiga.contactoEmergenciaNombre = e.target.value;
+        actualizarLabel();
       };
-      const labelInicial = el.querySelector('.wiz-opt-btn-label');
-      if (labelInicial) labelInicial.textContent = _wizLiga.contactoEmergencia ? 'CONTINUAR Y FINALIZAR' : 'OMITIR Y FINALIZAR';
+      if (elTel) elTel.oninput = function(e) {
+        _wizLiga.contactoEmergenciaTel = e.target.value;
+        actualizarLabel();
+      };
+      if (elBtn) elBtn.onclick = function() {
+        abrirBottomSheet('Código', REG_CODIGOS, _wizLiga.contactoEmergenciaCodigo || '', function(val) {
+          _wizLiga.contactoEmergenciaCodigo = val;
+          if (elDisplay) elDisplay.textContent = val;
+          actualizarLabel();
+        }, CODIGOS_PAISES_ALIASES);
+      };
+
+      actualizarLabel();
     }, forward);
     return;
   }
@@ -930,7 +950,11 @@ async function wizLigaSubmit() {
       asisteSemana:       _wizLiga.asisteSemana        || '',
       alergias:           _wizLiga.alergias            || '',
       dieta:              _wizLiga.dieta               || '',
-      contactoEmergencia: _wizLiga.contactoEmergencia  || '',
+      contactoEmergencia: [
+        _wizLiga.contactoEmergenciaNombre,
+        _wizLiga.contactoEmergenciaCodigo,
+        _wizLiga.contactoEmergenciaTel
+      ].filter(Boolean).join(' '),
       fotoBase64:         _wizLiga.fotoBase64          || null,
     });
 
