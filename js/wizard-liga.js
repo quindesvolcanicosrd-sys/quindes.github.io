@@ -277,7 +277,7 @@ function wizLigaGoTo(renderFn, forward) {
   const prevEl = viewport.querySelector('.wiz-liga-step');
   const nextEl = document.createElement('div');
   nextEl.className  = 'wiz-liga-step';
-  nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-30%)';
+  nextEl.style.transform  = forward ? 'translateX(105%)' : 'translateX(-105%)';
   nextEl.style.transition = 'none';
   viewport.appendChild(nextEl);
 
