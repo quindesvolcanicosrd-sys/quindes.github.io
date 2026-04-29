@@ -167,7 +167,9 @@ const method = req.method
         alergias: perfil.alergias,
         dieta: perfil.dieta,
         aptoDeporte: perfil.apto_deporte ? 'Sí' : 'No',
-        contactoEmergencia: perfil.contacto_emergencia,
+        contactoEmergenciaNombre: perfil.contacto_emergencia_nombre,
+        contactoEmergenciaCodigo: perfil.contacto_emergencia_codigo,
+        contactoEmergenciaTel:    perfil.contacto_emergencia_tel,
         adjCedula: perfil.adj_cedula_url,
         adjPruebaFisica: perfil.adj_prueba_fisica_url,
         asisteSemana: perfil.asiste_semana,
@@ -205,7 +207,9 @@ const method = req.method
         alergias: datos.alergias,
         dieta: datos.dieta,
         apto_deporte: datos.aptoDeporte === 'Sí',
-        contacto_emergencia: datos.contactoEmergencia,
+        contacto_emergencia_nombre: datos.contactoEmergenciaNombre || null,
+        contacto_emergencia_codigo: datos.contactoEmergenciaCodigo || null,
+        contacto_emergencia_tel:    datos.contactoEmergenciaTel    || null,
         asiste_semana: datos.asisteSemana,
         paga_cuota: datos.pagaCuota === 'Sí',
         prueba_fisica: datos.pruebaFisica,
@@ -233,7 +237,8 @@ const method = req.method
       const { email, nombre, pronombres, pais, codigoPais, telefono,
         fechaNacimiento, mostrarCumple, mostrarEdad, nombreDerby,
         numero, rolJugadorx, asisteSemana, alergias, dieta,
-        contactoEmergencia, codigoInvitacion, fotoBase64 } = body as Record<string, string>
+        contactoEmergenciaNombre, contactoEmergenciaCodigo, contactoEmergenciaTel,
+        codigoInvitacion, fotoBase64 } = body as Record<string, string>
 
       if (!email) return json({ error: 'Falta email' }, 400)
 
@@ -267,7 +272,10 @@ const method = req.method
         fecha_nacimiento: convertirFecha(fechaNacimiento) || null,
         mostrar_cumple: mostrarCumple === 'Sí',
         mostrar_edad: mostrarEdad === 'Sí',
-        alergias, dieta, contacto_emergencia: contactoEmergencia,
+        alergias, dieta,
+        contacto_emergencia_nombre: contactoEmergenciaNombre || null,
+        contacto_emergencia_codigo: contactoEmergenciaCodigo || null,
+        contacto_emergencia_tel:    contactoEmergenciaTel    || null,
         estado: 'Activx', tipo_usuario: 'Invitado',
       }).select('id').single()
       if (perfilError) return json({ error: perfilError.message }, 500)
@@ -479,7 +487,9 @@ const method = req.method
         pais, ciudad, anioFundacion, descripcion, contacto,
         nombre, pronombres, rolJugadorx, nombreDerby, numero,
         codigoPais, telefono, fechaNacimiento, mostrarCumple, mostrarEdad,
-        alergias, dieta, contactoEmergencia, fotoBase64,
+        alergias, dieta,
+        contactoEmergenciaNombre, contactoEmergenciaCodigo, contactoEmergenciaTel,
+        fotoBase64,
       } = body as Record<string, string>
 
       if (!nombreLiga || !nombreEquipo || !email) return json({ error: 'Faltan datos obligatorios' }, 400)
@@ -544,7 +554,9 @@ const method = req.method
         fecha_nacimiento: convertirFecha(fechaNacimiento) || null,
         mostrar_cumple: mostrarCumple === 'Sí', mostrar_edad: mostrarEdad === 'Sí',
         alergias: alergias || null, dieta: dieta || null,
-        contacto_emergencia: contactoEmergencia || null,
+        contacto_emergencia_nombre: contactoEmergenciaNombre || null,
+        contacto_emergencia_codigo: contactoEmergenciaCodigo || null,
+        contacto_emergencia_tel:    contactoEmergenciaTel    || null,
         foto_perfil_url: fotoPerfil || null,
       }).select('id').single()
       if (perfilError) return json({ error: perfilError.message }, 500)
