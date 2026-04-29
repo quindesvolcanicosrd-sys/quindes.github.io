@@ -2634,8 +2634,10 @@ function abrirCropper(base64) {
     modal: true, guides: true, center: true, highlight: true,
     cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
     ready() {
-      const c = this.cropper.getCanvasData();
-      this.cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
+      setTimeout(() => {
+        const c = this.cropper.getCanvasData();
+        this.cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
+      }, 50);
     },
   });
   const btnAplicar = document.getElementById('btn-aplicar-crop');
