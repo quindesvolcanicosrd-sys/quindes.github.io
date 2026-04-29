@@ -807,7 +807,43 @@ function configurarUpload(inputId, tipoArchivo, campoDestino) {
       t.textContent = 'El archivo no puede superar 5 MB';
       document.body.appendChild(t);
       setTimeout(() => t.remove(), 3000);
-      e.target.value = ''; return;
+      e.target.value = ''; return;function abrirCropper(base64) {
+  const modal = document.getElementById('modal-crop');
+  const image = document.getElementById('crop-image');
+  modal.style.display = 'flex';
+  pushSentinel();
+  image.src = base64;
+  if (cropper) cropper.destroy();
+  cropper = new Cropper(image, {
+    aspectRatio: 1, viewMode: 1, dragMode: 'move',
+    responsive: true, restore: true, checkCrossOrigin: false,
+    modal: true, guides: true, center: true, highlight: true,
+    cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
+  });
+  const btnAplicar = document.getElementById('btn-aplicar-crop');
+  if (btnAplicar) { btnAplicar.disabled = false; btnAplicar.onclick = () => confirmarCrop(); }
+}
+
+function confirmarCrop() {
+  if (!cropper) return;
+  const btnAplicar = document.getElementById('btn-aplicar-crop');
+  if (btnAplicar) btnAplicar.disabled = true;
+
+  const tempCanvas = cropper.getCroppedCanvas({ width: 400, height: 400, fillColor: 'transparent' });
+  const canvas = document.createElement('canvas');
+  canvas.width = 400;
+  canvas.height = 400;
+  const ctx = canvas.getContext('2d', { alpha: true });
+  ctx.clearRect(0, 0, 400, 400);
+  ctx.drawImage(tempCanvas, 0, 0, 400, 400);
+  const base64DataUrl = canvas.toDataURL('image/png');
+
+  document.getElementById('modal-crop').style.display = 'none';
+  cropper.destroy(); cropper = null;
+  if (cropTarget === 'registro') {
+  cropTarget = 'app';
+  regRecibirFotoRecortada(base64DataUrl);
+} else if (['ligaI
     }
     const reader = new FileReader();
     reader.onload = async event => {
@@ -880,19 +916,35 @@ function normalizarDriveUrl(url) {
   return 'https://lh3.googleusercontent.com/d/' + fileId + '=w500';
 }
 
+let _cropOriginalBase64 = null;
 function abrirCropper(base64) {
+  _cropOriginalBase64 = base64;
   const modal = document.getElementById('modal-crop');
   const image = document.getElementById('crop-image');
   modal.style.display = 'flex';
   pushSentinel();
+  if (cropper) { cropper.destroy(); cropper = null; }
+  image.onload = null;
   image.src = base64;
-  if (cropper) cropper.destroy();
-  cropper = new Cropper(image, {
-    aspectRatio: 1, viewMode: 1, dragMode: 'move',
-    responsive: true, restore: true, checkCrossOrigin: false,
-    modal: true, guides: true, center: true, highlight: true,
-    cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
-  });
+  const initCropper = () => {
+    cropper = new Cropper(image, {
+      aspectRatio: NaN, viewMode: 1, dragMode: 'move',
+      autoCrop: true, autoCropArea: 1,
+      responsive: true, restore: true, checkCrossOrigin: false,
+      modal: false, guides: false, center: false, highlight: false,
+      cropBoxMovable: false, cropBoxResizable: false, toggleDragModeOnDblclick: false,
+      ready() {
+        const con = cropper.getContainerData();
+        const img = cropper.getImageData();
+        cropper.zoomTo(Math.min(con.width / img.naturalWidth, con.height / img.naturalHeight));
+        cropper.setCropBoxData({ left: 0, top: 0, width: con.width, height: con.height });
+        const cropBox = document.querySelector('.cropper-crop-box');
+        if (cropBox) cropBox.style.visibility = 'hidden';
+      }
+    });
+  };
+  if (image.complete && image.naturalWidth) initCropper();
+  else image.onload = initCropper;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) { btnAplicar.disabled = false; btnAplicar.onclick = () => confirmarCrop(); }
 }
@@ -901,28 +953,22 @@ function confirmarCrop() {
   if (!cropper) return;
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) btnAplicar.disabled = true;
-
-  const tempCanvas = cropper.getCroppedCanvas({ width: 400, height: 400, fillColor: 'transparent' });
-  const canvas = document.createElement('canvas');
-  canvas.width = 400;
-  canvas.height = 400;
-  const ctx = canvas.getContext('2d', { alpha: true });
-  ctx.clearRect(0, 0, 400, 400);
-  ctx.drawImage(tempCanvas, 0, 0, 400, 400);
-  const base64DataUrl = canvas.toDataURL('image/png');
-
+  const con = cropper.getContainerData();
+  cropper.setCropBoxData({ left: 0, top: 0, width: con.width, height: con.height });
+  const tempCanvas = cropper.getCroppedCanvas({ fillColor: 'transparent' });
+  const base64DataUrl = tempCanvas.toDataURL('image/png');
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
   if (cropTarget === 'registro') {
-  cropTarget = 'app';
-  regRecibirFotoRecortada(base64DataUrl);
-} else if (['ligaImagenBase64', 'logoBase64', 'fotoBase64'].includes(cropTarget)) {
-  const key = cropTarget;
-  cropTarget = 'app';
-  wizLigaRecibirImagenRecortada(key, base64DataUrl);
-} else {
-  subirImagenRecortada(base64DataUrl);
-}
+    cropTarget = 'app';
+    regRecibirFotoRecortada(base64DataUrl);
+  } else if (['ligaImagenBase64', 'logoBase64', 'fotoBase64'].includes(cropTarget)) {
+    const key = cropTarget;
+    cropTarget = 'app';
+    wizLigaRecibirImagenRecortada(key, base64DataUrl);
+  } else {
+    subirImagenRecortada(base64DataUrl);
+  }
 }
 
 async function subirImagenRecortada(base64) {
