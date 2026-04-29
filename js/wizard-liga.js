@@ -715,7 +715,7 @@ if (paso === 11) {
         img.classList.remove('wiz-hidden');
         ph.style.display = 'none';
         if (overlay) overlay.classList.remove('wiz-hidden');
-        if (hint) { hint.innerHTML = '✨ <strong>¡Qué bien que te ves!</strong> ✨'; hint.classList.add('reg-foto-hint-compliment'); }
+        if (hint) { hint.innerHTML = '✨ <strong>¡Foto cargada con éxito!</strong> ✨'; hint.classList.add('reg-foto-hint-compliment'); }
         wlOptBtn(el, true);
       }
 

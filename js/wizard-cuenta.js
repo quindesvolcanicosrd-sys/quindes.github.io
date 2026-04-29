@@ -702,7 +702,7 @@ function regRecibirFotoRecortada(base64DataUrl) {
   if (img) { img.src = base64DataUrl; img.style.display = 'block'; }
   if (ph)  ph.style.display = 'none';
   if (ov)  ov.style.display = 'flex';
-  if (ht)  { ht.innerHTML = '✨ <strong>¡Qué bien que te ves!</strong> ✨'; ht.classList.add('reg-foto-hint-compliment'); }
+  if (ht)  { ht.innerHTML = '✨ <strong>¡Foto cargada con éxito!</strong> ✨'; ht.classList.add('reg-foto-hint-compliment'); }
   if (btn) btn.style.display = 'flex';
 }
 
