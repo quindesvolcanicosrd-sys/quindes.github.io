@@ -101,6 +101,25 @@ const handleFile = function(file) {
 
 // ── ESTADO ────────────────────────────────────────────────────
 const _WIZ_LIGA_TOTAL = 19;
+
+const CODIGOS_PAISES_ALIASES = {
+  'ecuador':'🇪🇨 +593','argentina':'🇦🇷 +54','bolivia':'🇧🇴 +591',
+  'brasil':'🇧🇷 +55','chile':'🇨🇱 +56','colombia':'🇨🇴 +57',
+  'costa rica':'🇨🇷 +506','cuba':'🇨🇺 +53','el salvador':'🇸🇻 +503',
+  'guatemala':'🇬🇹 +502','honduras':'🇭🇳 +504','méxico':'🇲🇽 +52','mexico':'🇲🇽 +52',
+  'nicaragua':'🇳🇮 +505','panamá':'🇵🇦 +507','panama':'🇵🇦 +507',
+  'paraguay':'🇵🇾 +595','perú':'🇵🇪 +51','peru':'🇵🇪 +51',
+  'puerto rico':'🇵🇷 +1','república dominicana':'🇩🇴 +1','dominicana':'🇩🇴 +1',
+  'uruguay':'🇺🇾 +598','venezuela':'🇻🇪 +58',
+  'canadá':'🇨🇦 +1','canada':'🇨🇦 +1','estados unidos':'🇺🇸 +1','usa':'🇺🇸 +1',
+  'alemania':'🇩🇪 +49','francia':'🇫🇷 +33','españa':'🇪🇸 +34','espana':'🇪🇸 +34',
+  'italia':'🇮🇹 +39','reino unido':'🇬🇧 +44','portugal':'🇵🇹 +351',
+  'suiza':'🇨🇭 +41','países bajos':'🇳🇱 +31','suecia':'🇸🇪 +46',
+  'rusia':'🇷🇺 +7','china':'🇨🇳 +86','japón':'🇯🇵 +81','japon':'🇯🇵 +81',
+  'corea del sur':'🇰🇷 +82','india':'🇮🇳 +91','israel':'🇮🇱 +972',
+  'emiratos':'🇦🇪 +971','arabia saudita':'🇸🇦 +966',
+  'australia':'🇦🇺 +61','sudáfrica':'🇿🇦 +27','nigeria':'🇳🇬 +234',
+};
 let _wizLigaPaso = 0;
 let _wizLiga = {};
 
@@ -735,7 +754,7 @@ if (paso === 11) {
           _wizLiga.codigoPais = val;
           if (display) display.textContent = val;
           validarTel();
-        });
+        }, CODIGOS_PAISES_ALIASES);
       };
       validarTel();
     }, forward);

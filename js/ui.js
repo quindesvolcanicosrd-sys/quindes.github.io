@@ -285,7 +285,7 @@ function crearBottomSheet() {
   document.body.appendChild(panel);
 }
 
-function abrirBottomSheet(label, options, valorActual, onSelect) {
+function abrirBottomSheet(label, options, valorActual, onSelect, aliases) {
   if (_bsClosing) return;
   crearBottomSheet();
   const overlay       = document.getElementById('bs-overlay');
@@ -298,7 +298,14 @@ function abrirBottomSheet(label, options, valorActual, onSelect) {
 
   function renderOpciones(filtro = '') {
     optsEl.innerHTML = '';
-    const filtradas = options.filter(o => o.toLowerCase().includes(filtro.toLowerCase()));
+    const f = filtro.toLowerCase();
+const filtradas = options.filter(function(o) {
+  if (o.toLowerCase().includes(f)) return true;
+  if (aliases) return Object.entries(aliases).some(function([nombre, codigo]) {
+    return nombre.includes(f) && codigo === o;
+  });
+  return false;
+});
     if (!filtradas.length) { optsEl.innerHTML = '<p class="bs-empty">Sin resultados</p>'; return; }
     filtradas.forEach(opt => {
       const btn = document.createElement('button');
