@@ -732,6 +732,14 @@ textarea.reg-input { resize: none; line-height: 1.5; font-family: var(--font); }
 }
 
 /* ── Redes sociales (paso 5 wizard liga) ─────────────────── */
+
+/* ── Grupo de campo con label + input/selector ── */
+.wiz-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .wiz-redes-lista {
   display: flex;
   flex-direction: column;
