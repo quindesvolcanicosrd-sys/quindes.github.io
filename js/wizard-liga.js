@@ -417,14 +417,32 @@ if (paso === 2) {
   if (paso === 4) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-4', el);
-      const inputAnio = document.getElementById('wiz-liga-anio');
       const inputDesc = document.getElementById('wiz-liga-descripcion');
-      if (inputAnio) {
-        inputAnio.value = _wizLiga.anioFundacion || '';
-        inputAnio.max = new Date().getFullYear();
-        inputAnio.addEventListener('input', function(e) {
-          _wizLiga.anioFundacion = e.target.value;
-          wizLigaActualizarBtnOpcional(!!e.target.value || !!_wizLiga.descripcion);
+      const anioBtn = document.getElementById('wiz-liga-anio-btn');
+      const anioDisplay = document.getElementById('wiz-liga-anio-display');
+
+      var anioActual = new Date().getFullYear();
+      var años = [];
+      for (var a = anioActual; a >= 2005; a--) años.push(String(a));
+
+      function actualizarAnioDisplay() {
+        if (_wizLiga.anioFundacion) {
+          anioDisplay.textContent = _wizLiga.anioFundacion;
+          anioBtn.classList.add('has-value');
+        } else {
+          anioDisplay.textContent = 'Seleccionar año…';
+          anioBtn.classList.remove('has-value');
+        }
+      }
+
+      if (anioBtn) {
+        actualizarAnioDisplay();
+        anioBtn.addEventListener('click', function() {
+          abrirBottomSheet('Año de fundación', años, _wizLiga.anioFundacion || null, function(val) {
+            _wizLiga.anioFundacion = val;
+            actualizarAnioDisplay();
+            wlOptBtn(el, true);
+          });
         });
       }
       if (inputDesc) {

@@ -166,7 +166,10 @@
     <p class="wiz-desc">Año de fundación y una breve descripción de tu liga.</p>
     <div class="wiz-content">
       <label class="reg-label">Año de fundación</label>
-      <input id="wiz-liga-anio" class="reg-input" type="number" placeholder="Ej: 2015" min="1900">
+      <button type="button" id="wiz-liga-anio-btn" class="reg-selector-btn">
+        <span id="wiz-liga-anio-display" class="reg-selector-val">Seleccionar año…</span>
+        <span class="material-icons reg-selector-ico">expand_more</span>
+      </button>
       <label class="reg-label">Descripción</label>
       <textarea id="wiz-liga-descripcion" class="reg-input" rows="3"
                 placeholder="Cuéntanos un poco sobre tu liga…" maxlength="300"></textarea>
