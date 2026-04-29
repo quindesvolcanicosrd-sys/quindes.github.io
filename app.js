@@ -2642,7 +2642,7 @@ function confirmarCrop() {
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) btnAplicar.disabled = true;
   const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-  const base64DataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  const base64DataUrl = canvas.toDataURL('image/png');
   document.getElementById('modal-crop').style.display = 'none';
   cropper.destroy(); cropper = null;
   if (cropTarget === 'registro') {
