@@ -38,12 +38,21 @@ function bindImageInput(opts) {
     img.classList.remove('wiz-hidden');
     placeholder.classList.add('wiz-hidden');
     img.style.opacity = '0';
+    const overlay = input.parentElement.querySelector('.reg-avatar-overlay');
+    if (overlay) overlay.classList.remove('wiz-hidden');
     requestAnimationFrame(function() {
       img.style.transition = 'opacity 0.3s ease';
       img.style.opacity = '1';
       setTimeout(function() { img.style.transition = ''; }, 300);
     });
   };
+
+  if (input.parentElement.tagName !== 'LABEL') {
+    input.parentElement.addEventListener('click', function() {
+      input.value = '';
+      input.click();
+    });
+  }
 
   // Botón eliminar imagen — usa clase CSS, sin style.cssText
   let removeBtn = input.parentElement.querySelector('.wiz-remove-img');

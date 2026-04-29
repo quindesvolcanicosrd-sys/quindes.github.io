@@ -109,12 +109,16 @@
     <h2 class="wiz-title">Logo de tu liga </h2>
     <p class="wiz-desc">Sube un banner o imagen que la represente. De preferencia usa un archivo PNG transparente. 😉</p>
     <div class="wiz-content">
-      <div class="reg-avatar-wrap">
-        <label class="reg-avatar">
-          <img id="wiz-liga-img-preview" class="wiz-hidden reg-avatar-img" alt="Preview liga">
-          <span id="wiz-liga-foto-placeholder" class="material-icons reg-avatar-placeholder">add_photo_alternate</span>
-          <input id="wiz-liga-img-input" type="file" accept="image/*" style="display:none;">
-        </label>
+      <div class="reg-foto-center">
+        <div class="reg-avatar" id="wiz-liga-img-avatar">
+          <img id="wiz-liga-img-preview" src="" alt="Preview liga" class="wiz-hidden">
+          <span class="material-icons reg-avatar-placeholder" id="wiz-liga-img-placeholder">add_photo_alternate</span>
+          <div class="reg-avatar-overlay wiz-hidden" id="wiz-liga-img-overlay">
+            <span class="material-icons">add_photo_alternate</span>
+          </div>
+          <input type="file" id="wiz-liga-img-input" accept="image/*" style="display:none;">
+        </div>
+        <p class="reg-foto-hint" id="wiz-liga-img-hint">Toca para agregar el logo de tu liga</p>
       </div>
     </div>
 <div class="wiz-actions">
@@ -280,13 +284,17 @@
     <div class="wiz-emoji">🤩</div>
     <h2 class="wiz-title">Logo del equipo </h2>
     <p class="wiz-desc">Sube el logo de tu equipo. Puede ser el mismo que el de tu liga.</p>
-    <div class="wiz-content">
-      <div class="reg-avatar-wrap">
-        <label class="reg-avatar">
-          <img id="wiz-liga-logo-preview" class="wiz-hidden reg-avatar-img" alt="Logo equipo">
-          <span id="wiz-liga-foto-placeholder" class="material-icons reg-avatar-placeholder">add_photo_alternate</span>
-          <input id="wiz-liga-logo-input" type="file" accept="image/*" style="display:none;">
-        </label>
+  <div class="wiz-content">
+      <div class="reg-foto-center">
+        <div class="reg-avatar" id="wiz-liga-logo-avatar">
+          <img id="wiz-liga-logo-preview" src="" alt="Logo equipo" class="wiz-hidden">
+          <span class="material-icons reg-avatar-placeholder" id="wiz-liga-logo-placeholder">add_photo_alternate</span>
+          <div class="reg-avatar-overlay wiz-hidden" id="wiz-liga-logo-overlay">
+            <span class="material-icons">add_photo_alternate</span>
+          </div>
+          <input type="file" id="wiz-liga-logo-input" accept="image/*" style="display:none;">
+        </div>
+        <p class="reg-foto-hint" id="wiz-liga-logo-hint">Toca para agregar el logo del equipo</p>
       </div>
     </div>
     <div class="wiz-actions">
