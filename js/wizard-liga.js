@@ -1096,7 +1096,7 @@ function wizLigaRecibirImagenRecortada(stateKey, base64DataUrl) {
     var overlay = document.getElementById('wiz-liga-foto-overlay');
     var hint    = document.getElementById('wiz-liga-foto-hint');
     if (overlay) overlay.classList.remove('wiz-hidden');
-    if (hint)    { hint.innerHTML = '✨ <strong>¡Qué bien que te ves!</strong> ✨'; hint.classList.add('reg-foto-hint-compliment'); }
+    if (hint)    { hint.innerHTML = '✨ <strong>¡Foto cargada con éxito!</strong> ✨'; hint.classList.add('reg-foto-hint-compliment'); }
   }
   // Actualizar botón OMITIR → CONTINUAR
   const contenido = document.getElementById('wiz-liga-contenido');
