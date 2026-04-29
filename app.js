@@ -2635,8 +2635,11 @@ function abrirCropper(base64) {
     cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
   });
   setTimeout(() => {
-    const c = cropper.getCanvasData();
-    cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
+    if (!cropper) return;
+    try {
+      const c = cropper.getCanvasData();
+      cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
+    } catch(e) { console.warn('cropbox adjust failed:', e); }
   }, 300);
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) { btnAplicar.disabled = false; btnAplicar.onclick = () => confirmarCrop(); }
