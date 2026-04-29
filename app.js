@@ -2626,18 +2626,20 @@ function abrirCropper(base64) {
   modal.style.display = 'flex';
   pushSentinel();
   image.src = base64;
-  if (cropper) cropper.destroy();
-  cropper = new Cropper(image, {
-    aspectRatio: NaN, viewMode: 1, dragMode: 'move',
-    autoCropArea: 1,
-    responsive: true, restore: true, checkCrossOrigin: false,
-    modal: true, guides: true, center: true, highlight: true,
-    cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
-  });
+  if (cropper) { cropper.destroy(); cropper = null; }
   setTimeout(() => {
-    const c = cropper.getCanvasData();
-    cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
-  }, 300);
+    cropper = new Cropper(image, {
+      aspectRatio: NaN, viewMode: 1, dragMode: 'move',
+      autoCropArea: 1,
+      responsive: true, restore: true, checkCrossOrigin: false,
+      modal: true, guides: true, center: true, highlight: true,
+      cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
+      ready() {
+        const c = cropper.getCanvasData();
+        cropper.setCropBoxData({ left: c.left, top: c.top, width: c.width, height: c.height });
+      }
+    });
+  }, 80);
   const btnAplicar = document.getElementById('btn-aplicar-crop');
   if (btnAplicar) { btnAplicar.disabled = false; btnAplicar.onclick = () => confirmarCrop(); }
 }
