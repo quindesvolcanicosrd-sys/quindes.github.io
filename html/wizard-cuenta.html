@@ -341,10 +341,20 @@
         <h2 class="wiz-title">Contacto de emergencia <span class="wiz-optional-badge">opcional</span></h2>
         <p class="wiz-desc">Completa los datos de alguien de confianza que podamos contactar en caso de emergencia. Nombre completo seguido de su número de teléfono.</p>
         <div class="wiz-content">
-          <label class="reg-label">Nombre y teléfono</label>
-          <input id="reg-emergencia" class="reg-input" type="text"
-                 placeholder="Ej: María García +593 999 123456" maxlength="150"
-                 onkeydown="if(event.key==='Enter') wizNext()">
+          <label class="reg-label">Nombre completo</label>
+          <input id="reg-emg-nombre" class="reg-input" type="text"
+                 placeholder="Ej: María García" maxlength="100" autocomplete="off"
+                 onkeydown="if(event.key==='Enter') document.getElementById('reg-emg-tel').focus()">
+          <label class="reg-label">Teléfono</label>
+          <div class="reg-phone-row">
+            <button type="button" id="reg-emg-codigo-btn" class="reg-selector-btn reg-codigo-btn wiz-selector-btn">
+              <span id="reg-emg-codigo-display" class="reg-selector-val">+?</span>
+              <span class="material-icons reg-selector-ico">expand_more</span>
+            </button>
+            <input id="reg-emg-tel" class="reg-input reg-tel-input wiz-big-input" type="tel"
+                   placeholder="Número" maxlength="20"
+                   onkeydown="if(event.key==='Enter') wizNext()">
+          </div>
         </div>
         <div class="wiz-actions">
           <button id="reg-submit" class="wiz-btn-primary" onclick="submitRegistro()">

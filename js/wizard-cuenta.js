@@ -209,7 +209,9 @@ const regData = {
   nombre:'', pronombres:[], pais:'', codigoPais:'',
   telefono:'', fechaNacimiento:'', mostrarCumple:'', mostrarEdad:'',
   nombreDerby:'', numero:'', rolJugadorx:'', asisteSemana:'',
-  alergias:'', dieta:'', contactoEmergencia:'', fotoBase64:null, codigoInvitacion:'',
+  alergias:'', dieta:'',
+  contactoEmergenciaNombre:'', contactoEmergenciaCodigo:'', contactoEmergenciaTel:'',
+  contactoEmergencia:'', fotoBase64:null, codigoInvitacion:'',
 };
 
 function esJugadorx(rol) { return REG_ROLES_JUG.includes(rol); }
@@ -392,7 +394,7 @@ function mostrarRegistroWizard() {
   }
 
   ['reg-nombre','reg-telefono','reg-nombreDerby','reg-numero',
-   'reg-alergias','reg-dieta','reg-emergencia'].forEach(function(id) {
+   'reg-alergias','reg-dieta','reg-emg-nombre','reg-emg-tel'].forEach(function(id) {
     const el = document.getElementById(id); if (el) el.value = '';
   });
 
@@ -403,10 +405,11 @@ function mostrarRegistroWizard() {
   regRenderChips('reg-rol-chips',    REG_ROLES,   '', wizOnRolSelected);
   regRenderChips('reg-asiste-chips', REG_ASISTENCIA, '', function(v) { regData.asisteSemana = v; });
 
-  wizSetVal('reg-pais-display',   'Seleccionar país…');
-  wizSetVal('reg-codigo-display', '+?');
-  wizSetVal('reg-fecha-display',  'Seleccionar fecha…');
-  ['reg-pais-btn','reg-codigo-btn','reg-fecha-btn'].forEach(function(id) {
+  wizSetVal('reg-pais-display',       'Seleccionar país…');
+  wizSetVal('reg-codigo-display',     '+?');
+  wizSetVal('reg-fecha-display',      'Seleccionar fecha…');
+  wizSetVal('reg-emg-codigo-display', '+?');
+  ['reg-pais-btn','reg-codigo-btn','reg-fecha-btn','reg-emg-codigo-btn'].forEach(function(id) {
     const el = document.getElementById(id);
     if (el) el.classList.remove('has-value');
   });
@@ -545,7 +548,7 @@ function wizGoTo(next, forward) {
 
     // Autofocus
     setTimeout(function() {
-      const focusMap = { '2':'reg-nombre','5':'reg-telefono','7':'reg-nombreDerby','10':'reg-alergias','11':'reg-emergencia' };
+      const focusMap = { '2':'reg-nombre','5':'reg-telefono','7':'reg-nombreDerby','10':'reg-alergias','11':'reg-emg-nombre' };
       const id = focusMap[next];
       if (id) {
         const el = document.getElementById(id);
@@ -758,6 +761,14 @@ function initRegistroListeners() {
         if (btn) btn.classList.add('has-value');
       });
     }
+    if (e.target.id === 'reg-emg-codigo-btn' || e.target.closest('#reg-emg-codigo-btn')) {
+      abrirBottomSheet('Código', REG_CODIGOS, regData.contactoEmergenciaCodigo || '', function(val) {
+        regData.contactoEmergenciaCodigo = val;
+        wizSetVal('reg-emg-codigo-display', val);
+        const btn = document.getElementById('reg-emg-codigo-btn');
+        if (btn) btn.classList.add('has-value');
+      }, CODIGOS_PAISES_ALIASES);
+    }
     if (e.target.id === 'reg-fecha-btn' || e.target.closest('#reg-fecha-btn')) {
       abrirDatePicker(regData.fechaNacimiento || '', function(val) {
         regData.fechaNacimiento = val;
@@ -861,8 +872,15 @@ function mostrarBienvenida() {
 
 // ── SUBMIT REGISTRO ───────────────────────────────────────────
 async function submitRegistro() {
-  const emergenciaEl = document.getElementById('reg-emergencia');
-  regData.contactoEmergencia = emergenciaEl ? emergenciaEl.value.trim() : '';
+  const emgNombre = (document.getElementById('reg-emg-nombre') || {}).value || '';
+  const emgTel    = (document.getElementById('reg-emg-tel')    || {}).value || '';
+  regData.contactoEmergenciaNombre  = emgNombre.trim();
+  regData.contactoEmergenciaTel     = emgTel.trim();
+  regData.contactoEmergencia = [
+    regData.contactoEmergenciaNombre,
+    regData.contactoEmergenciaCodigo,
+    regData.contactoEmergenciaTel
+  ].filter(Boolean).join(' ');
   wizHideError();
   const btnEl = document.getElementById('reg-submit');
   if (btnEl) btnEl.disabled = true;
