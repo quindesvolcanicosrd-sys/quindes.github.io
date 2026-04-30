@@ -39,7 +39,7 @@ function bindImageInput(opts) {
     placeholder.classList.add('wiz-hidden');
     img.style.opacity = '0';
     const overlay = input.parentElement.querySelector('.reg-avatar-overlay');
-    if (overlay) overlay.classList.remove('wiz-hidden');
+    if (overlay) { overlay.classList.remove('wiz-hidden'); overlay.classList.add('reg-avatar-overlay--badge'); }
     requestAnimationFrame(function() {
       img.style.transition = 'opacity 0.3s ease';
       img.style.opacity = '1';
@@ -649,7 +649,14 @@ if (paso === 8) {
         inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
         placeholderId:'wiz-liga-logo-placeholder', stateKey:'logoBase64',
         config:{ maxWidth:500, maxHeight:500, quality:0.8 },
-        onChange: function(has) { wlOptBtn(el, has); }
+        onChange: function(has) {
+          wlOptBtn(el, has);
+          var overlay = el.querySelector('#wiz-liga-logo-overlay');
+          if (overlay) {
+            overlay.classList.toggle('wiz-hidden', !has);
+            overlay.classList.toggle('reg-avatar-overlay--badge', has);
+          }
+        }
       });
       wlOptBtn(el, !!_wizLiga.logoBase64);
     }, forward);
@@ -742,7 +749,10 @@ if (paso === 11) {
         img.src = base64;
         img.classList.remove('wiz-hidden');
         ph.style.display = 'none';
-        if (overlay) overlay.classList.remove('wiz-hidden');
+        if (overlay) {
+          overlay.classList.remove('wiz-hidden');
+          overlay.classList.add('reg-avatar-overlay--badge');
+        }
         if (hint) { hint.innerHTML = '✨ <strong>¡Foto cargada con éxito!</strong> ✨'; hint.classList.add('reg-foto-hint-compliment'); }
         wlOptBtn(el, true);
       }
@@ -1108,11 +1118,19 @@ function wizLigaRecibirImagenRecortada(stateKey, base64DataUrl) {
   }
   if (placeholder) placeholder.classList.add('wiz-hidden');
   if (removeBtn)   removeBtn.classList.add('wiz-remove-img--visible');
+  var overlayMap = {
+    'ligaImagenBase64': 'wiz-liga-img-overlay',
+    'logoBase64':       'wiz-liga-logo-overlay',
+    'fotoBase64':       'wiz-liga-foto-overlay',
+  };
+  var overlayEl = document.getElementById(overlayMap[stateKey]);
+  if (overlayEl) {
+    overlayEl.classList.remove('wiz-hidden');
+    overlayEl.classList.add('reg-avatar-overlay--badge');
+  }
   if (stateKey === 'fotoBase64') {
-    var overlay = document.getElementById('wiz-liga-foto-overlay');
-    var hint    = document.getElementById('wiz-liga-foto-hint');
-    if (overlay) overlay.classList.remove('wiz-hidden');
-    if (hint)    { hint.innerHTML = '✨ <strong>¡Foto cargada con éxito!</strong> ✨'; hint.classList.add('reg-foto-hint-compliment'); }
+    var hint = document.getElementById('wiz-liga-foto-hint');
+    if (hint) { hint.innerHTML = '✨ <strong>¡Foto cargada con éxito!</strong> ✨'; hint.classList.add('reg-foto-hint-compliment'); }
   }
   // Actualizar botón OMITIR → CONTINUAR
   const contenido = document.getElementById('wiz-liga-contenido');

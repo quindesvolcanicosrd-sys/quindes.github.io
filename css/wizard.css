@@ -453,7 +453,7 @@
   right: 0.25rem;
   top: auto;
   left: auto;
-  background: var(--color-primary, #ef4444);
+  background: var(--accent);
   opacity: 1;
   display: flex;
   align-items: center;
