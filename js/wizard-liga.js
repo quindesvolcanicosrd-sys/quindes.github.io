@@ -447,6 +447,7 @@ if (paso === 2) {
           actualizarCiudadBtn('');
           wrapCustom.classList.add('wiz-hidden');
           wlOptBtn(el, true);
+          setTimeout(function() { abrirSelectorCiudad(val); }, 320);
         });
       };
 
