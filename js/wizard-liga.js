@@ -389,7 +389,14 @@ if (paso === 2) {
           inputId:'wiz-liga-img-input', previewId:'wiz-liga-img-preview',
           placeholderId:'wiz-liga-img-placeholder', stateKey:'ligaImagenBase64',
           config:{ maxWidth:1000, maxHeight:1000, quality:0.75 },
-          onChange: function(hasImg) { wlOptBtn(el, hasImg); }
+          onChange: function(hasImg) {
+            wlOptBtn(el, hasImg);
+            var overlay = el.querySelector('#wiz-liga-img-overlay');
+            if (overlay) {
+              overlay.classList.toggle('wiz-hidden', !hasImg);
+              overlay.classList.toggle('reg-avatar-overlay--badge', hasImg);
+            }
+          }
         });
         wlOptBtn(el, !!_wizLiga.ligaImagenBase64);
       }, forward);
