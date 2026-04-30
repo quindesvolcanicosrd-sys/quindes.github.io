@@ -467,6 +467,7 @@
   font-size: 13px !important; color: var(--text3) !important;
   -webkit-text-fill-color: var(--text3) !important;
   text-align: center; margin: 0 !important; transition: color 0.3s;
+  padding-bottom: 10px;
 }
 .reg-foto-hint-compliment {
   font-size: 15px !important; color: var(--text) !important;
