@@ -833,7 +833,6 @@ if (paso === 11) {
     error = 'Número demasiado corto 📱';
   }
   wlToggleNext(!error, el);
-  if (error && clean.length > 0) mostrarToastGuardado('⚠️ ' + error);
 }
 
       if (tel) tel.addEventListener('input', function(e) {
