@@ -832,7 +832,7 @@ if (paso === 11) {
   } else if (clean.length < 7) {
     error = 'Número demasiado corto 📱';
   }
-  wlToggleNext(!error, el);
+  wlToggleNext(true, el);
 }
 
       if (tel) tel.addEventListener('input', function(e) {
@@ -1027,7 +1027,20 @@ function wizLigaPasoSiguiente() {
   }
   if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   if (_wizLigaPaso === 10 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
-  if (_wizLigaPaso === 14 && _wizLiga.telefono.replace(/\D/g,'').length < 6) { mostrarToastGuardado('⚠️ Ingresá un número válido'); return; }
+  if (_wizLigaPaso === 14) {
+    const clean = (_wizLiga.telefono || '').replace(/\D/g, '');
+    let error = null;
+    if (!_wizLiga.codigoPais) error = 'Selecciona el código de tu país 📱';
+    else if (_wizLiga.codigoPais.includes('+593')) {
+      if (clean.length !== 10)        error = 'El número debe tener 10 dígitos 🇪🇨';
+      else if (!clean.startsWith('0')) error = 'Debe empezar con 0 🇪🇨';
+    } else if (_wizLiga.codigoPais.includes('+1')) {
+      if (clean.length !== 10) error = 'Número inválido 🇺🇸';
+    } else if (clean.length < 7) {
+      error = 'Número demasiado corto 📱';
+    }
+    if (error) { mostrarToastGuardado('⚠️ ' + error); return; }
+  }
   if (_wizLigaPaso === 15 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
   if (_wizLigaPaso === 20) { wizLigaSubmit(); return; }
   renderWizLigaPaso(_wizLigaPaso + 1);
