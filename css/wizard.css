@@ -926,27 +926,42 @@ input[type=number].reg-input { -moz-appearance: textfield; }
 }
 .wiz-confirm-dialog.visible { opacity: 1; }
 .wiz-confirm-box {
-  background: var(--color-surface, #fff);
-  border-radius: 1rem;
-  padding: 1.5rem;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 28px 24px;
   max-width: 320px;
   width: 90%;
   text-align: center;
+  border: 1px solid var(--border2);
 }
 .wiz-confirm-msg {
-  font-size: 1rem;
-  margin-bottom: 1.25rem;
-  line-height: 1.5;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  margin-bottom: 20px !important;
+  line-height: 1.55;
 }
-.wiz-confirm-actions { display: flex; gap: 0.75rem; }
+.wiz-confirm-actions { display: flex; gap: 10px; }
 .wiz-confirm-btn {
   flex: 1;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  font-family: inherit !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
   cursor: pointer;
   border: none;
 }
-.wiz-confirm-no { background: var(--color-surface-alt, #f1f5f9); }
-.wiz-confirm-si { background: var(--color-primario, #ef4444); color: #fff; }
+.wiz-confirm-no {
+  background: var(--card2) !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+.wiz-confirm-si {
+  background: var(--accent) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
