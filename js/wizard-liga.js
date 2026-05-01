@@ -1018,7 +1018,7 @@ function wizLigaPasoSiguiente() {
     var customVisible = ciudadCustomWrap && !ciudadCustomWrap.classList.contains('wiz-hidden');
     var customVacio = customVisible && (!ciudadCustomInput || !ciudadCustomInput.value.trim());
     if (customVacio) {
-      mostrarDialogConfirm('Puedes escribir el nombre de tu ciudad antes de continuar ¿Deseás continuar sin ciudad?', function() { renderWizLigaPaso(_wizLigaPaso + 1); });
+      mostrarDialogConfirm('No has escrito el nombre de tu ciudad. ¿Deseás continuar sin ciudad?', function() { renderWizLigaPaso(_wizLigaPaso + 1); });
       return;
     }
     if (_wizLiga.pais && !_wizLiga.ciudad) {
