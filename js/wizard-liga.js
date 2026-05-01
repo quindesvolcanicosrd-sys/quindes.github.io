@@ -646,7 +646,7 @@ if (paso === 7) {
 if (paso === 8) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-tipo-liga', el);
-      const wrap = document.getElementById('wiz-liga-tipo-chips');
+      const wrap = el.querySelector('#wiz-liga-tipo-chips');
       if (!wrap) return;
       ['WFTDA','MRDA','JRDA','Independiente'].forEach(function(tipo) {
         const btn = document.createElement('button');
