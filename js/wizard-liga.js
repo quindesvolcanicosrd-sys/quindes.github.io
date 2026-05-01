@@ -982,9 +982,50 @@ if (paso === 15) {
 
 }
 
+// ── DIÁLOGO DE CONFIRMACIÓN ───────────────────────────────────
+function mostrarDialogConfirm(mensaje, onSi) {
+  var existing = document.getElementById('wiz-confirm-dialog');
+  if (existing) existing.remove();
+  var dlg = document.createElement('div');
+  dlg.id = 'wiz-confirm-dialog';
+  dlg.className = 'wiz-confirm-dialog';
+  dlg.innerHTML =
+    '<div class="wiz-confirm-box">' +
+      '<p class="wiz-confirm-msg">' + mensaje + '</p>' +
+      '<div class="wiz-confirm-actions">' +
+        '<button class="wiz-confirm-btn wiz-confirm-no">Volver</button>' +
+        '<button class="wiz-confirm-btn wiz-confirm-si">Continuar igual</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(dlg);
+  requestAnimationFrame(function() { dlg.classList.add('visible'); });
+  dlg.querySelector('.wiz-confirm-no').addEventListener('click', function() {
+    dlg.classList.remove('visible');
+    setTimeout(function() { dlg.remove(); }, 250);
+  });
+  dlg.querySelector('.wiz-confirm-si').addEventListener('click', function() {
+    dlg.classList.remove('visible');
+    setTimeout(function() { dlg.remove(); onSi(); }, 250);
+  });
+}
+
 // ── VALIDACIÓN Y NAVEGACIÓN ───────────────────────────────────
 function wizLigaPasoSiguiente() {
   if (_wizLigaPaso === 1  && !_wizLiga.nombreLiga.trim())    { mostrarToastGuardado('⚠️ Escribe el nombre de la liga'); return; }
+  if (_wizLigaPaso === 3) {
+    var ciudadCustomWrap = document.getElementById('wiz-liga-ciudad-custom-wrap');
+    var ciudadCustomInput = document.getElementById('wiz-liga-ciudad-custom');
+    var customVisible = ciudadCustomWrap && !ciudadCustomWrap.classList.contains('wiz-hidden');
+    var customVacio = customVisible && (!ciudadCustomInput || !ciudadCustomInput.value.trim());
+    if (customVacio) {
+      mostrarDialogConfirm('Podés escribir el nombre de tu ciudad antes de continuar, así queda registrada. ¿Deseás continuar sin ciudad?', function() { renderWizLigaPaso(_wizLigaPaso + 1); });
+      return;
+    }
+    if (_wizLiga.pais && !_wizLiga.ciudad) {
+      mostrarDialogConfirm('No has seleccionado ciudad. ¿Estás segurx que deseás continuar?', function() { renderWizLigaPaso(_wizLigaPaso + 1); });
+      return;
+    }
+  }
   if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   if (_wizLigaPaso === 10 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
   if (_wizLigaPaso === 14 && _wizLiga.telefono.replace(/\D/g,'').length < 6) { mostrarToastGuardado('⚠️ Ingresá un número válido'); return; }

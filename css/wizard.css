@@ -912,3 +912,41 @@ input[type=number].reg-input { -moz-appearance: textfield; }
   transform: translateY(8px);
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
+
+.wiz-confirm-dialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.wiz-confirm-dialog.visible { opacity: 1; }
+.wiz-confirm-box {
+  background: var(--color-surface, #fff);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+}
+.wiz-confirm-msg {
+  font-size: 1rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+.wiz-confirm-actions { display: flex; gap: 0.75rem; }
+.wiz-confirm-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+.wiz-confirm-no { background: var(--color-surface-alt, #f1f5f9); }
+.wiz-confirm-si { background: var(--color-primario, #ef4444); color: #fff; }
