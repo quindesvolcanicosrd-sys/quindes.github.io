@@ -108,7 +108,7 @@ const handleFile = function(file) {
 }
 
 // ── ESTADO ────────────────────────────────────────────────────
-const _WIZ_LIGA_TOTAL = 20;
+const _WIZ_LIGA_TOTAL = 21;
 
 const CODIGOS_PAISES_ALIASES = {
   'ecuador':'🇪🇨 +593','argentina':'🇦🇷 +54','bolivia':'🇧🇴 +591',
@@ -177,7 +177,7 @@ function mostrarWizardLiga() {
   });
 
   _wizLiga = {
-    nombreLiga:'', ligaImagenBase64:null, nombreEquipo:'', categoria:'',
+    nombreLiga:'', ligaImagenBase64:null, nombreEquipo:'', categoria:'', tipoLiga:'',
     logoBase64:null, colorPrimario:'', pais:'', ciudad:'',
     anioFundacion:'', descripcion:'', redesSociales:[],
     nombre:'', pronombres:[], paisPerfil:'', codigoPais:'', telefono:'',
@@ -645,6 +645,28 @@ if (paso === 7) {
 
 if (paso === 8) {
     wizLigaGoTo(function(el) {
+      cloneTpl('tpl-wiz-liga-tipo-liga', el);
+      const wrap = document.getElementById('wiz-liga-tipo-chips');
+      if (!wrap) return;
+      ['WFTDA','MRDA','JRDA','Independiente'].forEach(function(tipo) {
+        const btn = document.createElement('button');
+        btn.textContent = tipo;
+        btn.className = 'chip ' + (_wizLiga.tipoLiga === tipo ? 'chip-active' : 'chip-inactive');
+        btn.addEventListener('click', function() {
+          _wizLiga.tipoLiga = tipo;
+          Array.from(wrap.children).forEach(function(b) { b.classList.remove('chip-active'); b.classList.add('chip-inactive'); });
+          btn.classList.add('chip-active'); btn.classList.remove('chip-inactive');
+          wlOptBtn(el, true);
+        });
+        wrap.appendChild(btn);
+      });
+      wlOptBtn(el, !!_wizLiga.tipoLiga);
+    }, forward);
+    return;
+  }
+
+  if (paso === 9) {
+    wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-8', el);
       bindImageInput({
         inputId:'wiz-liga-logo-input', previewId:'wiz-liga-logo-preview',
@@ -664,7 +686,7 @@ if (paso === 8) {
     return;
   }
 
-  if (paso === 9) {
+  if (paso === 10) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-color', el);
       const wrapColors = document.getElementById('wiz-color-presets');
@@ -718,7 +740,7 @@ if (paso === 8) {
     return;
   }
 
-if (paso === 10) {
+if (paso === 11) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-10', el);
       const input = el.querySelector('#wiz-liga-perfil-nombre');
@@ -736,7 +758,7 @@ if (paso === 10) {
     return;
   }
 
-if (paso === 11) {
+if (paso === 12) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-foto-perfil', el);
       var avatarDiv = el.querySelector('#wiz-liga-foto-avatar');
@@ -778,7 +800,7 @@ if (paso === 11) {
     return;
   }
 
-  if (paso === 12) {
+  if (paso === 13) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-11', el);
       setTimeout(function() {
@@ -792,7 +814,7 @@ if (paso === 11) {
     return;
   }
 
-  if (paso === 13) {
+  if (paso === 14) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-12', el);
       const display = el.querySelector('#wiz-liga-perfil-pais-display');
@@ -811,7 +833,7 @@ if (paso === 11) {
     return;
   }
 
-   if (paso === 14) {
+   if (paso === 15) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-13', el);
       const tel = el.querySelector('#wiz-liga-perfil-tel');
@@ -852,7 +874,7 @@ if (paso === 11) {
     return;
   }
 
-if (paso === 15) {
+if (paso === 16) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-14', el);
       const display = el.querySelector('#wiz-liga-perfil-fecha-display');
@@ -872,7 +894,7 @@ if (paso === 15) {
     return;
   }
 
-  if (paso === 16) {
+  if (paso === 17) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-15', el);
       const derby = el.querySelector('#wiz-liga-perfil-derby');
@@ -897,7 +919,7 @@ if (paso === 15) {
     return;
   }
 
-  if (paso === 17) {
+  if (paso === 18) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-16', el);
       regRenderChips('wiz-liga-rol-chips', REG_ROLES, _wizLiga.rolJugadorx || '', function(v) {
@@ -909,7 +931,7 @@ if (paso === 15) {
     return;
   }
 
-  if (paso === 18) {
+  if (paso === 19) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-17', el);
       regRenderChips('wiz-liga-asiste-chips', REG_ASISTENCIA, _wizLiga.asisteSemana || '', function(v) {
@@ -921,7 +943,7 @@ if (paso === 15) {
     return;
   }
 
-  if (paso === 19) {
+  if (paso === 20) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-18', el);
       const elA = el.querySelector('#wiz-liga-perfil-alergias');
@@ -940,7 +962,7 @@ if (paso === 15) {
     return;
   }
 
-  if (paso === 20) {
+  if (paso === 21) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-19', el);
 
@@ -1026,8 +1048,8 @@ function wizLigaPasoSiguiente() {
     }
   }
   if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
-  if (_wizLigaPaso === 10 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
-  if (_wizLigaPaso === 14) {
+  if (_wizLigaPaso === 11 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
+  if (_wizLigaPaso === 15) {
     const clean = (_wizLiga.telefono || '').replace(/\D/g, '');
     let error = null;
     if (!_wizLiga.codigoPais) error = 'Selecciona el código de tu país 📱';
@@ -1041,8 +1063,8 @@ function wizLigaPasoSiguiente() {
     }
     if (error) { mostrarToastGuardado('⚠️ ' + error); return; }
   }
-  if (_wizLigaPaso === 15 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
-  if (_wizLigaPaso === 20) { wizLigaSubmit(); return; }
+  if (_wizLigaPaso === 16 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
+  if (_wizLigaPaso === 21) { wizLigaSubmit(); return; }
   renderWizLigaPaso(_wizLigaPaso + 1);
 }
 
@@ -1063,6 +1085,7 @@ async function wizLigaSubmit() {
       nombreLiga:         _wizLiga.nombreLiga.trim(),
       nombreEquipo:       _wizLiga.nombreEquipo.trim(),
       categoria:          _wizLiga.categoria          || null,
+      tipoLiga:           _wizLiga.tipoLiga           || null,
       ligaImagenBase64:   _wizLiga.ligaImagenBase64   || null,
       logoBase64:         _wizLiga.logoBase64          || null,
       colorPrimario:      _wizLiga.colorPrimario       || null,
