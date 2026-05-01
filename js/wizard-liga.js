@@ -994,7 +994,7 @@ function mostrarDialogConfirm(mensaje, onSi) {
       '<p class="wiz-confirm-msg">' + mensaje + '</p>' +
       '<div class="wiz-confirm-actions">' +
         '<button class="wiz-confirm-btn wiz-confirm-no">Volver</button>' +
-        '<button class="wiz-confirm-btn wiz-confirm-si">Continuar igual</button>' +
+        '<button class="wiz-confirm-btn wiz-confirm-si">Continuar</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(dlg);
