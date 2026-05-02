@@ -732,6 +732,7 @@ if (paso === 8) {
         aplicarColorPrimario(color);
         Array.from(wrapColors.children).forEach(function(b) { b.classList.remove('selected'); });
         customBtn.classList.add('selected');
+        wlOptBtn(el, true);
       });
       wrapColors.appendChild(customBtn);
       wizLigaActualizarBtnOpcional(!!_wizLiga.logoBase64 || !!_wizLiga.colorPrimario);
