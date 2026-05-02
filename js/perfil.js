@@ -853,7 +853,16 @@ function mostrarErrorUpload(campo) {
 }
 
 // ── FOTO ──────────────────────────────────────────────────────
-function clickEditarFoto() { document.getElementById('p-fotoPerfil')?.click(); }
+function clickEditarFoto() {
+  abrirBottomSheet('Foto de perfil', [
+    { label: 'Desde el dispositivo', value: 'device' },
+    { label: 'Desde Google Drive',   value: 'drive'  },
+  ], null, (val) => {
+    if (val === 'drive') { abrirDrivePicker('app'); return; }
+    cropTarget = 'app';
+    document.getElementById('p-fotoPerfil')?.click();
+  });
+}
 function abrirFotoSinEdicion() { cropTarget = 'app'; document.getElementById('p-fotoPerfil')?.click(); }
 function setSecAvatarEditable(editable) {}
 

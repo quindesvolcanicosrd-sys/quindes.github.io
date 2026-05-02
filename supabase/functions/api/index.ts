@@ -483,7 +483,7 @@ const method = req.method
     // ── POST /crear-liga ───────────────────────────────────
     if (method === 'POST' && path === '/crear-liga') {
       const {
-        nombreLiga, nombreEquipo, categoria, email, logoBase64, ligaImagenBase64, redesSociales,
+        nombreLiga, nombreEquipo, categoria, tipoLiga, email, logoBase64, ligaImagenBase64, redesSociales,
         pais, ciudad, anioFundacion, descripcion, contacto,
         nombre, pronombres, rolJugadorx, nombreDerby, numero,
         codigoPais, telefono, fechaNacimiento, mostrarCumple, mostrarEdad,
@@ -509,6 +509,7 @@ const method = req.method
         anio_fundacion: anioFundacion ? parseInt(anioFundacion) : null,
         descripcion:    descripcion || null, contacto: contacto || null,
         redes_sociales: redesSociales ? JSON.stringify(redesSociales) : '[]',
+        tipo_liga: tipoLiga || null,
       })
       .select('id, nombre').single()
       if (ligaError) return json({ error: ligaError.message }, 500)

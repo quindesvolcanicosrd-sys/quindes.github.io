@@ -501,7 +501,7 @@ if (paso === 2) {
         });
       }
       wizLigaActualizarBtnOpcional(!!_wizLiga.anioFundacion || !!_wizLiga.descripcion);
-      setTimeout(function() { if (inputAnio) inputAnio.focus(); }, 350);
+      setTimeout(function() { if (anioBtn) anioBtn.focus(); }, 350);
       wlOptBtn(el, !!(_wizLiga.anioFundacion || _wizLiga.descripcion));
     }, forward);
     return;

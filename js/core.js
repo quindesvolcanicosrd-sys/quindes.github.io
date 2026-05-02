@@ -5,6 +5,7 @@
 const CONFIG = {
   API_URL: 'https://znprcowxveyzanpvotms.supabase.co/functions/v1/api',
   GOOGLE_CLIENT_ID: '190762038083-nlmie46eah0qq5kd5l86fiq3jteg2pr4.apps.googleusercontent.com',
+  GOOGLE_PICKER_API_KEY: 'AIzaSyAJ5m4JB-lpa0J8t849YvyC8k5fKQWMLg8',
 };
 
 let CURRENT_USER   = null;
