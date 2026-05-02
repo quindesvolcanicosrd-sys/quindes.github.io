@@ -431,7 +431,7 @@
   -webkit-tap-highlight-color: transparent; transition: border-color 0.2s;
 }
 .reg-avatar:active { border-color: var(--accent); }
-.reg-avatar img { object-fit: cover; display: block; }
+.reg-avatar img { width: 300px; object-fit: cover; display: block; }
 .reg-avatar-placeholder {
   font-size: 52px !important; color: var(--text3) !important;
   -webkit-text-fill-color: var(--text3) !important;
