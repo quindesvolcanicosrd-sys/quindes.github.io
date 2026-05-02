@@ -694,35 +694,31 @@ function regResetAvatar() {
 
 function regRecibirFotoRecortada(base64DataUrl) {
   regData.fotoBase64 = base64DataUrl;
-  const img       = document.getElementById('reg-avatar-img');
-  const ph        = document.getElementById('reg-avatar-placeholder');
-  const ov        = document.getElementById('reg-avatar-overlay');
-  const ht        = document.getElementById('reg-foto-hint');
-  const btn       = document.getElementById('wiz-btn-foto');
-  const avatarDiv = document.getElementById('wiz-c-avatar');
+  const img     = document.getElementById('reg-avatar-img');
+  const ph      = document.getElementById('reg-avatar-placeholder');
+  const ov      = document.getElementById('reg-avatar-overlay');
+  const ht      = document.getElementById('reg-foto-hint');
+  const btn     = document.getElementById('wiz-btn-foto');
+  const editBtn = document.getElementById('reg-foto-edit-btn');
   if (img) { img.src = base64DataUrl; img.style.display = 'block'; }
   if (ph)  ph.style.display = 'none';
   if (ov)  ov.style.display = 'flex';
   if (ht)  { ht.innerHTML = 'Toca para cambiar la foto'; }
   if (btn) btn.style.display = 'flex';
-  if (avatarDiv && !avatarDiv.querySelector('.wiz-foto-edit-btn')) {
-    var editBtn = document.createElement('button');
-    editBtn.type = 'button';
-    editBtn.className = 'wiz-foto-edit-btn';
-    editBtn.innerHTML = '<span class="material-icons">edit</span>';
-    editBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      cropTarget = 'registro';
-      abrirCropper(regData.fotoBase64);
-    });
-    avatarDiv.appendChild(editBtn);
-  }
+  if (editBtn) editBtn.classList.remove('wiz-hidden');
 }
 
 // ── LISTENERS ─────────────────────────────────────────────────
 function initRegistroListeners() {
   const backBtn = document.getElementById('wiz-back-btn');
   if (backBtn) backBtn.addEventListener('click', wizBack);
+
+  const editFotoBtn = document.getElementById('reg-foto-edit-btn');
+  if (editFotoBtn) editFotoBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    cropTarget = 'registro';
+    abrirCropper(regData.fotoBase64);
+  });
 
   const fi = document.getElementById('reg-foto-input');
   if (fi) {
