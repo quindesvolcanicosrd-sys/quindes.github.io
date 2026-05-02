@@ -1020,7 +1020,9 @@ function mostrarDialogConfirm(mensaje, onSi) {
       '</div>' +
     '</div>';
   document.body.appendChild(dlg);
-  requestAnimationFrame(function() { dlg.classList.add('visible'); });
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() { dlg.classList.add('visible'); });
+  });
   dlg.querySelector('.wiz-confirm-no').addEventListener('click', function() {
     dlg.classList.remove('visible');
     setTimeout(function() { dlg.remove(); }, 250);
