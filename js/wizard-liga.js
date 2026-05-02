@@ -978,8 +978,15 @@ if (paso === 16) {
       if (elDisplay) elDisplay.textContent = _wizLiga.contactoEmergenciaCodigo || '+?';
 
       function actualizarLabel() {
-        const tieneAlgo = !!(_wizLiga.contactoEmergenciaNombre || _wizLiga.contactoEmergenciaTel);
-        wlOptBtn(el, tieneAlgo);
+        const tieneCompleto = !!(_wizLiga.contactoEmergenciaNombre && _wizLiga.contactoEmergenciaCodigo && _wizLiga.contactoEmergenciaTel);
+        const textoNuevo = tieneCompleto ? 'ENVIAR Y FINALIZAR' : 'OMITIR Y FINALIZAR';
+        const label = el.querySelector('.wiz-opt-btn-label');
+        if (!label || label.textContent.trim() === textoNuevo) return;
+        label.classList.add('is-fading');
+        setTimeout(function() {
+          label.textContent = textoNuevo;
+          label.classList.remove('is-fading');
+        }, 180);
       }
 
       if (elNombre) elNombre.oninput = function(e) {
@@ -998,6 +1005,8 @@ if (paso === 16) {
         }, CODIGOS_PAISES_ALIASES);
       };
 
+      const labelInicial = el.querySelector('.wiz-opt-btn-label');
+      if (labelInicial) labelInicial.textContent = 'OMITIR Y FINALIZAR';
       actualizarLabel();
     }, forward);
     return;
