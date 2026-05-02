@@ -1077,6 +1077,10 @@ function wizLigaPasoSiguiente() {
     if (error) { mostrarToastGuardado('⚠️ ' + error); return; }
   }
   if (_wizLigaPaso === 16 && !_wizLiga.fechaNacimiento) { mostrarToastGuardado('⚠️ Ingresá tu fecha de nacimiento'); return; }
+  if (_wizLigaPaso === 17 && _wizLiga.nombreDerby && !_wizLiga.numeroDerby) {
+    mostrarDialogConfirm('No pusiste tu número derby. ¿Deseás continuar sin número?', function() { renderWizLigaPaso(_wizLigaPaso + 1); });
+    return;
+  }
   if (_wizLigaPaso === 21) { wizLigaSubmit(); return; }
   renderWizLigaPaso(_wizLigaPaso + 1);
 }
