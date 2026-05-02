@@ -716,6 +716,8 @@ function regRecibirFotoRecortada(base64DataUrl) {
       abrirCropper(regData.fotoBase64);
     });
     avatarDiv.appendChild(editBtn);
+  }
+}
 
 // ── LISTENERS ─────────────────────────────────────────────────
 function initRegistroListeners() {
