@@ -413,12 +413,27 @@ if (paso === 2) {
     }
   }
         });
-        wlOptBtn(el, !!_wizLiga.ligaImagenBase64);
-      }, forward);
-      return;
+wlOptBtn(el, !!_wizLiga.ligaImagenBase64);
+    if (_wizLiga.ligaImagenBase64) {
+      var container = el.querySelector('#wiz-liga-img-input').parentElement;
+      if (container && !container.querySelector('.wiz-foto-edit-btn')) {
+        var editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'wiz-foto-edit-btn';
+        editBtn.innerHTML = '<span class="material-icons">edit</span>';
+        editBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          cropTarget = 'ligaImagenBase64';
+          abrirCropper(_wizLiga.ligaImagenBase64);
+        });
+        container.appendChild(editBtn);
+      }
     }
+  }, forward);
+  return;
+}
 
-  if (paso === 3) {
+if (paso === 3) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-3', el);
       const wrapCiudad = document.getElementById('wiz-liga-ciudad-wrap');

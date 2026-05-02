@@ -982,3 +982,31 @@ input[type=number].reg-input { -moz-appearance: textfield; }
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
 }
+
+/* ── Botón editar imagen (lápiz) ── */
+.wiz-foto-edit-btn {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s;
+}
+.wiz-foto-edit-btn:active { transform: translateX(-50%) scale(0.92); }
+.wiz-foto-edit-btn .material-icons {
+  font-size: 18px !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
