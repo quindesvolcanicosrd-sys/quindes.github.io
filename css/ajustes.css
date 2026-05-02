@@ -218,9 +218,14 @@
 .file-page-btn-replace {
   background: var(--card) !important;
   color: var(--text) !important; -webkit-text-fill-color: var(--text) !important;
-  
 }
 .file-page-btn-replace .material-icons { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; }
+
+.file-page-btn-drive {
+  background: var(--card) !important;
+  color: var(--text2) !important; -webkit-text-fill-color: var(--text2) !important;
+}
+.file-page-btn-drive .material-icons { color: var(--accent) !important; -webkit-text-fill-color: var(--accent) !important; }
 
 .file-page-status-msg {
   font-size: 13px !important; font-weight: 600 !important;

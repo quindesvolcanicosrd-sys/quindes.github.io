@@ -588,7 +588,11 @@ function abrirPaginaArchivo(fieldKey, opciones) {
           Reemplazar archivo
           <input type="file" accept=".pdf,image/*" style="display:none;"
             onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
-        </label>` : `
+        </label>
+        <button class="file-page-btn file-page-btn-drive" onclick="abrirDrivePickerArchivo('${fieldKey}')">
+          <span class="material-icons">add_to_drive</span>
+          Reemplazar desde Google Drive
+        </button>` : `
         <div class="file-page-empty">
           <span class="material-icons">insert_drive_file</span>
           <p>No hay archivo subido todavía</p>
@@ -598,7 +602,11 @@ function abrirPaginaArchivo(fieldKey, opciones) {
           Subir archivo
           <input type="file" accept=".pdf,image/*" style="display:none;"
             onchange="subirArchivoDesdeFilePage(this, '${fieldKey}', '${fileId}')">
-        </label>`}
+        </label>
+        <button class="file-page-btn file-page-btn-drive" onclick="abrirDrivePickerArchivo('${fieldKey}')">
+          <span class="material-icons">add_to_drive</span>
+          Subir desde Google Drive
+        </button>`}
       <div id="file-page-status" class="file-page-status-msg"></div>
       <div class="spacer-32"></div>
     </div>
@@ -622,6 +630,46 @@ function abrirPaginaArchivo(fieldKey, opciones) {
   }
   view.querySelector('.file-page-back-btn').addEventListener('click', () => { cerrarFilePage(view, currView); });
   pushSentinel();
+}
+
+async function subirArchivoDesdeFileDrive(fieldKey, base64) {
+  const status = document.getElementById('file-page-status');
+  if (status) status.textContent = 'Subiendo…';
+  try {
+    const result = await gasCall('subirArchivo', {
+      base64Data: base64,
+      tipoArchivo: fieldKey,
+      email: CURRENT_USER.email || localStorage.getItem('quindes_email') || '',
+    });
+    if (!result?.url) throw new Error('No se recibió URL');
+    window.myProfile[fieldKey] = result.url;
+    const datos = recogerTodosLosDatos();
+    datos[fieldKey] = result.url;
+    await gasCall('updateMyProfile', { rowNumber: CURRENT_USER.id, data: datos });
+    if (status) status.textContent = '';
+    mostrarToastGuardado('✅ Archivo actualizado');
+    const filePageView = document.querySelector('.file-page-view');
+    if (filePageView) {
+      const emptyDiv   = filePageView.querySelector('.file-page-empty');
+      const previewDiv = filePageView.querySelector('.file-page-preview');
+      const urlConCache = result.url + '?t=' + Date.now();
+      if (emptyDiv) emptyDiv.style.display = 'none';
+      if (previewDiv) {
+        previewDiv.innerHTML = `
+          <img src="${urlConCache}" class="file-page-img" alt="Vista previa" style="opacity:0;transition:opacity 0.4s ease;"
+            onload="this.style.opacity='1'"
+            onerror="this.style.opacity='1';this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="file-page-doc-icon" style="display:none;">
+            <span class="material-icons">insert_drive_file</span>
+            <span>Archivo subido</span>
+          </div>`;
+      }
+    }
+  } catch(e) {
+    console.error('[DRIVE] Error subiendo archivo:', e);
+    if (status) status.textContent = '';
+    mostrarToastGuardado('Error al subir el archivo');
+  }
 }
 
 async function subirArchivoDesdeFilePage(input, fieldKey, fileInputId) {
