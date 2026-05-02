@@ -458,6 +458,7 @@ if (paso === 2) {
       };
 
       if (inputCustom) inputCustom.addEventListener('input', function(e) { _wizLiga.ciudad = e.target.value; });
+      wlOptBtn(el, !!(_wizLiga.pais || _wizLiga.ciudad));
     }, forward);
     return;
   }
