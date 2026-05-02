@@ -626,7 +626,7 @@ if (paso === 6) {
 if (paso === 7) {
     wizLigaGoTo(function(el) {
       cloneTpl('tpl-wiz-liga-7', el);
-      const wrap = document.getElementById('wiz-liga-cat-chips');
+      const wrap = el.querySelector('#wiz-liga-cat-chips');
       ['A','B','C'].forEach(function(cat) {
         const btn = document.createElement('button');
         btn.textContent = cat;
@@ -635,11 +635,11 @@ if (paso === 7) {
           _wizLiga.categoria = cat;
           Array.from(wrap.children).forEach(function(b) { b.classList.remove('chip-active'); b.classList.add('chip-inactive'); });
           btn.classList.add('chip-active'); btn.classList.remove('chip-inactive');
-          wizLigaActualizarBtnOpcional(true);
+          wlOptBtn(el, true);
         });
         wrap.appendChild(btn);
       });
-      wizLigaActualizarBtnOpcional(!!_wizLiga.categoria);
+      wlOptBtn(el, !!_wizLiga.categoria);
     }, forward);
     return;
   }
