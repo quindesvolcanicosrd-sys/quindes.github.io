@@ -396,38 +396,19 @@ if (paso === 2) {
       overlay.classList.toggle('wiz-hidden', !hasImg);
       overlay.classList.toggle('reg-avatar-overlay--badge', hasImg);
     }
-    if (hasImg) {
-      var container = el.querySelector('#wiz-liga-img-input').closest('.reg-foto-center');
-      if (container && !container.querySelector('.wiz-foto-edit-btn')) {
-        var editBtn = document.createElement('button');
-        editBtn.type = 'button';
-        editBtn.className = 'wiz-foto-edit-btn';
-        editBtn.innerHTML = '<span class="material-icons">edit</span>';
-        editBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          cropTarget = 'ligaImagenBase64';
-          abrirCropper(_wizLiga.ligaImagenBase64);
-        });
-        container.querySelector('.reg-avatar').insertAdjacentElement('afterend', editBtn);
-      }
-    }
+    var editBtn = el.querySelector('#wiz-liga-img-edit-btn');
+    if (editBtn) editBtn.classList.toggle('wiz-hidden', !hasImg);
   }
         });
 wlOptBtn(el, !!_wizLiga.ligaImagenBase64);
-    if (_wizLiga.ligaImagenBase64) {
-      var container = el.querySelector('#wiz-liga-img-input').closest('.reg-foto-center');
-      if (container && !container.querySelector('.wiz-foto-edit-btn')) {
-        var editBtn = document.createElement('button');
-        editBtn.type = 'button';
-        editBtn.className = 'wiz-foto-edit-btn';
-        editBtn.innerHTML = '<span class="material-icons">edit</span>';
-        editBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          cropTarget = 'ligaImagenBase64';
-          abrirCropper(_wizLiga.ligaImagenBase64);
-        });
-        container.querySelector('.reg-avatar').insertAdjacentElement('afterend', editBtn);
-      }
+    var editBtnInicial = el.querySelector('#wiz-liga-img-edit-btn');
+    if (editBtnInicial) {
+      editBtnInicial.classList.toggle('wiz-hidden', !_wizLiga.ligaImagenBase64);
+      editBtnInicial.addEventListener('click', function(e) {
+        e.stopPropagation();
+        cropTarget = 'ligaImagenBase64';
+        abrirCropper(_wizLiga.ligaImagenBase64);
+      });
     }
   }, forward);
   return;
@@ -710,24 +691,20 @@ if (paso === 8) {
       overlay.classList.toggle('wiz-hidden', !has);
       overlay.classList.toggle('reg-avatar-overlay--badge', has);
     }
-    if (has) {
-      var container = el.querySelector('#wiz-liga-logo-input').closest('.reg-foto-center');
-      if (container && !container.querySelector('.wiz-foto-edit-btn')) {
-        var editBtn = document.createElement('button');
-        editBtn.type = 'button';
-        editBtn.className = 'wiz-foto-edit-btn';
-        editBtn.innerHTML = '<span class="material-icons">edit</span>';
-        editBtn.addEventListener('click', function(e) {
+    var editBtn = el.querySelector('#wiz-liga-logo-edit-btn');
+    if (editBtn) editBtn.classList.toggle('wiz-hidden', !has);
+  }
+      });
+      wlOptBtn(el, !!_wizLiga.logoBase64);
+      var editBtnLogo = el.querySelector('#wiz-liga-logo-edit-btn');
+      if (editBtnLogo) {
+        editBtnLogo.classList.toggle('wiz-hidden', !_wizLiga.logoBase64);
+        editBtnLogo.addEventListener('click', function(e) {
           e.stopPropagation();
           cropTarget = 'logoBase64';
           abrirCropper(_wizLiga.logoBase64);
         });
-        container.querySelector('.reg-avatar').insertAdjacentElement('afterend', editBtn);
       }
-    }
-  }
-      });
-      wlOptBtn(el, !!_wizLiga.logoBase64);
     }, forward);
     return;
   }
@@ -823,23 +800,19 @@ function mostrarFotoLiga(base64) {
           overlay.classList.remove('wiz-hidden');
           overlay.classList.add('reg-avatar-overlay--badge');
         }
-        var fotoCenter = avatarDiv.closest('.reg-foto-center');
-        var editBtn = fotoCenter ? fotoCenter.querySelector('.wiz-foto-edit-btn') : null;
-        if (!editBtn && fotoCenter) {
-          editBtn = document.createElement('button');
-          editBtn.type = 'button';
-          editBtn.className = 'wiz-foto-edit-btn';
-          editBtn.innerHTML = '<span class="material-icons">edit</span>';
-          editBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            cropTarget = 'fotoBase64';
-            abrirCropper(_wizLiga.fotoBase64);
-          });
-          avatarDiv.insertAdjacentElement('afterend', editBtn);
-        }
+        var editBtn = el.querySelector('#wiz-liga-foto-edit-btn');
+        if (editBtn) editBtn.classList.remove('wiz-hidden');
         wlOptBtn(el, true);
       }
 
+      var editBtnFoto = el.querySelector('#wiz-liga-foto-edit-btn');
+      if (editBtnFoto) {
+        editBtnFoto.addEventListener('click', function(e) {
+          e.stopPropagation();
+          cropTarget = 'fotoBase64';
+          abrirCropper(_wizLiga.fotoBase64);
+        });
+      }
       if (_wizLiga.fotoBase64) mostrarFotoLiga(_wizLiga.fotoBase64);
 
       if (avatarDiv) avatarDiv.addEventListener('click', function() {
