@@ -988,8 +988,8 @@ input[type=number].reg-input { -moz-appearance: textfield; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   border: none;
   background: var(--accent);
@@ -997,14 +997,14 @@ input[type=number].reg-input { -moz-appearance: textfield; }
   cursor: pointer;
   z-index: 6;
   position: relative;
-  margin: -18px auto 0;
+  margin: -40px auto 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.35);
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.12s;
 }
 .wiz-foto-edit-btn:active { transform: scale(0.92); }
 .wiz-foto-edit-btn .material-icons {
-  font-size: 18px !important;
+  font-size: 25px !important;
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
 }
