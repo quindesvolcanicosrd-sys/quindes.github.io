@@ -1060,6 +1060,10 @@ function wizLigaPasoSiguiente() {
       return;
     }
   }
+  if (_wizLigaPaso === 4 && _wizLiga.anioFundacion && !_wizLiga.descripcion.trim()) {
+    mostrarDialogConfirm('Olvidaste poner una descripción sobre la historia de tu liga. ¿Deseás continuar de todas formas?', function() { renderWizLigaPaso(_wizLigaPaso + 1); });
+    return;
+  }
   if (_wizLigaPaso === 6 && !_wizLiga.nombreEquipo.trim()) { mostrarToastGuardado('⚠️ Escribe el nombre del equipo'); return; }
   if (_wizLigaPaso === 11 && !_wizLiga.nombre.trim()) { mostrarToastGuardado('⚠️ Escribe cómo te llamamos'); return; }
   if (_wizLigaPaso === 15) {
