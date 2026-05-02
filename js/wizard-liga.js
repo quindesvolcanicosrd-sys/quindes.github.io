@@ -408,7 +408,7 @@ if (paso === 2) {
           cropTarget = 'ligaImagenBase64';
           abrirCropper(_wizLiga.ligaImagenBase64);
         });
-        container.appendChild(editBtn);
+        container.querySelector('.reg-avatar').insertAdjacentElement('afterend', editBtn);
       }
     }
   }
@@ -426,7 +426,7 @@ wlOptBtn(el, !!_wizLiga.ligaImagenBase64);
           cropTarget = 'ligaImagenBase64';
           abrirCropper(_wizLiga.ligaImagenBase64);
         });
-        container.appendChild(editBtn);
+        container.querySelector('.reg-avatar').insertAdjacentElement('afterend', editBtn);
       }
     }
   }, forward);
@@ -722,7 +722,7 @@ if (paso === 8) {
           cropTarget = 'logoBase64';
           abrirCropper(_wizLiga.logoBase64);
         });
-        container.appendChild(editBtn);
+        container.querySelector('.reg-avatar').insertAdjacentElement('afterend', editBtn);
       }
     }
   }
@@ -835,7 +835,7 @@ function mostrarFotoLiga(base64) {
             cropTarget = 'fotoBase64';
             abrirCropper(_wizLiga.fotoBase64);
           });
-          fotoCenter.appendChild(editBtn);
+          avatarDiv.insertAdjacentElement('afterend', editBtn);
         }
         wlOptBtn(el, true);
       }
