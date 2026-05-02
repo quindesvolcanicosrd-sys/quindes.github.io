@@ -397,7 +397,7 @@ if (paso === 2) {
       overlay.classList.toggle('reg-avatar-overlay--badge', hasImg);
     }
     if (hasImg) {
-      var container = el.querySelector('#wiz-liga-img-input').parentElement;
+      var container = el.querySelector('#wiz-liga-img-input').closest('.reg-foto-center');
       if (container && !container.querySelector('.wiz-foto-edit-btn')) {
         var editBtn = document.createElement('button');
         editBtn.type = 'button';
@@ -415,7 +415,7 @@ if (paso === 2) {
         });
 wlOptBtn(el, !!_wizLiga.ligaImagenBase64);
     if (_wizLiga.ligaImagenBase64) {
-      var container = el.querySelector('#wiz-liga-img-input').parentElement;
+      var container = el.querySelector('#wiz-liga-img-input').closest('.reg-foto-center');
       if (container && !container.querySelector('.wiz-foto-edit-btn')) {
         var editBtn = document.createElement('button');
         editBtn.type = 'button';
@@ -711,7 +711,7 @@ if (paso === 8) {
       overlay.classList.toggle('reg-avatar-overlay--badge', has);
     }
     if (has) {
-      var container = el.querySelector('#wiz-liga-logo-input').parentElement;
+      var container = el.querySelector('#wiz-liga-logo-input').closest('.reg-foto-center');
       if (container && !container.querySelector('.wiz-foto-edit-btn')) {
         var editBtn = document.createElement('button');
         editBtn.type = 'button';
@@ -823,8 +823,9 @@ function mostrarFotoLiga(base64) {
           overlay.classList.remove('wiz-hidden');
           overlay.classList.add('reg-avatar-overlay--badge');
         }
-        var editBtn = avatarDiv.querySelector('.wiz-foto-edit-btn');
-        if (!editBtn) {
+        var fotoCenter = avatarDiv.closest('.reg-foto-center');
+        var editBtn = fotoCenter ? fotoCenter.querySelector('.wiz-foto-edit-btn') : null;
+        if (!editBtn && fotoCenter) {
           editBtn = document.createElement('button');
           editBtn.type = 'button';
           editBtn.className = 'wiz-foto-edit-btn';
@@ -834,7 +835,7 @@ function mostrarFotoLiga(base64) {
             cropTarget = 'fotoBase64';
             abrirCropper(_wizLiga.fotoBase64);
           });
-          avatarDiv.appendChild(editBtn);
+          fotoCenter.appendChild(editBtn);
         }
         wlOptBtn(el, true);
       }
