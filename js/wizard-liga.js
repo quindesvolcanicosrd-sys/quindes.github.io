@@ -1258,6 +1258,15 @@ function wizLigaRecibirImagenRecortada(stateKey, base64DataUrl) {
     overlayEl.classList.add('reg-avatar-overlay--badge');
   }
 
+  // Mostrar botón editar
+  var editBtnMap = {
+    'ligaImagenBase64': 'wiz-liga-img-edit-btn',
+    'logoBase64':       'wiz-liga-logo-edit-btn',
+    'fotoBase64':       'wiz-liga-foto-edit-btn',
+  };
+  var editBtnEl = document.getElementById(editBtnMap[stateKey]);
+  if (editBtnEl) editBtnEl.classList.remove('wiz-hidden');
+
   // Actualizar botón OMITIR → CONTINUAR
   const contenido = document.getElementById('wiz-liga-contenido');
   if (contenido) wlOptBtn(contenido, true);
